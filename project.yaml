@@ -1,0 +1,20 @@
+# Project metadata: the single source for the command line, the report cover and the README.
+# Empty strings are intentional: they are left out of the report and the README.
+name: "ActuaryCanary"                  # working name; may change later
+package: "actuarycanary"               # Python import name
+command: "canary"                      # terminal command, e.g. `canary run data/`
+tagline: "Turns insurance data in any layout into an auditable, early-warning actuarial report on your own computer."
+version: "0.1.0"
+author: ""
+contact: ""
+repository: ""
+licence: ""                            # not decided yet; no LICENSE file until it is
+report:
+  languages: ["en"]                    # Turkish labels planned after 1.0
+  default_reporting_currency: "TRY"
+  default_price_index: "CPI_TR"        # series_id in market data
+  disclaimer: >-
+    Indicative analysis on the data provided. Not an official reserve,
+    price or financial statement figure.
+data:
+  synthetic_mode: "A"                  # A = seeded generator driven by synthetic/truth.yaml
