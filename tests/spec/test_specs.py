@@ -1,0 +1,69 @@
+"""The specification files in spec/ are valid, unique and consistent with each other."""
+
+import pytest
+
+from actuarycanary.spec.catalogue import SpecCatalogue
+from actuarycanary.spec.loader import duplicate_id_problems, index_rows, load_specs
+from actuarycanary.spec.references import field_exists, reference_problems
+
+# The version 1.0 subset of blueprint section 8.1, fixed by work item P01.
+MEASURES_V1 = {
+    *(f"PR0{n}" for n in range(1, 7)),
+    *(f"CL{n:02d}" for n in range(1, 13)),
+    "RC01", "RC02", "RI01", "RI02", "EX01", "EX02", "EX03",
+    "RT01", "RT02", "RS01", "RS02", "RS03", "AE01", "DQ01",
+}  # fmt: skip
+CONCEPTS_V1 = {"claim_valuations", "claims", "policies", "premiums", "expenses", "market"}
+MODULES_V1 = {f"M0{n}" for n in range(1, 7)}
+
+
+@pytest.fixture(scope="module")
+def catalogue() -> SpecCatalogue:
+    return load_specs()
+
+
+def test_all_specs_load_and_validate(catalogue: SpecCatalogue) -> None:
+    assert len(catalogue.files) == len(catalogue.ids)
+
+
+def test_spec_ids_are_unique(catalogue: SpecCatalogue) -> None:
+    assert duplicate_id_problems(list(catalogue.files)) == []
+
+
+def test_version_1_scope_is_complete(catalogue: SpecCatalogue) -> None:
+    assert set(catalogue.data) == CONCEPTS_V1
+    assert set(catalogue.measures) == MEASURES_V1
+    assert set(catalogue.modules) == MODULES_V1
+    assert {f"CV0{n}" for n in range(1, 7)} <= set(catalogue.conventions)
+
+
+def test_every_reference_resolves(catalogue: SpecCatalogue) -> None:
+    assert reference_problems(catalogue) == []
+
+
+def test_measures_and_methods_reference_only_defined_fields(catalogue: SpecCatalogue) -> None:
+    specs = [*catalogue.measures.values(), *catalogue.methods.values()]
+    undefined = [
+        (spec.id, ref)
+        for spec in specs
+        for ref in [*spec.requires, *spec.optional]
+        if not field_exists(catalogue, ref)
+    ]
+    assert undefined == []
+
+
+def test_modules_reference_only_defined_measures_and_methods(catalogue: SpecCatalogue) -> None:
+    for module in catalogue.modules.values():
+        assert set(module.measures) <= set(catalogue.measures), module.id
+        assert set(module.methods) <= set(catalogue.methods), module.id
+
+
+def test_every_measure_names_its_own_test_file(catalogue: SpecCatalogue) -> None:
+    for measure in catalogue.measures.values():
+        assert measure.test.path.startswith(f"tests/measures/test_{measure.id.lower()}_")
+
+
+def test_index_lists_every_spec_id(catalogue: SpecCatalogue) -> None:
+    rows = index_rows(catalogue)
+    assert {row[1] for row in rows} == catalogue.ids
+    assert all(row[3] in {"draft", "reviewed"} for row in rows)

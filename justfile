@@ -30,3 +30,6 @@ check:
 
 run *args:
     uv run canary {{args}}
+
+spec-index:
+    uv run python -m actuarycanary.spec
