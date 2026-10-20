@@ -16,18 +16,20 @@ ActuaryCanary turns insurance data in any layout into an auditable, early-warnin
 - `src/actuarycanary/<component>/` — one subpackage per blueprint component: io, recognition, canonical, quality, convert, structures, measures, methods, modules, report, manifest (also project metadata), spec, cli
 - `spec/` — specifications, one subfolder per kind: data, conventions, measures, methods, modules, aliases
 - `tests/` — mirrors the package; `conftest.py` sets Hypothesis profiles
+- `tests/benchmarks/` — frozen reference values (`raa`, `genins`) and `load.py`; `tests/fixtures/hand/` — hand-worked 4×4 fixtures
 - `synthetic/` — synthetic data truth parameters and (later) generator
-- `docs/` — blueprint, input set v1, `decisions/` records 0001–0006
+- `docs/` — blueprint, input set v1, `decisions/` records 0001–0007
 - `project.yaml` — project metadata, single source for CLI and report
 - `.github/workflows/ci.yml` — `just check` on Ubuntu and Windows
 
 ## State
 - Phase: 0 · Last gate passed: none · Last checkpoint: none
-- Works: `just check` green locally on Windows (PowerShell and bash; 15 tests, ~5 s); `canary info`, `canary --version`
-- Known gaps: no actuarial logic; CI workflow and pre-commit hooks UNVERIFIED (not run); no LICENSE (licence undecided, see 0006); `just` was installed locally with `uv tool install rust-just`
+- Works: `just check` green locally on Windows (PowerShell and bash; 15 tests, ~5 s); `canary info`, `canary --version`; benchmarks `raa`, `genins` and hand fixtures loadable (`tests/benchmarks/load.py`; `just check` 22 tests)
+- Known gaps: benchmark values are from the reference implementation, published figures UNVERIFIED; hand fixtures not yet checked by owner; no actuarial logic; CI workflow and pre-commit hooks UNVERIFIED (not run); no LICENSE (licence undecided, see 0006); `just` was installed locally with `uv tool install rust-just`
 
 ## Next
-- P01 and P03 (can run in parallel)
+- P01 (P03 done)
+- Owner action: check the hand fixtures in a spreadsheet; mark `checked_by_owner: true` in each `expected.yaml` (`tests/fixtures/hand/`, `tests/benchmarks/raa/`, `tests/benchmarks/genins/`)
 
 ## Open decisions
 - Licence (not decided); author line, contact and repository URL left empty on purpose
@@ -36,4 +38,5 @@ ActuaryCanary turns insurance data in any layout into an auditable, early-warnin
 ## Log (newest first, keep the last 15 lines)
 | Date | Item | Outcome | Elapsed | Commit |
 | --- | --- | --- | --- | --- |
+| 2026-10-20 | P03 | benchmarks raa/genins, hand fixtures, loader, record 0007 | ~4 min | see branch s/P03-benchmarks |
 | 2026-10-20 | P00 | skeleton, toolchain, tiers, records 0001–0006 | ~5 min | see branch s/P00-skeleton |

@@ -1,0 +1,344 @@
+name: hand
+status: hand_computed
+checked_by_owner: false
+description: 4x4 arithmetic fixtures for chain ladder, Bornhuetter-Ferguson and Cape Cod. Values are chosen
+  for easy hand arithmetic, not calibrated to a real portfolio.
+conventions:
+- Cumulative amounts; annual origins; ages in months.
+- Volume-weighted age-to-age factors; tail factor 1.0.
+- Percent developed = 1 / cumulative development factor.
+- Bornhuetter-Ferguson ultimate = latest + prior loss ratio x premium x (1 - percent developed).
+- Cape Cod loss ratio = sum of latest / sum of (premium x percent developed); ultimate = latest + loss
+  ratio x premium x (1 - percent developed). No decay, no trend.
+- Derivation text shows intermediate numbers to 6 significant digits; 'value' keeps full precision.
+files:
+  paid: paid_triangle.csv
+  incurred: incurred_triangle.csv
+  premium: premium.csv
+origins:
+- 2021
+- 2022
+- 2023
+- 2024
+ages:
+- 12
+- 24
+- 36
+- 48
+earned_premium:
+- 400
+- 440
+- 480
+- 520
+paid:
+  ldf:
+  - from_age: 12
+    to_age: 24
+    value: 1.9
+    derivation: (170 + 210 + 190) / (90 + 110 + 100) = 570/300 = 1.9
+  - from_age: 24
+    to_age: 36
+    value: 1.2
+    derivation: (200 + 256) / (170 + 210) = 456/380 = 1.2
+  - from_age: 36
+    to_age: 48
+    value: 1.1
+    derivation: (220) / (200) = 220/200 = 1.1
+  cdf:
+  - age: 12
+    value: 2.508
+    derivation: 1.9 x 1.32 = 2.508
+  - age: 24
+    value: 1.32
+    derivation: 1.2 x 1.1 = 1.32
+  - age: 36
+    value: 1.1
+    derivation: 1.1 x 1 = 1.1
+  - age: 48
+    value: 1.0
+    derivation: tail factor 1.0
+  chain_ladder:
+    ultimate:
+    - origin: 2021
+      value: 220.0
+      derivation: 220 x 1 = 220
+    - origin: 2022
+      value: 281.6
+      derivation: 256 x 1.1 = 281.6
+    - origin: 2023
+      value: 250.8
+      derivation: 190 x 1.32 = 250.8
+    - origin: 2024
+      value: 326.04
+      derivation: 130 x 2.508 = 326.04
+    ibnr:
+    - origin: 2021
+      value: 0.0
+      derivation: 220 - 220 = 0
+    - origin: 2022
+      value: 25.600000000000023
+      derivation: 281.6 - 256 = 25.6
+    - origin: 2023
+      value: 60.80000000000001
+      derivation: 250.8 - 190 = 60.8
+    - origin: 2024
+      value: 196.04000000000002
+      derivation: 326.04 - 130 = 196.04
+    total_ultimate:
+      value: 1078.44
+      derivation: sum of origin ultimates
+    total_ibnr:
+      value: 282.44000000000005
+      derivation: 1078.44 - 796
+  bornhuetter_ferguson:
+    prior_loss_ratio: 0.6
+    percent_developed:
+    - origin: 2021
+      value: 1.0
+      derivation: 1 / 1 = 1
+    - origin: 2022
+      value: 0.9090909090909091
+      derivation: 1 / 1.1 = 0.909091
+    - origin: 2023
+      value: 0.7575757575757576
+      derivation: 1 / 1.32 = 0.757576
+    - origin: 2024
+      value: 0.39872408293460926
+      derivation: 1 / 2.508 = 0.398724
+    ultimate:
+    - origin: 2021
+      value: 220.0
+      derivation: 220 + 0.6 x 400 x (1 - 1) = 220
+    - origin: 2022
+      value: 280.0
+      derivation: 256 + 0.6 x 440 x (1 - 0.909091) = 280
+    - origin: 2023
+      value: 259.8181818181818
+      derivation: 190 + 0.6 x 480 x (1 - 0.757576) = 259.818
+    - origin: 2024
+      value: 317.5980861244019
+      derivation: 130 + 0.6 x 520 x (1 - 0.398724) = 317.598
+    ibnr:
+    - origin: 2021
+      value: 0.0
+      derivation: 220 - 220 = 0
+    - origin: 2022
+      value: 24.0
+      derivation: 280 - 256 = 24
+    - origin: 2023
+      value: 69.81818181818181
+      derivation: 259.818 - 190 = 69.8182
+    - origin: 2024
+      value: 187.5980861244019
+      derivation: 317.598 - 130 = 187.598
+    total_ultimate:
+      value: 1077.4162679425838
+      derivation: sum of origin ultimates
+    total_ibnr:
+      value: 281.4162679425838
+      derivation: 1077.42 - 796
+  cape_cod:
+    used_up_premium:
+    - origin: 2021
+      value: 400.0
+      derivation: 400 x 1 = 400
+    - origin: 2022
+      value: 400.0
+      derivation: 440 x 0.909091 = 400
+    - origin: 2023
+      value: 363.6363636363636
+      derivation: 480 x 0.757576 = 363.636
+    - origin: 2024
+      value: 207.33652312599682
+      derivation: 520 x 0.398724 = 207.337
+    loss_ratio:
+      value: 0.5806095858538854
+      derivation: 796 / 1370.97 = 0.58061
+    ultimate:
+    - origin: 2021
+      value: 220.0
+      derivation: 220 + 0.58061 x 400 x (1 - 1) = 220
+    - origin: 2022
+      value: 279.2243834341554
+      derivation: 256 + 0.58061 x 440 x (1 - 0.909091) = 279.224
+    - origin: 2023
+      value: 257.561842717543
+      derivation: 190 + 0.58061 x 480 x (1 - 0.757576) = 257.562
+    - origin: 2024
+      value: 311.53541181945087
+      derivation: 130 + 0.58061 x 520 x (1 - 0.398724) = 311.535
+    ibnr:
+    - origin: 2021
+      value: 0.0
+      derivation: 220 - 220 = 0
+    - origin: 2022
+      value: 23.224383434155413
+      derivation: 279.224 - 256 = 23.2244
+    - origin: 2023
+      value: 67.56184271754302
+      derivation: 257.562 - 190 = 67.5618
+    - origin: 2024
+      value: 181.53541181945087
+      derivation: 311.535 - 130 = 181.535
+    total_ultimate:
+      value: 1068.3216379711494
+      derivation: sum of origin ultimates
+    total_ibnr:
+      value: 272.32163797114936
+      derivation: 1068.32 - 796
+incurred:
+  ldf:
+  - from_age: 12
+    to_age: 24
+    value: 1.2
+    derivation: (250 + 260 + 210) / (200 + 220 + 180) = 720/600 = 1.2
+  - from_age: 24
+    to_age: 36
+    value: 1.1
+    derivation: (275 + 286) / (250 + 260) = 561/510 = 1.1
+  - from_age: 36
+    to_age: 48
+    value: 1.04
+    derivation: (286) / (275) = 286/275 = 1.04
+  cdf:
+  - age: 12
+    value: 1.3728
+    derivation: 1.2 x 1.144 = 1.3728
+  - age: 24
+    value: 1.1440000000000001
+    derivation: 1.1 x 1.04 = 1.144
+  - age: 36
+    value: 1.04
+    derivation: 1.04 x 1 = 1.04
+  - age: 48
+    value: 1.0
+    derivation: tail factor 1.0
+  chain_ladder:
+    ultimate:
+    - origin: 2021
+      value: 286.0
+      derivation: 286 x 1 = 286
+    - origin: 2022
+      value: 297.44
+      derivation: 286 x 1.04 = 297.44
+    - origin: 2023
+      value: 240.24000000000004
+      derivation: 210 x 1.144 = 240.24
+    - origin: 2024
+      value: 260.832
+      derivation: 190 x 1.3728 = 260.832
+    ibnr:
+    - origin: 2021
+      value: 0.0
+      derivation: 286 - 286 = 0
+    - origin: 2022
+      value: 11.439999999999998
+      derivation: 297.44 - 286 = 11.44
+    - origin: 2023
+      value: 30.240000000000038
+      derivation: 240.24 - 210 = 30.24
+    - origin: 2024
+      value: 70.832
+      derivation: 260.832 - 190 = 70.832
+    total_ultimate:
+      value: 1084.512
+      derivation: sum of origin ultimates
+    total_ibnr:
+      value: 112.51199999999994
+      derivation: 1084.51 - 972
+  bornhuetter_ferguson:
+    prior_loss_ratio: 0.6
+    percent_developed:
+    - origin: 2021
+      value: 1.0
+      derivation: 1 / 1 = 1
+    - origin: 2022
+      value: 0.9615384615384615
+      derivation: 1 / 1.04 = 0.961538
+    - origin: 2023
+      value: 0.8741258741258741
+      derivation: 1 / 1.144 = 0.874126
+    - origin: 2024
+      value: 0.7284382284382285
+      derivation: 1 / 1.3728 = 0.728438
+    ultimate:
+    - origin: 2021
+      value: 286.0
+      derivation: 286 + 0.6 x 400 x (1 - 1) = 286
+    - origin: 2022
+      value: 296.1538461538462
+      derivation: 286 + 0.6 x 440 x (1 - 0.961538) = 296.154
+    - origin: 2023
+      value: 246.25174825174827
+      derivation: 210 + 0.6 x 480 x (1 - 0.874126) = 246.252
+    - origin: 2024
+      value: 274.72727272727275
+      derivation: 190 + 0.6 x 520 x (1 - 0.728438) = 274.727
+    ibnr:
+    - origin: 2021
+      value: 0.0
+      derivation: 286 - 286 = 0
+    - origin: 2022
+      value: 10.153846153846189
+      derivation: 296.154 - 286 = 10.1538
+    - origin: 2023
+      value: 36.25174825174827
+      derivation: 246.252 - 210 = 36.2517
+    - origin: 2024
+      value: 84.72727272727275
+      derivation: 274.727 - 190 = 84.7273
+    total_ultimate:
+      value: 1103.1328671328672
+      derivation: sum of origin ultimates
+    total_ibnr:
+      value: 131.1328671328672
+      derivation: 1103.13 - 972
+  cape_cod:
+    used_up_premium:
+    - origin: 2021
+      value: 400.0
+      derivation: 400 x 1 = 400
+    - origin: 2022
+      value: 423.07692307692304
+      derivation: 440 x 0.961538 = 423.077
+    - origin: 2023
+      value: 419.5804195804196
+      derivation: 480 x 0.874126 = 419.58
+    - origin: 2024
+      value: 378.7878787878788
+      derivation: 520 x 0.728438 = 378.788
+    loss_ratio:
+      value: 0.5994652098907418
+      derivation: 972 / 1621.45 = 0.599465
+    ultimate:
+    - origin: 2021
+      value: 286.0
+      derivation: 286 + 0.599465 x 400 x (1 - 1) = 286
+    - origin: 2022
+      value: 296.1447958596895
+      derivation: 286 + 0.599465 x 440 x (1 - 0.961538) = 296.145
+    - origin: 2023
+      value: 246.21943645773436
+      derivation: 210 + 0.599465 x 480 x (1 - 0.874126) = 246.219
+    - origin: 2024
+      value: 274.65175388154114
+      derivation: 190 + 0.599465 x 520 x (1 - 0.728438) = 274.652
+    ibnr:
+    - origin: 2021
+      value: 0.0
+      derivation: 286 - 286 = 0
+    - origin: 2022
+      value: 10.14479585968951
+      derivation: 296.145 - 286 = 10.1448
+    - origin: 2023
+      value: 36.21943645773436
+      derivation: 246.219 - 210 = 36.2194
+    - origin: 2024
+      value: 84.65175388154114
+      derivation: 274.652 - 190 = 84.6518
+    total_ultimate:
+      value: 1103.015986198965
+      derivation: sum of origin ultimates
+    total_ibnr:
+      value: 131.01598619896504
+      derivation: 1103.02 - 972
