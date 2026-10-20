@@ -18,7 +18,7 @@ ActuaryCanary turns insurance data in any layout into an auditable, early-warnin
 - `tests/` — mirrors the package; `conftest.py` sets Hypothesis profiles
 - `tests/benchmarks/` — frozen reference values (`raa`, `genins`) and `load.py`; `tests/fixtures/hand/` — hand-worked 4×4 fixtures
 - `synthetic/` — synthetic data truth parameters and (later) generator
-- `docs/` — blueprint, input set v1, `decisions/` records 0001–0007
+- `docs/` — blueprint, spec/data/, `decisions/` records 0001–0007
 - `project.yaml` — project metadata, single source for CLI and report
 - `.github/workflows/ci.yml` — `just check` on Ubuntu and Windows
 
@@ -39,7 +39,7 @@ ActuaryCanary turns insurance data in any layout into an auditable, early-warnin
 
 ## Open decisions
 - Licence (not decided); author line, contact and repository URL left empty on purpose
-- Large-loss threshold rule; health segment in phase 1; timing of method notes (blueprint 18.2)
+- Health segment in phase 1; timing of method notes (blueprint 18.2)
 
 ## Log (newest first, keep the last 15 lines)
 | Date | Item | Outcome | Elapsed | Commit |
