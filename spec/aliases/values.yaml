@@ -1,0 +1,319 @@
+id: AL02
+version: 0.1.0
+title_en: Value aliases
+title_tr: Değer eşleştirmeleri
+status: draft
+definition: >-
+  Turkish and English labels, abbreviations and common misspellings for every class of
+  every classified field in the data concepts.
+notes: >-
+  Labels are compared after the same normalisation as column aliases (normalise_label).
+  The class name itself always matches. A label that matches no class becomes UNMAPPED and
+  is listed (blueprint 6.4); it is never dropped or guessed. Seed list; extended as real
+  data is confirmed.
+values:
+  - field: status
+    concepts: [claim_valuations]
+    classes:
+      OPEN:
+        - AÇIK
+        - AÇIK DOSYA
+        - MUALLAK
+        - DEVAM EDİYOR
+        - DEVAM EDEN
+        - BEKLEMEDE
+        - İŞLEMDE
+        - İNCELEMEDE
+        - ACK
+        - OPEN
+        - OPENED
+        - PENDING
+        - OUTSTANDING
+        - IN PROGRESS
+      CLOSED:
+        - KAPALI
+        - KAPANDI
+        - KAPANMIŞ
+        - KAPALI DOSYA
+        - ÖDENDİ
+        - ÖDENEREK KAPANDI
+        - SONUÇLANDI
+        - TAZMİN EDİLDİ
+        - KPL
+        - CLOSED
+        - SETTLED
+        - PAID
+        - FINALISED
+      CLOSED_NIL:
+        - RET
+        - RED
+        - REDDEDİLDİ
+        - ÖDEMESİZ KAPANDI
+        - TAZMİNATSIZ KAPANDI
+        - SIFIR KAPANDI
+        - ÖDEMESİZ
+        - İPTAL EDİLDİ
+        - VAZGEÇİLDİ
+        - NIL
+        - CLOSED NIL
+        - NIL CLOSED
+        - CLOSED WITHOUT PAYMENT
+        - REJECTED
+        - DECLINED
+        - DENIED
+        - WITHDRAWN
+      REOPENED:
+        - YENİDEN AÇILDI
+        - TEKRAR AÇILDI
+        - YENİDEN AÇIK
+        - YENİDEN AÇILAN
+        - REOPEN
+        - REOPENED
+        - RE OPENED
+      LITIGATED:
+        - DAVALI
+        - DAVALI DOSYA
+        - DAVA
+        - DAVADA
+        - HUKUKİ SÜREÇ
+        - HUKUK
+        - İHTİLAFLI
+        - LITIGATED
+        - LITIGATION
+        - IN LITIGATION
+        - LEGAL
+  - field: segment
+    concepts: [claims, policies, expenses]
+    classes:
+      NON_LIFE:
+        - ELEMENTER
+        - HAYAT DIŞI
+        - HAYATDIŞI
+        - HAYAT DIŞI SİGORTA
+        - ELMNTR
+        - NON LIFE
+        - NONLIFE
+        - P&C
+        - PROPERTY AND CASUALTY
+        - GENERAL INSURANCE
+        - GI
+      LIFE:
+        - HAYAT
+        - HAYAT SİGORTASI
+        - LIFE
+        - LIFE INSURANCE
+      PENSION:
+        - BES
+        - BİREYSEL EMEKLİLİK
+        - EMEKLİLİK
+        - OKS
+        - PENSION
+        - RETIREMENT
+      HEALTH:
+        - SAĞLIK
+        - SAĞLIK SİGORTASI
+        - ÖSS
+        - TSS
+        - HEALTH
+        - MEDICAL
+  - field: channel
+    concepts: [policies]
+    classes:
+      AGENCY:
+        - ACENTE
+        - ACENTA
+        - ACENTELİK
+        - ACENTE KANALI
+        - AGENCY
+        - AGENT
+        - TIED AGENT
+      BROKER:
+        - BROKER
+        - BROKERLIK
+        - SİGORTA BROKERİ
+        - BROKERAGE
+      BANK:
+        - BANKA
+        - BANKASÜRANS
+        - BANKA KANALI
+        - BANCASSURANCE
+        - BANK
+      DIRECT:
+        - DOĞRUDAN
+        - DİREKT
+        - MERKEZ
+        - GENEL MÜDÜRLÜK
+        - DIRECT
+        - HEAD OFFICE
+      DIGITAL:
+        - DİJİTAL
+        - İNTERNET
+        - ONLINE
+        - WEB
+        - MOBİL
+        - DIGITAL
+      PARTNER:
+        - İŞ ORTAĞI
+        - ANLAŞMALI KURUM
+        - KURUMSAL İŞ ORTAĞI
+        - PARTNER
+        - AFFINITY
+  - field: type
+    concepts: [premiums]
+    classes:
+      WRITTEN:
+        - TANZİM
+        - YENİ İŞ
+        - YENİLEME
+        - YAZILAN PRİM
+        - POLİÇE PRİMİ
+        - BRÜT PRİM
+        - NEW BUSINESS
+        - RENEWAL
+        - WRITTEN
+        - WRITTEN PREMIUM
+        - GWP
+        - ISSUE
+      ENDORSEMENT:
+        - ZEYL
+        - ZEYİL
+        - ZEYİLNAME
+        - ARTI ZEYL
+        - EK PRİM
+        - EKPRIM
+        - DEĞİŞİKLİK ZEYLİ
+        - ENDORSEMENT
+        - ENDT
+        - ADDITIONAL PREMIUM
+        - MTA
+      CANCELLATION:
+        - İPTAL
+        - İPTAL ZEYLİ
+        - FESİH
+        - İPTAL PRİMİ
+        - CANCELLATION
+        - CANCEL
+        - CANCELLED
+      REFUND:
+        - İADE
+        - PRİM İADESİ
+        - RİSTURN
+        - EKSİ ZEYL
+        - İADE ZEYLİ
+        - REFUND
+        - RETURN PREMIUM
+        - RETURN
+      COMMISSION:
+        - KOMİSYON
+        - ACENTE KOMİSYONU
+        - ARACI KOMİSYONU
+        - KOMSYON
+        - COMMISSION
+        - COMM
+        - AGENT COMMISSION
+      CEDED_PREMIUM:
+        - DEVREDİLEN PRİM
+        - REASÜRANS PRİMİ
+        - REAS PRİM
+        - REASÜRÖR PAYI PRİM
+        - CEDED PREMIUM
+        - RI PREMIUM
+        - OUTWARD PREMIUM
+        - REINSURANCE PREMIUM
+      RI_COMMISSION:
+        - REASÜRANS KOMİSYONU
+        - REAS KOMİSYON
+        - REASÜRÖR KOMİSYONU
+        - ALINAN KOMİSYON
+        - RI COMMISSION
+        - REINSURANCE COMMISSION
+        - CEDING COMMISSION
+  - field: type
+    concepts: [expenses]
+    classes:
+      ACQUISITION:
+        - ÜRETİM GİDERİ
+        - ÜRETİM MASRAFI
+        - EDİNİM GİDERİ
+        - SATIŞ GİDERİ
+        - PAZARLAMA GİDERİ
+        - ACQUISITION
+        - ACQUISITION COST
+        - ACQUISITION EXPENSE
+      ADMINISTRATION:
+        - GENEL YÖNETİM GİDERİ
+        - YÖNETİM GİDERİ
+        - GYG
+        - İDARİ GİDER
+        - FAALİYET GİDERİ
+        - ADMINISTRATION
+        - ADMIN
+        - ADMINISTRATIVE EXPENSE
+        - OVERHEAD
+        - G&A
+      CLAIMS_HANDLING_UNALLOCATED:
+        - HASAR YÖNETİM GİDERİ
+        - DAĞITILMAMIŞ HASAR GİDERİ
+        - HASAR İŞLEM GİDERİ
+        - ULAE
+        - UNALLOCATED LAE
+        - CLAIMS HANDLING
+        - UNALLOCATED CLAIMS EXPENSE
+      OTHER:
+        - DİĞER
+        - DİĞER GİDER
+        - ÇEŞİTLİ
+        - OTHER
+        - OTHER EXPENSE
+        - MISC
+        - MISCELLANEOUS
+  - field: kind
+    concepts: [market]
+    classes:
+      FX_SPOT:
+        - SPOT
+        - SPOT KUR
+        - GÜNLÜK KUR
+        - DÖVİZ ALIŞ
+        - DÖVİZ SATIŞ
+        - GÖSTERGE KUR
+        - FX SPOT
+        - SPOT RATE
+        - DAILY RATE
+        - DAILY
+      FX_PERIOD_AVERAGE:
+        - ORTALAMA KUR
+        - AYLIK ORTALAMA
+        - DÖNEM ORTALAMASI
+        - ORTALAMA
+        - FX AVERAGE
+        - PERIOD AVERAGE
+        - MONTHLY AVERAGE
+        - AVERAGE
+        - AVG
+      FX_PERIOD_END:
+        - DÖNEM SONU KURU
+        - AY SONU KURU
+        - DÖNEM SONU
+        - AY SONU
+        - KAPANIŞ KURU
+        - FX PERIOD END
+        - PERIOD END
+        - MONTH END
+        - CLOSING RATE
+        - EOP
+      PRICE_INDEX:
+        - TÜFE
+        - ÜFE
+        - ENDEKS
+        - FİYAT ENDEKSİ
+        - TÜKETİCİ FİYAT ENDEKSİ
+        - CPI
+        - PPI
+        - PRICE INDEX
+        - INDEX
+        - INFLATION INDEX
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First seed from the version 1.0 data concepts.
