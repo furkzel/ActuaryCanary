@@ -1,0 +1,657 @@
+size: tiny
+size_spec:
+  portfolio_scale: 0.002
+  years:
+  - 2022
+  - 2025
+  exposure_multiplier:
+    GROUP_TERM_LIFE: 4.0
+  fault_scale: 0.3
+scenario:
+  name: messy_headers
+  meta:
+    version: 1
+    seed: 20261013
+    base_date: '2016-01-01'
+    accident_period:
+      start: '2016-01-01'
+      end: '2025-12-31'
+    valuation:
+      first: '2016-01-31'
+      last: '2025-12-31'
+      frequency: month_end
+    reporting_currency: TRY
+    max_settlement_days: 3650
+  entities:
+  - id: ENT_A
+    name: Alpha Sigorta
+    segments:
+    - NON_LIFE
+  - id: ENT_B
+    name: Beta Sigorta
+    segments:
+    - NON_LIFE
+  - id: ENT_C
+    name: Gamma Hayat
+    segments:
+    - LIFE
+  partners:
+  - id: AGENCY_NET
+    channel: AGENCY
+    share: 0.45
+  - id: BROKER_ONE
+    channel: BROKER
+    share: 0.2
+  - id: BANK_PARTNER
+    channel: BANK
+    share: 0.25
+  - id: DIRECT_WEB
+    channel: DIRECT
+    share: 0.1
+  market:
+    cpi:
+      series_id: CPI_TR
+      base_value: 100.0
+      annual_rate_by_year:
+        '2016': 0.08
+        '2017': 0.11
+        '2018': 0.2
+        '2019': 0.12
+        '2020': 0.14
+        '2021': 0.36
+        '2022': 0.64
+        '2023': 0.65
+        '2024': 0.45
+        '2025': 0.33
+      monthly_noise_sd: 0.004
+      future_annual_rate: null
+    fx:
+    - series_id: USD/TRY
+      start: 2.95
+      drift: inflation_differential
+      foreign_inflation: 0.03
+      monthly_vol: 0.035
+    - series_id: EUR/TRY
+      start: 3.25
+      drift: inflation_differential
+      foreign_inflation: 0.02
+      monthly_vol: 0.035
+    fx_kinds_written:
+    - FX_SPOT
+    - FX_PERIOD_AVERAGE
+    - FX_PERIOD_END
+  lines:
+    MOTOR_OD:
+      segment: NON_LIFE
+      entities:
+      - ENT_A
+      - ENT_B
+      products:
+        KASKO: 0.7
+        KASKO_PLUS: 0.3
+      causes:
+        COLLISION: 0.55
+        THEFT: 0.1
+        GLASS: 0.15
+        WEATHER: 0.1
+        VANDALISM: 0.1
+      portfolio:
+        policies_first_year: 40000
+        growth_per_year: 0.04
+        term_months: 12
+        foreign_currency_share: 0.0
+        foreign_currencies: {}
+        exposure_units:
+          dist: fixed
+          median: null
+          sigma: null
+          mean: null
+          cv: null
+          value: 1.0
+          min: null
+          share: null
+        sum_insured:
+          dist: lognormal
+          median: 250000.0
+          sigma: 0.5
+          mean: null
+          cv: null
+          value: null
+          min: null
+          share: null
+        cancellation_probability: 0.08
+      premium:
+        rate_on_sum_insured: 0.03
+        per_policy: null
+        indexed_to: CPI_TR
+        commission_rate: 0.15
+        endorsement_probability: 0.05
+        refund_probability: 0.01
+      frequency:
+        per_exposure_year: 0.22
+        trend_per_year: 0.0
+      severity:
+        body:
+          dist: lognormal
+          median: 12000.0
+          sigma: 1.0
+          mean: null
+          cv: null
+          value: null
+          min: null
+          share: null
+        tail:
+          probability: 0.002
+          dist: pareto
+          threshold: 300000.0
+          alpha: 2.2
+        superimposed_inflation: 0.03
+        capped_at_sum_insured: false
+      reporting_delay_days:
+        dist: lognormal
+        median: 5.0
+        sigma: 1.0
+        mean: null
+        cv: null
+        value: null
+        min: null
+        share: null
+      settlement_delay_days:
+        dist: lognormal
+        median: 60.0
+        sigma: 0.9
+        mean: null
+        cv: null
+        value: null
+        min: null
+        share: null
+      payments:
+        count:
+          dist: poisson
+          median: null
+          sigma: null
+          mean: 1.3
+          cv: null
+          value: null
+          min: 1.0
+          share: null
+      case_reserve:
+        initial_bias: 0.05
+        noise_sigma: 0.25
+        review_every_months: 3
+      nil_close_probability: 0.1
+      reopen_probability: 0.02
+      litigation: null
+      recoveries:
+        subrogation:
+          probability: 0.15
+          recovered_share: 0.5
+          delay_days:
+            dist: lognormal
+            median: 180.0
+            sigma: 0.6
+            mean: null
+            cv: null
+            value: null
+            min: null
+            share: null
+        salvage:
+          probability: 0.05
+          recovered_share: 0.3
+          delay_days:
+            dist: lognormal
+            median: 90.0
+            sigma: 0.5
+            mean: null
+            cv: null
+            value: null
+            min: null
+            share: null
+      allocated_expense_share: 0.03
+      catastrophe_events: []
+    MOTOR_TPL:
+      segment: NON_LIFE
+      entities:
+      - ENT_A
+      - ENT_B
+      products:
+        TRAFIK: 0.85
+        TRAFIK_PLUS: 0.15
+      causes:
+        COLLISION: 0.8
+        PEDESTRIAN: 0.1
+        INJURY: 0.1
+      portfolio:
+        policies_first_year: 120000
+        growth_per_year: 0.03
+        term_months: 12
+        foreign_currency_share: 0.0
+        foreign_currencies: {}
+        exposure_units:
+          dist: fixed
+          median: null
+          sigma: null
+          mean: null
+          cv: null
+          value: 1.0
+          min: null
+          share: null
+        sum_insured:
+          dist: fixed
+          median: null
+          sigma: null
+          mean: null
+          cv: null
+          value: 0.0
+          min: null
+          share: null
+        cancellation_probability: 0.05
+      premium:
+        rate_on_sum_insured: null
+        per_policy: 5500.0
+        indexed_to: CPI_TR
+        commission_rate: 0.1
+        endorsement_probability: 0.03
+        refund_probability: 0.01
+      frequency:
+        per_exposure_year: 0.05
+        trend_per_year: 0.0
+      severity:
+        body:
+          dist: lognormal
+          median: 15000.0
+          sigma: 1.3
+          mean: null
+          cv: null
+          value: null
+          min: null
+          share: null
+        tail:
+          probability: 0.01
+          dist: pareto
+          threshold: 500000.0
+          alpha: 1.8
+        superimposed_inflation: 0.05
+        capped_at_sum_insured: false
+      reporting_delay_days:
+        dist: lognormal
+        median: 20.0
+        sigma: 1.4
+        mean: null
+        cv: null
+        value: null
+        min: null
+        share: null
+      settlement_delay_days:
+        dist: lognormal
+        median: 400.0
+        sigma: 1.0
+        mean: null
+        cv: null
+        value: null
+        min: null
+        share: null
+      payments:
+        count:
+          dist: poisson
+          median: null
+          sigma: null
+          mean: 2.0
+          cv: null
+          value: null
+          min: 1.0
+          share: null
+      case_reserve:
+        initial_bias: -0.1
+        noise_sigma: 0.35
+        review_every_months: 6
+      nil_close_probability: 0.15
+      reopen_probability: 0.04
+      litigation:
+        probability: 0.08
+        severity_multiplier: 2.5
+        settlement_delay_multiplier: 2.0
+      recoveries:
+        subrogation:
+          probability: 0.05
+          recovered_share: 0.4
+          delay_days:
+            dist: lognormal
+            median: 365.0
+            sigma: 0.6
+            mean: null
+            cv: null
+            value: null
+            min: null
+            share: null
+        salvage: null
+      allocated_expense_share: 0.06
+      catastrophe_events: []
+    PROPERTY:
+      segment: NON_LIFE
+      entities:
+      - ENT_A
+      products:
+        KONUT: 0.6
+        ISYERI: 0.4
+      causes:
+        FIRE: 0.45
+        WATER: 0.25
+        THEFT: 0.1
+        STORM: 0.2
+      portfolio:
+        policies_first_year: 25000
+        growth_per_year: 0.05
+        term_months: 12
+        foreign_currency_share: 0.08
+        foreign_currencies:
+          USD: 0.7
+          EUR: 0.3
+        exposure_units:
+          dist: fixed
+          median: null
+          sigma: null
+          mean: null
+          cv: null
+          value: 1.0
+          min: null
+          share: null
+        sum_insured:
+          dist: lognormal
+          median: 1500000.0
+          sigma: 1.0
+          mean: null
+          cv: null
+          value: null
+          min: null
+          share: null
+        cancellation_probability: 0.04
+      premium:
+        rate_on_sum_insured: 0.0015
+        per_policy: null
+        indexed_to: CPI_TR
+        commission_rate: 0.2
+        endorsement_probability: 0.06
+        refund_probability: 0.01
+      frequency:
+        per_exposure_year: 0.03
+        trend_per_year: 0.0
+      severity:
+        body:
+          dist: gamma
+          median: null
+          sigma: null
+          mean: 40000.0
+          cv: 1.5
+          value: null
+          min: null
+          share: null
+        tail:
+          probability: 0.01
+          dist: pareto
+          threshold: 1000000.0
+          alpha: 1.5
+        superimposed_inflation: 0.02
+        capped_at_sum_insured: true
+      reporting_delay_days:
+        dist: lognormal
+        median: 10.0
+        sigma: 1.0
+        mean: null
+        cv: null
+        value: null
+        min: null
+        share: null
+      settlement_delay_days:
+        dist: lognormal
+        median: 150.0
+        sigma: 1.0
+        mean: null
+        cv: null
+        value: null
+        min: null
+        share: null
+      payments:
+        count:
+          dist: poisson
+          median: null
+          sigma: null
+          mean: 1.8
+          cv: null
+          value: null
+          min: 1.0
+          share: null
+      case_reserve:
+        initial_bias: 0.1
+        noise_sigma: 0.4
+        review_every_months: 3
+      nil_close_probability: 0.12
+      reopen_probability: 0.02
+      litigation: null
+      recoveries:
+        subrogation: null
+        salvage:
+          probability: 0.08
+          recovered_share: 0.15
+          delay_days:
+            dist: lognormal
+            median: 120.0
+            sigma: 0.5
+            mean: null
+            cv: null
+            value: null
+            min: null
+            share: null
+      allocated_expense_share: 0.04
+      catastrophe_events:
+      - event_code: CAT_2019_FLOOD
+        date: '2019-07-15'
+        claims: 300
+        severity_multiplier: 1.8
+      - event_code: CAT_2023_QUAKE
+        date: '2023-02-06'
+        claims: 900
+        severity_multiplier: 3.0
+    GROUP_TERM_LIFE:
+      segment: LIFE
+      entities:
+      - ENT_C
+      products:
+        GRUP_HAYAT: 0.8
+        GRUP_HAYAT_PLUS: 0.2
+      causes:
+        DEATH: 0.85
+        ACCIDENTAL_DEATH: 0.15
+      portfolio:
+        policies_first_year: 8000
+        growth_per_year: 0.06
+        term_months: 12
+        foreign_currency_share: 0.0
+        foreign_currencies: {}
+        exposure_units:
+          dist: lognormal
+          median: 40.0
+          sigma: 0.8
+          mean: null
+          cv: null
+          value: null
+          min: null
+          share: null
+        sum_insured:
+          dist: lognormal
+          median: 300000.0
+          sigma: 0.6
+          mean: null
+          cv: null
+          value: null
+          min: null
+          share: null
+        cancellation_probability: 0.03
+      premium:
+        rate_on_sum_insured: 0.0025
+        per_policy: null
+        indexed_to: CPI_TR
+        commission_rate: 0.08
+        endorsement_probability: 0.1
+        refund_probability: 0.005
+      frequency:
+        per_exposure_year: 0.0015
+        trend_per_year: 0.0
+      severity:
+        body:
+          dist: fixed_share_of_sum_insured
+          median: null
+          sigma: null
+          mean: null
+          cv: null
+          value: null
+          min: null
+          share: 1.0
+        tail: null
+        superimposed_inflation: 0.0
+        capped_at_sum_insured: false
+      reporting_delay_days:
+        dist: lognormal
+        median: 30.0
+        sigma: 0.8
+        mean: null
+        cv: null
+        value: null
+        min: null
+        share: null
+      settlement_delay_days:
+        dist: lognormal
+        median: 45.0
+        sigma: 0.6
+        mean: null
+        cv: null
+        value: null
+        min: null
+        share: null
+      payments:
+        count:
+          dist: fixed
+          median: null
+          sigma: null
+          mean: null
+          cv: null
+          value: 1.0
+          min: null
+          share: null
+      case_reserve:
+        initial_bias: 0.0
+        noise_sigma: 0.0
+        review_every_months: 12
+      nil_close_probability: 0.03
+      reopen_probability: 0.0
+      litigation: null
+      recoveries:
+        subrogation: null
+        salvage: null
+      allocated_expense_share: 0.01
+      catastrophe_events: []
+  reinsurance:
+  - treaty_id: QS_PROPERTY
+    type: QUOTA_SHARE
+    lines:
+    - PROPERTY
+    basis: claim
+    cession: 0.3
+    commission: 0.25
+    retention: null
+    limit: null
+    retention_indexed_to: null
+    rate_on_gross_premium: null
+    inception: '2016-01-01'
+    renewal: annual
+  - treaty_id: XL_TPL
+    type: EXCESS_OF_LOSS
+    lines:
+    - MOTOR_TPL
+    basis: claim
+    cession: null
+    commission: null
+    retention: 2000000.0
+    limit: 8000000.0
+    retention_indexed_to: CPI_TR
+    rate_on_gross_premium: 0.02
+    inception: '2016-01-01'
+    renewal: annual
+  - treaty_id: XL_PROPERTY_CAT
+    type: EXCESS_OF_LOSS
+    lines:
+    - PROPERTY
+    basis: event
+    cession: null
+    commission: null
+    retention: 20000000.0
+    limit: 200000000.0
+    retention_indexed_to: CPI_TR
+    rate_on_gross_premium: 0.05
+    inception: '2016-01-01'
+    renewal: annual
+  expenses:
+    administration_share:
+      MOTOR_OD: 0.08
+      MOTOR_TPL: 0.07
+      PROPERTY: 0.09
+      GROUP_TERM_LIFE: 0.06
+    acquisition_share:
+      MOTOR_OD: 0.02
+      MOTOR_TPL: 0.015
+      PROPERTY: 0.03
+      GROUP_TERM_LIFE: 0.01
+    other_share_of_earned: 0.01
+    unallocated_claims_handling_share_of_paid: 0.03
+  reserving_practice_changes:
+  - line: MOTOR_TPL
+    from: '2022-01-01'
+    initial_bias: 0.15
+  large_claims: []
+  injected_faults:
+    duplicate_valuation_rows: 25
+    report_before_occurrence: 15
+    paid_to_date_decreasing_without_recovery: 10
+    extreme_payment_outliers: 8
+    missing_currency: 12
+    unknown_status_labels: 5
+  messiness:
+    headers:
+      style: aliases
+      canonical_share: 0.15
+      misspell_share: 0.2
+    title_rows:
+      min: 1
+      max: 3
+    date_formats:
+      text_share: 0.35
+    value_labels:
+      translate_share: 0.7
+    exact_duplicate_share: 0.01
+    personal_data: true
+  personal_data_columns:
+  - name: SIGORTALI_ADI
+    kind: name
+  - name: TCKN
+    kind: national_id_11_digits
+  - name: MUSTERI_NO
+    kind: customer_number
+  sizes:
+    tiny:
+      portfolio_scale: 0.002
+      years:
+      - 2022
+      - 2025
+      exposure_multiplier:
+        GROUP_TERM_LIFE: 4.0
+      fault_scale: 0.3
+    medium:
+      portfolio_scale: 0.1
+      years: null
+      exposure_multiplier: {}
+      fault_scale: 1.0
+    large:
+      portfolio_scale: 0.55
+      years: null
+      exposure_multiplier: {}
+      fault_scale: 1.0

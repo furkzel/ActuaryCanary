@@ -16,6 +16,7 @@ SUBPACKAGES = [
     "manifest",
     "spec",
     "cli",
+    "synthetic",
 ]
 
 

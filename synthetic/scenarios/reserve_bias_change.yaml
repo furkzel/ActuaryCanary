@@ -1,0 +1,8 @@
+# Case reserves are strengthened on third-party liability from 2022 and weakened on own damage
+# from mid-2023. Paid development is unchanged; incurred development shifts, and a method that
+# assumes a stable reserving practice is misled.
+extends: baseline
+
+reserving_practice_changes:
+  - {line: MOTOR_TPL, from: 2022-01-01, initial_bias: 0.45}
+  - {line: MOTOR_OD, from: 2023-07-01, initial_bias: -0.30}

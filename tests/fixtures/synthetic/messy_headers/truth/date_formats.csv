@@ -1,0 +1,14 @@
+file,field,text_format,text_share
+claim_valuations,valuation_date,%Y-%m-%d,0.35
+claims,occurrence_date,%Y-%m-%d,0.35
+claims,report_date,%Y-%m-%d,0.35
+claims,close_date,%d.%m.%Y,0.35
+policies,start_date,%d.%m.%Y,0.35
+policies,end_date,%d.%m.%Y,0.35
+policies,issue_date,%d/%m/%Y,0.35
+policies,cancellation_date,%Y-%m-%d,0.35
+premiums,booking_date,%d.%m.%Y,0.35
+premiums,effective_date,%d.%m.%Y,0.35
+expenses,period,%d.%m.%Y,0.35
+market,date,%d/%m/%Y,0.35
+market,date,%d.%m.%Y,0.35

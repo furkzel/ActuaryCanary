@@ -1,0 +1,16 @@
+# Heavier tails and three single shocks. Large losses distort development factors unless they
+# are separated; the shocks are listed in truth/anomalies.csv.
+extends: baseline
+
+lines:
+  MOTOR_TPL:
+    severity:
+      tail: {probability: 0.03, dist: pareto, threshold: 500000, alpha: 1.5}
+  PROPERTY:
+    severity:
+      tail: {probability: 0.03, dist: pareto, threshold: 1000000, alpha: 1.3}
+
+large_claims:                           # cost at base-date prices
+  - {line: PROPERTY, date: 2022-05-10, cost_base: 60000000, label: LARGE_LOSS_SHOCK}
+  - {line: MOTOR_TPL, date: 2023-09-12, cost_base: 25000000, label: LARGE_LOSS_SHOCK}
+  - {line: PROPERTY, date: 2024-03-02, cost_base: 45000000, label: LARGE_LOSS_SHOCK}

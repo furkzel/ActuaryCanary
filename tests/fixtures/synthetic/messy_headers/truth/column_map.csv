@@ -1,0 +1,66 @@
+file,sheet,header,field,kind
+claim_valuations,Hasar,HASARR NO ,claim_id,misspelt
+claim_valuations,Hasar,VALUATION DDATE ,valuation_date,misspelt
+claim_valuations,Hasar,ÖDENEN HASAR TUTARI,paid_to_date,alias
+claim_valuations,Hasar,OS RSERVE,case_reserve,misspelt
+claim_valuations,Hasar,HASAR_DURUMU,status,alias
+claim_valuations,Hasar,currency,currency,canonical
+claim_valuations,Hasar,RUCU TAHSILAT ,subrogation_to_date,alias
+claim_valuations,Hasar,SOVTAJ GELİRİ ,salvage_to_date,alias
+claim_valuations,Hasar,TAHSİS EDİLMİŞ GİDER,expense_allocated_to_date,alias
+claim_valuations,Hasar,REASÜRANS_PAYI_ÖDENEN,ceded_paid_to_date,alias
+claim_valuations,Hasar,REAS MUALLAK,ceded_reserve,alias
+claims,Hasar Listesi,claim_id,claim_id,canonical
+claims,Hasar Listesi,HASRA TRH ,occurrence_date,misspelt
+claims,Hasar Listesi,NOTIFICATION DATE ,report_date,alias
+claims,Hasar Listesi,HAYAT ELEMENTER ,segment,alias
+claims,Hasar Listesi,LINE OF BUSINESS ,line,alias
+claims,Hasar Listesi,ETITY,entity,misspelt
+claims,Hasar Listesi,POLICY NO,policy_id,alias
+claims,Hasar Listesi,TARİFEE ,product,misspelt
+claims,Hasar Listesi,ARACI ,partner,alias
+claims,Hasar Listesi,NEDEN,cause,alias
+claims,Hasar Listesi,close_date,close_date,canonical
+claims,Hasar Listesi,CATASTROPHE_CODE,event_code,alias
+claims,Hasar Listesi,SIGORTALI_ADI,"",personal:name
+claims,Hasar Listesi,TCKN,"",personal:national_id_11_digits
+claims,Hasar Listesi,MUSTERI_NO,"",personal:customer_number
+policies,policies,POLICENO ,policy_id,alias
+policies,policies,start_date,start_date,canonical
+policies,policies,EXPIRY_ATE,end_date,misspelt
+policies,policies,HAYAT ELEMENTER ,segment,alias
+policies,policies,BRANŞ,line,alias
+policies,policies,CURRENCYY CODE,currency,misspelt
+policies,policies,COMPANY OCDE,entity,misspelt
+policies,policies,PRODUCT_CODE,product,alias
+policies,policies,INTERMMEDIARY,partner,misspelt
+policies,policies,DAĞITIM KANALI ,channel,alias
+policies,policies,ISSUE DATE,issue_date,alias
+policies,policies,TERMINATION DATE ,cancellation_date,alias
+policies,policies,sum_insured,sum_insured,canonical
+policies,policies,EXPOSURE ,exposure_units,alias
+policies,policies,SIGORTALI_ADI,"",personal:name
+policies,policies,TCKN,"",personal:national_id_11_digits
+policies,policies,MUSTERI_NO,"",personal:customer_number
+premiums,Sheet1,transaction_id,transaction_id,canonical
+premiums,Sheet1,POLICY,policy_id,alias
+premiums,Sheet1,TAHAKKUK TTARİHİ ,booking_date,misspelt
+premiums,Sheet1,İŞLEM_TUTARI,amount,alias
+premiums,Sheet1,DÖVİZ_TİPİ,currency,alias
+premiums,Sheet1,TİP ,type,alias
+premiums,Sheet1,GEÇERLİLİK TARİHİ,effective_date,alias
+expenses,Giderler,PERIOD END,period,alias
+expenses,Giderler,MASRAF_TUTARI,amount,alias
+expenses,Giderler,PARA_BİRİMİ,currency,alias
+expenses,Giderler,TİP,type,alias
+expenses,Giderler,LEGAL_ENTIY,entity,misspelt
+expenses,Giderler,BUSINESS SEGMENT ,segment,alias
+expenses,Giderler,BRANŞ ADI,line,alias
+market,Döviz,ENDEKS,series_id,alias
+market,Döviz,RATE DATE,date,alias
+market,Döviz,DÖVİZ KURU ,value,alias
+market,Döviz,SERİ_TÜRÜ,kind,alias
+market,TÜFE,series_id,series_id,canonical
+market,TÜFE,DATE,date,alias
+market,TÜFE,DEĞER,value,alias
+market,TÜFE,TİP,kind,alias

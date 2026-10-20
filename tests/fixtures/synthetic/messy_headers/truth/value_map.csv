@@ -1,0 +1,246 @@
+file,field,label,class
+claim_valuations,status,AÇIK DOSYA,OPEN
+claim_valuations,status,İHTİLAFLI,LITIGATED
+claim_valuations,status,TAZMİN EDİLDİ,CLOSED
+claim_valuations,status,LEGAL,LITIGATED
+claim_valuations,status,DEVAM EDEN,OPEN
+claim_valuations,status,İNCELEMEDE,OPEN
+claim_valuations,status,IN LITIGATION,LITIGATED
+claim_valuations,status,MUALLAK,OPEN
+claim_valuations,status,AÇIK,OPEN
+claim_valuations,status,OPENED,OPEN
+claim_valuations,status,IN PROGRESS,OPEN
+claim_valuations,status,ACK,OPEN
+claim_valuations,status,OPEN,OPEN
+claim_valuations,status,DEVAM EDİYOR,OPEN
+claim_valuations,status,PENDING,OPEN
+claim_valuations,status,SONUÇLANDI,CLOSED
+claim_valuations,status,SETTLED,CLOSED
+claim_valuations,status,DAVALI DOSYA,LITIGATED
+claim_valuations,status,NIL CLOSED,CLOSED_NIL
+claim_valuations,status,BEKLEMEDE,OPEN
+claim_valuations,status,PAID,CLOSED
+claim_valuations,status,DAVA,LITIGATED
+claim_valuations,status,CLOSED,CLOSED
+claim_valuations,status,OUTSTANDING,OPEN
+claim_valuations,status,KPL,CLOSED
+claim_valuations,status,LITIGATED,LITIGATED
+claim_valuations,status,KAPANMIŞ,CLOSED
+claim_valuations,status,RET,CLOSED_NIL
+claim_valuations,status,KAPALI,CLOSED
+claim_valuations,status,LITIGATION,LITIGATED
+claim_valuations,status,İŞLEMDE,OPEN
+claim_valuations,status,KAPALI DOSYA,CLOSED
+claim_valuations,status,TAZMİNATSIZ KAPANDI,CLOSED_NIL
+claim_valuations,status,ÖDENDİ,CLOSED
+claim_valuations,status,DAVALI,LITIGATED
+claim_valuations,status,FINALISED,CLOSED
+claim_valuations,status,RE OPENED,REOPENED
+claim_valuations,status,HUKUKİ SÜREÇ,LITIGATED
+claim_valuations,status,YENİDEN AÇILAN,REOPENED
+claim_valuations,status,KAPANDI,CLOSED
+claim_valuations,status,HUKUK,LITIGATED
+claim_valuations,status,DENIED,CLOSED_NIL
+claim_valuations,status,ÖDENEREK KAPANDI,CLOSED
+claim_valuations,status,DAVADA,LITIGATED
+claim_valuations,status,İPTAL EDİLDİ,CLOSED_NIL
+claim_valuations,status,CLOSED WITHOUT PAYMENT,CLOSED_NIL
+claim_valuations,status,REOPEN,REOPENED
+claim_valuations,status,TEKRAR AÇILDI,REOPENED
+claim_valuations,status,DECLINED,CLOSED_NIL
+claim_valuations,status,REJECTED,CLOSED_NIL
+claim_valuations,status,NIL,CLOSED_NIL
+claim_valuations,status,YENİDEN AÇILDI,REOPENED
+claims,segment,HAYAT,LIFE
+claims,segment,ELMNTR,NON_LIFE
+claims,segment,NON LIFE,NON_LIFE
+claims,segment,HAYATDIŞI,NON_LIFE
+claims,segment,NONLIFE,NON_LIFE
+claims,segment,HAYAT DIŞI SİGORTA,NON_LIFE
+claims,segment,GI,NON_LIFE
+claims,segment,HAYAT DIŞI,NON_LIFE
+claims,segment,LIFE INSURANCE,LIFE
+claims,segment,GENERAL INSURANCE,NON_LIFE
+claims,segment,HAYAT SİGORTASI,LIFE
+claims,segment,P&C,NON_LIFE
+claims,segment,PROPERTY AND CASUALTY,NON_LIFE
+claims,segment,ELEMENTER,NON_LIFE
+claims,segment,LIFE,LIFE
+policies,segment,GENERAL INSURANCE,NON_LIFE
+policies,segment,GI,NON_LIFE
+policies,segment,HAYAT DIŞI SİGORTA,NON_LIFE
+policies,segment,ELEMENTER,NON_LIFE
+policies,segment,NON LIFE,NON_LIFE
+policies,segment,LIFE,LIFE
+policies,segment,ELMNTR,NON_LIFE
+policies,segment,P&C,NON_LIFE
+policies,segment,HAYATDIŞI,NON_LIFE
+policies,segment,NONLIFE,NON_LIFE
+policies,segment,PROPERTY AND CASUALTY,NON_LIFE
+policies,segment,LIFE INSURANCE,LIFE
+policies,segment,HAYAT,LIFE
+policies,segment,HAYAT DIŞI,NON_LIFE
+policies,segment,HAYAT SİGORTASI,LIFE
+policies,channel,BANKA,BANK
+policies,channel,AGENT,AGENCY
+policies,channel,ACENTA,AGENCY
+policies,channel,SİGORTA BROKERİ,BROKER
+policies,channel,TIED AGENT,AGENCY
+policies,channel,BROKER,BROKER
+policies,channel,ACENTELİK,AGENCY
+policies,channel,ACENTE,AGENCY
+policies,channel,ACENTE KANALI,AGENCY
+policies,channel,BANK,BANK
+policies,channel,MERKEZ,DIRECT
+policies,channel,DIRECT,DIRECT
+policies,channel,BROKERLIK,BROKER
+policies,channel,BANKASÜRANS,BANK
+policies,channel,BANCASSURANCE,BANK
+policies,channel,AGENCY,AGENCY
+policies,channel,BANKA KANALI,BANK
+policies,channel,BROKERAGE,BROKER
+policies,channel,DOĞRUDAN,DIRECT
+policies,channel,DİREKT,DIRECT
+policies,channel,GENEL MÜDÜRLÜK,DIRECT
+policies,channel,HEAD OFFICE,DIRECT
+premiums,type,YENİLEME,WRITTEN
+premiums,type,ACENTE KOMİSYONU,COMMISSION
+premiums,type,DEVREDİLEN PRİM,CEDED_PREMIUM
+premiums,type,GWP,WRITTEN
+premiums,type,REASÜRANS PRİMİ,CEDED_PREMIUM
+premiums,type,POLİÇE PRİMİ,WRITTEN
+premiums,type,AGENT COMMISSION,COMMISSION
+premiums,type,REAS PRİM,CEDED_PREMIUM
+premiums,type,YENİ İŞ,WRITTEN
+premiums,type,WRITTEN PREMIUM,WRITTEN
+premiums,type,COMM,COMMISSION
+premiums,type,REINSURANCE PREMIUM,CEDED_PREMIUM
+premiums,type,RENEWAL,WRITTEN
+premiums,type,ARACI KOMİSYONU,COMMISSION
+premiums,type,REASÜRANS KOMİSYONU,RI_COMMISSION
+premiums,type,ISSUE,WRITTEN
+premiums,type,KOMSYON,COMMISSION
+premiums,type,RI PREMIUM,CEDED_PREMIUM
+premiums,type,KOMİSYON,COMMISSION
+premiums,type,REASÜRÖR PAYI PRİM,CEDED_PREMIUM
+premiums,type,NEW BUSINESS,WRITTEN
+premiums,type,REAS KOMİSYON,RI_COMMISSION
+premiums,type,YAZILAN PRİM,WRITTEN
+premiums,type,BRÜT PRİM,WRITTEN
+premiums,type,OUTWARD PREMIUM,CEDED_PREMIUM
+premiums,type,WRITTEN,WRITTEN
+premiums,type,COMMISSION,COMMISSION
+premiums,type,CEDED PREMIUM,CEDED_PREMIUM
+premiums,type,TANZİM,WRITTEN
+premiums,type,REASÜRÖR KOMİSYONU,RI_COMMISSION
+premiums,type,ALINAN KOMİSYON,RI_COMMISSION
+premiums,type,FESİH,CANCELLATION
+premiums,type,CEDING COMMISSION,RI_COMMISSION
+premiums,type,CANCEL,CANCELLATION
+premiums,type,REINSURANCE COMMISSION,RI_COMMISSION
+premiums,type,İPTAL ZEYLİ,CANCELLATION
+premiums,type,RI COMMISSION,RI_COMMISSION
+premiums,type,İPTAL,CANCELLATION
+premiums,type,İPTAL PRİMİ,CANCELLATION
+premiums,type,ZEYİLNAME,ENDORSEMENT
+premiums,type,EKPRIM,ENDORSEMENT
+premiums,type,CANCELLATION,CANCELLATION
+premiums,type,CANCELLED,CANCELLATION
+premiums,type,ENDT,ENDORSEMENT
+premiums,type,EK PRİM,ENDORSEMENT
+premiums,type,ENDORSEMENT,ENDORSEMENT
+premiums,type,DEĞİŞİKLİK ZEYLİ,ENDORSEMENT
+premiums,type,REFUND,REFUND
+premiums,type,ZEYİL,ENDORSEMENT
+premiums,type,MTA,ENDORSEMENT
+premiums,type,EKSİ ZEYL,REFUND
+premiums,type,RİSTURN,REFUND
+premiums,type,İADE,REFUND
+premiums,type,ADDITIONAL PREMIUM,ENDORSEMENT
+premiums,type,ARTI ZEYL,ENDORSEMENT
+premiums,type,ZEYL,ENDORSEMENT
+premiums,type,İADE ZEYLİ,REFUND
+expenses,type,EDİNİM GİDERİ,ACQUISITION
+expenses,type,SATIŞ GİDERİ,ACQUISITION
+expenses,type,PAZARLAMA GİDERİ,ACQUISITION
+expenses,type,ÜRETİM MASRAFI,ACQUISITION
+expenses,type,ACQUISITION EXPENSE,ACQUISITION
+expenses,type,ADMINISTRATIVE EXPENSE,ADMINISTRATION
+expenses,type,GYG,ADMINISTRATION
+expenses,type,DİĞER GİDER,OTHER
+expenses,type,ÇEŞİTLİ,OTHER
+expenses,type,ÜRETİM GİDERİ,ACQUISITION
+expenses,type,FAALİYET GİDERİ,ADMINISTRATION
+expenses,type,OVERHEAD,ADMINISTRATION
+expenses,type,İDARİ GİDER,ADMINISTRATION
+expenses,type,YÖNETİM GİDERİ,ADMINISTRATION
+expenses,type,GENEL YÖNETİM GİDERİ,ADMINISTRATION
+expenses,type,ADMIN,ADMINISTRATION
+expenses,type,UNALLOCATED CLAIMS EXPENSE,CLAIMS_HANDLING_UNALLOCATED
+expenses,type,CLAIMS HANDLING,CLAIMS_HANDLING_UNALLOCATED
+expenses,type,MISCELLANEOUS,OTHER
+expenses,type,G&A,ADMINISTRATION
+expenses,type,OTHER EXPENSE,OTHER
+expenses,type,ACQUISITION COST,ACQUISITION
+expenses,type,MISC,OTHER
+expenses,type,ACQUISITION,ACQUISITION
+expenses,type,HASAR YÖNETİM GİDERİ,CLAIMS_HANDLING_UNALLOCATED
+expenses,type,DAĞITILMAMIŞ HASAR GİDERİ,CLAIMS_HANDLING_UNALLOCATED
+expenses,type,ADMINISTRATION,ADMINISTRATION
+expenses,type,UNALLOCATED LAE,CLAIMS_HANDLING_UNALLOCATED
+expenses,type,DİĞER,OTHER
+expenses,type,ULAE,CLAIMS_HANDLING_UNALLOCATED
+expenses,type,OTHER,OTHER
+expenses,type,HASAR İŞLEM GİDERİ,CLAIMS_HANDLING_UNALLOCATED
+expenses,segment,GI,NON_LIFE
+expenses,segment,NONLIFE,NON_LIFE
+expenses,segment,GENERAL INSURANCE,NON_LIFE
+expenses,segment,HAYAT,LIFE
+expenses,segment,HAYATDIŞI,NON_LIFE
+expenses,segment,PROPERTY AND CASUALTY,NON_LIFE
+expenses,segment,HAYAT DIŞI,NON_LIFE
+expenses,segment,HAYAT SİGORTASI,LIFE
+expenses,segment,ELMNTR,NON_LIFE
+expenses,segment,HAYAT DIŞI SİGORTA,NON_LIFE
+expenses,segment,NON LIFE,NON_LIFE
+expenses,segment,LIFE,LIFE
+expenses,segment,P&C,NON_LIFE
+expenses,segment,ELEMENTER,NON_LIFE
+expenses,segment,LIFE INSURANCE,LIFE
+market,kind,SPOT,FX_SPOT
+market,kind,SPOT KUR,FX_SPOT
+market,kind,SPOT RATE,FX_SPOT
+market,kind,DAILY,FX_SPOT
+market,kind,DAILY RATE,FX_SPOT
+market,kind,FX SPOT,FX_SPOT
+market,kind,GÖSTERGE KUR,FX_SPOT
+market,kind,GÜNLÜK KUR,FX_SPOT
+market,kind,DÖNEM ORTALAMASI,FX_PERIOD_AVERAGE
+market,kind,PERIOD AVERAGE,FX_PERIOD_AVERAGE
+market,kind,ORTALAMA,FX_PERIOD_AVERAGE
+market,kind,ORTALAMA KUR,FX_PERIOD_AVERAGE
+market,kind,FX AVERAGE,FX_PERIOD_AVERAGE
+market,kind,AYLIK ORTALAMA,FX_PERIOD_AVERAGE
+market,kind,AVERAGE,FX_PERIOD_AVERAGE
+market,kind,AVG,FX_PERIOD_AVERAGE
+market,kind,MONTHLY AVERAGE,FX_PERIOD_AVERAGE
+market,kind,DÖNEM SONU,FX_PERIOD_END
+market,kind,EOP,FX_PERIOD_END
+market,kind,AY SONU KURU,FX_PERIOD_END
+market,kind,DÖNEM SONU KURU,FX_PERIOD_END
+market,kind,PERIOD END,FX_PERIOD_END
+market,kind,MONTH END,FX_PERIOD_END
+market,kind,CLOSING RATE,FX_PERIOD_END
+market,kind,AY SONU,FX_PERIOD_END
+market,kind,KAPANIŞ KURU,FX_PERIOD_END
+market,kind,FX PERIOD END,FX_PERIOD_END
+market,kind,TÜKETİCİ FİYAT ENDEKSİ,PRICE_INDEX
+market,kind,INDEX,PRICE_INDEX
+market,kind,CPI,PRICE_INDEX
+market,kind,PRICE INDEX,PRICE_INDEX
+market,kind,ÜFE,PRICE_INDEX
+market,kind,PPI,PRICE_INDEX
+market,kind,TÜFE,PRICE_INDEX
+market,kind,INFLATION INDEX,PRICE_INDEX
+market,kind,FİYAT ENDEKSİ,PRICE_INDEX
+market,kind,ENDEKS,PRICE_INDEX

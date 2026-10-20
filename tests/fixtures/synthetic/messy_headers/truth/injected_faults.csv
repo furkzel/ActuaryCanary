@@ -1,0 +1,116 @@
+fault_type,file,key,row,sheet_row,detail
+report_before_occurrence,claims.xlsx,00000020,19,23,report 2022-05-28 before occurrence 2022-06-20
+report_before_occurrence,claims.xlsx,00000058,57,61,report 2023-04-17 before occurrence 2023-05-04
+report_before_occurrence,claims.xlsx,00000119,118,122,report 2024-08-31 before occurrence 2024-09-14
+report_before_occurrence,claims.xlsx,00000142,141,145,report 2025-03-04 before occurrence 2025-03-13
+paid_to_date_decreasing_without_recovery,claim_valuations.xlsx,00000005|2022-06-30,35,40,paid_to_date lower than the previous valuation
+paid_to_date_decreasing_without_recovery,claim_valuations.xlsx,00000033|2023-06-30,271,276,paid_to_date lower than the previous valuation
+paid_to_date_decreasing_without_recovery,claim_valuations.xlsx,00000121|2025-06-30,1047,1052,paid_to_date lower than the previous valuation
+extreme_payment_outliers,claim_valuations.xlsx,00000020|2022-07-31,63,68,payment of 3901396.53 added to paid_to_date from this row
+extreme_payment_outliers,claim_valuations.xlsx,00000101|2024-07-31,688,693,payment of 2027394.89 added to paid_to_date from this row
+missing_currency,claim_valuations.xlsx,00000009|2023-01-31,162,167,currency empty
+missing_currency,claim_valuations.xlsx,00000096|2024-05-31,629,634,currency empty
+missing_currency,claim_valuations.xlsx,00000067|2023-09-30,378,383,currency empty
+missing_currency,claim_valuations.xlsx,00000029|2024-11-30,792,797,currency empty
+unknown_status_labels,claim_valuations.xlsx,00000064|2025-01-31,862,867,status label outside the dictionaries
+unknown_status_labels,claim_valuations.xlsx,00000040|2024-02-29,520,525,status label outside the dictionaries
+duplicate_valuation_rows,claim_valuations.xlsx,00000021|2022-08-31,80,85,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000047|2023-04-30,235,240,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000059|2023-07-31,312,317,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000065|2023-08-31,344,349,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000063|2023-09-30,374,379,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000072|2023-09-30,384,389,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000057|2023-11-30,434,439,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000089|2024-02-29,540,545,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000091|2024-03-31,568,573,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000095|2024-04-30,599,604,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000069|2024-05-31,618,623,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000109|2024-09-30,751,756,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000120|2024-10-31,788,793,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000016|2025-02-28,892,897,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000040|2025-02-28,895,900,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000137|2025-02-28,929,934,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000135|2025-03-31,964,969,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000093|2025-05-31,1013,1018,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000154|2025-07-31,1091,1096,exact copy of the row above
+duplicate_valuation_rows,claim_valuations.xlsx,00000143|2025-09-30,1143,1148,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000000203,203,207,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000000279,280,284,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000000343,345,349,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000000386,389,393,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000000391,395,399,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000000699,704,708,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000000821,827,831,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000001094,1101,1105,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000001202,1210,1214,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000001261,1270,1274,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000001287,1297,1301,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000001333,1344,1348,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000001516,1528,1532,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000001571,1584,1588,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000001714,1728,1732,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000001765,1780,1784,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000002114,2130,2134,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000002135,2152,2156,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000002190,2208,2212,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000002380,2399,2403,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000002449,2469,2473,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000002451,2472,2476,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000002467,2489,2493,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000002541,2564,2568,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000002612,2636,2640,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000002638,2663,2667,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000002682,2708,2712,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000002742,2769,2773,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000002988,3016,3020,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000003018,3047,3051,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000003105,3135,3139,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000003211,3242,3246,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000003393,3425,3429,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000003394,3427,3431,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000003830,3864,3868,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004001,4036,4040,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004005,4041,4045,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004052,4089,4093,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004158,4196,4200,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004193,4232,4236,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004373,4413,4417,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004528,4569,4573,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004530,4572,4576,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004581,4624,4628,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004589,4633,4637,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004697,4742,4746,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004769,4815,4819,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004778,4825,4829,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004785,4833,4837,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004787,4836,4840,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004906,4956,4960,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000004969,5020,5024,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000005057,5109,5113,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000005210,5263,5267,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000005302,5356,5360,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000005348,5403,5407,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000005368,5424,5428,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000005672,5729,5733,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000005707,5765,5769,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000005713,5772,5776,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000005747,5807,5811,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000005768,5829,5833,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000005856,5918,5922,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000005877,5940,5944,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000006131,6195,6199,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000006203,6268,6272,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000006287,6353,6357,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000006494,6561,6565,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000006597,6665,6669,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000006778,6847,6851,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000006949,7019,7023,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000007240,7311,7315,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000007311,7383,7387,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000007337,7410,7414,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000007491,7565,7569,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000007783,7858,7862,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000007875,7951,7955,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000007881,7958,7962,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000007945,8023,8027,exact copy of the row above
+duplicate_premium_rows,premiums.xlsx,000007947,8026,8030,exact copy of the row above
