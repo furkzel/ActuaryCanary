@@ -1,0 +1,23 @@
+id: M06
+version: 0.1.0
+title_en: Anomalies and large losses
+title_tr: Anomaliler ve büyük hasarlar
+status: draft
+definition: >-
+  Payments, reserve changes and claims that look unusual, and the claims that dominate
+  results by size, with their share of incurred.
+phase: 1
+question: What looks wrong or unusual?
+required_all: [claim_valuations]
+required_any: []
+optional: [claims, policies, market]
+measures: [CL12]
+methods: [MT08, MT09]
+skip_reason: >-
+  Anomalies and large losses did not run: no claim valuations were loaded. Load
+  claim_valuations.xlsx to enable it; add claims.xlsx for lines and catastrophe codes.
+notes: Large-loss classes follow CV08.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 10.

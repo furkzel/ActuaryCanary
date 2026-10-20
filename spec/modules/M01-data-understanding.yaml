@@ -1,0 +1,22 @@
+id: M01
+version: 0.1.0
+title_en: Data understanding
+title_tr: Veriyi anlama
+status: draft
+definition: >-
+  Shows what was loaded, how it was mapped, which feeds and periods are covered and how far
+  the data can be trusted: the quality report and its score.
+phase: 1
+question: What did I load, and can I trust it?
+required_all: []
+required_any: [claim_valuations, claims, policies, premiums, expenses, market]
+optional: []
+measures: [DQ01]
+methods: []
+skip_reason: >-
+  Data understanding did not run: no input file was loaded. Load at least one of
+  claim_valuations, claims, policies, premiums, expenses or market.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 10.
