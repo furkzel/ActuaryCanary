@@ -1,0 +1,72 @@
+id: MT04
+version: 0.1.0
+title_en: Cape Cod
+title_tr: Cape Cod
+status: draft
+definition: >-
+  Bornhuetter–Ferguson with the prior loss ratio estimated from the data: reported claims
+  divided by the premium already "used up" by development, over all origins of a group.
+tier: A
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claims.occurrence_date
+  - premiums.policy_id
+  - premiums.amount
+  - premiums.type
+  - premiums.booking_date
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+optional: [claims.segment, claims.line, policies.segment, policies.line]
+uses: [MT01, MT02, PR02]
+assumptions:
+  - statement: One expected loss ratio holds for all origins of the group.
+    check: Chain-ladder loss ratios of mature origins show no trend; rate changes and claims inflation are small or adjusted.
+  - statement: The chain-ladder pattern describes reporting, as in MT02.
+    check: As for MT02.
+parameters:
+  - name: pattern
+    default: chain_ladder_selected
+    description: Cumulative factors of MT02 on the same triangle and basis.
+  - name: origins_used
+    default: all
+    description: Origins entering the ratio; all uses every origin with positive premium.
+algorithm:
+  - step: Used-up premium per origin.
+    formula: 'P^{u}_i = P_i / CDF_{J_i}'
+  - step: Expected loss ratio of the group.
+    formula: 'ELR^{CC} = \frac{\sum_i C_{i,J_i}}{\sum_i P^{u}_i}'
+  - step: Ultimate per origin, as Bornhuetter–Ferguson with the Cape Cod ratio.
+    formula: '\hat U^{CC}_i = C_{i,J_i} + \Big(1 - \frac{1}{CDF_{J_i}}\Big) ELR^{CC} P_i'
+outputs:
+  - name: expected_loss_ratio
+    description: ELR(CC) per group; also the default prior of MT03 and MT05.
+  - name: ultimate
+    description: U(i) per origin.
+  - name: unpaid
+    description: U(i) minus paid at the cut-off.
+  - name: ibnr
+    description: U(i) minus incurred at the cut-off.
+diagnostics:
+  - Chain-ladder loss ratio per origin against ELR(CC).
+failure_modes:
+  - condition: Origin axis is first_valuation or report.
+    action: Not run; reason "Cape Cod needs accident or underwriting origins matched to earned premium".
+  - condition: Sum of used-up premium zero or no origin with positive premium.
+    action: Not run; reason given.
+validation:
+  - kind: fixture
+    description: A 4 x 4 triangle with premiums, hand-computed ratio and ultimates.
+    tolerance: 1e-12 relative
+  - kind: benchmark
+    description: Ultimates match the chainladder package's Cape Cod with no trend and no decay.
+    tolerance: 1e-9 relative
+references:
+  - Friedland, J. Estimating Unpaid Claims Using Basic Techniques. Casualty Actuarial Society, chapter 10.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 9.1.

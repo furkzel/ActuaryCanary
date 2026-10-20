@@ -1,0 +1,27 @@
+id: M03
+version: 0.1.0
+title_en: Claims experience
+title_tr: Hasar deneyimi
+status: draft
+definition: >-
+  Claim numbers, amounts, sizes, delays and settlement: counts by status, paid, reserves
+  and incurred, frequency and severity, reporting and settlement times, run-off and
+  recoveries.
+phase: 1
+question: How many claims, how large, how fast?
+required_all: [claim_valuations]
+required_any: []
+optional: [claims, policies, market]
+measures: [CL01, CL02, CL03, CL04, CL05, CL06, CL07, CL08, CL09, CL10, CL11, CL12, RC01, RC02]
+methods: [MT01]
+skip_reason: >-
+  Claims experience did not run: no claim valuations were loaded. Load
+  claim_valuations.xlsx to enable it; add claims.xlsx for segments, lines and delays.
+notes: >-
+  The blueprint lists "Claim + claim transactions or snapshots". Version 1.0 runs with
+  claim valuations alone (decision 0004); measures that need claims (CL05, CL07, CL08)
+  report their own reason when it is missing (decision 0014).
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 10.

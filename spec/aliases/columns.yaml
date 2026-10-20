@@ -1,0 +1,709 @@
+id: AL01
+version: 0.1.0
+title_en: Column aliases
+title_tr: Sütun adı eşleştirmeleri
+status: draft
+definition: >-
+  Turkish and English column names, abbreviations and common misspellings for every field
+  of every data concept, plus names of personal-data columns that are dropped on load.
+notes: >-
+  Labels are compared after normalisation (blueprint 6.3 layer 1, normalise_label): Turkish
+  letters folded, accents, punctuation and spaces removed, so ÖDEME TARİHİ, Odeme_Tarihi and
+  ODEMETARIHI are one token and need not all be listed. Each entry names the concepts it
+  applies to; within a concept a token may point at one field only. The canonical field
+  name always matches its own field. Seed list; extended as real layouts are confirmed.
+columns:
+  - field: claim_id
+    concepts: [claim_valuations, claims]
+    aliases:
+      - HASAR NO
+      - HASAR NUMARASI
+      - HASAR DOSYA NO
+      - HASAR DOSYA NUMARASI
+      - DOSYA NO
+      - DOSYA NUMARASI
+      - HASAR ID
+      - HASAR KODU
+      - HSR NO
+      - HASR NO
+      - CLAIM
+      - CLAIM NO
+      - CLAIM NUMBER
+      - CLAIM REF
+      - CLAIM REFERENCE
+      - CLM NO
+  - field: valuation_date
+    concepts: [claim_valuations]
+    aliases:
+      - DEĞERLEME TARİHİ
+      - DEGERLEME TRH
+      - KESİM TARİHİ
+      - DÖNEM SONU
+      - DÖNEM
+      - AY SONU
+      - RAPOR DÖNEMİ
+      - BAKİYE TARİHİ
+      - İTİBAR TARİHİ
+      - VALUATION DATE
+      - VALUATION
+      - AS AT
+      - AS OF
+      - AS OF DATE
+      - SNAPSHOT DATE
+      - EXTRACT DATE
+      - PERIOD END
+  - field: paid_to_date
+    concepts: [claim_valuations]
+    aliases:
+      - ÖDENEN
+      - ÖDENEN HASAR
+      - ÖDENEN TUTAR
+      - ÖDENMİŞ HASAR
+      - KÜMÜLATİF ÖDENEN
+      - KÜMÜLATİF ÖDEME
+      - TOPLAM ÖDENEN
+      - TOPLAM ÖDEME
+      - ÖDEME TOPLAMI
+      - BRÜT ÖDENEN
+      - ODENEN HSR
+      - ÖDENEN HASAR TUTARI
+      - PAID
+      - PAID TO DATE
+      - PAID AMOUNT
+      - PAID AMT
+      - CUMULATIVE PAID
+      - TOTAL PAID
+      - GROSS PAID
+      - PAID LOSS
+  - field: case_reserve
+    concepts: [claim_valuations]
+    aliases:
+      - MUALLAK
+      - MUALLAK HASAR
+      - MUALLAK TUTAR
+      - MUALLAK TUTARI
+      - MUALLAK KARŞILIK
+      - MUALLAK HASAR KARŞILIĞI
+      - MUALLAK HASAR TUTARI
+      - DOSYA MUALLAK
+      - DOSYA KARŞILIĞI
+      - BRÜT MUALLAK
+      - MUALAK
+      - MUALLK
+      - OUTSTANDING
+      - OUTSTANDING RESERVE
+      - O/S
+      - OS
+      - OS RESERVE
+      - CASE RESERVE
+      - CASE RES
+      - CASE ESTIMATE
+      - RESERVE
+  - field: status
+    concepts: [claim_valuations]
+    aliases:
+      - STATÜ
+      - STATÜ SON
+      - SON STATÜ
+      - STATUSON
+      - STATU
+      - DURUM
+      - SON DURUM
+      - DOSYA DURUMU
+      - HASAR DURUMU
+      - HASAR STATÜSÜ
+      - DOSYA STATÜSÜ
+      - STATUS
+      - CLAIM STATUS
+      - STAT
+      - STATE
+  - field: currency
+    concepts: [claim_valuations, policies, premiums, expenses]
+    aliases:
+      - PARA BİRİMİ
+      - PARA CİNSİ
+      - DÖVİZ
+      - DÖVİZ CİNSİ
+      - DÖVİZ KODU
+      - DÖVİZ TİPİ
+      - DOVIZ CINS
+      - PB
+      - CURRENCY
+      - CURRENCY CODE
+      - CCY
+      - CUR
+      - CURR
+      - ORIGINAL CURRENCY
+  - field: subrogation_to_date
+    concepts: [claim_valuations]
+    aliases:
+      - RÜCU
+      - RÜCU TAHSİLATI
+      - RÜCU GELİRİ
+      - RÜCU TUTARI
+      - TAHSİL EDİLEN RÜCU
+      - KÜMÜLATİF RÜCU
+      - RUCU TAHSILAT
+      - RÜCÜ
+      - SUBROGATION
+      - SUBRO
+      - SUBROGATION RECOVERED
+      - SUBROGATION RECOVERY
+      - RECOVERY SUBROGATION
+  - field: salvage_to_date
+    concepts: [claim_valuations]
+    aliases:
+      - SOVTAJ
+      - SOVTAJ GELİRİ
+      - SOVTAJ TAHSİLATI
+      - SOVTAJ TUTARI
+      - KÜMÜLATİF SOVTAJ
+      - SAVTAJ
+      - SOVTAJ GELIR
+      - SALVAGE
+      - SALVAGE RECOVERED
+      - SALVAGE RECOVERY
+      - RECOVERY SALVAGE
+  - field: expense_allocated_to_date
+    concepts: [claim_valuations]
+    aliases:
+      - HASAR MASRAFI
+      - HASAR GİDERİ
+      - DOSYA MASRAFI
+      - DOSYA GİDERİ
+      - TAHSİS EDİLMİŞ GİDER
+      - DOĞRUDAN HASAR GİDERİ
+      - EKSPERTİZ VE AVUKATLIK MASRAFI
+      - HASAR MASRAF
+      - ALAE
+      - ALLOCATED EXPENSE
+      - ALLOCATED LAE
+      - ALLOCATED CLAIM EXPENSE
+      - EXPENSES ALLOCATED
+  - field: ceded_paid_to_date
+    concepts: [claim_valuations]
+    aliases:
+      - REASÜRÖR PAYI ÖDENEN
+      - REASÜRANS PAYI ÖDENEN
+      - DEVREDİLEN ÖDENEN
+      - DEVREDİLEN ÖDENEN HASAR
+      - REAS ÖDENEN
+      - REAS PAYI ÖDENEN
+      - REASURÖR ÖDENEN
+      - CEDED PAID
+      - RI PAID
+      - RI SHARE PAID
+      - REINSURANCE PAID
+      - REINSURERS SHARE PAID
+  - field: ceded_reserve
+    concepts: [claim_valuations]
+    aliases:
+      - REASÜRÖR PAYI MUALLAK
+      - REASÜRANS PAYI MUALLAK
+      - DEVREDİLEN MUALLAK
+      - REAS MUALLAK
+      - REAS PAYI MUALLAK
+      - REASURÖR MUALLAK
+      - CEDED RESERVE
+      - CEDED OUTSTANDING
+      - CEDED OS
+      - RI RESERVE
+      - RI OUTSTANDING
+      - REINSURANCE RESERVE
+      - REINSURERS SHARE OUTSTANDING
+  - field: occurrence_date
+    concepts: [claims]
+    aliases:
+      - HASAR TARİHİ
+      - HASARTARIHI
+      - KAZA TARİHİ
+      - OLAY TARİHİ
+      - VUKU TARİHİ
+      - VUKUAT TARİHİ
+      - HASAR OLUŞ TARİHİ
+      - HASAR TRH
+      - HSR TARIHI
+      - OCCURRENCE DATE
+      - ACCIDENT DATE
+      - LOSS DATE
+      - DATE OF LOSS
+      - DOL
+      - INCIDENT DATE
+  - field: report_date
+    concepts: [claims]
+    aliases:
+      - İHBAR TARİHİ
+      - IHBARTARIHI
+      - İHBAR TRH
+      - BİLDİRİM TARİHİ
+      - HASAR İHBAR TARİHİ
+      - İHBAR
+      - IHBAR TARIH
+      - REPORT DATE
+      - REPORTED DATE
+      - NOTIFICATION DATE
+      - INTIMATION DATE
+      - DATE REPORTED
+  - field: segment
+    concepts: [claims, policies, expenses]
+    aliases:
+      - SEGMENT
+      - ANA BRANŞ
+      - ANA BRANS GRUBU
+      - ANA GRUP
+      - HAYAT ELEMENTER
+      - SİGORTA TÜRÜ
+      - İŞ KOLU
+      - BUSINESS SEGMENT
+      - SEGMENTATION
+  - field: line
+    concepts: [claims, policies, expenses]
+    aliases:
+      - BRANŞ
+      - BRANŞ ADI
+      - BRANŞ KODU
+      - BRANS
+      - BRNS
+      - ALT BRANŞ
+      - SİGORTA BRANŞI
+      - LINE
+      - LINE OF BUSINESS
+      - LOB
+      - BUSINESS LINE
+      - CLASS OF BUSINESS
+  - field: entity
+    concepts: [claims, policies, expenses]
+    aliases:
+      - ŞİRKET
+      - ŞİRKET KODU
+      - ŞİRKET ADI
+      - SİGORTA ŞİRKETİ
+      - SIRKET
+      - ENTITY
+      - COMPANY
+      - COMPANY CODE
+      - LEGAL ENTITY
+      - INSURER
+  - field: policy_id
+    concepts: [claims, policies, premiums]
+    aliases:
+      - POLİÇE NO
+      - POLİÇE NUMARASI
+      - POLICENO
+      - POL NO
+      - POLİÇE
+      - POLİCE NO
+      - POLICY
+      - POLICY NO
+      - POLICY NUMBER
+      - POLICY ID
+      - POLNO
+      - POLICY REF
+  - field: product
+    concepts: [claims, policies]
+    aliases:
+      - ÜRÜN
+      - ÜRÜN KODU
+      - ÜRÜN ADI
+      - TARİFE
+      - TARİFE KODU
+      - URUN
+      - PRODUCT
+      - PRODUCT CODE
+      - PRODUCT NAME
+      - PLAN
+  - field: partner
+    concepts: [claims, policies]
+    aliases:
+      - ACENTE
+      - ACENTA
+      - ACENTE KODU
+      - ACENTE ADI
+      - İŞ ORTAĞI
+      - IS ORTAGI
+      - ARACI
+      - ARACI KURUM
+      - PARTNER
+      - AGENT
+      - AGENT CODE
+      - INTERMEDIARY
+      - PRODUCER
+  - field: cause
+    concepts: [claims]
+    aliases:
+      - HASAR NEDENİ
+      - HASAR SEBEBİ
+      - NEDEN
+      - SEBEP
+      - HASAR TÜRÜ
+      - HASAR TİPİ
+      - RİSK TÜRÜ
+      - CAUSE
+      - LOSS CAUSE
+      - CAUSE OF LOSS
+      - PERIL
+  - field: close_date
+    concepts: [claims]
+    aliases:
+      - KAPANIŞ TARİHİ
+      - KAPANMA TARİHİ
+      - KAPAMA TARİHİ
+      - DOSYA KAPANIŞ TARİHİ
+      - SONUÇLANMA TARİHİ
+      - KAPANIS TRH
+      - CLOSE DATE
+      - CLOSED DATE
+      - CLOSING DATE
+      - DATE CLOSED
+      - SETTLEMENT DATE
+  - field: event_code
+    concepts: [claims]
+    aliases:
+      - KATASTROF KODU
+      - KAT KODU
+      - OLAY KODU
+      - AFET KODU
+      - KATASTROFİK OLAY
+      - EVENT CODE
+      - EVENT ID
+      - CAT CODE
+      - CATASTROPHE CODE
+      - CAT EVENT
+  - field: start_date
+    concepts: [policies]
+    aliases:
+      - BAŞLANGIÇ TARİHİ
+      - POLİÇE BAŞLANGIÇ TARİHİ
+      - BAŞLAMA TARİHİ
+      - VADE BAŞLANGIÇ
+      - BAŞLANGIÇ
+      - BAS TAR
+      - BASLANGIC TRH
+      - START DATE
+      - INCEPTION DATE
+      - INCEPTION
+      - COVER START
+      - EFFECTIVE FROM
+  - field: end_date
+    concepts: [policies]
+    aliases:
+      - BİTİŞ TARİHİ
+      - POLİÇE BİTİŞ TARİHİ
+      - VADE BİTİŞ
+      - VADE SONU
+      - BİTİŞ
+      - BIT TAR
+      - BITIS TRH
+      - END DATE
+      - EXPIRY DATE
+      - EXPIRATION DATE
+      - EXPIRY
+      - COVER END
+  - field: channel
+    concepts: [policies]
+    aliases:
+      - KANAL
+      - SATIŞ KANALI
+      - DAĞITIM KANALI
+      - KANAL TİPİ
+      - SATIS KANAL
+      - CHANNEL
+      - SALES CHANNEL
+      - DISTRIBUTION CHANNEL
+  - field: issue_date
+    concepts: [policies]
+    aliases:
+      - TANZİM TARİHİ
+      - DÜZENLEME TARİHİ
+      - DÜZENLENME TARİHİ
+      - TANZIM TRH
+      - ISSUE DATE
+      - ISSUED DATE
+      - UNDERWRITING DATE
+      - WRITTEN DATE
+  - field: cancellation_date
+    concepts: [policies]
+    aliases:
+      - İPTAL TARİHİ
+      - FESİH TARİHİ
+      - IPTAL TRH
+      - CANCELLATION DATE
+      - CANCEL DATE
+      - CANCELLED DATE
+      - TERMINATION DATE
+  - field: sum_insured
+    concepts: [policies]
+    aliases:
+      - SİGORTA BEDELİ
+      - TEMİNAT BEDELİ
+      - TEMİNAT TUTARI
+      - BEDEL
+      - SIGORTA BEDEL
+      - SUM INSURED
+      - SI
+      - TSI
+      - INSURED VALUE
+      - INSURED AMOUNT
+  - field: exposure_units
+    concepts: [policies]
+    aliases:
+      - RİSK BİRİMİ
+      - RİSK ADEDİ
+      - MARUZİYET
+      - SİGORTALI SAYISI
+      - ARAÇ ADEDİ
+      - EXPOSURE
+      - EXPOSURE UNITS
+      - UNITS
+      - RISK UNITS
+      - RISK COUNT
+  - field: transaction_id
+    concepts: [premiums]
+    aliases:
+      - İŞLEM NO
+      - İŞLEM NUMARASI
+      - HAREKET NO
+      - TAHAKKUK NO
+      - KAYIT NO
+      - ISLEM ID
+      - TRANSACTION ID
+      - TRANSACTION NO
+      - TRANSACTION NUMBER
+      - TXN ID
+      - TRANS ID
+  - field: booking_date
+    concepts: [premiums]
+    aliases:
+      - TAHAKKUK TARİHİ
+      - KAYIT TARİHİ
+      - MUHASEBE TARİHİ
+      - İŞLEM TARİHİ
+      - MUHASEBELEŞME TARİHİ
+      - TAHAKKUK TRH
+      - BOOKING DATE
+      - ACCOUNTING DATE
+      - POSTING DATE
+      - TRANSACTION DATE
+      - ENTRY DATE
+  - field: amount
+    concepts: [premiums]
+    aliases:
+      - PRİM
+      - PRİM TUTARI
+      - BRÜT PRİM
+      - TUTAR
+      - İŞLEM TUTARI
+      - PRIM TUTAR
+      - PREMIUM
+      - PREMIUM AMOUNT
+      - GROSS PREMIUM
+      - AMOUNT
+      - AMT
+  - field: amount
+    concepts: [expenses]
+    aliases:
+      - GİDER
+      - GİDER TUTARI
+      - MASRAF
+      - MASRAF TUTARI
+      - TUTAR
+      - GIDER TUTAR
+      - EXPENSE
+      - EXPENSE AMOUNT
+      - AMOUNT
+      - COST
+      - AMT
+  - field: type
+    concepts: [premiums]
+    aliases:
+      - İŞLEM TİPİ
+      - İŞLEM TÜRÜ
+      - HAREKET TİPİ
+      - HAREKET TÜRÜ
+      - TAHAKKUK TİPİ
+      - PRİM TİPİ
+      - TİP
+      - TÜR
+      - TRANSACTION TYPE
+      - TXN TYPE
+      - TYPE
+  - field: type
+    concepts: [expenses]
+    aliases:
+      - GİDER TİPİ
+      - GİDER TÜRÜ
+      - GİDER CİNSİ
+      - MASRAF TİPİ
+      - MASRAF TÜRÜ
+      - TİP
+      - TÜR
+      - EXPENSE TYPE
+      - COST TYPE
+      - TYPE
+  - field: effective_date
+    concepts: [premiums]
+    aliases:
+      - GEÇERLİLİK TARİHİ
+      - YÜRÜRLÜK TARİHİ
+      - ZEYL BAŞLANGIÇ TARİHİ
+      - ZEYİL TARİHİ
+      - GECERLILIK TRH
+      - EFFECTIVE DATE
+      - VALID FROM
+      - ENDORSEMENT DATE
+  - field: period
+    concepts: [expenses]
+    aliases:
+      - DÖNEM
+      - AY
+      - DÖNEM SONU
+      - AY SONU
+      - MUHASEBE DÖNEMİ
+      - YIL AY
+      - PERIOD
+      - MONTH
+      - PERIOD END
+      - ACCOUNTING PERIOD
+  - field: series_id
+    concepts: [market]
+    aliases:
+      - SERİ
+      - SERİ KODU
+      - SERİ ADI
+      - PARİTE
+      - DÖVİZ ÇİFTİ
+      - ENDEKS
+      - ENDEKS ADI
+      - SERIES
+      - SERIES ID
+      - SERIES CODE
+      - TICKER
+      - PAIR
+      - CURRENCY PAIR
+  - field: date
+    concepts: [market]
+    aliases:
+      - TARİH
+      - KUR TARİHİ
+      - DEĞER TARİHİ
+      - DATE
+      - VALUE DATE
+      - RATE DATE
+  - field: value
+    concepts: [market]
+    aliases:
+      - DEĞER
+      - KUR
+      - ENDEKS DEĞERİ
+      - DÖVİZ KURU
+      - VALUE
+      - RATE
+      - INDEX VALUE
+      - PRICE
+      - CLOSE
+  - field: kind
+    concepts: [market]
+    aliases:
+      - SERİ TÜRÜ
+      - SERİ TİPİ
+      - KUR TÜRÜ
+      - KUR TİPİ
+      - TÜR
+      - TİP
+      - KIND
+      - TYPE
+      - SERIES TYPE
+      - RATE TYPE
+personal_data:
+  - kind: name
+    aliases:
+      - AD
+      - SOYAD
+      - AD SOYAD
+      - ADI SOYADI
+      - SİGORTALI ADI
+      - SİGORTALI ADI SOYADI
+      - SİGORTA ETTİREN
+      - MÜŞTERİ ADI
+      - MAĞDUR ADI
+      - NAME
+      - FULL NAME
+      - FIRST NAME
+      - LAST NAME
+      - SURNAME
+      - INSURED NAME
+      - CLAIMANT NAME
+  - kind: national_id
+    aliases:
+      - TCKN
+      - TC KİMLİK NO
+      - TC NO
+      - KİMLİK NO
+      - KİMLİK NUMARASI
+      - VERGİ NO
+      - VKN
+      - NATIONAL ID
+      - NATIONAL IDENTITY NUMBER
+      - TAX ID
+      - SSN
+      - PASSPORT NO
+  - kind: customer_number
+    aliases:
+      - MÜŞTERİ NO
+      - MÜŞTERİ NUMARASI
+      - MÜŞTERİ KODU
+      - SİGORTALI NO
+      - CUSTOMER NO
+      - CUSTOMER NUMBER
+      - CUSTOMER ID
+      - CLIENT ID
+  - kind: phone
+    aliases:
+      - TELEFON
+      - TEL
+      - CEP TELEFONU
+      - GSM
+      - PHONE
+      - MOBILE
+      - PHONE NUMBER
+  - kind: address
+    aliases:
+      - ADRES
+      - AÇIK ADRES
+      - İKAMETGAH
+      - ADDRESS
+      - STREET
+      - POSTAL ADDRESS
+  - kind: email
+    aliases:
+      - E POSTA
+      - EPOSTA
+      - MAIL
+      - EMAIL
+      - E MAIL
+  - kind: birth_date
+    aliases:
+      - DOĞUM TARİHİ
+      - DOGUM TRH
+      - BIRTH DATE
+      - DATE OF BIRTH
+      - DOB
+  - kind: vehicle_plate
+    aliases:
+      - PLAKA
+      - ARAÇ PLAKASI
+      - PLAKA NO
+      - PLATE
+      - LICENSE PLATE
+      - REGISTRATION NUMBER
+  - kind: bank_account
+    aliases:
+      - IBAN
+      - HESAP NO
+      - BANKA HESAP NO
+      - ACCOUNT NUMBER
+      - BANK ACCOUNT
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First seed from the version 1.0 data concepts.

@@ -1,0 +1,57 @@
+id: EX03
+version: 0.1.0
+title_en: Claims-handling expense ratio
+title_tr: Hasar yönetim gideri oranı
+status: draft
+definition: >-
+  Allocated and unallocated claims handling expenses in a period as a share of claims paid
+  in that period.
+unit: ratio
+formula: 'CH(Q) = \frac{\Delta A(Q) + X^{\mathrm{CLAIMS\_HANDLING\_UNALLOCATED}}(Q)}{\Delta P(Q)}'
+numerator: >-
+  Flows of expense_allocated_to_date in Q (CV04) plus expenses of type
+  CLAIMS_HANDLING_UNALLOCATED with period in Q.
+denominator: Paid flows in Q (CL01).
+grain: calendar period
+breakdowns: [segment, line, entity, calendar_period]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+optional:
+  - claim_valuations.expense_allocated_to_date
+  - expenses.period
+  - expenses.amount
+  - expenses.type
+  - expenses.segment
+  - expenses.line
+  - claims.segment
+  - claims.line
+uses: [CL01, CV01, CV04]
+edge_cases:
+  - case: Only one of the two components available
+    handling: >-
+      Shown as that component only (allocated ratio or unallocated ratio) and labelled;
+      with neither, not available.
+  - case: Paid zero
+    handling: Not computed.
+  - case: Unallocated expenses without line
+    handling: The unallocated part is shown only at the level the expense rows carry (as EX02).
+interpretation: >-
+  What it costs to handle claims per unit paid. Rising allocated costs often come from
+  litigation; rising unallocated costs from staffing.
+typical_range:
+  low: 0.02
+  high: 0.12
+  note: Higher for liability with litigation.
+test:
+  path: tests/measures/test_ex03_claims_handling_ratio.py
+  proves: Allocated flow 30, unallocated 20 and paid 1000 give 0.05; without the expense file the allocated ratio 0.03 is shown and labelled.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

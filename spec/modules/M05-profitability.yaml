@@ -1,0 +1,26 @@
+id: M05
+version: 0.1.0
+title_en: Profitability
+title_tr: Kârlılık
+status: draft
+definition: >-
+  Loss, commission, expense and combined ratios by line and period, with the effect of
+  reinsurance.
+phase: 1
+question: Do we make money, by line and period?
+required_all: [claim_valuations, premiums, policies]
+required_any: []
+optional: [claims, expenses, market]
+measures: [RT01, RT02, EX01, EX02, EX03, RI01, RI02]
+methods: [MT01, MT02, MT03, MT04, MT10]
+skip_reason: >-
+  Profitability did not run: it needs claim valuations, premiums and policies, and at least
+  one of them was not loaded. Load claim_valuations.xlsx, premiums.xlsx and policies.xlsx
+  to enable it; add expenses.xlsx for expense and combined ratios.
+notes: >-
+  The blueprint lists "Premium + claims". Earned premium needs policy cover dates, so
+  policies is required too (decision 0014).
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 10.

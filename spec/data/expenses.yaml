@@ -1,0 +1,93 @@
+id: expenses
+version: 0.1.0
+title_en: Expenses
+title_tr: Giderler
+status: draft
+definition: >-
+  Operating expense bookings by month and type: acquisition costs other than commission,
+  administration, unallocated claims handling and other expenses.
+file_name: expenses.xlsx
+required_for_report: false
+grain: one expense booking (several rows may share period, type and dimensions)
+keys: []
+fields:
+  - name: period
+    type: date
+    required: true
+    description: Month of the booking, given as its month end (CV04).
+  - name: amount
+    type: number
+    required: true
+    description: Amount in original currency, positive for a cost (CV05).
+  - name: currency
+    type: text
+    required: true
+    description: ISO 4217 code of the amount.
+  - name: type
+    type: text
+    required: true
+    description: >-
+      Expense type; any source label, mapped to a class. ACQUISITION excludes commission,
+      which comes from premiums (EX01, decision 0009).
+    classes: [ACQUISITION, ADMINISTRATION, CLAIMS_HANDLING_UNALLOCATED, OTHER]
+  - name: entity
+    type: text
+    required: false
+    description: Company or legal entity that booked the expense.
+  - name: segment
+    type: text
+    required: false
+    description: Business segment the expense belongs to; empty when not allocated.
+    classes: [NON_LIFE, LIFE, PENSION, HEALTH]
+  - name: line
+    type: text
+    required: false
+    description: Line of business the expense belongs to; empty when not allocated.
+validation:
+  - id: DV-EXP-01
+    dimension: completeness
+    severity: BLOCKING
+    fields: [expenses.period, expenses.amount, expenses.type]
+    rule: period, amount and type are present.
+    action: Rows without any of them are excluded and listed.
+  - id: DV-EXP-02
+    dimension: validity
+    severity: WARNING
+    fields: [expenses.currency]
+    rule: currency is present and a valid ISO 4217 code.
+    action: >-
+      The row is kept in original-currency views under currency UNKNOWN and excluded from
+      converted views (CV01).
+  - id: DV-EXP-03
+    dimension: validity
+    severity: WARNING
+    fields: [expenses.type, expenses.segment]
+    rule: type and segment map to classes through the value aliases (AL02).
+    action: >-
+      Unmapped rows become UNMAPPED and are listed; an UNMAPPED type is excluded from EX02
+      and EX03.
+  - id: DV-EXP-04
+    dimension: validity
+    severity: INFO
+    fields: [expenses.period]
+    rule: period is a month end.
+    action: The row is assigned to the month end of its month (CV04).
+  - id: DV-EXP-05
+    dimension: reasonableness
+    severity: INFO
+    fields: [expenses.amount]
+    rule: amount is positive.
+    action: Negative amounts are kept as reversals and listed.
+  - id: DV-EXP-06
+    dimension: uniqueness
+    severity: INFO
+    fields: [expenses.period, expenses.amount, expenses.type]
+    rule: No two rows are identical in every field.
+    action: Identical rows are kept, because two equal bookings are possible, and listed.
+notes: >-
+  Expenses without segment or line are not allocated in version 1.0; they appear only at
+  the level that is filled (entity, segment or total), never spread over lines.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from the version 1.0 input set.

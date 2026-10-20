@@ -1,0 +1,62 @@
+id: CL11
+version: 0.1.0
+title_en: Case reserve run-off
+title_tr: Muallak hasar gelişimi (run-off)
+status: draft
+definition: >-
+  For claims that had a case reserve at an earlier valuation, what was paid since plus what
+  is still reserved, compared with that earlier reserve.
+unit: ratio
+formula: 'RO(v_0, v_1) = \frac{\sum_{k \in K} \big(P_k(v_1) - P_k(v_0) + R_k(v_1)\big)}{\sum_{k \in K} R_k(v_0)}, \qquad K = \{k : R_k(v_0) > 0\}'
+numerator: >-
+  For the cohort K of claims with a positive case reserve at v_0: payments between v_0 and
+  v_1 plus the case reserve at v_1.
+denominator: Case reserve of the cohort at v_0.
+grain: claim cohort at v_0, by origin period
+breakdowns: [segment, line, entity, origin_period, claim_size_class]
+bases:
+  reinsurance: [GROSS, NET]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+optional: [claims.occurrence_date, claims.segment, claims.line]
+uses: [CL01, CL02, CV01, CV04]
+parameters:
+  - name: months_between
+    default: 12
+    description: v_0 is this many months before v_1; one year matches annual reserve reviews.
+  - name: v1
+    default: cut-off
+    description: Later valuation date.
+edge_cases:
+  - case: Cohort reserve zero
+    handling: Not computed.
+  - case: Claim without a row at v_1 (dropped from later files)
+    handling: Its last row on or before v_1 is carried forward (CV04) and it is listed.
+  - case: Currency
+    handling: Converted with the constant development rate (CV01) so that exchange-rate moves are not shown as run-off.
+  - case: Run-off result in amounts
+    handling: >-
+      Shown beside the ratio as sum R(v0) minus the numerator; positive means the reserve
+      was sufficient (CV05).
+interpretation: >-
+  Whether case reserves turn out sufficient. A ratio above 1 means reserves were too low
+  (deficiency); persistently below 1, too high. Compared by origin, it shows when reserving
+  practice changed.
+typical_range:
+  low: 0.8
+  high: 1.2
+  note: Large departures in one direction for several years signal systematic bias.
+test:
+  path: tests/measures/test_cl11_case_reserve_run_off.py
+  proves: >-
+    Three claims with reserves 100, 50, 0 at v0 and paid-since plus reserve 90, 70 and 30 at
+    v1 give (90 + 70) / 150; the zero-reserve claim is outside the cohort.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

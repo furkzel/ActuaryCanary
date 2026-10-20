@@ -1,0 +1,49 @@
+id: PR06
+version: 0.1.0
+title_en: Average premium
+title_tr: Ortalama prim
+status: draft
+definition: Earned premium per unit of earned exposure in a period.
+unit: amount
+formula: 'AP(P) = \frac{EP(P)}{E(P)}'
+numerator: Gross earned premium in period P (PR02).
+denominator: Earned exposure in period P (CV04).
+grain: calendar period
+breakdowns: [segment, line, entity, product, partner, channel, calendar_period]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL, INFLATION_ADJUSTED]
+requires:
+  - premiums.policy_id
+  - premiums.amount
+  - premiums.type
+  - premiums.booking_date
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+optional: [policies.exposure_units, policies.cancellation_date, policies.segment, policies.line]
+uses: [PR02, CV04]
+edge_cases:
+  - case: Earned exposure zero
+    handling: Not computed.
+  - case: exposure_units missing for some policies
+    handling: Those policies count 1 unit per policy-year (CV04).
+  - case: Policies of mixed currencies in one group
+    handling: Original-currency view shows one value per currency; converted views add them.
+interpretation: >-
+  Price per unit of risk. On the inflation-adjusted basis it shows whether rates keep pace
+  with inflation; a falling real average premium is an early warning for loss ratios.
+typical_range:
+  low: null
+  high: null
+  note: An amount per exposure year; line specific.
+test:
+  path: tests/measures/test_pr06_average_premium.py
+  proves: >-
+    Two policies of 2 units and 1 unit, each covering half of a 365.25-day year in the
+    period, with earned premium 600, give 600 / 1.5 = 400.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

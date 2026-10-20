@@ -1,0 +1,79 @@
+id: PR02
+version: 0.1.0
+title_en: Earned premium
+title_tr: Kazanılmış prim
+status: draft
+definition: >-
+  Written premium spread over the policy's cover period pro rata temporis: each transaction
+  is earned evenly by day from its effective date to the policy end date.
+unit: amount
+formula: 'EP(P) = \sum_k x_k \cdot \frac{\big|[a_k, b_k) \cap P\big|}{\big|[a_k, b_k)\big|}, \qquad a_k = \max(\mathrm{effective}_k, \mathrm{start}_k),\ b_k = \mathrm{end}_k'
+numerator: >-
+  Each written-type transaction (PR01 types; CEDED_PREMIUM on the CEDED basis) booked on or
+  before the cut-off, times the share of its earning interval that falls in period P.
+denominator: null
+grain: policy transaction, aggregated to calendar period of earning
+breakdowns: [segment, line, entity, product, partner, channel, currency, calendar_period]
+bases:
+  reinsurance: [GROSS, CEDED, NET]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL, INFLATION_ADJUSTED]
+requires:
+  - premiums.policy_id
+  - premiums.booking_date
+  - premiums.amount
+  - premiums.currency
+  - premiums.type
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+optional:
+  - premiums.effective_date
+  - policies.segment
+  - policies.line
+  - policies.entity
+  - policies.product
+  - policies.partner
+  - policies.channel
+uses: [PR01, CV01, CV02, CV03, CV04, CV05]
+parameters:
+  - name: earning_pattern
+    default: pro_rata_temporis
+    description: Even earning by day; other patterns (for example for long-tail warranty) are later work.
+    allowed: [pro_rata_temporis]
+edge_cases:
+  - case: effective_date empty
+    handling: booking_date is used as the effective date.
+  - case: Earning interval empty or reversed (a_k on or after b_k)
+    handling: The whole amount is earned on a_k.
+  - case: Cancellation
+    handling: >-
+      The original premium keeps earning to end_date; the negative CANCELLATION or REFUND
+      transaction, effective at the cancellation date, earns negatively over the rest of the
+      cover, so the two together stop earning at the cancellation date. The policy's
+      cancellation_date is not used for premium.
+  - case: Transaction booked after its effective date
+    handling: >-
+      Earned by its effective-date pattern; at a later cut-off, earlier periods are restated
+      with it. Earned premium by period is therefore always as known at the cut-off.
+  - case: Policy not in policies or without cover dates
+    handling: Not earned; listed (DV-PRM-06, DV-POL-03).
+  - case: end_date given inclusive in the source (2024-12-31 for a one-year policy)
+    handling: Accepted as given; the policy covers one day less (CV04).
+interpretation: >-
+  Premium that pays for cover already given. The denominator of loss, expense and commission
+  ratios and the exposure measure behind Bornhuetter–Ferguson and Cape Cod.
+typical_range:
+  low: null
+  high: null
+  note: An amount; for a stable book close to written premium over a year.
+test:
+  path: tests/measures/test_pr02_earned_premium.py
+  proves: >-
+    A one-year policy written on 1 July with a mid-term endorsement and a later cancellation
+    earns the hand-computed amounts in each month and in total; property test: earned over
+    all periods equals written premium for policies that have expired.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

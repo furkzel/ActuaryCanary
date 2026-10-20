@@ -1,0 +1,27 @@
+id: M04
+version: 0.1.0
+title_en: Reserving (indicative)
+title_tr: Karşılık tahmini (gösterge)
+status: draft
+definition: >-
+  Development triangles, factors, ultimates by several methods with a selection, the
+  reserve range and actual versus expected development. Indicative, never an official
+  reserve.
+phase: 1
+question: What will claims finally cost, and how sure are we?
+required_all: [claim_valuations]
+required_any: []
+optional: [claims, premiums, policies, market]
+measures: [RS01, RS02, RS03, AE01, CL10]
+methods: [MT01, MT02, MT03, MT04, MT05, MT06, MT07, MT10]
+skip_reason: >-
+  Reserving did not run: no claim valuations were loaded. Load claim_valuations.xlsx to
+  enable it; add claims.xlsx for accident-period origins, premiums.xlsx with policies.xlsx
+  for Bornhuetter–Ferguson and Cape Cod, and market.xlsx for the inflation-adjusted view.
+notes: >-
+  Without claims, origins are first-valuation months (proxy report periods, decision 0008)
+  and the premium-based methods report that they need accident origins.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 10.

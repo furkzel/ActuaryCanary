@@ -1,0 +1,47 @@
+id: CL12
+version: 0.1.0
+title_en: Large-loss share
+title_tr: Büyük hasar payı
+status: draft
+definition: Incurred of LARGE and CATASTROPHE claims as a share of total incurred, by origin period.
+unit: ratio
+formula: 'LS(i) = \frac{\sum_{k \in i,\ \mathrm{class}_k \in \{\mathrm{LARGE},\,\mathrm{CATASTROPHE}\}} I_k(c)}{\sum_{k \in i} I_k(c)}'
+numerator: Incurred at the cut-off (CL03) of LARGE and CATASTROPHE claims of origin i (CV08).
+denominator: Incurred at the cut-off of all claims of origin i.
+grain: origin period by segment and line
+breakdowns: [segment, line, entity, origin_period]
+bases:
+  reinsurance: [GROSS, NET]
+  currency: [REPORTING]
+  value: [NOMINAL, INFLATION_ADJUSTED]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claim_valuations.status
+optional: [claims.event_code, claims.occurrence_date, claims.segment, claims.line]
+uses: [CL03, CV08]
+edge_cases:
+  - case: Total incurred zero
+    handling: Not computed.
+  - case: Group without a LARGE class (too few claims, CV08)
+    handling: Not computed, with the CV08 reason.
+  - case: Catastrophe and large shown apart
+    handling: The two components are shown separately as well as summed.
+interpretation: >-
+  How much of the result is driven by a few claims. A high share makes ratios volatile and
+  calls for large-loss analysis before reading trends.
+typical_range:
+  low: 0.0
+  high: 0.4
+  note: With the default 99th percentile threshold, often 10 to 30 per cent for liability.
+test:
+  path: tests/measures/test_cl12_large_loss_share.py
+  proves: >-
+    Incurred 10, 20, 30, 140 with one LARGE claim (140) and one claim with an event code
+    (30) give 170 / 200 = 0.85 with components 0.70 and 0.15.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

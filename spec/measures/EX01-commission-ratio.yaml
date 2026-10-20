@@ -1,0 +1,46 @@
+id: EX01
+version: 0.1.0
+title_en: Commission ratio
+title_tr: Komisyon oranı
+status: draft
+definition: Commission earned as a share of gross earned premium in a calendar period.
+unit: ratio
+formula: 'CM(Q) = \frac{EC(Q)}{EP^{\mathrm{gross}}(Q)}'
+numerator: COMMISSION amounts from premiums, earned like premium on their policy (PR02 earning pattern).
+denominator: Gross earned premium in Q (PR02).
+grain: calendar period
+breakdowns: [segment, line, entity, product, partner, channel, calendar_period]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL]
+requires:
+  - premiums.policy_id
+  - premiums.booking_date
+  - premiums.amount
+  - premiums.type
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+optional: [premiums.effective_date, policies.segment, policies.line, policies.partner, policies.channel]
+uses: [PR02, CV05]
+edge_cases:
+  - case: No COMMISSION rows
+    handling: Not computed, with the reason "no commission in the premium file"; never shown as 0.
+  - case: Earned premium zero or negative
+    handling: Not computed.
+interpretation: >-
+  Cost of distribution paid as commission. Commission is the only acquisition cost read
+  from premiums; other acquisition costs come from expenses (EX02), so the two never
+  overlap (decision 0009). Compare by channel and partner.
+typical_range:
+  low: 0.05
+  high: 0.3
+  note: Motor liability often around 10 per cent; property and bancassurance higher.
+test:
+  path: tests/measures/test_ex01_commission_ratio.py
+  proves: A policy with premium 1200 and commission 180, both earned over one year, gives 0.15 in every month.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

@@ -1,0 +1,36 @@
+id: CV05
+version: 0.1.0
+title_en: Signs
+title_tr: İşaretler
+status: draft
+definition: >-
+  Amounts follow the insurer's view: premiums, payments, reserves, recoveries, ceded amounts
+  and costs are stored with a fixed canonical sign per type, so that measures add them
+  without guessing.
+rules:
+  - >-
+    Canonical signs of premium types: WRITTEN positive; ENDORSEMENT either sign (additional
+    or return premium); CANCELLATION and REFUND negative; COMMISSION, CEDED_PREMIUM and
+    RI_COMMISSION positive (they are magnitudes, subtracted or added by the measures).
+  - >-
+    Claim amounts in claim_valuations are positive magnitudes: paid, case reserve,
+    recoveries, allocated expense and ceded amounts. Recoveries are subtracted, never stored
+    negative. Negative values are kept as given and flagged (DV-CLV-08).
+  - Expense amounts are positive for a cost; negative amounts are reversals.
+  - >-
+    Sign normalisation per file: for each premium type with a canonical sign (every type
+    except ENDORSEMENT), when more than half of its non-zero amounts carry the opposite sign,
+    every amount of that type is multiplied by -1 and an INFO finding is recorded
+    (DV-PRM-08). After that, individual amounts with the opposite sign are kept as reversals.
+  - >-
+    Results are signed from the insurer's view: a positive reinsurance result (RI02) or
+    run-off result (CL11) is favourable to the insurer.
+formulas:
+  - name: type normalisation
+    expression: 'x_k \leftarrow -x_k \ \text{for all } k \in \tau \quad \text{if} \quad \#\{k \in \tau : \mathrm{sign}(x_k) = -\sigma_\tau\} > \tfrac{1}{2}\, \#\{k \in \tau : x_k \neq 0\}'
+    where: tau is the set of rows of one premium type in one file and sigma_tau its canonical sign.
+requires: [premiums.amount, premiums.type]
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 7.4.

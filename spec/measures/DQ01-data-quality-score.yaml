@@ -1,0 +1,52 @@
+id: DQ01
+version: 0.1.0
+title_en: Data quality score
+title_tr: Veri kalitesi puanı
+status: draft
+definition: >-
+  The weighted pass rate of the validation rules in spec/data, on a 0 to 100 scale, per
+  loaded concept and overall.
+unit: score
+formula: 'DQ = 100 \cdot \frac{\sum_{r} w_r \, \frac{\mathrm{passed}_r}{\mathrm{checked}_r}}{\sum_r w_r}, \qquad w_r = 3 \text{ (BLOCKING)},\ 1 \text{ (WARNING)},\ 0 \text{ (INFO)}'
+numerator: For each evaluated rule r, its weight times the share of checked rows that pass.
+denominator: Sum of the weights of the evaluated rules.
+grain: data concept, and overall across loaded concepts
+breakdowns: [data_concept]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL]
+  value: [NOMINAL]
+requires: []
+optional:
+  - claim_valuations.claim_id
+  - claims.claim_id
+  - policies.policy_id
+  - premiums.transaction_id
+  - expenses.period
+  - market.series_id
+uses: []
+edge_cases:
+  - case: Rule whose fields are not loaded or that checks zero rows
+    handling: Not evaluated; it adds nothing to numerator or denominator.
+  - case: INFO rules
+    handling: Reported but weight 0, because they describe the data rather than fault it.
+  - case: Coverage rules across concepts
+    handling: Counted in the concept that owns the rule ID.
+  - case: Overall score
+    handling: Computed over all evaluated rules of all loaded concepts, not as an average of concept scores.
+interpretation: >-
+  A headline for how much the data can be trusted. The quality report lists each failing
+  rule with counts and examples; the score is only a summary.
+typical_range:
+  low: 70
+  high: 100
+  note: Clean extracts score above 95; below 85 read the quality report before any result.
+test:
+  path: tests/measures/test_dq01_data_quality_score.py
+  proves: >-
+    One BLOCKING rule passing 90 of 100 rows, one WARNING rule passing 50 of 100 and one
+    INFO rule failing every row give 100 (3 x 0.9 + 1 x 0.5) / 4 = 80.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint sections 6.5 and 8.1.

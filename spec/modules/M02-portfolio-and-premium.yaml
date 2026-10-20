@@ -1,0 +1,26 @@
+id: M02
+version: 0.1.0
+title_en: Portfolio and premium
+title_tr: Portföy ve prim
+status: draft
+definition: >-
+  Size and movement of the book: written, earned and unearned premium, cancellations,
+  retention and average premium, by segment, line, channel and partner.
+phase: 1
+question: How big is the book, and where does it grow or shrink?
+required_all: [premiums]
+required_any: []
+optional: [policies, market]
+measures: [PR01, PR02, PR03, PR04, PR05, PR06, RI01]
+methods: []
+skip_reason: >-
+  Portfolio and premium did not run: no premium file was loaded. Load premiums.xlsx to
+  enable it; add policies.xlsx for earned premium, exposure and breakdowns.
+notes: >-
+  The blueprint lists "Premium or Policy" as required. Every version 1.0 measure of this
+  module needs premium transactions, so premiums is required and policies optional
+  (decision 0014). PR02, PR03 and PR06 report their own reason when policies is missing.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 10.

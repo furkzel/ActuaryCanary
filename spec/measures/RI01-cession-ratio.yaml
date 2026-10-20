@@ -1,0 +1,54 @@
+id: RI01
+version: 0.1.0
+title_en: Cession ratio
+title_tr: Devir oranı
+status: draft
+definition: >-
+  Ceded as a share of gross, separately for premium (written premium in a period) and for
+  claims (incurred at a valuation date).
+unit: ratio
+formula: 'CS^{\mathrm{prem}}(P) = \frac{WP^{\mathrm{ceded}}(P)}{WP^{\mathrm{gross}}(P)}, \qquad CS^{\mathrm{clm}}(v) = \frac{I^{\mathrm{ceded}}(v)}{I^{\mathrm{gross}}(v)}'
+numerator: Ceded written premium (PR01 CEDED) or ceded incurred (CL03 CEDED).
+denominator: Gross written premium (PR01 GROSS) or gross incurred (CL03 GROSS).
+grain: calendar period (premium); origin period at a valuation date (claims)
+breakdowns: [segment, line, entity, origin_period, calendar_period, valuation_date, claim_size_class]
+bases:
+  reinsurance: [CEDED]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL]
+requires: [premiums.booking_date, premiums.amount, premiums.type]
+optional:
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claim_valuations.ceded_paid_to_date
+  - claim_valuations.ceded_reserve
+  - policies.segment
+  - policies.line
+  - claims.segment
+  - claims.line
+uses: [PR01, CL03, CV03]
+edge_cases:
+  - case: Only one side available
+    handling: >-
+      The premium ratio needs CEDED_PREMIUM rows, the claims ratio needs both ceded columns;
+      each is shown or skipped on its own with the CV03 reason.
+  - case: Gross zero
+    handling: Not computed.
+  - case: Claims ratio well above the premium ratio for a group
+    handling: Shown; expected when excess-of-loss layers are hit.
+interpretation: >-
+  How much risk is passed to reinsurers. The claims ratio above the premium ratio means
+  reinsurance paid off in that period or origin.
+typical_range:
+  low: 0.0
+  high: 0.5
+  note: Quota share lines show the quota; excess-of-loss lines show small premium ratios and lumpy claims ratios.
+test:
+  path: tests/measures/test_ri01_cession_ratio.py
+  proves: >-
+    Gross written 1000 with ceded 300, and gross incurred 500 with ceded 200, give 0.3 and
+    0.4; without the ceded columns only the premium ratio is shown.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

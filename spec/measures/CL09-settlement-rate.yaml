@@ -1,0 +1,46 @@
+id: CL09
+version: 0.1.0
+title_en: Settlement rate
+title_tr: Hasar sonuçlandırma oranı
+status: draft
+definition: >-
+  Claims closed in a period as a share of claims that could have been closed in it: open
+  at the start plus newly reported during the period.
+unit: ratio
+formula: 'SR(Q) = \frac{N^{\mathrm{closed}}(Q)}{N^{\mathrm{open}}(\mathrm{start}\,Q) + N^{\mathrm{new}}(Q)}'
+numerator: Closing events in period Q (CL04 flow count).
+denominator: >-
+  Open claims as of the last day before Q (CL04 stock count) plus claims newly reported in
+  Q (CL04 flow count).
+grain: calendar period
+breakdowns: [segment, line, entity, product, partner, calendar_period, claim_size_class]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL]
+  value: [NOMINAL]
+requires: [claim_valuations.claim_id, claim_valuations.valuation_date, claim_valuations.status]
+optional: [claims.segment, claims.line]
+uses: [CL04, CV04]
+edge_cases:
+  - case: Denominator zero
+    handling: Not computed.
+  - case: Reopened claims
+    handling: >-
+      A claim reopened and closed again within Q adds one closing; reopenings are not added
+      to the denominator, so the ratio can exceed 1 in rare cases and is then flagged.
+  - case: First period of the file
+    handling: Not computed, because the open count at its start is unknown.
+interpretation: >-
+  Throughput of claims handling. A falling rate with steady reporting builds a backlog and
+  usually precedes reserve strengthening.
+typical_range:
+  low: 0.0
+  high: 1.0
+  note: Monthly rates for short-tail lines are often 0.3 to 0.7.
+test:
+  path: tests/measures/test_cl09_settlement_rate.py
+  proves: Ten open at the start, five new and six closings in the month give 6 / 15 = 0.4.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

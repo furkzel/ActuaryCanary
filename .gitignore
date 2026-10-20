@@ -1,6 +1,6 @@
 .cache/
 out/
-data/
+/data/
 .venv/
 __pycache__/
 *.py[cod]

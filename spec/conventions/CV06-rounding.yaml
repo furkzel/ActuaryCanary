@@ -1,0 +1,44 @@
+id: CV06
+version: 0.1.0
+title_en: Precision and rounding
+title_tr: Hassasiyet ve yuvarlama
+status: draft
+definition: >-
+  Calculations use full precision; rounding happens only when a number is presented, half
+  away from zero, and totals are always computed from unrounded values.
+rules:
+  - Calculations use 64-bit floating point and never round intermediate results.
+  - >-
+    Presentation rounds half away from zero on the shortest decimal representation of the
+    value, so 2.675 shown with two decimals is 2.68 and -0.5 shown with none is -1.
+  - >-
+    Totals and ratios are computed from unrounded values. Where displayed parts do not add
+    up to the displayed total, the table says so in a footnote.
+  - Exported data files carry unrounded values; only the report page and printable document round.
+formulas:
+  - name: half away from zero
+    expression: '\mathrm{round}(x, d) = \mathrm{sign}(x) \cdot \left\lfloor |x| \cdot 10^{d} + \tfrac{1}{2} \right\rfloor \cdot 10^{-d}'
+    where: evaluated in decimal arithmetic on the shortest decimal representation of x.
+defaults:
+  - name: amount_decimals
+    default: 0
+    description: Money amounts in the report, in currency units.
+  - name: ratio_decimals
+    default: 1
+    description: Ratios shown as percentages with one decimal (68.4%).
+  - name: factor_decimals
+    default: 3
+    description: Development factors and cumulative factors.
+  - name: count_decimals
+    default: 0
+    description: Claim and policy counts.
+  - name: days_decimals
+    default: 1
+    description: Mean and percentile durations in days.
+  - name: score_decimals
+    default: 0
+    description: Data quality score on a 0 to 100 scale.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 7.4.

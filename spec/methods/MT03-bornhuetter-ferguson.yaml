@@ -1,0 +1,90 @@
+id: MT03
+version: 0.1.0
+title_en: Bornhuetter–Ferguson
+title_tr: Bornhuetter–Ferguson
+status: draft
+definition: >-
+  Ultimate claims as reported claims plus the still-unreported share of an a priori
+  expected ultimate (prior loss ratio times earned premium), the unreported share coming
+  from the chain-ladder pattern.
+tier: A
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claims.occurrence_date
+  - premiums.policy_id
+  - premiums.amount
+  - premiums.type
+  - premiums.booking_date
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+optional: [claims.segment, claims.line, policies.segment, policies.line]
+uses: [MT01, MT02, MT04, PR02]
+assumptions:
+  - statement: The prior loss ratio is a credible estimate of each origin's ultimate loss ratio.
+    check: Compare the prior with Cape Cod and with mature origins' chain-ladder loss ratios.
+  - statement: The chain-ladder pattern describes the share of claims still to emerge.
+    check: As for MT02.
+  - statement: Earned premium measures exposure consistently across origins.
+    check: Average premium (PR06) trend; rate changes recorded in the assumptions register.
+parameters:
+  - name: prior_loss_ratio
+    default: cape_cod
+    description: >-
+      Expected loss ratio per segment, line and origin from the assumptions register. When
+      none is given, the Cape Cod ratio of the same group (MT04) is used and labelled
+      "data-derived prior" (owner decision, record 0011).
+  - name: pattern
+    default: chain_ladder_selected
+    description: Cumulative factors of MT02 on the same triangle and basis.
+algorithm:
+  - step: >-
+      Earned premium of each accident period i on the same reinsurance basis and currency
+      as the triangle (PR02; NET uses gross minus ceded earned premium).
+    formula: 'P_i = EP(i)'
+  - step: Prior ultimate and the share still to emerge.
+    formula: 'U^{0}_i = ELR_i \cdot P_i, \qquad q_i = 1 - \frac{1}{CDF_{J_i}}'
+  - step: Ultimate.
+    formula: '\hat U^{BF}_i = C_{i,J_i} + q_i \, U^{0}_i'
+outputs:
+  - name: ultimate
+    description: U(i) per origin.
+  - name: prior_ultimate
+    description: ELR(i) times P(i), with the source of ELR (user or data-derived).
+  - name: percent_unreported
+    description: q(i) per origin.
+  - name: unpaid
+    description: U(i) minus paid at the cut-off.
+  - name: ibnr
+    description: U(i) minus incurred at the cut-off; equals q(i) times the prior ultimate on an incurred triangle.
+diagnostics:
+  - Implied ultimate loss ratio per origin next to the prior.
+  - Difference to chain ladder per origin.
+failure_modes:
+  - condition: Origin axis is first_valuation or report.
+    action: Not run; reason "Bornhuetter–Ferguson needs accident or underwriting origins matched to earned premium".
+  - condition: Earned premium of an origin missing, zero or negative.
+    action: Not run for that origin; reason given.
+  - condition: No user prior and Cape Cod not available.
+    action: Not run; reason "no prior loss ratio available".
+  - condition: CDF below 1 (q negative).
+    action: Computed as given and flagged.
+validation:
+  - kind: fixture
+    description: A 4 x 4 triangle with premiums and a given prior, hand-computed.
+    tolerance: 1e-12 relative
+  - kind: benchmark
+    description: Ultimates for a published triangle with premium match the chainladder package's Bornhuetter–Ferguson.
+    tolerance: 1e-9 relative
+  - kind: property
+    description: With q = 0 (fully developed) the ultimate equals the latest cumulative; with prior equal to the chain-ladder loss ratio it equals chain ladder.
+    tolerance: 1e-9 relative
+references:
+  - Bornhuetter, R. L. and Ferguson, R. E. (1972). The Actuary and IBNR. Proceedings of the Casualty Actuarial Society.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 9.1; prior fallback chosen by the owner.

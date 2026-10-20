@@ -1,0 +1,48 @@
+id: CL07
+version: 0.1.0
+title_en: Reporting delay
+title_tr: İhbar gecikmesi
+status: draft
+definition: >-
+  Days from occurrence to report per claim, summarised by mean, median and upper
+  percentiles.
+unit: days
+formula: 'd_k = \mathrm{report}_k - \mathrm{occurrence}_k; \quad \bar d = \tfrac{1}{n}\sum_k d_k,\ \ Q_7(d; p) \text{ for } p \in \{0.5, 0.75, 0.9, 0.95\}'
+numerator: Reporting delays in days of claims reported by the cut-off.
+denominator: Number of those claims (for the mean).
+grain: claim; summarised by accident period, segment and line
+breakdowns: [segment, line, entity, product, partner, cause, origin_period, claim_size_class]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL]
+  value: [NOMINAL]
+requires: [claims.claim_id, claims.occurrence_date, claims.report_date]
+optional: [claims.segment, claims.line]
+uses: [CV04, CV08]
+parameters:
+  - name: percentiles
+    default: [0.5, 0.75, 0.9, 0.95]
+    description: Percentiles shown next to the mean; type 7 sample quantiles.
+edge_cases:
+  - case: Report before occurrence (DV-CLM-04)
+    handling: Excluded and counted in the quality report.
+  - case: Recent accident periods
+    handling: >-
+      Truncated, because long delays are not yet observed; periods younger than the 95th
+      percentile delay of mature periods are marked "incomplete".
+  - case: Fewer than 5 claims in a group
+    handling: Percentiles not shown; mean shown with its count.
+interpretation: >-
+  How long the insurer stays unaware of losses; drives pure IBNR. A lengthening delay makes
+  recent periods look better than they are.
+typical_range:
+  low: 0
+  high: 365
+  note: Median days; motor own damage under 10, liability often 15 to 60.
+test:
+  path: tests/measures/test_cl07_reporting_delay.py
+  proves: Delays 0, 2, 4, 10 and one negative claim give mean 4, median 3 and the type 7 percentiles, with one exclusion.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

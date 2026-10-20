@@ -1,0 +1,48 @@
+id: RS03
+version: 0.1.0
+title_en: Reserve range and risk measures
+title_tr: Karşılık aralığı ve risk ölçüleri
+status: draft
+definition: >-
+  Standard error of the chain-ladder reserve and, assuming a lognormal reserve
+  distribution, its percentiles, value at risk and tail value at risk; an approximation.
+unit: amount
+formula: 'se(\hat R) \text{ (MT06)}; \quad q_p = \exp(\mu + \sigma z_p); \quad \mathrm{VaR}_p = q_p; \quad \mathrm{TVaR}_p = e^{\mu + \sigma^2/2}\, \frac{\Phi(\sigma - z_p)}{1 - p}'
+numerator: Mack standard error and lognormal quantities of MT06, per origin and in total.
+denominator: null
+grain: origin period and total, by segment and line
+breakdowns: [segment, line, entity, origin_period]
+bases:
+  reinsurance: [GROSS, NET]
+  currency: [REPORTING]
+  value: [NOMINAL]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+optional: [claims.occurrence_date, claims.segment, claims.line]
+uses: [MT06, MT10]
+edge_cases:
+  - case: Reserve zero or negative, or standard error zero
+    handling: Lognormal quantities not shown; standard error shown.
+  - case: Selected method other than chain ladder
+    handling: The coefficient of variation se / R of the Mack chain ladder is applied to the selected reserve and labelled (MT06).
+  - case: Label
+    handling: 'Every figure carries the label "approximation: Mack standard error with lognormal assumption".'
+interpretation: >-
+  How uncertain the reserve estimate is. The coefficient of variation is the comparable
+  figure across lines; VaR and TVaR are indicative tail figures, not capital requirements.
+typical_range:
+  low: null
+  high: null
+  note: Total coefficient of variation commonly 5 to 20 per cent for non-life lines.
+test:
+  path: tests/measures/test_rs03_reserve_range.py
+  proves: >-
+    R = 100 and se = 20 give sigma^2 = ln 1.04 and the hand-computed median, VaR 99.5% and
+    TVaR 99%; the benchmark part is in MT06.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

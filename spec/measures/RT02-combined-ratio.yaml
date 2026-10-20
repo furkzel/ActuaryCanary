@@ -1,0 +1,57 @@
+id: RT02
+version: 0.1.0
+title_en: Combined ratio
+title_tr: Bileşik oran
+status: draft
+definition: >-
+  Ultimate loss ratio of an accident period plus the expense ratio and the commission ratio
+  of the calendar period with the same dates.
+unit: ratio
+formula: 'COR(i) = LR^{\mathrm{ultimate}}(i) + ER(i) + CM(i)'
+numerator: Sum of RT01 ultimate (accident period i), EX02 and EX01 (calendar period equal to i).
+denominator: null
+grain: accident period, by segment and line where all three components exist
+breakdowns: [segment, line, entity, origin_period]
+bases:
+  reinsurance: [GROSS]
+  currency: [REPORTING]
+  value: [NOMINAL]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claims.occurrence_date
+  - premiums.policy_id
+  - premiums.amount
+  - premiums.type
+  - premiums.booking_date
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+  - expenses.period
+  - expenses.amount
+  - expenses.type
+optional: [claims.segment, claims.line, expenses.segment, expenses.line]
+uses: [RT01, EX01, EX02]
+edge_cases:
+  - case: Commission ratio not available (no COMMISSION rows)
+    handling: Combined ratio not computed; showing it without commission would understate it.
+  - case: Expenses carried only at a higher level than line
+    handling: Combined ratio shown only at that level.
+  - case: NET basis
+    handling: Not in version 1.0; net combined ratio needs net expense and commission definitions.
+interpretation: >-
+  Below 1 the business makes an underwriting profit on the period's claims, before
+  investment income. The split shows whether claims or costs drive a change.
+typical_range:
+  low: 0.7
+  high: 1.2
+  note: Many non-life markets run between 0.9 and 1.05.
+test:
+  path: tests/measures/test_rt02_combined_ratio.py
+  proves: Ultimate loss ratio 0.72, expense ratio 0.13 and commission ratio 0.15 give 1.00.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

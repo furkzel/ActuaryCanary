@@ -1,0 +1,40 @@
+id: PR05
+version: 0.1.0
+title_en: Retention ratio
+title_tr: Saklama (elde tutma) oranı
+status: draft
+definition: Net written premium as a share of gross written premium.
+unit: ratio
+formula: 'RR(P) = \frac{WP^{\mathrm{net}}(P)}{WP^{\mathrm{gross}}(P)} = 1 - \frac{\sum_{k \in P,\ \mathrm{CEDED\_PREMIUM}} x_k}{WP^{\mathrm{gross}}(P)}'
+numerator: Net written premium (PR01 on the NET basis).
+denominator: Gross written premium (PR01 on the GROSS basis).
+grain: calendar period of booking_date
+breakdowns: [segment, line, entity, calendar_period]
+bases:
+  reinsurance: [NET]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL]
+requires: [premiums.booking_date, premiums.amount, premiums.type]
+optional: [premiums.policy_id, policies.segment, policies.line, policies.entity]
+uses: [PR01, CV03]
+edge_cases:
+  - case: The file has no CEDED_PREMIUM rows at all
+    handling: Not computed, with the reason "no ceded premium in the premium file" (CV03); never shown as 100 per cent.
+  - case: Gross written premium zero or negative
+    handling: Not computed.
+  - case: Ratio below 0 or above 1
+    handling: Shown and flagged; usually ceded premium booked in another period than the gross.
+interpretation: >-
+  Share of the business the insurer keeps. A drop means more is ceded, typically after a
+  treaty change or growth in a line protected by quota share.
+typical_range:
+  low: 0.5
+  high: 1.0
+  note: Property with quota share often 0.6 to 0.8; motor usually above 0.9.
+test:
+  path: tests/measures/test_pr05_retention_ratio.py
+  proves: Gross written 1000 and ceded premium 300 give 0.7; a file without CEDED_PREMIUM rows gives "not available".
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

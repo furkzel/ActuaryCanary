@@ -1,0 +1,69 @@
+id: CV01
+version: 0.1.0
+title_en: Currency conversion
+title_tr: Kur çevrimi
+status: draft
+definition: >-
+  Every amount stays in its original currency and is converted only when a view needs
+  another currency, with the rate type that matches the nature of the amount.
+rules:
+  - >-
+    Amounts are stored in original currency with their currency code. ORIGINAL views show
+    each currency separately and never add different currencies.
+  - >-
+    In version 1.0 the functional currency equals the reporting currency, because no entity
+    feed is read; FUNCTIONAL and REPORTING views are therefore identical.
+  - >-
+    Flows (premium transactions, expenses, and increments of paid, recoveries, allocated
+    expense and ceded paid) are converted at the FX_SPOT rate of their booking date. A flow
+    derived from two claim valuations (CV04) has only a booking month and uses the
+    FX_PERIOD_AVERAGE rate of that month.
+  - >-
+    When the FX_SPOT rate of the booking date is missing, the nearest earlier FX_SPOT rate
+    within max_lookback_days is used and flagged; otherwise the FX_PERIOD_AVERAGE rate of the
+    booking month is used and flagged.
+  - >-
+    Stocks (case reserve, ceded reserve, unearned premium) are converted at the
+    FX_PERIOD_END rate of the valuation month; when it is missing, the FX_SPOT rate of the
+    valuation date or the nearest earlier one within max_lookback_days is used and flagged.
+  - >-
+    Development analysis (triangles, development factors and every method built on them,
+    and CL11) converts every flow and stock with one constant rate: the stock rate of the
+    development_rate_date. This stops exchange-rate moves from looking like development.
+  - >-
+    A rate for pair ORIGINAL/TARGET is read directly; when only TARGET/ORIGINAL exists, its
+    reciprocal is used. No cross rates through a third currency are formed. An amount whose
+    currency equals the target currency uses the rate 1.
+  - >-
+    An amount without an applicable rate is not converted. It stays in original currency,
+    is reported separately in converted views with its total by currency, and is never
+    converted with an invented rate.
+  - >-
+    The inflation-adjusted value basis has its own order of operations (CV02); the constant
+    development rate does not apply there.
+formulas:
+  - name: direct pair
+    expression: 'x^{\mathrm{target}} = x^{\mathrm{orig}} \cdot r_{\mathrm{orig}/\mathrm{target}}(t, \kappa)'
+    where: >-
+      r is the value of series ORIG/TARGET of kind kappa at date or month t; kappa and t
+      follow the flow, stock or development rule above.
+  - name: inverse pair
+    expression: 'x^{\mathrm{target}} = x^{\mathrm{orig}} / r_{\mathrm{target}/\mathrm{orig}}(t, \kappa)'
+defaults:
+  - name: reporting_currency
+    default: project.yaml report.default_reporting_currency
+    description: Target currency of REPORTING views; read from project.yaml, overridable per run.
+  - name: max_lookback_days
+    default: 7
+    description: >-
+      Longest gap, in calendar days, for using an earlier FX_SPOT rate; one week bridges
+      weekends and holidays without reaching into another rate regime.
+  - name: development_rate_date
+    default: cut-off
+    description: Date whose stock rate converts all development analysis; default the cut-off (CV04).
+requires: [market.series_id, market.date, market.value, market.kind]
+uses: [CV02, CV04]
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 7.1.

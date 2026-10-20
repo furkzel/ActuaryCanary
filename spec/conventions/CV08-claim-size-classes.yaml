@@ -1,0 +1,65 @@
+id: CV08
+version: 0.1.0
+title_en: Claim size classes
+title_tr: Hasar büyüklük sınıfları
+status: draft
+definition: >-
+  Each claim is classed once per run as ATTRITIONAL, LARGE or CATASTROPHE, so that severity,
+  large-loss share and anomaly views separate the few big claims from the rest.
+rules:
+  - A claim with a non-empty claims.event_code is CATASTROPHE.
+  - >-
+    Any other claim is LARGE when its size is at or above the threshold of its segment and
+    line, and ATTRITIONAL otherwise.
+  - >-
+    The size of a claim is its gross incurred (paid_to_date plus case_reserve) at the
+    cut-off, in reporting currency. It is restated to value-date prices (CV02) when the price
+    index is available, otherwise nominal and labelled as such. Conversion uses the constant
+    development rate (CV01).
+  - >-
+    Default threshold: the percentile `large_loss_percentile` of the sizes of all non-nil
+    claims (status other than CLOSED_NIL at the cut-off) of the same segment and line, over
+    all origin periods, with linear interpolation between order statistics (the type 7
+    sample quantile).
+  - >-
+    A segment and line with fewer than `min_claims_for_percentile` non-nil claims uses the
+    threshold of its segment; a segment with fewer has no LARGE class, and an INFO finding
+    says so.
+  - >-
+    The user may set a fixed threshold per segment and line, at value-date prices in
+    reporting currency, in the assumptions register; it replaces the percentile and is
+    written to the run manifest.
+  - >-
+    The class is fixed for the whole run, so triangles and ratios do not shift between
+    classes across valuation points.
+  - >-
+    Without claims, line and segment are UNKNOWN: all claims form one group and none is
+    CATASTROPHE.
+formulas:
+  - name: size
+    expression: 's_k = \big(P_k(c) + R_k(c)\big)^{\mathrm{adj}}'
+    where: P and R are paid and case reserve of claim k at the cut-off c, restated per CV02.
+  - name: percentile threshold
+    expression: 'T_{g} = Q_{7}\big(\{ s_k : k \in g,\ \mathrm{status}_k(c) \neq \mathrm{CLOSED\_NIL} \};\ p \big)'
+    where: g is a segment and line group and p is large_loss_percentile.
+defaults:
+  - name: large_loss_percentile
+    default: 0.99
+    description: >-
+      The top one per cent of claims by size are LARGE; owner decision, see 0010. Replaced by
+      an extreme-value threshold when tier B methods arrive.
+  - name: min_claims_for_percentile
+    default: 100
+    description: >-
+      Below 100 claims the 99th percentile rests on a single order statistic and moves with
+      every new claim.
+requires:
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claim_valuations.status
+optional: [claims.event_code, claims.segment, claims.line]
+uses: [CV01, CV02, CV04]
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft; threshold rule chosen by the owner.

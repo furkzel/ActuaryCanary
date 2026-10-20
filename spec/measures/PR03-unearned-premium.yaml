@@ -1,0 +1,54 @@
+id: PR03
+version: 0.1.0
+title_en: Unearned premium
+title_tr: Kazanılmamış prim
+status: draft
+definition: >-
+  At a valuation date, the part of premium booked to date that pays for cover after that
+  date: written to date minus earned to date.
+unit: amount
+formula: 'UPR(v) = \sum_{k:\ \mathrm{booking}_k \le v} x_k \cdot \frac{\big|[\max(a_k, v + 1), b_k)\big|}{\big|[a_k, b_k)\big|}'
+numerator: >-
+  Each written-type transaction booked on or before v times the share of its earning
+  interval (PR02) that lies after v.
+denominator: null
+grain: policy transaction at a valuation date
+breakdowns: [segment, line, entity, product, partner, channel, currency, valuation_date]
+bases:
+  reinsurance: [GROSS, CEDED, NET]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL]
+requires:
+  - premiums.policy_id
+  - premiums.booking_date
+  - premiums.amount
+  - premiums.currency
+  - premiums.type
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+optional: [premiums.effective_date, policies.segment, policies.line, policies.entity]
+uses: [PR02, CV01, CV03, CV04, CV05]
+edge_cases:
+  - case: v after every policy end date
+    handling: "0."
+  - case: Earning interval empty
+    handling: 0 from a_k on, as PR02 earns the whole amount on a_k.
+  - case: Currency
+    handling: A stock; converted at the period-end rate of v (CV01).
+interpretation: >-
+  Premium held for cover still to come; it should move with written premium and term. A
+  falling ratio of unearned to written premium means shorter terms or earlier booking.
+typical_range:
+  low: null
+  high: null
+  note: For a book of one-year policies written evenly, about half of a year's written premium.
+test:
+  path: tests/measures/test_pr03_unearned_premium.py
+  proves: >-
+    For the PR02 fixture, unearned premium at each month end equals the hand-computed value;
+    property test: written to date = earned to date + unearned at every v.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

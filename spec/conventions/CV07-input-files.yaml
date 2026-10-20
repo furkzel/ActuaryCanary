@@ -1,0 +1,34 @@
+id: CV07
+version: 0.1.0
+title_en: Input files and canonical values
+title_tr: Girdi dosyaları ve kanonik değerler
+status: draft
+definition: >-
+  What version 1.0 accepts as input and how every value is stored once it is read: one
+  cumulative spreadsheet per data concept, flexible column names, fixed content and grain.
+rules:
+  - >-
+    Version 1.0 reads one cumulative spreadsheet per data concept (spec/data). Only
+    claim_valuations is required; every other file adds analyses (decision 0004).
+  - >-
+    Column names are free; they are matched through the column aliases (AL01). Categorical
+    values are matched through the value aliases (AL02).
+  - >-
+    One table per sheet, header in the first non-empty row, no merged cells inside the
+    table. market may split its series over several sheets.
+  - >-
+    Dates are stored as dates, never text. Identifiers and codes are stored as text, so
+    leading zeros survive. Amounts are numbers in original currency with their currency code.
+  - Text values are trimmed; an empty or blank text counts as missing.
+  - >-
+    Personal data is never needed. Columns recognised as personal data (AL01 personal_data,
+    or an 11-digit identity-number value profile) are dropped on load and listed by name only.
+  - >-
+    Derived columns (quarters, year-month labels, development lags, ages) are ignored and
+    recomputed (CV04).
+  - Every value keeps a reference to its source file, sheet and row.
+requires: [claim_valuations.claim_id]
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from the version 1.0 input set and blueprint section 4.

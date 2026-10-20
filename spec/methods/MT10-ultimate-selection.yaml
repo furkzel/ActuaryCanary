@@ -1,0 +1,65 @@
+id: MT10
+version: 0.1.0
+title_en: Ultimate selection
+title_tr: Nihai hasar seçimi
+status: draft
+definition: >-
+  Chooses one ultimate per origin from the methods that ran: chain ladder for origins
+  developed enough, Bornhuetter–Ferguson for immature ones, unless the user selects
+  otherwise.
+tier: A
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+optional: [claims.occurrence_date, premiums.amount, policies.start_date]
+uses: [MT02, MT03]
+assumptions:
+  - statement: Below the maturity threshold the reported claims are too thin to extrapolate by factors alone.
+    check: Compare chain ladder and Bornhuetter–Ferguson per origin; large gaps at low maturity confirm the switch.
+parameters:
+  - name: measure
+    default: incurred
+    description: Triangle the selection is made on.
+    allowed: [incurred, paid]
+  - name: bf_below_maturity
+    default: 0.5
+    description: >-
+      Origins whose reported share 1 / CDF is below this use Bornhuetter–Ferguson (owner
+      decision, record 0011).
+  - name: overrides
+    default: []
+    description: Per origin method choices from the assumptions register, each with who, when and why.
+algorithm:
+  - step: Maturity of each origin from the selected chain-ladder factors on the chosen measure.
+    formula: 'm_i = 1 / CDF_{J_i}'
+  - step: Default choice.
+    formula: '\hat U^{\mathrm{sel}}_i = \begin{cases} \hat U^{BF}_i & m_i < 0.5 \text{ and BF available} \\ \hat U^{CL}_i & \text{otherwise} \end{cases}'
+  - step: Overrides from the assumptions register replace the default for their origins.
+outputs:
+  - name: selected_ultimate
+    description: Ultimate per origin with the method chosen and why.
+  - name: selected_unpaid
+    description: Selected ultimate minus paid at the cut-off.
+  - name: selected_ibnr
+    description: Selected ultimate minus incurred at the cut-off.
+  - name: maturity
+    description: m(i) per origin.
+diagnostics:
+  - Selected against every available method per origin.
+failure_modes:
+  - condition: Bornhuetter–Ferguson not available for an immature origin.
+    action: Chain ladder used, with a note naming the BF failure reason.
+  - condition: Chain ladder not available.
+    action: No selection; RT01 ultimate and RS03 are skipped with the MT02 reason.
+validation:
+  - kind: fixture
+    description: Origins with maturities 0.9, 0.5 and 0.3 select CL, CL and BF; an override switches the second to BF.
+    tolerance: exact
+references:
+  - Friedland, J. Estimating Unpaid Claims Using Basic Techniques. Casualty Actuarial Society, chapter 14.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft; selection rule chosen by the owner.
