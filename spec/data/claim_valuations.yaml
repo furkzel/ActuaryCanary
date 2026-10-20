@@ -1,0 +1,177 @@
+id: claim_valuations
+version: 0.1.0
+title_en: Claim valuations
+title_tr: Hasar değerlemeleri
+status: draft
+definition: >-
+  The state of each claim at each valuation date: cumulative paid, case reserve, status and
+  the optional recovery, expense and ceded amounts, all cumulative to that date. The only
+  concept required for a first report.
+file_name: claim_valuations.xlsx
+required_for_report: true
+grain: one claim at one valuation date (month end); amounts are cumulative to that date
+keys: [claim_id, valuation_date]
+fields:
+  - name: claim_id
+    type: text
+    required: true
+    description: Claim identifier, kept as text so leading zeros survive.
+    references: claims.claim_id
+  - name: valuation_date
+    type: date
+    required: true
+    description: The as-known-at date of the row, normally a month end (CV04).
+  - name: paid_to_date
+    type: number
+    required: true
+    description: >-
+      Gross cumulative claim payments to the valuation date in original currency. Excludes
+      recoveries and allocated claim expenses, which have their own fields.
+  - name: case_reserve
+    type: number
+    required: true
+    description: Gross outstanding case estimate at the valuation date in original currency.
+  - name: status
+    type: text
+    required: true
+    description: Claim status at the valuation date; any source label, mapped to a class.
+    classes: [OPEN, CLOSED, CLOSED_NIL, REOPENED, LITIGATED]
+  - name: currency
+    type: text
+    required: true
+    description: ISO 4217 code of the original currency of every amount on the row.
+  - name: subrogation_to_date
+    type: number
+    required: false
+    description: Cumulative subrogation recovered to the valuation date, stored positive (CV05).
+  - name: salvage_to_date
+    type: number
+    required: false
+    description: Cumulative salvage recovered to the valuation date, stored positive (CV05).
+  - name: expense_allocated_to_date
+    type: number
+    required: false
+    description: Cumulative claim expenses allocated to this claim (adjusters, lawyers, experts).
+  - name: ceded_paid_to_date
+    type: number
+    required: false
+    description: Reinsurers' share of paid_to_date, cumulative (CV03).
+  - name: ceded_reserve
+    type: number
+    required: false
+    description: Reinsurers' share of case_reserve at the valuation date (CV03).
+validation:
+  - id: DV-CLV-01
+    dimension: completeness
+    severity: BLOCKING
+    fields: [claim_valuations.claim_id, claim_valuations.valuation_date]
+    rule: claim_id and valuation_date are present on every row.
+    action: Rows without either are excluded from every analysis and listed.
+  - id: DV-CLV-02
+    dimension: completeness
+    severity: WARNING
+    fields: [claim_valuations.paid_to_date, claim_valuations.case_reserve, claim_valuations.status]
+    rule: paid_to_date, case_reserve and status are present.
+    action: >-
+      A row with an empty amount is excluded from money measures and kept for counts; a row
+      with an empty status counts as UNMAPPED.
+  - id: DV-CLV-03
+    dimension: validity
+    severity: WARNING
+    fields: [claim_valuations.currency]
+    rule: currency is a valid ISO 4217 code.
+    action: >-
+      The row is kept in original-currency views under currency UNKNOWN and excluded from
+      converted views (CV01).
+  - id: DV-CLV-04
+    dimension: validity
+    severity: WARNING
+    fields: [claim_valuations.status]
+    rule: status maps to a class through the value aliases (AL02).
+    action: Unmapped labels become UNMAPPED and are listed with their counts; never dropped.
+  - id: DV-CLV-05
+    dimension: validity
+    severity: INFO
+    fields: [claim_valuations.valuation_date]
+    rule: valuation_date is a month end.
+    action: The row is assigned to the month end of its month (CV04).
+  - id: DV-CLV-06
+    dimension: uniqueness
+    severity: WARNING
+    fields: [claim_valuations.claim_id, claim_valuations.valuation_date]
+    rule: One row per claim per valuation month (after DV-CLV-05).
+    action: >-
+      Identical duplicates are kept once. Conflicting duplicates keep the row with the later
+      valuation_date, then the later source row; every duplicate is listed.
+  - id: DV-CLV-07
+    dimension: consistency
+    severity: WARNING
+    fields: [claim_valuations.paid_to_date]
+    rule: paid_to_date never decreases between consecutive valuations of a claim.
+    action: Values are kept as given, so the increment is negative; the decrease is listed.
+  - id: DV-CLV-08
+    dimension: reasonableness
+    severity: WARNING
+    fields:
+      - claim_valuations.paid_to_date
+      - claim_valuations.case_reserve
+      - claim_valuations.subrogation_to_date
+      - claim_valuations.salvage_to_date
+      - claim_valuations.expense_allocated_to_date
+      - claim_valuations.ceded_paid_to_date
+      - claim_valuations.ceded_reserve
+    rule: Every amount on the row is zero or positive.
+    action: Values are kept as given and listed.
+  - id: DV-CLV-09
+    dimension: consistency
+    severity: WARNING
+    fields: [claim_valuations.status, claim_valuations.case_reserve]
+    rule: A claim with status CLOSED or CLOSED_NIL has case_reserve equal to zero.
+    action: Values are kept as given and listed.
+  - id: DV-CLV-10
+    dimension: consistency
+    severity: WARNING
+    fields: [claim_valuations.status, claim_valuations.paid_to_date]
+    rule: A claim with status CLOSED_NIL has paid_to_date equal to zero.
+    action: Values are kept as given and listed.
+  - id: DV-CLV-11
+    dimension: consistency
+    severity: WARNING
+    fields:
+      - claim_valuations.ceded_paid_to_date
+      - claim_valuations.paid_to_date
+      - claim_valuations.ceded_reserve
+      - claim_valuations.case_reserve
+    rule: ceded_paid_to_date is at most paid_to_date and ceded_reserve is at most case_reserve.
+    action: Values are kept as given, so the net amount is negative; listed.
+  - id: DV-CLV-12
+    dimension: consistency
+    severity: WARNING
+    fields: [claim_valuations.currency]
+    rule: A claim keeps the same currency in every valuation.
+    action: Each row is converted in its own currency; the claim is listed.
+  - id: DV-CLV-13
+    dimension: coverage
+    severity: INFO
+    fields: [claim_valuations.valuation_date]
+    rule: >-
+      Each claim has a row in every month from its first valuation to the cut-off, until it
+      is closed.
+    action: A missing month carries the claim's previous row forward (CV04); gaps are listed.
+  - id: DV-CLV-14
+    dimension: consistency
+    severity: WARNING
+    fields: [claim_valuations.claim_id]
+    rule: When claims is loaded, every claim_id exists in claims.
+    action: >-
+      Unmatched claims are kept with segment and line UNKNOWN and origin by first valuation
+      (MT01); they are listed.
+notes: >-
+  Recoveries and allocated expenses are separate fields, so paid_to_date is the pure
+  indemnity paid. When a ceded field is absent from the file, the CEDED and NET bases are
+  unavailable for the measures that need it (CV03); an empty cell in a present column
+  counts as zero.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from the version 1.0 input set.

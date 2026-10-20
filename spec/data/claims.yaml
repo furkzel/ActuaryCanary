@@ -1,0 +1,141 @@
+id: claims
+version: 0.1.0
+title_en: Claims
+title_tr: Hasarlar
+status: draft
+definition: >-
+  One header row per claim with its dates and descriptive attributes. Supplies the
+  occurrence date for accident-period origins, the segment and line for every claim
+  analysis, and the reporting and settlement dates for delay measures.
+file_name: claims.xlsx
+required_for_report: false
+grain: one claim
+keys: [claim_id]
+fields:
+  - name: claim_id
+    type: text
+    required: true
+    description: Claim identifier; the key that links claim_valuations rows to this header.
+  - name: occurrence_date
+    type: date
+    required: true
+    description: Date the loss happened; origin axis for accident-period triangles (CV04).
+  - name: report_date
+    type: date
+    required: true
+    description: Date the insurer learned of the claim.
+  - name: segment
+    type: text
+    required: true
+    description: Business segment; segments are never consolidated by default.
+    classes: [NON_LIFE, LIFE, PENSION, HEALTH]
+  - name: line
+    type: text
+    required: true
+    description: Line of business, free text as used by the company (for example MOTOR_OD).
+  - name: entity
+    type: text
+    required: false
+    description: Company or legal entity that carries the claim.
+  - name: policy_id
+    type: text
+    required: false
+    description: Policy the claim is made under.
+    references: policies.policy_id
+  - name: product
+    type: text
+    required: false
+    description: Product code or name.
+  - name: partner
+    type: text
+    required: false
+    description: Channel partner or intermediary that sold the policy.
+  - name: cause
+    type: text
+    required: false
+    description: Cause of loss as given by the source.
+  - name: close_date
+    type: date
+    required: false
+    description: Date the claim was last closed; empty for open claims.
+  - name: event_code
+    type: text
+    required: false
+    description: Catastrophe event code; a non-empty code makes the claim CATASTROPHE (CV08).
+validation:
+  - id: DV-CLM-01
+    dimension: completeness
+    severity: BLOCKING
+    fields: [claims.claim_id]
+    rule: claim_id is present.
+    action: Rows without it are excluded and listed.
+  - id: DV-CLM-02
+    dimension: uniqueness
+    severity: WARNING
+    fields: [claims.claim_id]
+    rule: claim_id is unique.
+    action: >-
+      Identical duplicates are kept once; for conflicting duplicates the first row in source
+      order is kept and the conflicts are listed.
+  - id: DV-CLM-03
+    dimension: completeness
+    severity: WARNING
+    fields: [claims.occurrence_date, claims.report_date, claims.segment, claims.line]
+    rule: occurrence_date, report_date, segment and line are present.
+    action: >-
+      The claim is excluded only from analyses that need the empty field; an empty segment
+      or line is reported as UNKNOWN.
+  - id: DV-CLM-04
+    dimension: consistency
+    severity: WARNING
+    fields: [claims.occurrence_date, claims.report_date]
+    rule: occurrence_date is on or before report_date.
+    action: The claim is excluded from CL07; triangles keep the occurrence date as given.
+  - id: DV-CLM-05
+    dimension: consistency
+    severity: WARNING
+    fields: [claims.report_date, claims.close_date]
+    rule: report_date is on or before close_date.
+    action: The claim is excluded from CL08 and listed.
+  - id: DV-CLM-06
+    dimension: validity
+    severity: WARNING
+    fields: [claims.segment]
+    rule: segment maps to a class through the value aliases (AL02).
+    action: Unmapped labels become UNMAPPED and are listed.
+  - id: DV-CLM-07
+    dimension: validity
+    severity: WARNING
+    fields: [claims.occurrence_date, claims.report_date, claims.close_date]
+    rule: Every date lies between 1950-01-01 and the valuation cut-off (CV04).
+    action: >-
+      A date after the cut-off is treated as not yet known and the claim is excluded from
+      measures that use it; earlier dates are kept; both are listed.
+  - id: DV-CLM-08
+    dimension: consistency
+    severity: INFO
+    fields: [claims.report_date, claim_valuations.valuation_date]
+    rule: The month of report_date is on or before the month of the claim's first valuation.
+    action: Listed only.
+  - id: DV-CLM-09
+    dimension: consistency
+    severity: WARNING
+    fields: [claims.policy_id, policies.policy_id]
+    rule: When policies is loaded, every non-empty policy_id exists in policies.
+    action: Listed; the claim keeps its own segment and line.
+  - id: DV-CLM-10
+    dimension: consistency
+    severity: INFO
+    fields: [claims.occurrence_date, policies.start_date, policies.end_date]
+    rule: occurrence_date lies within the linked policy's cover period.
+    action: Listed only.
+  - id: DV-CLM-11
+    dimension: coverage
+    severity: WARNING
+    fields: [claims.claim_id, claim_valuations.claim_id]
+    rule: Every claim has at least one row in claim_valuations.
+    action: Claims without valuations have no amounts; they are counted nowhere and listed.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from the version 1.0 input set.

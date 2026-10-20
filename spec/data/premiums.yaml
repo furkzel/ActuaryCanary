@@ -1,0 +1,111 @@
+id: premiums
+version: 0.1.0
+title_en: Premium transactions
+title_tr: Prim hareketleri
+status: draft
+definition: >-
+  Every premium-related transaction to date: written, endorsement, cancellation and refund
+  premium, commission, and the reinsurance premium and commission on the policy.
+file_name: premiums.xlsx
+required_for_report: false
+grain: one premium transaction
+keys: [transaction_id]
+fields:
+  - name: transaction_id
+    type: text
+    required: true
+    description: Transaction identifier, kept as text.
+  - name: policy_id
+    type: text
+    required: true
+    description: Policy the transaction belongs to.
+    references: policies.policy_id
+  - name: booking_date
+    type: date
+    required: true
+    description: Accounting date of the transaction; decides the calendar period.
+  - name: amount
+    type: number
+    required: true
+    description: Amount in original currency; signs are normalised by type (CV05).
+  - name: currency
+    type: text
+    required: true
+    description: ISO 4217 code of the amount.
+  - name: type
+    type: text
+    required: true
+    description: Transaction type; any source label, mapped to a class.
+    classes:
+      [WRITTEN, ENDORSEMENT, CANCELLATION, REFUND, COMMISSION, CEDED_PREMIUM, RI_COMMISSION]
+  - name: effective_date
+    type: date
+    required: false
+    description: >-
+      Date from which the transaction applies to cover; empty means booking_date. Earning
+      starts here (PR02).
+validation:
+  - id: DV-PRM-01
+    dimension: completeness
+    severity: BLOCKING
+    fields: [premiums.transaction_id, premiums.policy_id]
+    rule: transaction_id and policy_id are present.
+    action: Rows without either are excluded and listed.
+  - id: DV-PRM-02
+    dimension: uniqueness
+    severity: WARNING
+    fields: [premiums.transaction_id]
+    rule: transaction_id is unique.
+    action: >-
+      Identical duplicates are kept once; for conflicting duplicates the first row in source
+      order is kept and the conflicts are listed.
+  - id: DV-PRM-03
+    dimension: completeness
+    severity: WARNING
+    fields: [premiums.booking_date, premiums.amount, premiums.currency, premiums.type]
+    rule: booking_date, amount, currency and type are present.
+    action: The row is excluded from premium measures and listed.
+  - id: DV-PRM-04
+    dimension: validity
+    severity: WARNING
+    fields: [premiums.type]
+    rule: type maps to a class through the value aliases (AL02).
+    action: Unmapped rows become UNMAPPED, are excluded from every premium measure and listed.
+  - id: DV-PRM-05
+    dimension: validity
+    severity: WARNING
+    fields: [premiums.currency]
+    rule: currency is a valid ISO 4217 code.
+    action: >-
+      The row is kept in original-currency views under currency UNKNOWN and excluded from
+      converted views (CV01).
+  - id: DV-PRM-06
+    dimension: consistency
+    severity: WARNING
+    fields: [premiums.policy_id, policies.policy_id]
+    rule: When policies is loaded, every policy_id exists in policies.
+    action: >-
+      The row counts in written premium (PR01) under segment and line UNKNOWN and is excluded
+      from earned and unearned premium (PR02, PR03), which need cover dates.
+  - id: DV-PRM-07
+    dimension: consistency
+    severity: INFO
+    fields: [premiums.effective_date, policies.start_date, policies.end_date]
+    rule: effective_date lies within the policy's cover period.
+    action: Earning is clipped to the cover period as PR02 describes; listed.
+  - id: DV-PRM-08
+    dimension: reasonableness
+    severity: INFO
+    fields: [premiums.amount, premiums.type]
+    rule: Within each type, amounts carry the canonical sign of that type (CV05).
+    action: A type stored with the opposite sign convention is flipped as a whole (CV05); listed.
+  - id: DV-PRM-09
+    dimension: consistency
+    severity: INFO
+    fields: [premiums.currency, policies.currency]
+    rule: The transaction currency equals the policy currency.
+    action: Listed only; each amount is converted from its own currency.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from the version 1.0 input set.

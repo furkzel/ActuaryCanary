@@ -1,0 +1,98 @@
+id: market
+version: 0.1.0
+title_en: Market series
+title_tr: Piyasa serileri
+status: draft
+definition: >-
+  Exchange rates and price indices by date, used for currency conversion (CV01) and
+  inflation adjustment (CV02). Sheets may split series, for example fx and cpi.
+file_name: market.xlsx
+required_for_report: false
+grain: one value per series, kind and date
+keys: [series_id, kind, date]
+fields:
+  - name: series_id
+    type: text
+    required: true
+    description: >-
+      Series code. Exchange rates are BASE/QUOTE pairs of ISO 4217 codes and give QUOTE units
+      per one BASE unit (USD/TRY = 34.5 means 1 USD is 34.5 TRY). Price indices use a code
+      such as CPI_TR.
+  - name: date
+    type: date
+    required: true
+    description: >-
+      Date of the value. For FX_PERIOD_AVERAGE, FX_PERIOD_END and PRICE_INDEX any date in the
+      month stands for that month.
+  - name: value
+    type: number
+    required: true
+    description: The rate or index value.
+  - name: kind
+    type: text
+    required: true
+    description: Series kind; any source label, mapped to a class.
+    classes: [FX_SPOT, FX_PERIOD_AVERAGE, FX_PERIOD_END, PRICE_INDEX]
+validation:
+  - id: DV-MKT-01
+    dimension: completeness
+    severity: BLOCKING
+    fields: [market.series_id, market.date, market.value, market.kind]
+    rule: series_id, date, value and kind are present.
+    action: Rows without any of them are excluded and listed.
+  - id: DV-MKT-02
+    dimension: uniqueness
+    severity: WARNING
+    fields: [market.series_id, market.kind, market.date]
+    rule: >-
+      One value per series, kind and date; for monthly kinds, one value per series, kind and
+      month.
+    action: >-
+      Identical duplicates are kept once; for conflicting duplicates the later date in the
+      month, then the later source row, is kept; listed.
+  - id: DV-MKT-03
+    dimension: validity
+    severity: BLOCKING
+    fields: [market.value]
+    rule: value is strictly positive.
+    action: The row is excluded and listed.
+  - id: DV-MKT-04
+    dimension: validity
+    severity: WARNING
+    fields: [market.series_id, market.kind]
+    rule: >-
+      An FX kind has a series_id of the form BASE/QUOTE with two different ISO 4217 codes;
+      a PRICE_INDEX series_id is not of that form.
+    action: The row is excluded and listed.
+  - id: DV-MKT-05
+    dimension: validity
+    severity: WARNING
+    fields: [market.kind]
+    rule: kind maps to a class through the value aliases (AL02).
+    action: Unmapped rows become UNMAPPED, are excluded and listed.
+  - id: DV-MKT-06
+    dimension: coverage
+    severity: WARNING
+    fields: [market.series_id, market.date]
+    rule: Monthly kinds have a value for every month between their first and last month.
+    action: Missing months are listed; lookups follow the fallbacks in CV01 and CV02.
+  - id: DV-MKT-07
+    dimension: coverage
+    severity: WARNING
+    fields: [market.series_id, market.date]
+    rule: >-
+      Each series needed by a conversion or adjustment covers every month from the earliest
+      date it is applied to until the cut-off.
+    action: Amounts that cannot be converted or adjusted follow CV01 and CV02; listed.
+  - id: DV-MKT-08
+    dimension: reasonableness
+    severity: INFO
+    fields: [market.value]
+    rule: >-
+      The month-on-month log change of a series has a robust z-score (MT08 formula) of at
+      most 3.5 within that series.
+    action: Listed only.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from the version 1.0 input set.

@@ -1,0 +1,135 @@
+id: policies
+version: 0.1.0
+title_en: Policies
+title_tr: Poliçeler
+status: draft
+definition: >-
+  One row per policy in its latest version: cover period, segment, line and the attributes
+  used to earn premium and exposure and to break measures down.
+file_name: policies.xlsx
+required_for_report: false
+grain: one policy (latest version)
+keys: [policy_id]
+fields:
+  - name: policy_id
+    type: text
+    required: true
+    description: Policy identifier, kept as text.
+  - name: start_date
+    type: date
+    required: true
+    description: First day of cover.
+  - name: end_date
+    type: date
+    required: true
+    description: >-
+      End of cover, treated as exclusive: a policy from 2024-01-01 to 2025-01-01 covers 366
+      days (CV04).
+  - name: segment
+    type: text
+    required: true
+    description: Business segment.
+    classes: [NON_LIFE, LIFE, PENSION, HEALTH]
+  - name: line
+    type: text
+    required: true
+    description: Line of business, free text as used by the company.
+  - name: currency
+    type: text
+    required: true
+    description: ISO 4217 code of the policy currency.
+  - name: entity
+    type: text
+    required: false
+    description: Company or legal entity that wrote the policy.
+  - name: product
+    type: text
+    required: false
+    description: Product code or name.
+  - name: partner
+    type: text
+    required: false
+    description: Channel partner or intermediary that sold the policy.
+  - name: channel
+    type: text
+    required: false
+    description: Distribution channel.
+    classes: [AGENCY, BROKER, BANK, DIRECT, DIGITAL, PARTNER]
+  - name: issue_date
+    type: date
+    required: false
+    description: Date the policy was issued (underwritten).
+  - name: cancellation_date
+    type: date
+    required: false
+    description: Date cover ended early; empty when the policy ran to end_date.
+  - name: sum_insured
+    type: number
+    required: false
+    description: Sum insured in policy currency.
+  - name: exposure_units
+    type: number
+    required: false
+    description: >-
+      Risk units per policy-year (vehicles, persons, locations); empty means 1. Earned
+      exposure follows CV04.
+validation:
+  - id: DV-POL-01
+    dimension: completeness
+    severity: BLOCKING
+    fields: [policies.policy_id]
+    rule: policy_id is present.
+    action: Rows without it are excluded and listed.
+  - id: DV-POL-02
+    dimension: uniqueness
+    severity: WARNING
+    fields: [policies.policy_id]
+    rule: policy_id is unique.
+    action: >-
+      Identical duplicates are kept once; for conflicting duplicates the first row in source
+      order is kept and the conflicts are listed.
+  - id: DV-POL-03
+    dimension: completeness
+    severity: WARNING
+    fields:
+      [policies.start_date, policies.end_date, policies.segment, policies.line, policies.currency]
+    rule: start_date, end_date, segment, line and currency are present.
+    action: >-
+      A policy without cover dates earns nothing (premium stays unearned, no exposure); an
+      empty segment or line is reported as UNKNOWN.
+  - id: DV-POL-04
+    dimension: consistency
+    severity: WARNING
+    fields: [policies.start_date, policies.end_date]
+    rule: start_date is before end_date.
+    action: >-
+      A policy with start_date equal to or after end_date earns its premium in full on
+      start_date and has no exposure; listed.
+  - id: DV-POL-05
+    dimension: consistency
+    severity: WARNING
+    fields: [policies.cancellation_date, policies.start_date, policies.end_date]
+    rule: cancellation_date, when present, lies within [start_date, end_date].
+    action: A cancellation date outside cover is ignored for exposure and listed.
+  - id: DV-POL-06
+    dimension: validity
+    severity: WARNING
+    fields: [policies.currency]
+    rule: currency is a valid ISO 4217 code.
+    action: Listed; the policy's premium rows keep their own currency.
+  - id: DV-POL-07
+    dimension: validity
+    severity: WARNING
+    fields: [policies.segment, policies.channel]
+    rule: segment and channel map to classes through the value aliases (AL02).
+    action: Unmapped labels become UNMAPPED and are listed.
+  - id: DV-POL-08
+    dimension: reasonableness
+    severity: WARNING
+    fields: [policies.sum_insured, policies.exposure_units]
+    rule: sum_insured and exposure_units are zero or positive.
+    action: A negative exposure_units is replaced by zero for exposure; both are listed.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from the version 1.0 input set.
