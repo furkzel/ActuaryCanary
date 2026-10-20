@@ -1,8 +1,8 @@
 id: RI01
-version: 0.1.0
+version: 1.0.0
 title_en: Cession ratio
 title_tr: Devir oranı
-status: draft
+status: reviewed
 definition: >-
   Ceded as a share of gross, separately for premium (written premium in a period) and for
   claims (incurred at a valuation date).
@@ -52,3 +52,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

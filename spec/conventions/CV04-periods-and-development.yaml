@@ -1,8 +1,8 @@
 id: CV04
-version: 0.1.0
+version: 1.0.0
 title_en: Periods, development lags and day counts
 title_tr: Dönemler, gelişim gecikmeleri ve gün sayımı
-status: draft
+status: reviewed
 definition: >-
   How dates become periods, how the valuation cut-off limits what is known, how claim
   valuations become flows, how development lags and ages are counted, and how days become
@@ -91,3 +91,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint sections 5.1, 5.2 and 7.4.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

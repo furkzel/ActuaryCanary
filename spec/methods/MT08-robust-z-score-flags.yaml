@@ -1,8 +1,8 @@
 id: MT08
-version: 0.1.0
+version: 1.0.0
 title_en: Robust z-score anomaly flags
 title_tr: Sağlam z-skoru ile anomali işaretleri
-status: draft
+status: reviewed
 definition: >-
   Flags individual payments and case-reserve changes that lie far from the typical values
   of their segment and line, measured by a z-score built on the median and the median
@@ -72,3 +72,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint sections 6.5 and 9.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

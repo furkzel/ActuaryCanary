@@ -1,8 +1,8 @@
 id: claims
-version: 0.1.0
+version: 1.0.0
 title_en: Claims
 title_tr: Hasarlar
-status: draft
+status: reviewed
 definition: >-
   One header row per claim with its dates and descriptive attributes. Supplies the
   occurrence date for accident-period origins, the segment and line for every claim
@@ -139,3 +139,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from the version 1.0 input set.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

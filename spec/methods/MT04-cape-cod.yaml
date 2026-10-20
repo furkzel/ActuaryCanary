@@ -1,8 +1,8 @@
 id: MT04
-version: 0.1.0
+version: 1.0.0
 title_en: Cape Cod
 title_tr: Cape Cod
-status: draft
+status: reviewed
 definition: >-
   Bornhuetter–Ferguson with the prior loss ratio estimated from the data: reported claims
   divided by the premium already "used up" by development, over all origins of a group.
@@ -70,3 +70,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 9.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

@@ -1,8 +1,8 @@
 id: AL02
-version: 0.1.0
+version: 1.0.0
 title_en: Value aliases
 title_tr: Değer eşleştirmeleri
-status: draft
+status: reviewed
 definition: >-
   Turkish and English labels, abbreviations and common misspellings for every class of
   every classified field in the data concepts.
@@ -274,8 +274,6 @@ values:
         - SPOT
         - SPOT KUR
         - GÜNLÜK KUR
-        - DÖVİZ ALIŞ
-        - DÖVİZ SATIŞ
         - GÖSTERGE KUR
         - FX SPOT
         - SPOT RATE
@@ -317,3 +315,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First seed from the version 1.0 data concepts.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

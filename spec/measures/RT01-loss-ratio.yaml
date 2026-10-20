@@ -1,8 +1,8 @@
 id: RT01
-version: 0.1.0
+version: 1.0.0
 title_en: Loss ratio (paid, incurred, ultimate)
 title_tr: Hasar prim oranı (ödenen, gerçekleşen, nihai)
-status: draft
+status: reviewed
 definition: >-
   A claims measure divided by earned premium: by accident period for paid, incurred and
   selected ultimate claims, and by calendar period for incurred movement.
@@ -66,3 +66,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

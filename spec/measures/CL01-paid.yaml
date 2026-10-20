@@ -1,8 +1,8 @@
 id: CL01
-version: 0.1.0
+version: 1.0.0
 title_en: Paid claims
 title_tr: Ödenen hasar
-status: draft
+status: reviewed
 definition: >-
   Claim payments: cumulative to a valuation date from claim valuations, or paid within a
   period as the flow between valuations (CV04).
@@ -65,3 +65,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

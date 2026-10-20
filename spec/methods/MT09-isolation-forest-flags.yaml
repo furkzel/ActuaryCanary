@@ -1,8 +1,8 @@
 id: MT09
-version: 0.1.0
+version: 1.0.0
 title_en: Isolation forest anomaly flags
 title_tr: İzolasyon ormanı ile anomali işaretleri
-status: draft
+status: reviewed
 definition: >-
   Scores whole claims by how easily random splits isolate them on a set of claim-level
   features, and flags the most isolated ones; complements MT08, which looks at single
@@ -53,7 +53,7 @@ algorithm:
       claims is loaded (x+ means max(x, 0)).
   - step: >-
       Fit an isolation forest per group with the parameters above (scikit-learn
-      IsolationForest, bootstrap off) and score each claim.
+      IsolationForest, bootstrap off) and score each claim. Claims are sorted by claim_id before fitting, so scores do not depend on row order.
     formula: 's(x) = 2^{-E[h(x)] / c(\psi)}, \qquad c(\psi) = 2 H(\psi - 1) - 2(\psi - 1)/\psi'
   - step: Flag the claims whose score is in the top contamination share of their group.
 outputs:
@@ -84,3 +84,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 9.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

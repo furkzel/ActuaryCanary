@@ -1,8 +1,8 @@
 id: PR02
-version: 0.1.0
+version: 1.0.0
 title_en: Earned premium
 title_tr: Kazanılmış prim
-status: draft
+status: reviewed
 definition: >-
   Written premium spread over the policy's cover period pro rata temporis: each transaction
   is earned evenly by day from its effective date to the policy end date.
@@ -77,3 +77,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

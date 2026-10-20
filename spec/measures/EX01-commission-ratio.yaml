@@ -1,8 +1,8 @@
 id: EX01
-version: 0.1.0
+version: 1.0.0
 title_en: Commission ratio
 title_tr: Komisyon oranı
-status: draft
+status: reviewed
 definition: Commission earned as a share of gross earned premium in a calendar period.
 unit: ratio
 formula: 'CM(Q) = \frac{EC(Q)}{EP^{\mathrm{gross}}(Q)}'
@@ -44,3 +44,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

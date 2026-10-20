@@ -1,8 +1,8 @@
 id: CV03
-version: 0.1.0
+version: 1.0.0
 title_en: Gross, ceded and net
 title_tr: Brüt, devredilen ve net
-status: draft
+status: reviewed
 definition: >-
   Every money measure is available on the GROSS, CEDED and NET reinsurance bases where the
   inputs allow, and net always equals gross minus ceded at the finest grain available.
@@ -40,3 +40,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint sections 5.3 and 7.3.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

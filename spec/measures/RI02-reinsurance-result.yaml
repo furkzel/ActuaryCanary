@@ -1,8 +1,8 @@
 id: RI02
-version: 0.1.0
+version: 1.0.0
 title_en: Reinsurance result
 title_tr: Reasürans sonucu
-status: draft
+status: reviewed
 definition: >-
   For a calendar period, ceded claims incurred plus reinsurance commission earned minus
   ceded premium earned: the insurer's gain or cost from reinsurance.
@@ -54,3 +54,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

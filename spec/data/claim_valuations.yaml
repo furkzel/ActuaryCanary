@@ -1,8 +1,8 @@
 id: claim_valuations
-version: 0.1.0
+version: 1.0.0
 title_en: Claim valuations
 title_tr: Hasar değerlemeleri
-status: draft
+status: reviewed
 definition: >-
   The state of each claim at each valuation date: cumulative paid, case reserve, status and
   the optional recovery, expense and ceded amounts, all cumulative to that date. The only
@@ -175,3 +175,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from the version 1.0 input set.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

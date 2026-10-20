@@ -1,8 +1,8 @@
 id: PR01
-version: 0.1.0
+version: 1.0.0
 title_en: Written premium
 title_tr: Yazılan prim
-status: draft
+status: reviewed
 definition: >-
   The sum of WRITTEN, ENDORSEMENT, CANCELLATION and REFUND premium booked in a period, after
   sign normalisation; on the CEDED basis, the sum of CEDED_PREMIUM.
@@ -53,3 +53,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

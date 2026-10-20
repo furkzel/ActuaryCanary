@@ -1,8 +1,8 @@
 id: CL11
-version: 0.1.0
+version: 1.0.0
 title_en: Case reserve run-off
 title_tr: Muallak hasar gelişimi (run-off)
-status: draft
+status: reviewed
 definition: >-
   For claims that had a case reserve at an earlier valuation, what was paid since plus what
   is still reserved, compared with that earlier reserve.
@@ -60,3 +60,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

@@ -1,8 +1,8 @@
 id: MT06
-version: 0.1.0
+version: 1.0.0
 title_en: Mack standard error with lognormal range
 title_tr: Mack standart hatası ve lognormal aralık
-status: draft
+status: reviewed
 definition: >-
   The distribution-free standard error of chain-ladder reserves (Mack 1993), per origin and
   in total, turned into percentiles, value at risk and tail value at risk by assuming a
@@ -89,7 +89,7 @@ validation:
   - kind: benchmark
     description: >-
       Standard errors per origin and in total for the GenIns triangle (Taylor and Ashe,
-      used by Mack 1993) and RAA match the chainladder package's MackChainladder.
+      used by Mack 1993) and RAA match the chainladder package's MackChainladder run with sigma_interpolation='mack' (decision 0007).
     tolerance: 1e-6 relative
   - kind: fixture
     description: Lognormal step for R = 100, se = 20 hand-computed (shared with RS03).
@@ -106,3 +106,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 9.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

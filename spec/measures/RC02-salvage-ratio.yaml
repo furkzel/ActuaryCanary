@@ -1,8 +1,8 @@
 id: RC02
-version: 0.1.0
+version: 1.0.0
 title_en: Salvage ratio
 title_tr: Sovtaj oranı
-status: draft
+status: reviewed
 definition: Salvage recovered as a share of claims paid, cumulative by origin period or as flows by calendar period.
 unit: ratio
 formula: 'SV(i) = \frac{\sum_{k \in i} S^{\mathrm{salv}}_k(c)}{\sum_{k \in i} P_k(c)}, \qquad SV(Q) = \frac{\Delta S^{\mathrm{salv}}(Q)}{\Delta P(Q)}'
@@ -40,3 +40,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

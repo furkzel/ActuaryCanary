@@ -1,8 +1,8 @@
 id: M05
-version: 0.1.0
+version: 1.0.0
 title_en: Profitability
 title_tr: Kârlılık
-status: draft
+status: reviewed
 definition: >-
   Loss, commission, expense and combined ratios by line and period, with the effect of
   reinsurance.
@@ -24,3 +24,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 10.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

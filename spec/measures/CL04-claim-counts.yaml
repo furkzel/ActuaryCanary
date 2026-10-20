@@ -1,8 +1,8 @@
 id: CL04
-version: 0.1.0
+version: 1.0.0
 title_en: Claim counts by status
 title_tr: Statüye göre hasar adetleri
-status: draft
+status: reviewed
 definition: >-
   Numbers of reported, open, closed, nil-closed and reopened claims as of a valuation date,
   and the numbers newly reported, closed and reopened within a period.
@@ -58,3 +58,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

@@ -1,8 +1,8 @@
 id: CV01
-version: 0.1.0
+version: 1.0.0
 title_en: Currency conversion
 title_tr: Kur çevrimi
-status: draft
+status: reviewed
 definition: >-
   Every amount stays in its original currency and is converted only when a view needs
   another currency, with the rate type that matches the nature of the amount.
@@ -67,3 +67,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 7.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

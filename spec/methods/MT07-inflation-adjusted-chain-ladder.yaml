@@ -1,8 +1,8 @@
 id: MT07
-version: 0.1.0
+version: 1.0.0
 title_en: Inflation-adjusted chain ladder
 title_tr: Enflasyondan arındırılmış zincir merdiven
-status: draft
+status: reviewed
 definition: >-
   Chain ladder on a paid triangle restated to value-date prices, so that development
   factors are free of past inflation; future payments are re-inflated only with an explicit
@@ -102,3 +102,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint sections 7.2 and 9.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

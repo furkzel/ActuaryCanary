@@ -1,8 +1,8 @@
 id: CL03
-version: 0.1.0
+version: 1.0.0
 title_en: Incurred claims (reported)
 title_tr: Gerçekleşen hasar (bildirilmiş)
-status: draft
+status: reviewed
 definition: Paid plus case reserve as of a valuation date; as a flow, the change in incurred over a period.
 unit: amount
 formula: 'I(v) = P(v) + R(v), \qquad \Delta I(Q) = I(\mathrm{end}\,Q) - I(\mathrm{end}\,Q^{-})'
@@ -55,3 +55,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

@@ -1,8 +1,8 @@
 id: CV08
-version: 0.1.0
+version: 1.0.0
 title_en: Claim size classes
 title_tr: Hasar büyüklük sınıfları
-status: draft
+status: reviewed
 definition: >-
   Each claim is classed once per run as ATTRITIONAL, LARGE or CATASTROPHE, so that severity,
   large-loss share and anomaly views separate the few big claims from the rest.
@@ -63,3 +63,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft; threshold rule chosen by the owner.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

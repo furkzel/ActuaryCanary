@@ -1,8 +1,8 @@
 id: PR06
-version: 0.1.0
+version: 1.0.0
 title_en: Average premium
 title_tr: Ortalama prim
-status: draft
+status: reviewed
 definition: Earned premium per unit of earned exposure in a period.
 unit: amount
 formula: 'AP(P) = \frac{EP(P)}{E(P)}'
@@ -47,3 +47,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

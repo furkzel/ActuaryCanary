@@ -1,8 +1,8 @@
 id: CV07
-version: 0.1.0
+version: 1.0.0
 title_en: Input files and canonical values
 title_tr: Girdi dosyaları ve kanonik değerler
-status: draft
+status: reviewed
 definition: >-
   What version 1.0 accepts as input and how every value is stored once it is read: one
   cumulative spreadsheet per data concept, flexible column names, fixed content and grain.
@@ -32,3 +32,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from the version 1.0 input set and blueprint section 4.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

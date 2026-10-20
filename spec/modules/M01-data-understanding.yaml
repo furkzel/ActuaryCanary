@@ -1,8 +1,8 @@
 id: M01
-version: 0.1.0
+version: 1.0.0
 title_en: Data understanding
 title_tr: Veriyi anlama
-status: draft
+status: reviewed
 definition: >-
   Shows what was loaded, how it was mapped, which feeds and periods are covered and how far
   the data can be trusted: the quality report and its score.
@@ -20,3 +20,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 10.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

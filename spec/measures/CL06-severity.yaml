@@ -1,8 +1,8 @@
 id: CL06
-version: 0.1.0
+version: 1.0.0
 title_en: Average claim severity
 title_tr: Ortalama hasar büyüklüğü
-status: draft
+status: reviewed
 definition: >-
   Incurred per reported non-nil claim, by origin period, with attritional, large and
   catastrophe claims shown apart (CV08).
@@ -51,3 +51,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

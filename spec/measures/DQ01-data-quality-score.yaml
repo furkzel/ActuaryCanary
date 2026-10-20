@@ -1,8 +1,8 @@
 id: DQ01
-version: 0.1.0
+version: 1.0.0
 title_en: Data quality score
 title_tr: Veri kalitesi puanı
-status: draft
+status: reviewed
 definition: >-
   The weighted pass rate of the validation rules in spec/data, on a 0 to 100 scale, per
   loaded concept and overall.
@@ -50,3 +50,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint sections 6.5 and 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

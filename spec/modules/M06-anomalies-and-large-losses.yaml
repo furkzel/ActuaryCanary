@@ -1,8 +1,8 @@
 id: M06
-version: 0.1.0
+version: 1.0.0
 title_en: Anomalies and large losses
 title_tr: Anomaliler ve büyük hasarlar
-status: draft
+status: reviewed
 definition: >-
   Payments, reserve changes and claims that look unusual, and the claims that dominate
   results by size, with their share of incurred.
@@ -21,3 +21,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 10.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

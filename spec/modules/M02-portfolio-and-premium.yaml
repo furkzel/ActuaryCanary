@@ -1,8 +1,8 @@
 id: M02
-version: 0.1.0
+version: 1.0.0
 title_en: Portfolio and premium
 title_tr: Portföy ve prim
-status: draft
+status: reviewed
 definition: >-
   Size and movement of the book: written, earned and unearned premium, cancellations,
   retention and average premium, by segment, line, channel and partner.
@@ -24,3 +24,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 10.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

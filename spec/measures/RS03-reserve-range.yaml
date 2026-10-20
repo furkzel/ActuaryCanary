@@ -1,8 +1,8 @@
 id: RS03
-version: 0.1.0
+version: 1.0.0
 title_en: Reserve range and risk measures
 title_tr: Karşılık aralığı ve risk ölçüleri
-status: draft
+status: reviewed
 definition: >-
   Standard error of the chain-ladder reserve and, assuming a lognormal reserve
   distribution, its percentiles, value at risk and tail value at risk; an approximation.
@@ -46,3 +46,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

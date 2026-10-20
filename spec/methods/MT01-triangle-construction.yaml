@@ -1,8 +1,8 @@
 id: MT01
-version: 0.1.0
+version: 1.0.0
 title_en: Triangle construction
 title_tr: Gelişim üçgeni oluşturma
-status: draft
+status: reviewed
 definition: >-
   Builds cumulative and incremental development triangles of paid, incurred, case reserve
   and claim counts from claim valuations, for any origin and development period and on any
@@ -128,3 +128,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint sections 5.2 and 9.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

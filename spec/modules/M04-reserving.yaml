@@ -1,8 +1,8 @@
 id: M04
-version: 0.1.0
+version: 1.0.0
 title_en: Reserving (indicative)
 title_tr: Karşılık tahmini (gösterge)
-status: draft
+status: reviewed
 definition: >-
   Development triangles, factors, ultimates by several methods with a selection, the
   reserve range and actual versus expected development. Indicative, never an official
@@ -25,3 +25,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 10.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

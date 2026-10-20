@@ -1,8 +1,8 @@
 id: CV05
-version: 0.1.0
+version: 1.0.0
 title_en: Signs
 title_tr: İşaretler
-status: draft
+status: reviewed
 definition: >-
   Amounts follow the insurer's view: premiums, payments, reserves, recoveries, ceded amounts
   and costs are stored with a fixed canonical sign per type, so that measures add them
@@ -34,3 +34,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 7.4.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

@@ -1,8 +1,8 @@
 id: PR03
-version: 0.1.0
+version: 1.0.0
 title_en: Unearned premium
 title_tr: Kazanılmamış prim
-status: draft
+status: reviewed
 definition: >-
   At a valuation date, the part of premium booked to date that pays for cover after that
   date: written to date minus earned to date.
@@ -52,3 +52,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

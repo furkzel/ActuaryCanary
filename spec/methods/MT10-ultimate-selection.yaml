@@ -1,8 +1,8 @@
 id: MT10
-version: 0.1.0
+version: 1.0.0
 title_en: Ultimate selection
 title_tr: Nihai hasar seçimi
-status: draft
+status: reviewed
 definition: >-
   Chooses one ultimate per origin from the methods that ran: chain ladder for origins
   developed enough, Bornhuetter–Ferguson for immature ones, unless the user selects
@@ -63,3 +63,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft; selection rule chosen by the owner.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

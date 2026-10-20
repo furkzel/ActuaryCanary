@@ -1,8 +1,8 @@
 id: CL12
-version: 0.1.0
+version: 1.0.0
 title_en: Large-loss share
 title_tr: Büyük hasar payı
-status: draft
+status: reviewed
 definition: Incurred of LARGE and CATASTROPHE claims as a share of total incurred, by origin period.
 unit: ratio
 formula: 'LS(i) = \frac{\sum_{k \in i,\ \mathrm{class}_k \in \{\mathrm{LARGE},\,\mathrm{CATASTROPHE}\}} I_k(c)}{\sum_{k \in i} I_k(c)}'
@@ -45,3 +45,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

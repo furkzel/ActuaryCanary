@@ -1,8 +1,8 @@
 id: RC01
-version: 0.1.0
+version: 1.0.0
 title_en: Subrogation ratio
 title_tr: Rücu oranı
-status: draft
+status: reviewed
 definition: Subrogation recovered as a share of claims paid, cumulative by origin period or as flows by calendar period.
 unit: ratio
 formula: 'SB(i) = \frac{\sum_{k \in i} S^{\mathrm{sub}}_k(c)}{\sum_{k \in i} P_k(c)}, \qquad SB(Q) = \frac{\Delta S^{\mathrm{sub}}(Q)}{\Delta P(Q)}'
@@ -42,3 +42,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

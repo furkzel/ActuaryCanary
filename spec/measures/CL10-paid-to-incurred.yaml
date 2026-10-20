@@ -1,8 +1,8 @@
 id: CL10
-version: 0.1.0
+version: 1.0.0
 title_en: Paid-to-incurred ratio
 title_tr: Ödenen / gerçekleşen oranı
-status: draft
+status: reviewed
 definition: Cumulative paid as a share of cumulative incurred, per origin period and development age.
 unit: ratio
 formula: 'PI_{i,j} = \frac{C^{\mathrm{paid}}_{i,j}}{C^{\mathrm{inc}}_{i,j}}'
@@ -43,3 +43,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

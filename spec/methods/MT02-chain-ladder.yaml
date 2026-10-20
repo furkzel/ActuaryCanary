@@ -1,8 +1,8 @@
 id: MT02
-version: 0.1.0
+version: 1.0.0
 title_en: Chain ladder
 title_tr: Zincir merdiven (chain ladder)
-status: draft
+status: reviewed
 definition: >-
   Projects each origin's cumulative claims to ultimate with age-to-age factors estimated
   from the triangle, using volume-weighted, simple or recent-diagonal averages, with
@@ -110,3 +110,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 9.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

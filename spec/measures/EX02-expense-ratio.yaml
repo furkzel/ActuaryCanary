@@ -1,8 +1,8 @@
 id: EX02
-version: 0.1.0
+version: 1.0.0
 title_en: Expense ratio
 title_tr: Gider oranı
-status: draft
+status: reviewed
 definition: >-
   Acquisition (other than commission) and administration expenses booked in a period as a
   share of gross earned premium in that period.
@@ -52,3 +52,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

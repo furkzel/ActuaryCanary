@@ -1,8 +1,8 @@
 id: RS02
-version: 0.1.0
+version: 1.0.0
 title_en: Ultimate, IBNR and IBNER (indicative)
 title_tr: Nihai hasar, IBNR ve IBNER (gösterge)
-status: draft
+status: reviewed
 definition: >-
   Per origin period and method, the estimated ultimate claims, the unpaid amount, and the
   incurred-but-not-reported amount, with the selected method's values shown first.
@@ -62,3 +62,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

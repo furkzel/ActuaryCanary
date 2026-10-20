@@ -1,8 +1,8 @@
 id: CV02
-version: 0.1.0
+version: 1.0.0
 title_en: Inflation adjustment
 title_tr: Enflasyon düzeltmesi
-status: draft
+status: reviewed
 definition: >-
   On the INFLATION_ADJUSTED value basis every amount is restated to the prices of one value
   date with a chosen price index, so that past inflation does not masquerade as development
@@ -57,3 +57,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 7.2.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

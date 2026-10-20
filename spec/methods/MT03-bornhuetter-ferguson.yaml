@@ -1,8 +1,8 @@
 id: MT03
-version: 0.1.0
+version: 1.0.0
 title_en: Bornhuetter–Ferguson
 title_tr: Bornhuetter–Ferguson
-status: draft
+status: reviewed
 definition: >-
   Ultimate claims as reported claims plus the still-unreported share of an a priori
   expected ultimate (prior loss ratio times earned premium), the unreported share coming
@@ -88,3 +88,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 9.1; prior fallback chosen by the owner.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

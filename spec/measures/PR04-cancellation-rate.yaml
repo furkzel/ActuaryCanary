@@ -1,8 +1,8 @@
 id: PR04
-version: 0.1.0
+version: 1.0.0
 title_en: Cancellation rate
 title_tr: İptal oranı
-status: draft
+status: reviewed
 definition: >-
   Premium returned through cancellations and refunds as a share of premium written before
   returns, in the same booking period.
@@ -38,3 +38,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

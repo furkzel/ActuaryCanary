@@ -1,8 +1,8 @@
 id: CL08
-version: 0.1.0
+version: 1.0.0
 title_en: Settlement time
 title_tr: Hasar sonuçlanma süresi
-status: draft
+status: reviewed
 definition: >-
   Days from report to closing for closed claims, and a product-limit survival curve of
   time to closing in which open claims are censored at the cut-off.
@@ -59,3 +59,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

@@ -1,8 +1,8 @@
 id: CL09
-version: 0.1.0
+version: 1.0.0
 title_en: Settlement rate
 title_tr: Hasar sonuçlandırma oranı
-status: draft
+status: reviewed
 definition: >-
   Claims closed in a period as a share of claims that could have been closed in it: open
   at the start plus newly reported during the period.
@@ -44,3 +44,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

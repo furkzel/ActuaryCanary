@@ -1,8 +1,8 @@
 id: policies
-version: 0.1.0
+version: 1.0.0
 title_en: Policies
 title_tr: Poliçeler
-status: draft
+status: reviewed
 definition: >-
   One row per policy in its latest version: cover period, segment, line and the attributes
   used to earn premium and exposure and to break measures down.
@@ -133,3 +133,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from the version 1.0 input set.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

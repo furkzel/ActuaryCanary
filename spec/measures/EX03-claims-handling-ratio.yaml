@@ -1,8 +1,8 @@
 id: EX03
-version: 0.1.0
+version: 1.0.0
 title_en: Claims-handling expense ratio
 title_tr: Hasar yönetim gideri oranı
-status: draft
+status: reviewed
 definition: >-
   Allocated and unallocated claims handling expenses in a period as a share of claims paid
   in that period.
@@ -55,3 +55,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

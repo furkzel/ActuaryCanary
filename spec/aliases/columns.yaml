@@ -1,8 +1,8 @@
 id: AL01
-version: 0.1.0
+version: 1.0.0
 title_en: Column aliases
 title_tr: Sütun adı eşleştirmeleri
-status: draft
+status: reviewed
 definition: >-
   Turkish and English column names, abbreviations and common misspellings for every field
   of every data concept, plus names of personal-data columns that are dropped on load.
@@ -707,3 +707,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First seed from the version 1.0 data concepts.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

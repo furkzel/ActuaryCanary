@@ -1,8 +1,8 @@
 id: AE01
-version: 0.1.0
+version: 1.0.0
 title_en: Actual versus expected development
 title_tr: Gerçekleşen ile beklenen gelişim
-status: draft
+status: reviewed
 definition: >-
   For each origin period, the claims development actually observed between an earlier and
   a later valuation, compared with the development the earlier selection expected.
@@ -63,3 +63,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 8.1.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.

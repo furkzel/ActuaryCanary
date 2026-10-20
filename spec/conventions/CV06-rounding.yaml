@@ -1,8 +1,8 @@
 id: CV06
-version: 0.1.0
+version: 1.0.0
 title_en: Precision and rounding
 title_tr: Hassasiyet ve yuvarlama
-status: draft
+status: reviewed
 definition: >-
   Calculations use full precision; rounding happens only when a number is presented, half
   away from zero, and totals are always computed from unrounded values.
@@ -42,3 +42,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-20
     change: First draft from blueprint section 7.4.
+  - version: 1.0.0
+    date: 2026-10-20
+    change: Reviewed and accepted by the owner.
