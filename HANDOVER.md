@@ -36,4 +36,4 @@ ActuaryCanary turns insurance data in any layout into an auditable, early-warnin
 ## Log (newest first, keep the last 15 lines)
 | Date | Item | Outcome | Elapsed | Commit |
 | --- | --- | --- | --- | --- |
-| 2026-10-20 | P00 | skeleton, toolchain, tiers, records 0001–0006 | ~40 min | see branch s/P00-skeleton |
+| 2026-10-20 | P00 | skeleton, toolchain, tiers, records 0001–0006 | ~5 min | see branch s/P00-skeleton |
