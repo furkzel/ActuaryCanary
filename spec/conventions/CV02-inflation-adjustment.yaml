@@ -1,0 +1,59 @@
+id: CV02
+version: 0.1.0
+title_en: Inflation adjustment
+title_tr: Enflasyon düzeltmesi
+status: draft
+definition: >-
+  On the INFLATION_ADJUSTED value basis every amount is restated to the prices of one value
+  date with a chosen price index, so that past inflation does not masquerade as development
+  or growth.
+rules:
+  - NOMINAL is the amount as booked. INFLATION_ADJUSTED restates each amount with the formula below.
+  - >-
+    The index belongs to the reporting currency. Amounts are first converted to the
+    reporting currency at their own date's rate (the flow and stock rules of CV01) and then
+    restated; the constant development rate of CV01 is not used on this basis.
+  - >-
+    The index value of a date is the value of the calendar month containing it. A missing
+    month takes the latest earlier month and is flagged; with no earlier month the amount is
+    not adjusted, is excluded from INFLATION_ADJUSTED views and is listed.
+  - >-
+    Flows are restated from their booking date; a flow derived from two claim valuations
+    from its booking month (CV04). Stocks are restated from their valuation date.
+  - >-
+    Incurred on this basis is the cumulative sum of restated paid increments plus the
+    restated case reserve; it is not the restated nominal incurred.
+  - >-
+    Projections on this basis are at value-date prices. They are turned into nominal
+    amounts only with an explicit future inflation assumption (MT07); without one, only
+    value-date-price results are shown, labelled as such.
+  - DISCOUNTED values are not part of version 1.0.
+formulas:
+  - name: restatement
+    expression: 'x^{\mathrm{adj}}_k = x_k \cdot \frac{I(t_{\mathrm{value}})}{I(t_k)}'
+    where: >-
+      x_k is the amount in reporting currency, t_k its booking date (flows) or valuation
+      date (stocks), I the monthly index value and t_value the value date.
+  - name: re-inflation of a future amount
+    expression: 'x^{\mathrm{nom}} = x^{\mathrm{adj}} \cdot (1 + \pi)^{(t - t_{\mathrm{value}})/365.25}'
+    where: >-
+      pi is the annual future inflation assumption and t the assumed payment date, both
+      from the assumptions register (MT07).
+defaults:
+  - name: price_index
+    default: project.yaml report.default_price_index
+    description: series_id of the PRICE_INDEX series; default the consumer price index (CPI_TR).
+  - name: value_date
+    default: cut-off
+    description: Date whose prices all amounts are restated to; default the cut-off (CV04).
+  - name: future_inflation
+    default: null
+    description: >-
+      Annual inflation assumed after the value date. No default: without a user value,
+      nominal projections on this basis are not shown.
+requires: [market.series_id, market.date, market.value, market.kind]
+uses: [CV01, CV04]
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 7.2.

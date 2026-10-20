@@ -1,0 +1,93 @@
+id: CV04
+version: 0.1.0
+title_en: Periods, development lags and day counts
+title_tr: Dönemler, gelişim gecikmeleri ve gün sayımı
+status: draft
+definition: >-
+  How dates become periods, how the valuation cut-off limits what is known, how claim
+  valuations become flows, how development lags and ages are counted, and how days become
+  earned premium and exposure.
+rules:
+  - >-
+    Period types are MONTH, QUARTER, HALF and YEAR (1, 3, 6 and 12 months). Periods start on
+    the fiscal year start month. The default period is the calendar month.
+  - >-
+    Labels are YYYY-MM for months, YYYY-Qn for quarters, YYYY-Hn for halves and YYYY for
+    years, using the fiscal year in which the period starts.
+  - >-
+    The valuation cut-off c is the latest valuation_date in claim_valuations unless the user
+    sets it. Facts booked or valued after c are not known and are ignored (as-of rule).
+  - >-
+    The state of a claim at a date v is its latest valuation row with valuation_date on or
+    before v (carry-forward). A claim with no such row is not yet reported at v.
+  - >-
+    Flows are derived from consecutive valuation rows of the same claim as the difference
+    of each cumulative amount; the first row's flow is its full value. A derived flow is
+    booked in the month of the later row.
+  - >-
+    The origin period of a claim comes from the origin axis: accident (occurrence_date,
+    default), report (report_date) or underwriting (start_date of the linked policy). When
+    claims is not loaded, or the claim has no header, the origin is the month of the claim's
+    first valuation, a proxy for the report period, labelled as such (decision 0008).
+  - >-
+    Development is aligned to the cut-off: valuation points are c, and every L_d months
+    before c, at month ends. The origin length L_o must be a whole multiple of the
+    development length L_d.
+  - >-
+    The development age of origin i at valuation point v is the number of months from the
+    first month of origin i to the month of v, both included. The development index j counts
+    whole development periods: j = 0 for the first age.
+  - >-
+    Durations are in days, the difference of two dates. Earning intervals are [a, b) with b
+    excluded, so a policy from 2024-01-01 to 2025-01-01 covers 366 days.
+  - >-
+    Earned exposure of a policy is exposure_units (empty means 1) times the days of cover
+    in the period divided by 365.25. Cover runs from start_date to the earlier of end_date
+    and cancellation_date.
+formulas:
+  - name: month index
+    expression: 'm(t) = 12 \cdot \mathrm{year}(t) + \mathrm{month}(t) - 1'
+  - name: period number
+    expression: 'n_L(t) = \left\lfloor \frac{m(t) - (s - 1)}{L} \right\rfloor'
+    where: L is the period length in months and s the fiscal year start month (1 to 12).
+  - name: valuation points
+    expression: 'v_k = \mathrm{month\_end}\big(m(c) - k \cdot L_d\big), \quad k = 0, 1, 2, \dots'
+  - name: development age and index
+    expression: 'a_{i}(v) = m(v) - m(\mathrm{start}_i) + 1, \qquad j = \left\lfloor \frac{a_i(v) - 1}{L_d} \right\rfloor'
+  - name: flow from valuations
+    expression: '\Delta x_{k}(v_n) = x_k(v_n) - x_k(v_{n-1}), \qquad \Delta x_k(v_1) = x_k(v_1)'
+    where: v_1 < v_2 < ... are the valuation dates of claim k.
+  - name: earned exposure
+    expression: 'E(P) = u \cdot \frac{\big|[\,\mathrm{start}, \min(\mathrm{end}, \mathrm{cancel})\,) \cap P\big|}{365.25}'
+    where: u is exposure_units (1 when empty), P the period as a day interval, |.| a length in days.
+defaults:
+  - name: period_type
+    default: MONTH
+    description: Default reporting period.
+    allowed: [MONTH, QUARTER, HALF, YEAR]
+  - name: fiscal_year_start_month
+    default: 1
+    description: First month of the fiscal year; 1 is the calendar year.
+  - name: cut_off
+    default: latest valuation_date
+    description: Valuation cut-off c; any earlier month end may be chosen to reproduce a past view.
+  - name: origin_axis
+    default: accident
+    description: Origin axis for triangles and origin-period measures.
+    allowed: [accident, report, underwriting, first_valuation]
+  - name: days_per_year
+    default: 365.25
+    description: Day count for exposure years; the mean calendar year length, independent of leap years.
+requires: [claim_valuations.valuation_date]
+optional:
+  - claims.occurrence_date
+  - claims.report_date
+  - claims.policy_id
+  - policies.start_date
+  - policies.end_date
+  - policies.cancellation_date
+  - policies.exposure_units
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint sections 5.1, 5.2 and 7.4.

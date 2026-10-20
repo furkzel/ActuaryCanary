@@ -1,0 +1,42 @@
+id: CV03
+version: 0.1.0
+title_en: Gross, ceded and net
+title_tr: Brüt, devredilen ve net
+status: draft
+definition: >-
+  Every money measure is available on the GROSS, CEDED and NET reinsurance bases where the
+  inputs allow, and net always equals gross minus ceded at the finest grain available.
+rules:
+  - >-
+    Net is computed per claim and valuation for claim amounts, and per policy for premium
+    amounts, before any aggregation.
+  - >-
+    Claim amounts: gross paid is paid_to_date, gross case reserve is case_reserve; ceded paid
+    is ceded_paid_to_date, ceded case reserve is ceded_reserve. Ceded amounts are taken as
+    given; version 1.0 allocates nothing from treaty level.
+  - >-
+    Premium amounts: gross written premium is PR01; ceded written premium is the sum of
+    CEDED_PREMIUM; reinsurance commission is the sum of RI_COMMISSION. Ceded premium and
+    reinsurance commission are earned like gross premium (PR02).
+  - >-
+    When a ceded field is absent from the loaded file, or a file holds no CEDED_PREMIUM rows,
+    the CEDED and NET bases of the measures that need it are unavailable and say so. They
+    are never set equal to gross. An empty cell in a present column counts as zero.
+  - >-
+    Recoveries (subrogation, salvage) are not part of the reinsurance basis. They are shown
+    as their own measures (RC01, RC02) and, where a view asks for it, netted from paid as
+    paid net of recoveries.
+  - Expenses exist on the GROSS basis only.
+formulas:
+  - name: net
+    expression: 'x^{\mathrm{net}} = x^{\mathrm{gross}} - x^{\mathrm{ceded}}'
+  - name: paid net of recoveries
+    expression: 'P^{\mathrm{nr}} = P - S^{\mathrm{subrogation}} - S^{\mathrm{salvage}}'
+requires:
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+uses: [CV05]
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint sections 5.3 and 7.3.
