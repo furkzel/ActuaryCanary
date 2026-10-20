@@ -104,7 +104,7 @@ lines:
       sum_insured: {dist: fixed, value: 0}
       cancellation_probability: 0.05
     premium:
-      per_policy: 5500                  # was 600 in the first parameter sheet (loss ratio near 400 per cent)
+      per_policy: 9500                  # was 600 in the first sheet and 5500 in record 0016; see record 0018
       indexed_to: CPI_TR
       commission_rate: 0.10
       endorsement_probability: 0.03
