@@ -23,11 +23,12 @@ ActuaryCanary turns insurance data in any layout into an auditable, early-warnin
 
 ## State
 - Phase: 0 · Last gate passed: none · Last checkpoint: none
-- Works: `just check` green locally on Windows (PowerShell and bash; 15 tests, ~5 s); `canary info`, `canary --version`
-- Known gaps: no actuarial logic; CI workflow and pre-commit hooks UNVERIFIED (not run); no LICENSE (licence undecided, see 0006); `just` was installed locally with `uv tool install rust-just`
+- Works: `just check` green locally on Windows (PowerShell; 48 tests, ~5 s); `canary info`, `canary --version`; `just spec-index` lists 64 specs (6 data concepts, 8 conventions, 30 measures, 10 methods, 6 modules, 2 alias dictionaries), all draft 0.1.0; the loader validates every file and cross-reference
+- Known gaps: no actuarial logic; specs not yet reviewed by the owner; the test files named in the measure specs do not exist yet; CI workflow and pre-commit hooks UNVERIFIED (not run); no LICENSE (licence undecided, see 0006); `just` was installed locally with `uv tool install rust-just`; the Map and Open decisions sections are stale (input set now in `spec/data/`; large-loss threshold decided in 0010) and left for the owner; `spec/` must be bundled when packaging
 
 ## Next
-- P01 and P03 (can run in parallel)
+- Owner review of specs (status draft → reviewed, version 1.0.0), then P02
+- P03 if not done yet (parallel with P01)
 
 ## Open decisions
 - Licence (not decided); author line, contact and repository URL left empty on purpose
@@ -36,4 +37,5 @@ ActuaryCanary turns insurance data in any layout into an auditable, early-warnin
 ## Log (newest first, keep the last 15 lines)
 | Date | Item | Outcome | Elapsed | Commit |
 | --- | --- | --- | --- | --- |
+| 2026-10-20 | P01 | 64 draft specs, loader and reference checks, spec index, records 0007–0014 | ~31 min | see branch s/P01-specs |
 | 2026-10-20 | P00 | skeleton, toolchain, tiers, records 0001–0006 | ~5 min | see branch s/P00-skeleton |
