@@ -1,0 +1,42 @@
+id: RC02
+version: 0.1.0
+title_en: Salvage ratio
+title_tr: Sovtaj oranı
+status: draft
+definition: Salvage recovered as a share of claims paid, cumulative by origin period or as flows by calendar period.
+unit: ratio
+formula: 'SV(i) = \frac{\sum_{k \in i} S^{\mathrm{salv}}_k(c)}{\sum_{k \in i} P_k(c)}, \qquad SV(Q) = \frac{\Delta S^{\mathrm{salv}}(Q)}{\Delta P(Q)}'
+numerator: salvage_to_date as of the cut-off for origin i, or its flows in calendar period Q (CV04).
+denominator: CL01 cumulative paid for origin i, or paid flows in Q.
+grain: origin period (cumulative) or calendar period (flows)
+breakdowns: [segment, line, entity, cause, origin_period, calendar_period]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.salvage_to_date
+optional: [claims.occurrence_date, claims.segment, claims.line, claims.cause]
+uses: [CL01, CV01, CV03, CV04]
+edge_cases:
+  - case: Paid zero
+    handling: Not computed.
+  - case: Column salvage_to_date absent
+    handling: Measure not available, with the reason "no salvage column in claim_valuations".
+interpretation: >-
+  How much of paid claims comes back from selling damaged property. Sensitive to used-car
+  and scrap prices.
+typical_range:
+  low: 0.0
+  high: 0.1
+  note: Motor own damage and property typically 1 to 5 per cent.
+test:
+  path: tests/measures/test_rc02_salvage_ratio.py
+  proves: Paid 1000 and salvage 30 for one origin give 0.03.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

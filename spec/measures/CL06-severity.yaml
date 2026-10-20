@@ -1,0 +1,53 @@
+id: CL06
+version: 0.1.0
+title_en: Average claim severity
+title_tr: Ortalama hasar büyüklüğü
+status: draft
+definition: >-
+  Incurred per reported non-nil claim, by origin period, with attritional, large and
+  catastrophe claims shown apart (CV08).
+unit: amount
+formula: 'S^{g}(i) = \frac{\sum_{k \in i \cap g} I_k(c)}{\#\{k \in i \cap g : \mathrm{status}_k(c) \neq \mathrm{CLOSED\_NIL}\}}'
+numerator: Incurred at the cut-off (CL03) of claims of origin period i in size class group g.
+denominator: Claims of origin i and group g reported by the cut-off and not CLOSED_NIL (parameter exclude_nil).
+grain: origin period by segment, line and size class
+breakdowns: [segment, line, entity, product, partner, cause, currency, origin_period, claim_size_class]
+bases:
+  reinsurance: [GROSS, NET]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL, INFLATION_ADJUSTED]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claim_valuations.status
+optional: [claims.occurrence_date, claims.segment, claims.line, claims.event_code]
+uses: [CL03, CL04, CV01, CV02, CV04, CV08]
+parameters:
+  - name: exclude_nil
+    default: true
+    description: Leave nil-closed claims out of the count, consistent with CL05 (decision 0013).
+edge_cases:
+  - case: No non-nil claims in a group
+    handling: Not computed.
+  - case: Without claims
+    handling: Origin is the first-valuation month (CV04) and all claims form one segment and line group UNKNOWN.
+  - case: All-classes value
+    handling: Shown as a fourth group "all" next to the three classes.
+interpretation: >-
+  The average cost of a claim. Attritional severity on the inflation-adjusted basis shows
+  superimposed inflation; large-claim severity is volatile and read with its count.
+typical_range:
+  low: null
+  high: null
+  note: An amount; line specific. Recent origins are lower because large claims develop late.
+test:
+  path: tests/measures/test_cl06_severity.py
+  proves: >-
+    Six claims in one origin (one nil, one LARGE by a fixed threshold) give the
+    hand-computed attritional, large and all severities.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

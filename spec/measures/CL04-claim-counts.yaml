@@ -1,0 +1,60 @@
+id: CL04
+version: 0.1.0
+title_en: Claim counts by status
+title_tr: Statüye göre hasar adetleri
+status: draft
+definition: >-
+  Numbers of reported, open, closed, nil-closed and reopened claims as of a valuation date,
+  and the numbers newly reported, closed and reopened within a period.
+unit: count
+formula: 'N^{s}(v) = \#\{k : \mathrm{status}_k(v) \in s\}, \qquad N^{\mathrm{rep}}(v) = \#\{k : \exists\, \text{row of } k \text{ with valuation\_date} \le v\}'
+numerator: >-
+  Stock counts as of v: reported (any row on or before v), open (OPEN, REOPENED,
+  LITIGATED), closed (CLOSED, CLOSED_NIL), nil-closed (CLOSED_NIL), reopened (REOPENED),
+  litigated (LITIGATED), UNMAPPED. Flow counts in period Q: newly reported (first row in Q),
+  closed (a transition from an open status to a closed status between consecutive rows,
+  booked in Q), reopened (a transition from a closed status to an open status, booked in Q).
+denominator: null
+grain: claim at a valuation date
+breakdowns:
+  - segment
+  - line
+  - entity
+  - product
+  - partner
+  - cause
+  - origin_period
+  - calendar_period
+  - valuation_date
+  - claim_status
+  - claim_size_class
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL]
+  value: [NOMINAL]
+requires: [claim_valuations.claim_id, claim_valuations.valuation_date, claim_valuations.status]
+optional: [claims.segment, claims.line, claims.occurrence_date]
+uses: [CV04]
+edge_cases:
+  - case: UNMAPPED status
+    handling: Counted in its own UNMAPPED column and in reported, never in open or closed.
+  - case: Several closings of one claim in one period
+    handling: Each transition counts; the flow count is of events, not of claims.
+  - case: First row already closed
+    handling: Counted as newly reported and as closed in that period.
+interpretation: >-
+  Workload and progress of claims handling. A growing open count with a stable reported
+  count means slower settlement; many reopenings point at premature closing.
+typical_range:
+  low: 0
+  high: null
+  note: Counts; the closed share of reported claims rises with development age.
+test:
+  path: tests/measures/test_cl04_claim_counts.py
+  proves: >-
+    Five claims with the sequences open-closed, open-closed-reopened, nil, litigated and an
+    unknown label give the hand-computed stock counts at each month end and flow counts per month.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

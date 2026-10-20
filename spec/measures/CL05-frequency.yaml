@@ -1,0 +1,66 @@
+id: CL05
+version: 0.1.0
+title_en: Claim frequency
+title_tr: Hasar frekansı
+status: draft
+definition: >-
+  Reported non-nil claims per unit of earned exposure, by accident period, as known at the
+  cut-off.
+unit: ratio
+formula: 'F(i) = \frac{\#\{k : \mathrm{occurrence}_k \in i,\ k \text{ reported by } c,\ \mathrm{status}_k(c) \neq \mathrm{CLOSED\_NIL}\}}{E(i)}'
+numerator: >-
+  Claims with occurrence in accident period i, reported by the cut-off, excluding claims
+  that are CLOSED_NIL at the cut-off (parameter exclude_nil).
+denominator: Earned exposure in period i (CV04) of policies of the same segment and line.
+grain: accident period by segment and line
+breakdowns: [segment, line, entity, product, partner, channel, origin_period]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL]
+  value: [NOMINAL]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.status
+  - claims.claim_id
+  - claims.occurrence_date
+  - claims.segment
+  - claims.line
+  - policies.start_date
+  - policies.end_date
+  - policies.segment
+  - policies.line
+optional: [policies.exposure_units, policies.cancellation_date]
+uses: [CL04, CV04]
+parameters:
+  - name: exclude_nil
+    default: true
+    description: >-
+      Count only claims not CLOSED_NIL, the same count as CL06, so that frequency times
+      severity equals incurred per exposure (decision 0013).
+edge_cases:
+  - case: Earned exposure zero
+    handling: Not computed.
+  - case: Recent accident periods
+    handling: >-
+      Understated, because claims not yet reported are missing; the value is labelled
+      "reported frequency" and the reporting delay (CL07) is shown beside it. Ultimate
+      frequency needs a count projection (tier B).
+  - case: Claims without occurrence date
+    handling: Excluded and counted in the quality report (DV-CLM-03).
+interpretation: >-
+  How often the insured risk produces a claim. A change in mature periods points at risk
+  mix, underwriting, claims behaviour or weather and catastrophe events.
+typical_range:
+  low: 0.0
+  high: 0.5
+  note: Per exposure year; motor own damage often 0.1 to 0.3, motor liability 0.03 to 0.08, property 0.01 to 0.05.
+test:
+  path: tests/measures/test_cl05_frequency.py
+  proves: >-
+    Four claims in 2024 (one nil-closed) on 30 exposure years give 3 / 30 = 0.1, and 4 / 30
+    with exclude_nil false.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

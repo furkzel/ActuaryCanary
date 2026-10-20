@@ -1,0 +1,65 @@
+id: AE01
+version: 0.1.0
+title_en: Actual versus expected development
+title_tr: Gerçekleşen ile beklenen gelişim
+status: draft
+definition: >-
+  For each origin period, the claims development actually observed between an earlier and
+  a later valuation, compared with the development the earlier selection expected.
+unit: ratio
+formula: 'A_i = C_i(v_1) - C_i(v_0), \quad E_i = U^{\mathrm{exp}}_i \Big(\frac{1}{CDF_{a_1}} - \frac{1}{CDF_{a_0}}\Big), \quad AE_i = \frac{A_i}{E_i}'
+numerator: >-
+  Actual movement of cumulative incurred (and separately paid) of origin i between v_0
+  and v_1, from triangles built as of v_1 (MT01).
+denominator: >-
+  Expected movement: U^exp is the chain-ladder ultimate of origin i at v_0 when the v_0
+  selection was chain ladder, or the prior ultimate ELR_i * EP_i when it was
+  Bornhuetter–Ferguson (MT10); CDF are the cumulative factors selected at v_0 for the
+  development ages a_0 and a_1 of origin i at v_0 and v_1.
+grain: origin period by segment and line, between two valuations
+breakdowns: [segment, line, entity, origin_period]
+bases:
+  reinsurance: [GROSS, NET]
+  currency: [REPORTING]
+  value: [NOMINAL]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+optional: [claims.occurrence_date, claims.segment, claims.line, premiums.amount, policies.start_date]
+uses: [MT01, MT02, MT03, MT10]
+parameters:
+  - name: v0
+    default: cut-off minus one development period
+    description: Earlier valuation; must lie on the development grid of v1 (CV04).
+  - name: selection_source
+    default: recomputed
+    description: >-
+      recomputed rebuilds the v_0 selection with the same parameters on data known at v_0;
+      register uses a selection stored in the assumptions register by an earlier run.
+    allowed: [recomputed, register]
+edge_cases:
+  - case: Expected movement zero
+    handling: Ratio not computed; the difference A - E is still shown.
+  - case: Origin starting after v_0
+    handling: Not part of the comparison.
+  - case: Totals
+    handling: Total ratio is the sum of A over the sum of E, not an average of ratios.
+interpretation: >-
+  Whether claims develop as the previous selection assumed. A ratio persistently above 1
+  for incurred means the factors or priors are too low; its pattern across origins shows
+  where.
+typical_range:
+  low: 0.5
+  high: 1.5
+  note: Noisy for single young origins; read totals and trends.
+test:
+  path: tests/measures/test_ae01_actual_versus_expected.py
+  proves: >-
+    An origin with incurred 600 at age 12, CDF 1.5 at 12 and 1.2 at 24, and incurred 780 at
+    v1, gives E = 900 (1/1.2 - 1/1.5) = 150, A = 180 and AE = 1.2.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

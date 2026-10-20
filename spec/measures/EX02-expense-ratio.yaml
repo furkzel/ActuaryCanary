@@ -1,0 +1,54 @@
+id: EX02
+version: 0.1.0
+title_en: Expense ratio
+title_tr: Gider oranı
+status: draft
+definition: >-
+  Acquisition (other than commission) and administration expenses booked in a period as a
+  share of gross earned premium in that period.
+unit: ratio
+formula: 'ER(Q) = \frac{X^{\mathrm{ACQUISITION}}(Q) + X^{\mathrm{ADMINISTRATION}}(Q)}{EP^{\mathrm{gross}}(Q)}'
+numerator: Expense amounts of type ACQUISITION and ADMINISTRATION with period in Q.
+denominator: Gross earned premium in Q (PR02) at the same level of segment, line or entity.
+grain: calendar period at the level the expense rows carry
+breakdowns: [segment, line, entity, calendar_period, expense_type]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL]
+requires:
+  - expenses.period
+  - expenses.amount
+  - expenses.type
+  - premiums.policy_id
+  - premiums.amount
+  - premiums.type
+  - premiums.booking_date
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+optional: [expenses.currency, expenses.entity, expenses.segment, expenses.line, policies.segment, policies.line]
+uses: [PR02, EX01, CV01]
+edge_cases:
+  - case: Expense rows without line
+    handling: >-
+      Not allocated; the ratio is computed only at the levels the rows carry (entity,
+      segment or total) and line-level ratios cover only expenses with a line.
+  - case: Earned premium zero
+    handling: Not computed.
+  - case: OTHER and CLAIMS_HANDLING_UNALLOCATED types
+    handling: Excluded; claims handling belongs to EX03 and OTHER is shown on its own.
+interpretation: >-
+  Cost of running and acquiring the business beyond commission. Combined with EX01 and the
+  loss ratio in RT02.
+typical_range:
+  low: 0.05
+  high: 0.25
+  note: Monthly values are noisy; read on a rolling twelve months.
+test:
+  path: tests/measures/test_ex02_expense_ratio.py
+  proves: Acquisition 50, administration 80, other 20 and earned premium 1000 give 0.13.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

@@ -1,0 +1,56 @@
+id: RI02
+version: 0.1.0
+title_en: Reinsurance result
+title_tr: Reasürans sonucu
+status: draft
+definition: >-
+  For a calendar period, ceded claims incurred plus reinsurance commission earned minus
+  ceded premium earned: the insurer's gain or cost from reinsurance.
+unit: amount
+formula: 'RR(Q) = \Delta I^{\mathrm{ceded}}(Q) + EC^{\mathrm{RI}}(Q) - EP^{\mathrm{ceded}}(Q)'
+numerator: >-
+  Change in ceded incurred over Q (CL03 CEDED flow), plus RI_COMMISSION earned in Q, minus
+  CEDED_PREMIUM earned in Q (both earned as PR02).
+denominator: null
+grain: calendar period
+breakdowns: [segment, line, entity, calendar_period]
+bases:
+  reinsurance: [CEDED]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.ceded_paid_to_date
+  - claim_valuations.ceded_reserve
+  - premiums.policy_id
+  - premiums.amount
+  - premiums.type
+  - premiums.booking_date
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+optional: [claims.segment, claims.line, policies.segment, policies.line]
+uses: [PR02, CL03, CV03, CV05]
+edge_cases:
+  - case: No RI_COMMISSION rows while CEDED_PREMIUM rows exist
+    handling: Commission counts as zero and a note says so.
+  - case: No CEDED_PREMIUM rows
+    handling: Not computed (CV03).
+  - case: Ratio view
+    handling: Also shown as a share of ceded earned premium when that is positive.
+interpretation: >-
+  Positive means reinsurers paid more in claims and commission than they earned in premium
+  in the period, favourable to the insurer (CV05). Persistently negative results are the
+  price of protection; read with the large-loss share (CL12).
+typical_range:
+  low: null
+  high: null
+  note: An amount; usually negative in benign years and positive in catastrophe years.
+test:
+  path: tests/measures/test_ri02_reinsurance_result.py
+  proves: Ceded incurred change 250, RI commission earned 75 and ceded premium earned 300 give +25.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

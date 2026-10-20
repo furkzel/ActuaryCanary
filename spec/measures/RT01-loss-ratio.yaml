@@ -1,0 +1,68 @@
+id: RT01
+version: 0.1.0
+title_en: Loss ratio (paid, incurred, ultimate)
+title_tr: Hasar prim oranı (ödenen, gerçekleşen, nihai)
+status: draft
+definition: >-
+  A claims measure divided by earned premium: by accident period for paid, incurred and
+  selected ultimate claims, and by calendar period for incurred movement.
+unit: ratio
+formula: 'LR^{m}(i) = \frac{L^{m}_i}{EP(i)}, \quad m \in \{\mathrm{paid}, \mathrm{incurred}, \mathrm{ultimate}\}; \qquad LR^{\mathrm{cal}}(Q) = \frac{\Delta I(Q)}{EP(Q)}'
+numerator: >-
+  Accident view: cumulative paid (CL01), incurred (CL03) or selected ultimate (MT10) of
+  claims with occurrence in period i, as of the cut-off. Calendar view: incurred movement
+  in period Q (CL03 flow).
+denominator: Earned premium in the same period (PR02), same segment and line.
+grain: accident period or calendar period, by segment and line
+breakdowns: [segment, line, entity, product, partner, channel, origin_period, calendar_period]
+bases:
+  reinsurance: [GROSS, NET]
+  currency: [REPORTING]
+  value: [NOMINAL]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - premiums.policy_id
+  - premiums.amount
+  - premiums.type
+  - premiums.booking_date
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+optional:
+  - claims.occurrence_date
+  - claims.segment
+  - claims.line
+  - policies.segment
+  - policies.line
+uses: [CL01, CL03, PR02, MT10, CV01, CV03]
+edge_cases:
+  - case: claims not loaded
+    handling: >-
+      The accident view and segment or line breakdowns are not available; only the
+      all-business calendar view is shown, labelled "segments not separated".
+  - case: Earned premium zero or negative
+    handling: Not computed.
+  - case: Ultimate not available for an origin (MT10 failure)
+    handling: Paid and incurred ratios still shown; ultimate ratio not available with the MT10 reason.
+  - case: Currency
+    handling: Claims and premium are both converted to reporting currency before dividing.
+interpretation: >-
+  Profitability before expenses. Paid and incurred ratios of recent periods are low because
+  they are immature; the ultimate ratio is comparable across periods. The calendar view
+  mixes current-period claims with reserve changes on earlier periods.
+typical_range:
+  low: 0.3
+  high: 1.1
+  note: Ultimate ratios of 0.55 to 0.8 are common in non-life; motor liability can exceed 1.
+test:
+  path: tests/measures/test_rt01_loss_ratio.py
+  proves: >-
+    With earned premium 1000 and paid 400, incurred 650 and a selected ultimate 720 for one
+    accident year, the ratios are 0.40, 0.65 and 0.72; the calendar view matches by hand.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

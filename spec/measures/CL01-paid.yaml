@@ -1,0 +1,67 @@
+id: CL01
+version: 0.1.0
+title_en: Paid claims
+title_tr: Ödenen hasar
+status: draft
+definition: >-
+  Claim payments: cumulative to a valuation date from claim valuations, or paid within a
+  period as the flow between valuations (CV04).
+unit: amount
+formula: 'P(v) = \sum_k P_k(v), \qquad \Delta P(Q) = \sum_k \sum_{v_n \in Q} \big(P_k(v_n) - P_k(v_{n-1})\big)'
+numerator: >-
+  paid_to_date of each claim as of v (carry-forward), or the paid flows booked in period Q.
+denominator: null
+grain: claim at a valuation date; aggregated by origin period or calendar period
+breakdowns:
+  - segment
+  - line
+  - entity
+  - product
+  - partner
+  - cause
+  - currency
+  - origin_period
+  - development_period
+  - calendar_period
+  - valuation_date
+  - claim_size_class
+bases:
+  reinsurance: [GROSS, CEDED, NET]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL, INFLATION_ADJUSTED]
+requires: [claim_valuations.claim_id, claim_valuations.valuation_date, claim_valuations.paid_to_date]
+optional:
+  - claim_valuations.currency
+  - claim_valuations.ceded_paid_to_date
+  - claims.segment
+  - claims.line
+  - claims.entity
+  - claims.product
+  - claims.partner
+  - claims.cause
+  - claims.occurrence_date
+uses: [CV01, CV02, CV03, CV04, CV08]
+edge_cases:
+  - case: paid_to_date decreases between valuations (DV-CLV-07)
+    handling: The negative flow is kept, so cumulative and flow views stay consistent.
+  - case: Missing month for an open claim
+    handling: The previous row is carried forward; the flow lands in the month of the next row.
+  - case: Empty paid_to_date
+    handling: The row is excluded from paid; the claim's flow is computed between the rows that have it.
+interpretation: >-
+  Cash out for indemnity, excluding recoveries and allocated expenses. Paid by calendar
+  period tracks cash; paid by origin period feeds triangles.
+typical_range:
+  low: null
+  high: null
+  note: An amount, normally positive; NET at most GROSS.
+test:
+  path: tests/measures/test_cl01_paid.py
+  proves: >-
+    Three claims over four month ends, one with a missing month and one with a decrease,
+    give the hand-computed cumulative paid at each date and flows by month; property test:
+    the sum of flows to v equals cumulative paid at v.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

@@ -1,0 +1,40 @@
+id: PR04
+version: 0.1.0
+title_en: Cancellation rate
+title_tr: İptal oranı
+status: draft
+definition: >-
+  Premium returned through cancellations and refunds as a share of premium written before
+  returns, in the same booking period.
+unit: ratio
+formula: 'CR(P) = \frac{-\sum_{k \in P,\ \mathrm{CANCELLATION},\,\mathrm{REFUND}} x_k}{\sum_{k \in P,\ \mathrm{WRITTEN},\,\mathrm{ENDORSEMENT}} x_k}'
+numerator: Minus the sum of CANCELLATION and REFUND amounts booked in P (a positive number after CV05).
+denominator: Sum of WRITTEN and ENDORSEMENT amounts booked in P.
+grain: calendar period of booking_date
+breakdowns: [segment, line, entity, product, partner, channel, calendar_period]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL]
+requires: [premiums.booking_date, premiums.amount, premiums.type]
+optional: [premiums.policy_id, policies.segment, policies.line, policies.partner, policies.channel]
+uses: [PR01, CV01, CV05]
+edge_cases:
+  - case: Denominator zero or negative
+    handling: Not computed; shown as not available.
+  - case: Cancellations booked in a later period than the policy
+    handling: Counted in their booking period; the ratio is a calendar-period view, not a policy-cohort lapse rate.
+interpretation: >-
+  A rising rate signals affordability problems, competitor pricing or a channel cleaning its
+  book. Compare by channel and partner.
+typical_range:
+  low: 0.0
+  high: 0.2
+  note: Motor and property books usually show 3 to 15 per cent.
+test:
+  path: tests/measures/test_pr04_cancellation_rate.py
+  proves: Written 1000, endorsement 100, cancellation -110 and refund -55 give 165 / 1100 = 0.15.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

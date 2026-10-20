@@ -1,0 +1,58 @@
+id: CL02
+version: 0.1.0
+title_en: Case reserve
+title_tr: Muallak hasar (dosya karşılığı)
+status: draft
+definition: The outstanding case estimates of all claims as of a valuation date.
+unit: amount
+formula: 'R(v) = \sum_k R_k(v)'
+numerator: case_reserve of each claim as of v (carry-forward, CV04).
+denominator: null
+grain: claim at a valuation date
+breakdowns:
+  - segment
+  - line
+  - entity
+  - product
+  - partner
+  - cause
+  - currency
+  - origin_period
+  - development_period
+  - valuation_date
+  - claim_status
+  - claim_size_class
+bases:
+  reinsurance: [GROSS, CEDED, NET]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL, INFLATION_ADJUSTED]
+requires: [claim_valuations.claim_id, claim_valuations.valuation_date, claim_valuations.case_reserve]
+optional:
+  - claim_valuations.currency
+  - claim_valuations.status
+  - claim_valuations.ceded_reserve
+  - claims.segment
+  - claims.line
+  - claims.occurrence_date
+uses: [CV01, CV02, CV03, CV04]
+edge_cases:
+  - case: Closed claim with a non-zero reserve (DV-CLV-09)
+    handling: Kept as given and flagged.
+  - case: Negative case reserve
+    handling: Kept as given and flagged (DV-CLV-08).
+  - case: Currency
+    handling: A stock; converted at the period-end rate of v (CV01), or the constant rate in development views.
+interpretation: >-
+  The claims handlers' estimate of what is still to pay on known claims. Compared over
+  time through run-off (CL11) and actual versus expected (AE01).
+typical_range:
+  low: null
+  high: null
+  note: An amount, normally positive.
+test:
+  path: tests/measures/test_cl02_case_reserve.py
+  proves: The CL01 fixture gives the hand-computed reserve at each month end, including a carried-forward month.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

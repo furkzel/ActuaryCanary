@@ -1,0 +1,45 @@
+id: CL10
+version: 0.1.0
+title_en: Paid-to-incurred ratio
+title_tr: Ödenen / gerçekleşen oranı
+status: draft
+definition: Cumulative paid as a share of cumulative incurred, per origin period and development age.
+unit: ratio
+formula: 'PI_{i,j} = \frac{C^{\mathrm{paid}}_{i,j}}{C^{\mathrm{inc}}_{i,j}}'
+numerator: Cumulative paid triangle cell (MT01, measure paid).
+denominator: Cumulative incurred triangle cell (MT01, measure incurred), same origin and age.
+grain: triangle cell (origin period, development period)
+breakdowns: [segment, line, entity, origin_period, development_period]
+bases:
+  reinsurance: [GROSS, CEDED, NET]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+optional: [claims.occurrence_date, claims.segment, claims.line]
+uses: [MT01, CV01]
+edge_cases:
+  - case: Incurred zero
+    handling: Not computed.
+  - case: Ratio above 1
+    handling: Shown and flagged; it means negative case reserves.
+  - case: A column whose ratio falls on a recent diagonal
+    handling: Flagged as a possible change in case reserving or payment speed.
+interpretation: >-
+  How far claims are paid relative to what is reported. Along a column the ratio should be
+  stable; a diagonal break signals a change in reserving strength or payment practice,
+  which distorts chain ladder on one of the two triangles.
+typical_range:
+  low: 0.0
+  high: 1.0
+  note: Rises with age towards 1; short-tail lines pass 0.9 within two years.
+test:
+  path: tests/measures/test_cl10_paid_to_incurred.py
+  proves: A 3 x 3 paid and incurred triangle fixture gives the hand-computed ratio triangle.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

@@ -1,0 +1,46 @@
+id: RS01
+version: 0.1.0
+title_en: Development factors
+title_tr: Gelişim faktörleri
+status: draft
+definition: >-
+  Individual link ratios of a cumulative triangle, their averages, the selected
+  age-to-age factors and the cumulative factors to ultimate.
+unit: factor
+formula: 'F_{i,j} = \frac{C_{i,j+1}}{C_{i,j}}, \qquad f_j \text{ selected (MT02)}, \qquad CDF_j = \tau \prod_{k \ge j} f_k'
+numerator: Cumulative triangle cell at development index j + 1 (MT01).
+denominator: Cumulative triangle cell at development index j of the same origin.
+grain: triangle column (development period), with link ratios per cell
+breakdowns: [segment, line, entity, origin_period, development_period]
+bases:
+  reinsurance: [GROSS, CEDED, NET]
+  currency: [REPORTING]
+  value: [NOMINAL, INFLATION_ADJUSTED]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+optional: [claims.occurrence_date, claims.segment, claims.line]
+uses: [MT01, MT02]
+edge_cases:
+  - case: C(i, j) zero
+    handling: Link ratio not defined; left out of simple averages (MT02).
+  - case: Excluded link ratios
+    handling: Shown struck through with the reason from the assumptions register.
+  - case: Column without usable link ratios
+    handling: Selected factor 1 and a WARNING (MT02).
+interpretation: >-
+  How much cumulative claims grow from one age to the next. Stable columns support chain
+  ladder; trends down a column or jumps along a diagonal call for judgement or another method.
+typical_range:
+  low: 0.9
+  high: 3.0
+  note: First-year incurred factors of short-tail lines 1.0 to 1.3; tending to 1 at later ages.
+test:
+  path: tests/measures/test_rs01_development_factors.py
+  proves: A 4 x 4 triangle fixture gives the hand-computed link ratios, averages and cumulative factors.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

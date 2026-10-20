@@ -1,0 +1,57 @@
+id: CL03
+version: 0.1.0
+title_en: Incurred claims (reported)
+title_tr: Gerçekleşen hasar (bildirilmiş)
+status: draft
+definition: Paid plus case reserve as of a valuation date; as a flow, the change in incurred over a period.
+unit: amount
+formula: 'I(v) = P(v) + R(v), \qquad \Delta I(Q) = I(\mathrm{end}\,Q) - I(\mathrm{end}\,Q^{-})'
+numerator: CL01 cumulative paid plus CL02 case reserve, both as of v; Q^- is the period before Q.
+denominator: null
+grain: claim at a valuation date
+breakdowns:
+  - segment
+  - line
+  - entity
+  - product
+  - partner
+  - cause
+  - currency
+  - origin_period
+  - development_period
+  - calendar_period
+  - valuation_date
+  - claim_status
+  - claim_size_class
+bases:
+  reinsurance: [GROSS, CEDED, NET]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL, INFLATION_ADJUSTED]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+optional: [claim_valuations.ceded_paid_to_date, claim_valuations.ceded_reserve, claims.segment, claims.line]
+uses: [CL01, CL02, CV02, CV03]
+edge_cases:
+  - case: Either amount empty on a row
+    handling: The row is excluded from incurred (DV-CLV-02).
+  - case: INFLATION_ADJUSTED basis
+    handling: Restated cumulative paid flows plus restated reserve (CV02), not the restated nominal incurred.
+interpretation: >-
+  The reported cost of claims. Its change in a calendar period is the period's incurred
+  claims; by origin it is the basis of incurred triangles.
+typical_range:
+  low: null
+  high: null
+  note: An amount, normally positive.
+test:
+  path: tests/measures/test_cl03_incurred.py
+  proves: >-
+    The CL01 fixture gives incurred = paid + reserve at each date; on a two-month fixture
+    with a doubling index the inflation-adjusted incurred matches the hand-computed value.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

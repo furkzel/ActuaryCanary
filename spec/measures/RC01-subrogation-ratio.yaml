@@ -1,0 +1,44 @@
+id: RC01
+version: 0.1.0
+title_en: Subrogation ratio
+title_tr: Rücu oranı
+status: draft
+definition: Subrogation recovered as a share of claims paid, cumulative by origin period or as flows by calendar period.
+unit: ratio
+formula: 'SB(i) = \frac{\sum_{k \in i} S^{\mathrm{sub}}_k(c)}{\sum_{k \in i} P_k(c)}, \qquad SB(Q) = \frac{\Delta S^{\mathrm{sub}}(Q)}{\Delta P(Q)}'
+numerator: subrogation_to_date as of the cut-off for origin i, or its flows in calendar period Q (CV04).
+denominator: CL01 cumulative paid for origin i, or paid flows in Q.
+grain: origin period (cumulative) or calendar period (flows)
+breakdowns: [segment, line, entity, cause, origin_period, calendar_period]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.subrogation_to_date
+optional: [claims.occurrence_date, claims.segment, claims.line, claims.cause]
+uses: [CL01, CV01, CV03, CV04]
+edge_cases:
+  - case: Paid zero
+    handling: Not computed.
+  - case: Column subrogation_to_date absent
+    handling: Measure not available, with the reason "no subrogation column in claim_valuations".
+  - case: Recoveries arrive long after payment
+    handling: Cumulative ratios of recent origins are low by construction; the origin view is shown with development age.
+interpretation: >-
+  How much of paid claims comes back from liable third parties. A fall in mature origins
+  points at weaker recovery effort.
+typical_range:
+  low: 0.0
+  high: 0.15
+  note: Motor own damage typically 3 to 10 per cent; most other lines close to 0.
+test:
+  path: tests/measures/test_rc01_subrogation_ratio.py
+  proves: Paid 1000 and subrogation 80 for one origin give 0.08; the flow view matches hand-computed monthly ratios.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

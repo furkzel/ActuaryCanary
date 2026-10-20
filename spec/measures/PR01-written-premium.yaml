@@ -1,0 +1,55 @@
+id: PR01
+version: 0.1.0
+title_en: Written premium
+title_tr: Yazılan prim
+status: draft
+definition: >-
+  The sum of WRITTEN, ENDORSEMENT, CANCELLATION and REFUND premium booked in a period, after
+  sign normalisation; on the CEDED basis, the sum of CEDED_PREMIUM.
+unit: amount
+formula: 'WP(P) = \sum_{k:\ \mathrm{booking}_k \in P,\ \mathrm{type}_k \in \{\mathrm{WRITTEN},\,\mathrm{ENDORSEMENT},\,\mathrm{CANCELLATION},\,\mathrm{REFUND}\}} x_k'
+numerator: Signed premium amounts of the four written types booked in period P (CEDED_PREMIUM on the CEDED basis).
+denominator: null
+grain: calendar period of booking_date
+breakdowns: [segment, line, entity, product, partner, channel, currency, calendar_period, premium_type]
+bases:
+  reinsurance: [GROSS, CEDED, NET]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL, INFLATION_ADJUSTED]
+requires: [premiums.booking_date, premiums.amount, premiums.currency, premiums.type]
+optional:
+  - premiums.policy_id
+  - policies.segment
+  - policies.line
+  - policies.entity
+  - policies.product
+  - policies.partner
+  - policies.channel
+uses: [CV01, CV02, CV03, CV04, CV05]
+edge_cases:
+  - case: No rows of the written types in a period covered by the file
+    handling: The value is 0, not missing.
+  - case: Period before the first or after the last booking month in the file
+    handling: Missing, not 0; the coverage finding says which months the file covers.
+  - case: Negative total (cancellations exceed new business)
+    handling: Shown as is.
+  - case: UNMAPPED transaction type
+    handling: Excluded and listed (DV-PRM-04).
+  - case: Policy not in policies
+    handling: Counted under segment and line UNKNOWN (DV-PRM-06).
+interpretation: >-
+  Volume of business written in the period. Growth against the same period a year earlier
+  is shown on both value bases, so real growth is visible in high-inflation periods.
+typical_range:
+  low: null
+  high: null
+  note: An amount; normally positive. NET is normally 50 to 100 per cent of GROSS.
+test:
+  path: tests/measures/test_pr01_written_premium.py
+  proves: >-
+    One row of each type, a CANCELLATION stored positive (normalised by CV05), an UNMAPPED
+    row and a row booked after the period give the hand-computed gross, ceded and net totals.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.

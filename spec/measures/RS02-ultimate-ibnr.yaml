@@ -1,0 +1,64 @@
+id: RS02
+version: 0.1.0
+title_en: Ultimate, IBNR and IBNER (indicative)
+title_tr: Nihai hasar, IBNR ve IBNER (gösterge)
+status: draft
+definition: >-
+  Per origin period and method, the estimated ultimate claims, the unpaid amount, and the
+  incurred-but-not-reported amount, with the selected method's values shown first.
+unit: amount
+formula: 'U^{m}_i \text{ from method } m; \quad \mathrm{Unpaid}^{m}_i = U^{m}_i - P_i(c); \quad \mathrm{IBNR}^{m}_i = U^{m}_i - I_i(c); \quad \mathrm{IBNER} = \sum_i \big(U^{\mathrm{rep}}_i - I^{\mathrm{rep}}_i(c)\big),\ \ \mathrm{pure\ IBNR} = \mathrm{IBNR} - \mathrm{IBNER}'
+numerator: >-
+  Ultimates of chain ladder (MT02), Bornhuetter–Ferguson (MT03), Cape Cod (MT04), expected
+  loss ratio (MT05), inflation-adjusted chain ladder (MT07) and the selection (MT10).
+  IBNR here is the broad amount (U minus reported incurred). IBNER is estimated at segment
+  and line level from an incurred chain ladder on report-period origins, in which every
+  claim is already reported; pure IBNR is the rest.
+denominator: null
+grain: origin period by segment and line, per method
+breakdowns: [segment, line, entity, origin_period]
+bases:
+  reinsurance: [GROSS, CEDED, NET]
+  currency: [REPORTING]
+  value: [NOMINAL, INFLATION_ADJUSTED]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+optional:
+  - claims.occurrence_date
+  - claims.report_date
+  - claims.segment
+  - claims.line
+  - premiums.amount
+  - policies.start_date
+uses: [MT01, MT02, MT03, MT04, MT05, MT07, MT10, CL01, CL03]
+edge_cases:
+  - case: Method not available for an origin
+    handling: Its column shows the method's failure reason; the other methods are still shown.
+  - case: Negative IBNR
+    handling: Shown and flagged; it means the method expects favourable development of case reserves.
+  - case: IBNER split without report dates
+    handling: >-
+      Uses first-valuation origins (CV04) as report periods and is labelled as a proxy; when
+      the origin axis itself is first_valuation, the whole IBNR is IBNER plus late-reported
+      claims of the latest partial period and no split is shown.
+  - case: CEDED and NET
+    handling: Methods run on ceded and net triangles separately; net is not forced to equal gross minus ceded and the difference is shown.
+interpretation: >-
+  Indicative estimate of what claims will finally cost and what is still to come. Not an
+  official reserve; the range comes from RS03.
+typical_range:
+  low: null
+  high: null
+  note: Amounts; IBNR relative to incurred falls with origin age.
+test:
+  path: tests/measures/test_rs02_ultimate_ibnr.py
+  proves: >-
+    On a 4 x 4 fixture with premium, each method's ultimate, unpaid and IBNR equal the
+    hand-computed values, and IBNER plus pure IBNR equals IBNR.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 8.1.
