@@ -1,0 +1,86 @@
+id: MT09
+version: 0.1.0
+title_en: Isolation forest anomaly flags
+title_tr: İzolasyon ormanı ile anomali işaretleri
+status: draft
+definition: >-
+  Scores whole claims by how easily random splits isolate them on a set of claim-level
+  features, and flags the most isolated ones; complements MT08, which looks at single
+  movements.
+tier: A
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claim_valuations.status
+optional:
+  - claim_valuations.currency
+  - claims.occurrence_date
+  - claims.report_date
+  - claims.segment
+  - claims.line
+uses: [CV01, CV04]
+assumptions:
+  - statement: Anomalous claims are few and differ from the rest on the chosen features.
+    check: Score distribution has a thin upper tail; flagged claims reviewed against MT08 flags.
+parameters:
+  - name: n_estimators
+    default: 200
+    description: Number of trees; 200 gives stable scores at modest cost.
+  - name: max_samples
+    default: 256
+    description: Sample size per tree, the value of the original paper; capped at the group size.
+  - name: contamination
+    default: 0.01
+    description: Share of claims flagged per group.
+  - name: seed
+    default: 1
+    description: Random seed; any fixed value, recorded in the run manifest.
+  - name: min_group_size
+    default: 100
+    description: Groups with fewer claims are not scored.
+  - name: group_by
+    default: [segment]
+    description: Groups scored separately; segments are never mixed.
+algorithm:
+  - step: >-
+      Features per claim at the cut-off, amounts in reporting currency with the constant
+      development rate (CV01): ln(1 + incurred+), ln(1 + paid+), paid / incurred (0 when
+      incurred is 0, clipped to [0, 2]), months since first valuation, share of rows with
+      a reserve change, ln(1 + largest monthly paid flow+), largest absolute log reserve
+      change, number of negative paid flows, open flag, and reporting delay in days when
+      claims is loaded (x+ means max(x, 0)).
+  - step: >-
+      Fit an isolation forest per group with the parameters above (scikit-learn
+      IsolationForest, bootstrap off) and score each claim.
+    formula: 's(x) = 2^{-E[h(x)] / c(\psi)}, \qquad c(\psi) = 2 H(\psi - 1) - 2(\psi - 1)/\psi'
+  - step: Flag the claims whose score is in the top contamination share of their group.
+outputs:
+  - name: scores
+    description: Anomaly score per claim, higher is more anomalous.
+  - name: flags
+    description: Flagged claims with score, rank and their feature values.
+diagnostics:
+  - Score histogram per group with the flag line.
+  - Feature values of flagged claims against the group medians.
+failure_modes:
+  - condition: Group smaller than min_group_size.
+    action: Not scored; listed as "too few claims".
+  - condition: A feature is constant within a group.
+    action: Kept; it carries no information and the forest ignores it in practice.
+validation:
+  - kind: property
+    description: Same data and seed give identical scores; results do not depend on row order.
+    tolerance: exact
+  - kind: ground_truth
+    description: >-
+      On the synthetic baseline, claims with injected faults rank higher on average than
+      other claims; report the area under the ROC curve.
+    tolerance: AUC of at least 0.7
+references:
+  - Liu, F. T., Ting, K. M. and Zhou, Z.-H. (2008). Isolation Forest. IEEE International Conference on Data Mining.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 9.1.

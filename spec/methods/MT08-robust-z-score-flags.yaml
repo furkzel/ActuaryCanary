@@ -1,0 +1,74 @@
+id: MT08
+version: 0.1.0
+title_en: Robust z-score anomaly flags
+title_tr: Sağlam z-skoru ile anomali işaretleri
+status: draft
+definition: >-
+  Flags individual payments and case-reserve changes that lie far from the typical values
+  of their segment and line, measured by a z-score built on the median and the median
+  absolute deviation, which outliers cannot distort.
+tier: A
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+optional: [claim_valuations.currency, claims.segment, claims.line]
+uses: [CV01, CV04]
+assumptions:
+  - statement: Anomalies are rare, so the median and MAD describe normal behaviour.
+    check: Share of flagged values per group stays below a few per cent; a higher share is reported as a data-shape problem rather than anomalies.
+  - statement: On the log scale the variables are roughly symmetric.
+    check: Histogram of the log values per group in the diagnostics.
+parameters:
+  - name: threshold
+    default: 3.5
+    description: Flag when |z| exceeds this; the cut-off recommended by Iglewicz and Hoaglin (1993).
+  - name: min_group_size
+    default: 30
+    description: Groups with fewer values are not scored, because MAD is unstable.
+  - name: group_by
+    default: [segment, line]
+    description: Groups within which median and MAD are computed.
+  - name: variables
+    default: [paid_flow, reserve_change]
+    description: Variables scored.
+    allowed: [paid_flow, reserve_change]
+algorithm:
+  - step: >-
+      Variables per claim and month, in reporting currency with the constant development
+      rate (CV01): paid_flow is ln of each positive paid flow (CV04); reserve_change is
+      ln((R(v_n) + 1) / (R(v_(n-1)) + 1)) for consecutive rows with any reserve.
+    formula: 'y = \ln(\Delta P), \quad y = \ln\frac{R(v_n) + 1}{R(v_{n-1}) + 1}'
+  - step: Robust z-score within each group.
+    formula: 'z = \frac{0.6745\,(y - \tilde y)}{\mathrm{MAD}}, \qquad \mathrm{MAD} = \mathrm{median}\,|y - \tilde y|'
+  - step: When MAD is zero, the mean absolute deviation is used instead.
+    formula: 'z = \frac{y - \tilde y}{1.253314 \cdot \mathrm{mean}\,|y - \tilde y|}'
+  - step: Flag every value with |z| above the threshold; when both deviations are zero, nothing is flagged.
+outputs:
+  - name: flags
+    description: Claim id, valuation date, variable, value, z and threshold, with source rows.
+  - name: flag_rates
+    description: Share of flagged values per group and variable.
+diagnostics:
+  - Distribution of z per group with the threshold lines.
+failure_modes:
+  - condition: Group smaller than min_group_size.
+    action: Not scored; listed as "too few values".
+  - condition: Flag rate above 5 per cent in a group.
+    action: Flags kept and a WARNING says the group may mix populations (for example two currencies).
+validation:
+  - kind: fixture
+    description: Values 1 to 30 on the log scale plus one value at 60 give exactly one flag with the hand-computed z.
+    tolerance: 1e-12 relative
+  - kind: ground_truth
+    description: >-
+      On the synthetic baseline, the injected extreme payment outliers are recalled; report
+      recall and the number of other flags per thousand payments.
+    tolerance: recall of at least 0.75 of injected outliers
+references:
+  - Iglewicz, B. and Hoaglin, D. C. (1993). How to Detect and Handle Outliers. ASQC Quality Press.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint sections 6.5 and 9.1.

@@ -1,0 +1,108 @@
+id: MT06
+version: 0.1.0
+title_en: Mack standard error with lognormal range
+title_tr: Mack standart hatası ve lognormal aralık
+status: draft
+definition: >-
+  The distribution-free standard error of chain-ladder reserves (Mack 1993), per origin and
+  in total, turned into percentiles, value at risk and tail value at risk by assuming a
+  lognormal reserve distribution. The lognormal step is an approximation and is labelled.
+tier: A
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+optional: [claims.occurrence_date, claims.segment, claims.line]
+uses: [MT01, MT02, MT10]
+assumptions:
+  - statement: Expected development is proportional to the current cumulative (E[C(i,j+1) | C(i,0..j)] = f(j) C(i,j)).
+    check: Plot C(i,j+1) against C(i,j) per column; the relation passes through the origin.
+  - statement: Origins are independent.
+    check: No calendar-diagonal pattern in standardised residuals.
+  - statement: Variance of development is proportional to the current cumulative (Var = sigma(j)^2 C(i,j)).
+    check: Standardised residuals show no fan shape against C(i,j).
+  - statement: The reserve distribution is lognormal with the Mack mean and standard error.
+    check: Not testable on one triangle; compare with the tier B bootstrap when it exists.
+parameters:
+  - name: percentiles
+    default: [0.5, 0.75, 0.9, 0.95, 0.99, 0.995]
+    description: Percentiles of the reserve distribution shown in the report.
+  - name: var_level
+    default: 0.995
+    description: Value-at-risk level; 99.5 per cent is the common one-in-200 solvency calibration.
+  - name: tvar_level
+    default: 0.99
+    description: Tail value-at-risk level; 99 per cent is the common expected-shortfall calibration.
+algorithm:
+  - step: >-
+      Fit chain ladder on the same triangle with the volume-weighted average over all
+      diagonals, no exclusions and tail 1 (the Mack model). Columns j = 0 to J - 2, usable
+      origins A(j), n(j) = |A(j)|, S(j) = sum of C(i, j) over A(j).
+  - step: Variance parameter per column with at least two link ratios.
+    formula: '\hat\sigma^2_j = \frac{1}{n_j - 1} \sum_{i \in A_j} C_{i,j} \big(F_{i,j} - f_j\big)^2'
+  - step: >-
+      A column with fewer than two link ratios (normally the last) is extrapolated from the
+      two before it; with fewer than two earlier columns the previous value is repeated.
+    formula: '\hat\sigma^2_{j} = \min\Big( \frac{\hat\sigma^4_{j-1}}{\hat\sigma^2_{j-2}},\ \hat\sigma^2_{j-1},\ \hat\sigma^2_{j-2} \Big)'
+  - step: Mean squared error of the reserve of origin i (projected cells from MT02, actual at J_i).
+    formula: '\widehat{\mathrm{mse}}(\hat R_i) = \hat U_i^2 \sum_{k=J_i}^{J-2} \frac{\hat\sigma^2_k}{f_k^2} \Big( \frac{1}{\hat C_{i,k}} + \frac{1}{S_k} \Big)'
+  - step: Mean squared error of the total reserve.
+    formula: '\widehat{\mathrm{mse}}(\hat R) = \sum_i \widehat{\mathrm{mse}}(\hat R_i) + 2 \sum_{i < l} \hat U_i \hat U_l \sum_{k=\max(J_i, J_l)}^{J-2} \frac{\hat\sigma^2_k / f_k^2}{S_k}'
+  - step: Standard error and coefficient of variation.
+    formula: 'se = \sqrt{\widehat{\mathrm{mse}}}, \qquad cv = se / \hat R'
+  - step: >-
+      When the selected ultimate (MT10) is not this chain ladder, the coefficient of
+      variation is applied to the selected reserve, and the result is labelled
+      "Mack CV applied to selected reserve" (decision 0011).
+    formula: 'se^{\mathrm{sel}} = cv \cdot R^{\mathrm{sel}}'
+  - step: Lognormal parameters matching mean R and standard error se.
+    formula: '\sigma^2 = \ln\big(1 + (se/R)^2\big), \qquad \mu = \ln R - \sigma^2 / 2'
+  - step: Percentiles, value at risk and tail value at risk.
+    formula: 'q_p = e^{\mu + \sigma z_p}, \quad \mathrm{VaR}_p = q_p, \quad \mathrm{TVaR}_p = e^{\mu + \sigma^2/2} \frac{\Phi(\sigma - z_p)}{1 - p}'
+outputs:
+  - name: sigma_squared
+    description: Variance parameters per column, with extrapolated ones marked.
+  - name: standard_error
+    description: se per origin and in total.
+  - name: coefficient_of_variation
+    description: se divided by reserve per origin and in total.
+  - name: percentiles
+    description: Lognormal reserve percentiles per origin and in total.
+  - name: value_at_risk
+    description: VaR at var_level per origin and in total.
+  - name: tail_value_at_risk
+    description: TVaR at tvar_level per origin and in total.
+diagnostics:
+  - Standardised residuals (F(i,j) - f(j)) sqrt(C(i,j)) / sigma(j) against origin, development, calendar diagonal and fitted value.
+  - Comparison of the Mack chain-ladder reserve with the selected reserve.
+failure_modes:
+  - condition: Chain ladder not available (MT02 failure).
+    action: Not run, with the MT02 reason.
+  - condition: Fewer than three development columns with sigma estimable.
+    action: Not run; reason "too few link ratios to estimate variance".
+  - condition: Reserve zero or negative, or se zero.
+    action: Standard error shown; lognormal quantities not shown for that origin or total.
+  - condition: Tail factor other than 1 in the selection.
+    action: Mack runs without the tail and its CV is applied to the selected reserve, labelled.
+validation:
+  - kind: benchmark
+    description: >-
+      Standard errors per origin and in total for the GenIns triangle (Taylor and Ashe,
+      used by Mack 1993) and RAA match the chainladder package's MackChainladder.
+    tolerance: 1e-6 relative
+  - kind: fixture
+    description: Lognormal step for R = 100, se = 20 hand-computed (shared with RS03).
+    tolerance: 1e-9 relative
+  - kind: ground_truth
+    description: >-
+      On repeated synthetic baseline simulations, the true reserve falls below the 95th
+      percentile in about 95 per cent of runs (slow test).
+    tolerance: coverage within 90 to 99 per cent over 200 runs
+references:
+  - Mack, T. (1993). Distribution-free calculation of the standard error of chain ladder reserve estimates. ASTIN Bulletin.
+  - England, P. D. and Verrall, R. J. (2002). Stochastic claims reserving in general insurance. British Actuarial Journal.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 9.1.

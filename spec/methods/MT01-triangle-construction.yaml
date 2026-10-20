@@ -1,0 +1,130 @@
+id: MT01
+version: 0.1.0
+title_en: Triangle construction
+title_tr: Gelişim üçgeni oluşturma
+status: draft
+definition: >-
+  Builds cumulative and incremental development triangles of paid, incurred, case reserve
+  and claim counts from claim valuations, for any origin and development period and on any
+  basis.
+tier: A
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claim_valuations.status
+optional:
+  - claim_valuations.currency
+  - claim_valuations.ceded_paid_to_date
+  - claim_valuations.ceded_reserve
+  - claim_valuations.subrogation_to_date
+  - claim_valuations.salvage_to_date
+  - claims.occurrence_date
+  - claims.report_date
+  - claims.policy_id
+  - claims.segment
+  - claims.line
+  - policies.start_date
+uses: [CV01, CV02, CV03, CV04, CV08]
+assumptions:
+  - statement: Each claim has one origin period, fixed for the run.
+    check: The origin field is present and within range (DV-CLM-03, DV-CLM-07); claims failing it are listed.
+  - statement: Valuation rows describe the claim as known at their date (as-of rule, CV04).
+    check: Paid never decreases (DV-CLV-07); duplicates resolved (DV-CLV-06).
+parameters:
+  - name: measure
+    default: incurred
+    description: Amount or count placed in the cells.
+    allowed:
+      [paid, incurred, case_reserve, reported_count, open_count, closed_count, subrogation, salvage]
+  - name: origin_axis
+    default: accident
+    description: >-
+      Origin axis (CV04). accident needs claims.occurrence_date; when claims is not loaded,
+      first_valuation is used and labelled (decision 0008).
+    allowed: [accident, report, underwriting, first_valuation]
+  - name: origin_period
+    default: YEAR
+    description: Length of an origin period.
+    allowed: [MONTH, QUARTER, HALF, YEAR]
+  - name: development_period
+    default: YEAR
+    description: Length of a development period; the origin length must be a whole multiple of it.
+    allowed: [MONTH, QUARTER, HALF, YEAR]
+  - name: group_by
+    default: [segment, line]
+    description: Separate triangles per group; segments are never combined by default.
+  - name: reinsurance_basis
+    default: GROSS
+    description: CV03 basis.
+    allowed: [GROSS, CEDED, NET]
+  - name: value_basis
+    default: NOMINAL
+    description: CV02 basis; INFLATION_ADJUSTED is used by MT07.
+    allowed: [NOMINAL, INFLATION_ADJUSTED]
+algorithm:
+  - step: >-
+      Assign each claim its origin period i from the origin axis, and its group (segment,
+      line) from claims, UNKNOWN when missing.
+  - step: >-
+      Form the valuation points v_k at month ends, every L_d months back from the cut-off c,
+      down to the first month of the earliest origin (CV04).
+  - step: >-
+      For every claim and valuation point v_k on or after the first month of its origin,
+      take its as-of row (carry-forward) and its amount x on the chosen basis; amounts are
+      converted to the reporting currency with the constant development rate (CV01), or on
+      the inflation-adjusted basis as CV02 describes.
+    formula: 'x_k(v) = x_k\big(\max\{v_n \le v\}\big)'
+  - step: >-
+      Cumulative cell: the sum over claims of origin i at the valuation point where origin i
+      has development index j. Counts: reported_count counts claims with a row on or before
+      v; open_count and closed_count use the as-of status (CL04).
+    formula: 'C_{i,j} = \sum_{k:\ \mathrm{origin}(k) = i} x_k\big(v(i,j)\big), \qquad j = \left\lfloor \frac{m(v) - m(\mathrm{start}_i)}{L_d} \right\rfloor'
+  - step: Incremental cells by differencing along each row.
+    formula: 'X_{i,0} = C_{i,0}, \qquad X_{i,j} = C_{i,j} - C_{i,j-1}'
+  - step: >-
+      Cells with v(i, j) after the cut-off are future and left empty; the last observed cell
+      of each origin forms the latest diagonal.
+outputs:
+  - name: cumulative_triangle
+    description: C(i, j) per group, with origin labels and development ages in months.
+  - name: incremental_triangle
+    description: X(i, j) per group.
+  - name: latest_diagonal
+    description: The last observed cell per origin and its development index J_i.
+  - name: cell_claim_counts
+    description: Number of claims contributing to each cell, for diagnostics and lineage.
+  - name: lineage
+    description: For each cell, the claim ids and source rows it is built from.
+diagnostics:
+  - Negative incremental cells, listed with the claims that cause them.
+  - Cells with fewer than five contributing claims, marked as thin.
+  - Origins with first-valuation proxy origins, counted and labelled.
+failure_modes:
+  - condition: No claim has a usable origin.
+    action: The triangle is not built; methods depending on it are skipped with this reason.
+  - condition: Origin length not a whole multiple of development length.
+    action: Parameters rejected before any computation, with the allowed combinations named.
+  - condition: Origin axis accident without claims, or claims missing for some claim ids.
+    action: Those claims use first_valuation origins; the triangle is labelled as mixed or proxy.
+  - condition: Fewer than two origin periods.
+    action: Triangle built and shown; development methods report that they need at least three.
+validation:
+  - kind: fixture
+    description: Three claims over 30 month ends with a missing month, a closure and a reopening, hand-computed annual and quarterly triangles.
+    tolerance: exact (1e-9 absolute)
+  - kind: property
+    description: >-
+      Sum of the latest diagonal equals the as-of total of the measure at the cut-off;
+      results do not depend on row order; cumulative cells of counts never decrease.
+    tolerance: 1e-9 relative
+  - kind: ground_truth
+    description: Paid triangles of the synthetic baseline equal the triangles the generator writes from its true transactions.
+    tolerance: 1e-9 relative
+references:
+  - Friedland, J. Estimating Unpaid Claims Using Basic Techniques. Casualty Actuarial Society, chapters 3 and 5.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint sections 5.2 and 9.1.

@@ -1,0 +1,62 @@
+id: MT05
+version: 0.1.0
+title_en: Expected loss ratio method
+title_tr: Beklenen hasar prim oranı yöntemi
+status: draft
+definition: Ultimate claims as an expected loss ratio times earned premium, ignoring reported claims.
+tier: A
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claims.occurrence_date
+  - premiums.policy_id
+  - premiums.amount
+  - premiums.type
+  - premiums.booking_date
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+optional: [claims.segment, claims.line]
+uses: [MT04, PR02]
+assumptions:
+  - statement: The expected loss ratio is a better guide than the claims reported so far.
+    check: Used only for the newest origins; compare with Bornhuetter–Ferguson and chain ladder.
+parameters:
+  - name: expected_loss_ratio
+    default: cape_cod
+    description: >-
+      Per segment, line and origin from the assumptions register; when none is given, the
+      Cape Cod ratio (MT04), labelled "data-derived prior", as for MT03.
+algorithm:
+  - step: Ultimate.
+    formula: '\hat U^{ELR}_i = ELR_i \cdot P_i'
+  - step: Unpaid and IBNR follow RS02 and may be negative.
+    formula: '\mathrm{IBNR}_i = \hat U^{ELR}_i - C^{\mathrm{inc}}_{i,J_i}'
+outputs:
+  - name: ultimate
+    description: U(i) per origin.
+  - name: unpaid
+    description: U(i) minus paid at the cut-off.
+  - name: ibnr
+    description: U(i) minus incurred at the cut-off.
+diagnostics:
+  - Negative IBNR flagged per origin.
+failure_modes:
+  - condition: Earned premium missing, zero or negative.
+    action: Not run for that origin.
+  - condition: No expected loss ratio available.
+    action: Not run; reason "no expected loss ratio available".
+  - condition: Origin axis is first_valuation or report.
+    action: Not run; reason as in MT03.
+validation:
+  - kind: fixture
+    description: Premium 1000 and ratio 0.7 give ultimate 700; incurred 750 gives IBNR -50, flagged.
+    tolerance: exact
+references:
+  - Friedland, J. Estimating Unpaid Claims Using Basic Techniques. Casualty Actuarial Society, chapter 8.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 9.1.

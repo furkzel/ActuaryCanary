@@ -1,0 +1,112 @@
+id: MT02
+version: 0.1.0
+title_en: Chain ladder
+title_tr: Zincir merdiven (chain ladder)
+status: draft
+definition: >-
+  Projects each origin's cumulative claims to ultimate with age-to-age factors estimated
+  from the triangle, using volume-weighted, simple or recent-diagonal averages, with
+  optional exclusions.
+tier: A
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+optional: [claims.occurrence_date, claims.segment, claims.line]
+uses: [MT01]
+assumptions:
+  - statement: Future development of each origin follows the same age-to-age factors as the past.
+    check: Link ratios stable down each column (coefficient of variation); no trend by origin.
+  - statement: Origins are comparable; no change in case reserving, payment speed or mix.
+    check: Paid-to-incurred ratios (CL10) stable along diagonals; run-off (CL11) stable.
+  - statement: No calendar-period effect such as inflation shocks.
+    check: Mean standardised link-ratio residual per diagonal close to zero.
+parameters:
+  - name: average
+    default: volume_weighted
+    description: How link ratios of a column are averaged.
+    allowed: [volume_weighted, simple]
+  - name: n_diagonals
+    default: null
+    description: Use only link ratios from the latest n calendar diagonals; null uses all.
+  - name: exclusions
+    default: []
+    description: >-
+      Link ratios to leave out, as origin label and development index pairs, each with a
+      reason in the assumptions register.
+  - name: exclude_high_low
+    default: false
+    description: Drop the highest and lowest link ratio of each column that has at least five.
+  - name: tail_factor
+    default: 1.0
+    description: Factor from the last observed age to ultimate; fitting tails is tier B.
+  - name: min_origins
+    default: 3
+    description: Fewest origin periods for which chain ladder runs.
+algorithm:
+  - step: Link ratios for every pair of observed cells.
+    formula: 'F_{i,j} = C_{i,j+1} / C_{i,j}'
+  - step: >-
+      Usable set of column j: origins with both cells observed, inside the latest n
+      diagonals (i + j + 1 >= I - n, origins indexed 0 to I - 1), not excluded, and for the
+      simple average with C(i, j) > 0; then high and low removed if requested.
+    formula: 'A_j = \{ i : C_{i,j+1} \text{ observed},\ i + j + 1 \ge I - n,\ (i,j) \notin \mathcal{E} \}'
+  - step: Average factor per column.
+    formula: 'f_j^{\mathrm{vw}} = \frac{\sum_{i \in A_j} C_{i,j+1}}{\sum_{i \in A_j} C_{i,j}}, \qquad f_j^{\mathrm{simple}} = \frac{1}{|A_j|} \sum_{i \in A_j} F_{i,j}'
+  - step: >-
+      Selected factors are the averages unless the user overrides single columns in the
+      assumptions register; overrides are recorded with the alternative.
+  - step: Cumulative factors and ultimates.
+    formula: 'CDF_j = \tau \prod_{k=j}^{J-2} f_k, \qquad \hat U_i = C_{i,J_i} \cdot CDF_{J_i}, \qquad CDF_{J-1} = \tau'
+  - step: Projected cells of the lower triangle.
+    formula: '\hat C_{i,k+1} = \hat C_{i,k} f_k \quad (k \ge J_i)'
+outputs:
+  - name: link_ratios
+    description: F(i, j) with exclusion marks.
+  - name: average_factors
+    description: Volume-weighted, simple and latest-n averages for comparison.
+  - name: selected_factors
+    description: f(j) used, the tail factor and CDF(j).
+  - name: ultimate
+    description: U(i) per origin.
+  - name: unpaid
+    description: U(i) minus paid at the cut-off.
+  - name: ibnr
+    description: U(i) minus incurred at the cut-off (RS02).
+  - name: projected_triangle
+    description: Completed lower triangle.
+diagnostics:
+  - Coefficient of variation of link ratios per column.
+  - Standardised residuals by origin, development and calendar diagonal.
+  - Age-to-age factor plots per column with selected factor.
+failure_modes:
+  - condition: Fewer than min_origins origin periods.
+    action: Not run; reason "chain ladder needs at least 3 origin periods".
+  - condition: Column with no usable link ratio, or a volume-weighted denominator of zero.
+    action: Factor set to 1 with a WARNING naming the column.
+  - condition: Latest cumulative cell of an origin is zero.
+    action: Ultimate equals zero; flagged with the advice to use Bornhuetter–Ferguson for that origin.
+  - condition: Negative cumulative values.
+    action: Computed as given and flagged; results for that origin are marked unreliable.
+validation:
+  - kind: benchmark
+    description: >-
+      Volume-weighted factors and ultimates for the published RAA and GenIns triangles
+      match the chainladder package (test-only reference).
+    tolerance: 1e-9 relative
+  - kind: fixture
+    description: A 4 x 4 triangle with one exclusion and the latest-2 average, hand-computed.
+    tolerance: 1e-12 relative
+  - kind: property
+    description: >-
+      Scaling the triangle by a constant scales ultimates by the same constant; with
+      identical development in every origin the factors reproduce it exactly.
+    tolerance: 1e-9 relative
+references:
+  - Mack, T. (1993). Distribution-free calculation of the standard error of chain ladder reserve estimates. ASTIN Bulletin.
+  - Friedland, J. Estimating Unpaid Claims Using Basic Techniques. Casualty Actuarial Society, chapter 7.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint section 9.1.

@@ -1,0 +1,104 @@
+id: MT07
+version: 0.1.0
+title_en: Inflation-adjusted chain ladder
+title_tr: Enflasyondan arındırılmış zincir merdiven
+status: draft
+definition: >-
+  Chain ladder on a paid triangle restated to value-date prices, so that development
+  factors are free of past inflation; future payments are re-inflated only with an explicit
+  future inflation assumption.
+tier: A
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - market.series_id
+  - market.date
+  - market.value
+  - market.kind
+optional: [claim_valuations.currency, claims.occurrence_date, claims.segment, claims.line]
+uses: [MT01, MT02, CV01, CV02, CV04]
+assumptions:
+  - statement: The chosen index reflects claims inflation of the line.
+    check: >-
+      Compare inflation-adjusted severity (CL06) across origins; a residual trend means
+      superimposed inflation the index misses.
+  - statement: Development in real terms is stable, as MT02 assumes.
+    check: As for MT02, on the adjusted triangle.
+  - statement: Future payments of development period k fall at its middle.
+    check: None; a convention stated in the report.
+parameters:
+  - name: price_index
+    default: CV02 price_index
+    description: Index series (default CPI_TR from project.yaml).
+  - name: value_date
+    default: cut-off
+    description: Date of the prices of the adjusted triangle.
+  - name: future_inflation
+    default: null
+    description: >-
+      Annual inflation after the value date, from the assumptions register. Without it,
+      results are given at value-date prices only (decision 0012).
+  - name: chain_ladder
+    default: MT02 defaults
+    description: Average, exclusions and tail as in MT02, applied to the adjusted triangle.
+algorithm:
+  - step: >-
+      Paid flows per claim and month (CV04), converted to reporting currency at their own
+      rate and restated to the value date (CV02); summed into the incremental triangle and
+      accumulated.
+    formula: 'X^{\mathrm{adj}}_{i,j} = \sum_{k \in i} \sum_{v_n \in (i,j)} \Delta P_k(v_n) \frac{I(t_{\mathrm{value}})}{I(v_n)}, \qquad C^{\mathrm{adj}}_{i,j} = \sum_{l \le j} X^{\mathrm{adj}}_{i,l}'
+  - step: Chain ladder (MT02) on the adjusted cumulative triangle.
+    formula: '\hat U^{\mathrm{adj}}_i = C^{\mathrm{adj}}_{i,J_i} \cdot CDF^{\mathrm{adj}}_{J_i}'
+  - step: Projected future incremental payments at value-date prices.
+    formula: '\hat X^{\mathrm{adj}}_{i,k} = \hat C^{\mathrm{adj}}_{i,k} - \hat C^{\mathrm{adj}}_{i,k-1}, \quad k > J_i'
+  - step: >-
+      With a future inflation assumption pi: each future payment is placed at the middle of
+      its development period, t(i,k), and re-inflated (CV02); nominal unpaid and ultimate
+      follow.
+    formula: '\hat X^{\mathrm{nom}}_{i,k} = \hat X^{\mathrm{adj}}_{i,k} (1+\pi)^{(t_{i,k} - t_{\mathrm{value}})/365.25}, \quad \hat U^{\mathrm{nom}}_i = P_i(c) + \sum_{k > J_i} \hat X^{\mathrm{nom}}_{i,k}'
+outputs:
+  - name: adjusted_triangle
+    description: Paid triangle at value-date prices.
+  - name: ultimate_at_value_date_prices
+    description: U(adj, i) per origin, labelled with the value date.
+  - name: unpaid_at_value_date_prices
+    description: Sum of future adjusted payments per origin.
+  - name: nominal_unpaid
+    description: Re-inflated unpaid per origin; only with a future inflation assumption.
+  - name: nominal_ultimate
+    description: Paid to date (nominal) plus nominal unpaid; only with a future inflation assumption.
+  - name: future_cash_flows
+    description: Expected payments by calendar period, both price bases.
+diagnostics:
+  - Adjusted against nominal development factors per column, showing the inflation removed.
+  - Index coverage and fallbacks used (CV02).
+failure_modes:
+  - condition: Price index series not loaded or not covering the triangle.
+    action: Not run; reason "price index CPI_TR missing or incomplete in market".
+  - condition: Chain ladder fails on the adjusted triangle.
+    action: Not run, with the MT02 reason.
+  - condition: No future inflation assumption.
+    action: Nominal outputs not shown; the report states that results are at value-date prices.
+validation:
+  - kind: property
+    description: With a constant index the adjusted factors and ultimates equal nominal chain ladder.
+    tolerance: 1e-12 relative
+  - kind: fixture
+    description: >-
+      A triangle generated from a fixed real pattern under 50 per cent annual inflation
+      gives exactly that real pattern and the hand-computed nominal unpaid for pi = 0.3.
+    tolerance: 1e-9 relative
+  - kind: ground_truth
+    description: >-
+      On the synthetic high-inflation scenario, the value-date ultimate is within tolerance
+      of the true ultimate at base-date prices restated to the value date.
+    tolerance: 5 per cent per accident year with at least 3 years of development
+references:
+  - 'Taylor, G. (2000). Loss Reserving: An Actuarial Perspective. Kluwer.'
+  - Friedland, J. Estimating Unpaid Claims Using Basic Techniques. Casualty Actuarial Society, chapter 11.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-20
+    change: First draft from blueprint sections 7.2 and 9.1.
