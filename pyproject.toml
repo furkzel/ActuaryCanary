@@ -1,0 +1,61 @@
+[project]
+name = "actuarycanary"
+version = "0.1.0"
+description = "Turns insurance data in any layout into an auditable, early-warning actuarial report on your own computer."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "polars",
+    "fastexcel",  # calamine engine used by polars for reading Excel
+    "xlsxwriter",
+    "duckdb",
+    "numpy",
+    "scipy",
+    "scikit-learn",
+    "rapidfuzz",
+    "pydantic",
+    "pyyaml",
+    "typer",
+    "rich",
+    "jinja2",
+    "plotly",
+]
+
+[project.scripts]
+canary = "actuarycanary.cli:app"
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-xdist",
+    "hypothesis",
+    "ruff",
+    "pyright",
+    "pre-commit",
+    "chainladder",  # test-only reference implementation
+    "types-pyyaml",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.5,<0.10"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+addopts = "-n auto"
+testpaths = ["tests"]
+markers = [
+    "slow: test takes 0.5 s or more; excluded from the fast suite",
+    "integration: test opens real files or crosses component boundaries",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "N"]
+
+[tool.pyright]
+include = ["src", "tests"]
+typeCheckingMode = "basic"
+pythonVersion = "3.12"

@@ -1,0 +1,18 @@
+.cache/
+out/
+data/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+dist/
+*.egg-info/
+
+# spreadsheets only under tests/fixtures/ and examples/
+*.xlsx
+*.xls
+*.xlsm
+!tests/fixtures/**
+!examples/**

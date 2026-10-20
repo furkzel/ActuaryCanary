@@ -13,15 +13,21 @@ ActuaryCanary turns insurance data in any layout into an auditable, early-warnin
 - No per-work-item report files. Detail goes into commit messages; status goes here.
 
 ## Map
-(filled when the repository skeleton exists)
+- `src/actuarycanary/<component>/` — one subpackage per blueprint component: io, recognition, canonical, quality, convert, structures, measures, methods, modules, report, manifest (also project metadata), spec, cli
+- `spec/` — specifications, one subfolder per kind: data, conventions, measures, methods, modules, aliases
+- `tests/` — mirrors the package; `conftest.py` sets Hypothesis profiles
+- `synthetic/` — synthetic data truth parameters and (later) generator
+- `docs/` — blueprint, input set v1, `decisions/` records 0001–0006
+- `project.yaml` — project metadata, single source for CLI and report
+- `.github/workflows/ci.yml` — `just check` on Ubuntu and Windows
 
 ## State
 - Phase: 0 · Last gate passed: none · Last checkpoint: none
-- Works: nothing yet
-- Known gaps: everything
+- Works: `just check` green locally on Windows (PowerShell and bash; 15 tests, ~5 s); `canary info`, `canary --version`
+- Known gaps: no actuarial logic; CI workflow and pre-commit hooks UNVERIFIED (not run); no LICENSE (licence undecided, see 0006); `just` was installed locally with `uv tool install rust-just`
 
 ## Next
-- P00 — repository skeleton, toolchain, test tiers, decision records
+- P01 and P03 (can run in parallel)
 
 ## Open decisions
 - Licence (not decided); author line, contact and repository URL left empty on purpose
@@ -30,3 +36,4 @@ ActuaryCanary turns insurance data in any layout into an auditable, early-warnin
 ## Log (newest first, keep the last 15 lines)
 | Date | Item | Outcome | Elapsed | Commit |
 | --- | --- | --- | --- | --- |
+| 2026-10-20 | P00 | skeleton, toolchain, tiers, records 0001–0006 | ~40 min | see branch s/P00-skeleton |
