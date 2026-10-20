@@ -7,11 +7,11 @@
 # All values are illustrative inputs for simulation. They are not market statistics,
 # official inflation figures or any company's data.
 #
-# Units: money in TRY at the base date unless a currency is named; rates per year;
-# delays in days; probabilities between 0 and 1.
+# Units: money in TRY at the base date's prices unless a currency is named; rates per year;
+# delays in days; probabilities between 0 and 1. Other scenarios start from this file with
+# `extends: baseline` and override single values (dictionaries merge, lists are replaced).
 
 meta:
-  scenario: baseline
   version: 1
   seed: 20261013
   base_date: 2016-01-01                # money parameters are expressed at this date's prices
@@ -21,6 +21,7 @@ meta:
     last: 2025-12-31
     frequency: month_end               # one cumulative snapshot per claim per month end
   reporting_currency: TRY
+  max_settlement_days: 3650            # longest report-to-close time simulated
 
 entities:                               # generic names, no real companies
   - {id: ENT_A, name: "Alpha Sigorta", segments: [NON_LIFE]}
@@ -41,16 +42,23 @@ market:
     annual_rate_by_year: {2016: 0.08, 2017: 0.11, 2018: 0.20, 2019: 0.12, 2020: 0.14,
                           2021: 0.36, 2022: 0.64, 2023: 0.65, 2024: 0.45, 2025: 0.33}
     monthly_noise_sd: 0.004            # added to the smooth monthly rate
+    # annual rate after the last listed year (the simulated world continues past the data
+    # cut-off, because late payments are part of the truth); empty means the last listed rate
+    future_annual_rate: null
   fx:
     - {series_id: USD/TRY, start: 2.95, drift: inflation_differential, foreign_inflation: 0.03, monthly_vol: 0.035}
     - {series_id: EUR/TRY, start: 3.25, drift: inflation_differential, foreign_inflation: 0.02, monthly_vol: 0.035}
   fx_kinds_written: [FX_SPOT, FX_PERIOD_AVERAGE, FX_PERIOD_END]
 
 # Claims inflation per line = CPI + superimposed inflation (per year).
+# Premium rates are calibrated so that the baseline loss ratio starts near 55-85 per cent;
+# the superimposed inflation then lets it drift upwards, as in an unadjusted tariff.
 lines:
   MOTOR_OD:                             # motor own damage (kasko)
     segment: NON_LIFE
     entities: [ENT_A, ENT_B]
+    products: {KASKO: 0.7, KASKO_PLUS: 0.3}
+    causes: {COLLISION: 0.55, THEFT: 0.10, GLASS: 0.15, WEATHER: 0.10, VANDALISM: 0.10}
     portfolio:
       policies_first_year: 40000
       growth_per_year: 0.04
@@ -60,9 +68,10 @@ lines:
       cancellation_probability: 0.08
     premium:
       rate_on_sum_insured: 0.030
-      indexed_to: CPI_TR                # premium per policy moves with inflation
-      instalments: {probability: 0.6, count: 4}
+      indexed_to: CPI_TR                # sums insured, and so premiums, move with prices
       commission_rate: 0.15
+      endorsement_probability: 0.05
+      refund_probability: 0.01
     frequency: {per_exposure_year: 0.22, trend_per_year: 0.0}
     severity:
       body: {dist: lognormal, median: 12000, sigma: 1.0}
@@ -72,7 +81,7 @@ lines:
     settlement_delay_days: {dist: lognormal, median: 60, sigma: 0.9}
     payments: {count: {dist: poisson, mean: 1.3, min: 1}}
     case_reserve:
-      initial_bias: 0.05                # first estimate = true remaining cost × (1 + bias) × noise
+      initial_bias: 0.05                # estimate = true remaining cost × (1 + bias) × noise
       noise_sigma: 0.25
       review_every_months: 3
     nil_close_probability: 0.10
@@ -85,6 +94,8 @@ lines:
   MOTOR_TPL:                            # motor third-party liability (trafik)
     segment: NON_LIFE
     entities: [ENT_A, ENT_B]
+    products: {TRAFIK: 0.85, TRAFIK_PLUS: 0.15}
+    causes: {COLLISION: 0.80, PEDESTRIAN: 0.10, INJURY: 0.10}
     portfolio:
       policies_first_year: 120000
       growth_per_year: 0.03
@@ -93,10 +104,11 @@ lines:
       sum_insured: {dist: fixed, value: 0}
       cancellation_probability: 0.05
     premium:
-      per_policy: 600
+      per_policy: 5500                  # was 600 in the first parameter sheet (loss ratio near 400 per cent)
       indexed_to: CPI_TR
-      instalments: {probability: 0.3, count: 2}
       commission_rate: 0.10
+      endorsement_probability: 0.03
+      refund_probability: 0.01
     frequency: {per_exposure_year: 0.05, trend_per_year: 0.0}
     severity:
       body: {dist: lognormal, median: 15000, sigma: 1.3}
@@ -116,6 +128,8 @@ lines:
   PROPERTY:                             # fire and allied perils (yangın)
     segment: NON_LIFE
     entities: [ENT_A]
+    products: {KONUT: 0.6, ISYERI: 0.4}
+    causes: {FIRE: 0.45, WATER: 0.25, THEFT: 0.10, STORM: 0.20}
     portfolio:
       policies_first_year: 25000
       growth_per_year: 0.05
@@ -127,8 +141,9 @@ lines:
     premium:
       rate_on_sum_insured: 0.0015
       indexed_to: CPI_TR
-      instalments: {probability: 0.4, count: 4}
       commission_rate: 0.20
+      endorsement_probability: 0.06
+      refund_probability: 0.01
     frequency: {per_exposure_year: 0.03, trend_per_year: 0.0}
     severity:
       body: {dist: gamma, mean: 40000, cv: 1.5}
@@ -143,7 +158,7 @@ lines:
     reopen_probability: 0.02
     recoveries:
       salvage: {probability: 0.08, recovered_share: 0.15, delay_days: {dist: lognormal, median: 120, sigma: 0.5}}
-    catastrophe_events:
+    catastrophe_events:                 # claims counts are at full size; sizes scale them
       - {event_code: CAT_2019_FLOOD, date: 2019-07-15, claims: 300, severity_multiplier: 1.8}
       - {event_code: CAT_2023_QUAKE, date: 2023-02-06, claims: 900, severity_multiplier: 3.0}
     allocated_expense_share: 0.04
@@ -151,18 +166,22 @@ lines:
   GROUP_TERM_LIFE:                      # group term life, death claims only
     segment: LIFE
     entities: [ENT_C]
+    products: {GRUP_HAYAT: 0.8, GRUP_HAYAT_PLUS: 0.2}
+    causes: {DEATH: 0.85, ACCIDENTAL_DEATH: 0.15}
     portfolio:
       policies_first_year: 8000
       growth_per_year: 0.06
       term_months: 12
       foreign_currency_share: 0.0
-      sum_insured: {dist: lognormal, median: 300000, sigma: 0.6}
+      exposure_units: {dist: lognormal, median: 40, sigma: 0.8}   # persons covered by a group policy
+      sum_insured: {dist: lognormal, median: 300000, sigma: 0.6}  # per person
       cancellation_probability: 0.03
     premium:
-      rate_on_sum_insured: 0.0025
+      rate_on_sum_insured: 0.0025       # per person
       indexed_to: CPI_TR
-      instalments: {probability: 0.8, count: 12}
       commission_rate: 0.08
+      endorsement_probability: 0.10
+      refund_probability: 0.005
     frequency: {per_exposure_year: 0.0015, trend_per_year: 0.0}
     severity:
       body: {dist: fixed_share_of_sum_insured, share: 1.0}
@@ -185,12 +204,17 @@ reinsurance:
 
 expenses:                               # per line, share of earned premium, booked monthly
   administration_share: {MOTOR_OD: 0.08, MOTOR_TPL: 0.07, PROPERTY: 0.09, GROUP_TERM_LIFE: 0.06}
+  acquisition_share: {MOTOR_OD: 0.02, MOTOR_TPL: 0.015, PROPERTY: 0.03, GROUP_TERM_LIFE: 0.01}   # besides commission
+  other_share_of_earned: 0.01           # booked per entity, not allocated to a segment or line
   unallocated_claims_handling_share_of_paid: 0.03
 
-# A deliberate change the methods should detect (used by the baseline only through truth;
-# the reserve_bias_change scenario makes it larger).
+# A deliberate change the methods should detect (the reserve_bias_change scenario makes it larger).
+# The bias applies to every case reserve estimate made on or after the date.
 reserving_practice_changes:
   - {line: MOTOR_TPL, from: 2022-01-01, initial_bias: 0.15}   # case reserves strengthened
+
+# Single claims added on top of the random process (none in the baseline); cost at base-date prices.
+large_claims: []
 
 # Faults injected into the data, so the quality report and anomaly flags can be scored.
 injected_faults:
@@ -201,23 +225,27 @@ injected_faults:
   missing_currency: 12
   unknown_status_labels: 5
 
-# Columns that look like personal data, added to test that they are dropped on load.
+# Layout mess (all off in the baseline, which has a clean layout).
+messiness:
+  headers: {style: canonical, canonical_share: 0.2, misspell_share: 0.0}
+  title_rows: {min: 0, max: 0}
+  date_formats: {text_share: 0.0}
+  value_labels: {translate_share: 0.0}
+  exact_duplicate_share: 0.0           # extra copies of claim_valuations and premiums rows
+  personal_data: false
+
+# Columns that look like personal data, added (when messiness.personal_data is on) to test
+# that they are dropped on load. Names are made up; identity numbers are random digits.
 personal_data_columns:
   - {name: SIGORTALI_ADI, kind: name}
   - {name: TCKN, kind: national_id_11_digits}
   - {name: MUSTERI_NO, kind: customer_number}
 
 sizes:                                  # scale knob; tiny keeps the same structure
-  tiny:   {portfolio_scale: 0.004, years: [2021, 2025]}   # under 2,000 valuation rows target
+  tiny:                                 # under 2,000 valuation rows
+    portfolio_scale: 0.002
+    years: [2022, 2025]
+    exposure_multiplier: {GROUP_TERM_LIFE: 4}      # more persons per group policy, so that deaths occur
+    fault_scale: 0.3
   medium: {portfolio_scale: 0.1}
-  large:  {portfolio_scale: 1.0}
-
-# What the generator must write as realised truth, per scenario and size.
-outputs:
-  - true_ultimate_by: [segment, line, entity, accident_year]   # gross, ceded, net; nominal and at base-date prices
-  - true_ibnr_by: [segment, line, accident_year, valuation_date]
-  - true_development_pattern: [line]                           # paid and incurred, yearly lags
-  - true_inflation_path: [CPI_TR]
-  - true_frequency_and_mean_severity: [line, accident_year]
-  - injected_fault_list: [fault_type, file, row]
-  - personal_data_column_list: true
+  large: {portfolio_scale: 0.55}        # about ten years, just under a million valuation rows

@@ -1,0 +1,28 @@
+origin,type,line,date,reference,detail
+data_fault,report_before_occurrence,"","",claims.xlsx:00000020,report 2022-05-28 before occurrence 2022-06-20
+data_fault,report_before_occurrence,"","",claims.xlsx:00000058,report 2023-04-17 before occurrence 2023-05-04
+data_fault,report_before_occurrence,"","",claims.xlsx:00000119,report 2024-08-31 before occurrence 2024-09-14
+data_fault,report_before_occurrence,"","",claims.xlsx:00000142,report 2025-03-04 before occurrence 2025-03-13
+data_fault,paid_to_date_decreasing_without_recovery,"","",claim_valuations.xlsx:00000005|2022-06-30,paid_to_date lower than the previous valuation
+data_fault,paid_to_date_decreasing_without_recovery,"","",claim_valuations.xlsx:00000033|2023-06-30,paid_to_date lower than the previous valuation
+data_fault,paid_to_date_decreasing_without_recovery,"","",claim_valuations.xlsx:00000121|2025-06-30,paid_to_date lower than the previous valuation
+data_fault,extreme_payment_outliers,"","",claim_valuations.xlsx:00000020|2022-07-31,payment of 3901396.53 added to paid_to_date from this row
+data_fault,extreme_payment_outliers,"","",claim_valuations.xlsx:00000101|2024-07-31,payment of 2027394.89 added to paid_to_date from this row
+data_fault,missing_currency,"","",claim_valuations.xlsx:00000009|2023-01-31,currency empty
+data_fault,missing_currency,"","",claim_valuations.xlsx:00000096|2024-05-31,currency empty
+data_fault,missing_currency,"","",claim_valuations.xlsx:00000067|2023-09-30,currency empty
+data_fault,missing_currency,"","",claim_valuations.xlsx:00000029|2024-11-30,currency empty
+data_fault,unknown_status_labels,"","",claim_valuations.xlsx:00000064|2025-01-31,status label outside the dictionaries
+data_fault,unknown_status_labels,"","",claim_valuations.xlsx:00000040|2024-02-29,status label outside the dictionaries
+data_fault,duplicate_valuation_rows,"","",claim_valuations.xlsx:00000022|2022-08-31,exact copy of the row above
+data_fault,duplicate_valuation_rows,"","",claim_valuations.xlsx:00000075|2023-09-30,exact copy of the row above
+data_fault,duplicate_valuation_rows,"","",claim_valuations.xlsx:00000065|2023-11-30,exact copy of the row above
+data_fault,duplicate_valuation_rows,"","",claim_valuations.xlsx:00000009|2024-04-30,exact copy of the row above
+data_fault,duplicate_valuation_rows,"","",claim_valuations.xlsx:00000009|2024-05-31,exact copy of the row above
+data_fault,duplicate_valuation_rows,"","",claim_valuations.xlsx:00000093|2025-02-28,exact copy of the row above
+data_fault,duplicate_valuation_rows,"","",claim_valuations.xlsx:00000067|2025-03-31,exact copy of the row above
+data_fault,duplicate_valuation_rows,"","",claim_valuations.xlsx:00000087|2025-08-31,exact copy of the row above
+world,catastrophe_event,"",2023-02-06,CAT_2023_QUAKE,2 claims
+world,reserving_practice_change,MOTOR_TPL,2022-01-01,"",case reserve bias becomes +0.15
+world,high_inflation_year,"",2022-12-31,CPI_TR,annual rate 64%
+world,high_inflation_year,"",2023-12-31,CPI_TR,annual rate 65%

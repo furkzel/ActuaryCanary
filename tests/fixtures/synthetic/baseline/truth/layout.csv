@@ -1,0 +1,8 @@
+file,sheet,title_rows,header_row,first_data_row,data_rows,written
+claim_valuations.xlsx,claim_valuations,0,1,2,1242,true
+claims.xlsx,claims,0,1,2,175,true
+policies.xlsx,policies,0,1,2,2477,true
+premiums.xlsx,premiums,0,1,2,8031,true
+expenses.xlsx,expenses,0,1,2,846,true
+market.xlsx,fx,0,1,2,5698,true
+market.xlsx,cpi,0,1,2,120,true

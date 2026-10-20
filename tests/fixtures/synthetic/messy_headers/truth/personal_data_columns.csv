@@ -1,0 +1,7 @@
+file,sheet,header,field,kind
+claims,Hasar Listesi,SIGORTALI_ADI,"",personal:name
+claims,Hasar Listesi,TCKN,"",personal:national_id_11_digits
+claims,Hasar Listesi,MUSTERI_NO,"",personal:customer_number
+policies,policies,SIGORTALI_ADI,"",personal:name
+policies,policies,TCKN,"",personal:national_id_11_digits
+policies,policies,MUSTERI_NO,"",personal:customer_number

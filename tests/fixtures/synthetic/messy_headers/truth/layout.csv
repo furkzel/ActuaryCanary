@@ -1,0 +1,8 @@
+file,sheet,title_rows,header_row,first_data_row,data_rows,written
+claim_valuations.xlsx,Hasar,3,4,5,1254,true
+claims.xlsx,Hasar Listesi,2,3,4,175,true
+policies.xlsx,policies,3,4,5,2477,true
+premiums.xlsx,Sheet1,2,3,4,8111,true
+expenses.xlsx,Giderler,1,2,3,846,true
+market.xlsx,Döviz,1,2,3,5698,true
+market.xlsx,TÜFE,2,3,4,120,true

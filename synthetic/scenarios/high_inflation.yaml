@@ -1,0 +1,18 @@
+# Prices rise faster and for longer, and claims costs outrun the tariff. Development factors
+# on nominal triangles then overstate development; inflation-adjusted ones should not.
+extends: baseline
+
+market:
+  cpi:
+    annual_rate_by_year: {2016: 0.08, 2017: 0.11, 2018: 0.20, 2019: 0.12, 2020: 0.25,
+                          2021: 0.45, 2022: 0.85, 2023: 1.00, 2024: 0.70, 2025: 0.50}
+    monthly_noise_sd: 0.008
+    future_annual_rate: 0.50
+  fx:
+    - {series_id: USD/TRY, start: 2.95, drift: inflation_differential, foreign_inflation: 0.03, monthly_vol: 0.06}
+    - {series_id: EUR/TRY, start: 3.25, drift: inflation_differential, foreign_inflation: 0.02, monthly_vol: 0.06}
+
+lines:
+  MOTOR_OD: {severity: {superimposed_inflation: 0.08}}
+  MOTOR_TPL: {severity: {superimposed_inflation: 0.12}}
+  PROPERTY: {severity: {superimposed_inflation: 0.05}}

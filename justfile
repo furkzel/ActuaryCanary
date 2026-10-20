@@ -33,3 +33,11 @@ run *args:
 
 spec-index:
     uv run python -m actuarycanary.spec
+
+# write a synthetic scenario with ground truth, e.g. `just synth baseline tiny`
+synth scenario="baseline" size="tiny":
+    uv run python -m actuarycanary.synthetic write {{scenario}} {{size}}
+
+# refresh the committed tiny fixtures and examples
+synth-fixtures:
+    uv run python -m actuarycanary.synthetic fixtures
