@@ -16,7 +16,7 @@ import polars as pl
 from pydantic import BaseModel, ConfigDict, Field
 
 from actuarycanary import __version__
-from actuarycanary.canonical.feeds import CanonicalFeed, Finding, canonicalise
+from actuarycanary.canonical.feeds import CanonicalError, CanonicalFeed, Finding, canonicalise
 from actuarycanary.convert.rates import development_rates
 from actuarycanary.io.excel import RawTable, Workbook, read_workbook, spreadsheets
 from actuarycanary.manifest.metadata import load_metadata
@@ -31,6 +31,9 @@ from actuarycanary.manifest.run import (
 )
 from actuarycanary.methods.chain_ladder import ChainLadder
 from actuarycanary.modules.reserving import ChainLadderSettings, ReservingResult, run_reserving
+from actuarycanary.quality.engine import evaluate
+from actuarycanary.quality.model import QualityReport
+from actuarycanary.quality.output import QUALITY_NAME, quality_json
 from actuarycanary.recognition.dictionary import Dictionary, build_dictionary
 from actuarycanary.recognition.mapping_profiles import (
     load_profile,
@@ -46,12 +49,15 @@ from actuarycanary.recognition.tables import (
     with_profile,
 )
 from actuarycanary.recognition.values import ValueMapping
+from actuarycanary.report.quality_section import render_quality_section
 from actuarycanary.report.render import REPORT_NAME, ReportContext, render_report
 from actuarycanary.spec.loader import load_specs
 from actuarycanary.structures.triangles import GROUP_FIELDS, TriangleSettings, build_triangles
 
 REQUIRED_CONCEPT = "claim_valuations"
 OPTIONAL_CONCEPTS = ("claims",)
+# Read and checked for the quality report only; no analysis uses them yet.
+CHECKED_CONCEPTS = ("policies", "premiums", "expenses", "market")
 # Specifications whose rules this run applies; recorded with their versions.
 SPECS_USED = (
     "claim_valuations",
@@ -69,6 +75,7 @@ SPECS_USED = (
     "CL03",
     "RS01",
     "RS02",
+    "DQ01",
 )
 TRIANGLES_NAME = "triangles.csv"
 ESTIMATES_NAME = "chain_ladder.csv"
@@ -107,6 +114,7 @@ class RunResult:
     reserving: ReservingResult
     findings: tuple[Finding, ...]
     tables: tuple[TableRecognition, ...]
+    quality: QualityReport
 
 
 def recognise_folder(
@@ -326,6 +334,7 @@ def run(
 
     step("Checking data against the specifications")
     feeds: dict[str, CanonicalFeed] = {}
+    raw_tables: dict[str, pl.DataFrame] = {}
     mappings: list[dict[str, Any]] = []
     for concept in concepts:
         parts: list[RawTable] = []
@@ -333,7 +342,23 @@ def run(
             raw, values = canonical_table(item.table, item.recognition, dictionary)
             parts.append(raw)
             mappings.append(_mapping_record(item.recognition, values))
-        feeds[concept] = canonicalise(_combined(parts), specs.data[concept])
+        combined = _combined(parts)
+        raw_tables[concept] = combined.frame
+        feeds[concept] = canonicalise(combined, specs.data[concept])
+    checked = dict(feeds)
+    unreadable: dict[str, str] = {}
+    for concept in CHECKED_CONCEPTS:
+        if concept not in by_concept:
+            continue
+        parts = [
+            canonical_table(i.table, i.recognition, dictionary)[0] for i in by_concept[concept]
+        ]
+        combined = _combined(parts)
+        try:
+            checked[concept] = canonicalise(combined, specs.data[concept])
+            raw_tables[concept] = combined.frame
+        except CanonicalError as error:
+            unreadable[concept] = str(error)
     not_used = [
         {"file": t.recognition.file, "sheet": t.recognition.sheet, "concept": t.recognition.concept}
         for t in loaded
@@ -353,9 +378,12 @@ def run(
     step("Running chain ladder")
     reserving = run_reserving(triangles, settings.chain_ladder)
 
+    sources = {c: tuple(i.recognition.label for i in by_concept[c]) for c in checked}
+    quality = evaluate(specs, checked, raw_tables, sources, triangles.cut_off, unreadable)
     findings = tuple(f for feed in feeds.values() for f in feed.findings) + triangles.findings
     inputs = _input_records(concepts, by_concept)
     used = [s for s in SPECS_USED if s != "claims" or "claims" in feeds]
+    used += [c for c in CHECKED_CONCEPTS if c in checked]
     catalogue = {f.spec.id: f.spec for f in specs.files}
     spec_records = [SpecRecord(s, catalogue[s].version, catalogue[s].title_en) for s in used]
     settings_record = _settings_record(settings, currency)
@@ -381,8 +409,10 @@ def run(
         inputs=tuple(inputs),
         specs=tuple(spec_records),
         settings=settings_used,
+        quality_html=render_quality_section(quality, catalogue["DQ01"].version),
     )
     outputs = [write_output(out, REPORT_NAME, render_report(context))]
+    outputs.append(write_output(out, QUALITY_NAME, quality_json(quality)))
     outputs += _write_tables(out, reserving)
 
     step("Writing the manifest")
@@ -399,4 +429,4 @@ def run(
         findings=[asdict(f) for f in findings],
     )
     tables = tuple(t.recognition for t in loaded)
-    return RunResult(run, out, out / REPORT_NAME, manifest, reserving, findings, tables)
+    return RunResult(run, out, out / REPORT_NAME, manifest, reserving, findings, tables, quality)

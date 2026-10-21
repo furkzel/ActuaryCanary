@@ -15,6 +15,7 @@ from actuarycanary.cli.confirm import confirm_tables
 from actuarycanary.io.excel import RawTable
 from actuarycanary.manifest.metadata import load_metadata
 from actuarycanary.pipeline import InputError, RunResult, RunSettings, run
+from actuarycanary.quality.output import print_summary
 from actuarycanary.recognition.dictionary import Dictionary
 from actuarycanary.recognition.mapping_profiles import ProfileError
 from actuarycanary.recognition.tables import TableRecognition
@@ -76,6 +77,7 @@ def _tables(console: Console, result: RunResult) -> None:
 
 def _summary(console: Console, result: RunResult) -> None:
     _tables(console, result)
+    print_summary(console, result.quality)
     reserving = result.reserving
     currency = reserving.triangles.reporting_currency
     table = Table(title=f"Chain ladder, {currency}, cut-off {reserving.triangles.cut_off}")
