@@ -248,7 +248,7 @@ scenario:
         cancellation_probability: 0.05
       premium:
         rate_on_sum_insured: null
-        per_policy: 5500.0
+        per_policy: 9500.0
         indexed_to: CPI_TR
         commission_rate: 0.1
         endorsement_probability: 0.03
