@@ -1,6 +1,6 @@
 name: raa
 status: reference_implementation
-checked_by_owner: false
+checked_by_owner: true
 published_figures: 'UNVERIFIED: no published source was opened for this file'
 source:
   package: chainladder

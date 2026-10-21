@@ -3,12 +3,13 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+import numpy as np
 import polars as pl
 import yaml
 
 from actuarycanary import __version__
 from actuarycanary.synthetic import feeds, truth
-from actuarycanary.synthetic.claims import ClaimWorld, build_claims
+from actuarycanary.synthetic.claims import SHOCK, ClaimWorld, build_claims
 from actuarycanary.synthetic.days import to_day
 from actuarycanary.synthetic.draws import Streams
 from actuarycanary.synthetic.faults import Fault, inject_faults
@@ -81,7 +82,7 @@ def simulate(scenario: str | Scenario, size: str | SizeSpec) -> Simulation:
     claims = truth._claim_frame(scenario, world, reinsurance, market, cut_off)
     exposure = truth.exposure_by_year(scenario, spec, policies)
     tables = {
-        "ultimates": truth.ultimates(scenario, spec, claims, policies, premiums),
+        "ultimates": truth.ultimates(scenario, spec, claims, policies, premiums, market, cut_off),
         "ibnr_by_valuation": truth.ibnr_by_valuation(scenario, spec, world, cut_off),
         "development_pattern": truth.development_pattern(scenario, spec, world, cut_off),
         "frequency_severity": truth.frequency_severity(scenario, spec, world, exposure),
@@ -150,9 +151,32 @@ def anomalies(sim: Simulation, fault_rows: pl.DataFrame) -> pl.DataFrame:
                 "line": shock.line,
                 "date": shock.date.isoformat(),
                 "reference": shock.label,
-                "detail": f"cost {shock.cost_base:g} at base-date prices",
+                "detail": f"cost {shock.cost_base:g} TRY at base-date prices",
             }
         )
+    for name, line in scenario.lines.items():
+        if line.large_events is None:
+            continue
+        mine = np.flatnonzero(
+            (world.c_kind == SHOCK)
+            & (world.c_line == name)
+            & (world.c_label == line.large_events.label)
+        )
+        for claim in mine[np.argsort(world.c_occ[mine], kind="stable")]:
+            cost = float(world.c_cost[claim] * world.c_fx_start[claim])
+            rows.append(
+                {
+                    "origin": "world",
+                    "type": "large_loss_event",
+                    "line": name,
+                    "date": pl.Series([int(world.c_occ[claim])])
+                    .cast(pl.Int32)
+                    .cast(pl.Date)
+                    .dt.to_string("%Y-%m-%d")[0],
+                    "reference": line.large_events.label,
+                    "detail": f"cost {cost:g} TRY at base-date prices",
+                }
+            )
     for year, rate in sorted(scenario.market.cpi.annual_rate_by_year.items()):
         if rate >= 0.5:
             rows.append(
@@ -245,6 +269,7 @@ def write_outputs(sim: Simulation, out: Path) -> dict[str, object]:
     truth_dir = out / "truth"
     for name, table in sim.truth.items():
         write_csv(truth_dir / f"{name}.csv", table)
+    write_csv(truth_dir / "money_columns.csv", truth.money_columns_table())
     write_csv(truth_dir / "injected_faults.csv", fault_table)
     write_csv(truth_dir / "anomalies.csv", anomalies(sim, fault_table))
     write_csv(truth_dir / "column_map.csv", pl.DataFrame(log.columns))
@@ -286,7 +311,18 @@ def write_outputs(sim: Simulation, out: Path) -> dict[str, object]:
             {
                 "size": sim.size_name,
                 "size_spec": sim.size.model_dump(mode="json"),
-                "scenario": scenario.model_dump(mode="json", by_alias=True),
+                "scenario": scenario.model_dump(
+                    mode="json",
+                    by_alias=True,
+                    # an unused option is left out, so older scenarios keep their exact dump
+                    exclude={
+                        "lines": {
+                            name: {"large_events"}
+                            for name, line in scenario.lines.items()
+                            if line.large_events is None
+                        }
+                    },
+                ),
             },
             sort_keys=False,
             allow_unicode=True,

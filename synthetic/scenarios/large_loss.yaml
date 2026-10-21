@@ -1,16 +1,19 @@
-# Heavier tails and three single shocks. Large losses distort development factors unless they
-# are separated; the shocks are listed in truth/anomalies.csv.
+# Heavier tails and a few very large single claims per exposure year. Large losses distort
+# development factors unless they are separated; the large events are listed in
+# truth/anomalies.csv. Their number follows the exposure (a rate per exposure year), so the loss
+# ratio stays comparable at every size; at tiny size there may be none (record 0021).
 extends: baseline
 
 lines:
   MOTOR_TPL:
     severity:
-      tail: {probability: 0.03, dist: pareto, threshold: 500000, alpha: 1.5}
+      tail: {probability: 0.015, dist: pareto, threshold: 500000, alpha: 1.8}
+    large_events:                       # about 3 to 4 per ten years at medium size
+      per_exposure_year: 0.00002
+      cost: {dist: lognormal, median: 6000000, sigma: 0.6}     # at base-date prices
   PROPERTY:
     severity:
-      tail: {probability: 0.03, dist: pareto, threshold: 1000000, alpha: 1.3}
-
-large_claims:                           # cost at base-date prices
-  - {line: PROPERTY, date: 2022-05-10, cost_base: 60000000, label: LARGE_LOSS_SHOCK}
-  - {line: MOTOR_TPL, date: 2023-09-12, cost_base: 25000000, label: LARGE_LOSS_SHOCK}
-  - {line: PROPERTY, date: 2024-03-02, cost_base: 45000000, label: LARGE_LOSS_SHOCK}
+      tail: {probability: 0.02, dist: pareto, threshold: 1000000, alpha: 1.5}
+    large_events:                       # about 4 to 5 per ten years at medium size
+      per_exposure_year: 0.00014
+      cost: {dist: lognormal, median: 3500000, sigma: 0.6}     # at base-date prices

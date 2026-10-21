@@ -124,6 +124,15 @@ class CatEvent(_Strict):
     severity_multiplier: float = Field(gt=0)
 
 
+class LargeEvents(_Strict):
+    """Very large single claims on top of the regular process, at a rate per exposure year, so
+    that their number grows with the portfolio. Cost at base-date prices, no cap."""
+
+    per_exposure_year: float = Field(gt=0)
+    cost: Dist
+    label: str = "LARGE_LOSS_EVENT"
+
+
 class Line(_Strict):
     segment: Literal["NON_LIFE", "LIFE", "PENSION", "HEALTH"]
     entities: list[str] = Field(min_length=1)
@@ -143,6 +152,7 @@ class Line(_Strict):
     recoveries: Recoveries = Recoveries()
     allocated_expense_share: float = Field(ge=0)
     catastrophe_events: list[CatEvent] = []
+    large_events: LargeEvents | None = None
 
 
 class Treaty(_Strict):

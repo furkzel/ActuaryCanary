@@ -6,7 +6,7 @@ data files show only what was known at each valuation date; the truth keeps the 
 Money mechanics: a claim has a cost X at base-date prices (in its own currency). A payment of
 share w on day t is ``X * w * F(t)`` where F is the claims inflation index: the consumer
 price index times superimposed inflation (for foreign currency: foreign inflation times
-superimposed inflation, divided by the starting rate). A case reserve is the adjuster's
+superimposed inflation). A case reserve is the adjuster's
 estimate of the remaining cost at *today's* prices, times a bias and a noise factor.
 """
 
@@ -123,7 +123,7 @@ class ClaimWorld:
         yrs = years_since(day, self.market.base_day)
         superimposed = (1.0 + self.c_si[claim]) ** yrs
         try_index = self.market.price_factor(day)
-        foreign = (1.0 + self.c_foreign_inflation[claim]) ** yrs / self.c_fx_start[claim]
+        foreign = (1.0 + self.c_foreign_inflation[claim]) ** yrs
         reporting = self.c_fx_start[claim] == 1.0
         index = np.where(reporting, try_index, foreign) * superimposed
         return np.where(self.c_infl_on[claim], index, 1.0)
@@ -293,6 +293,27 @@ def build_claims(
                 )
             )
 
+        if line.large_events is not None:
+            # its own stream, so that adding it to a scenario moves no other draw
+            big = streams.get("claims", name, "large_events")
+            expected = (
+                line.large_events.per_exposure_year * policies.units[mine] * length / DAYS_PER_YEAR
+            )
+            counts = big.poisson(expected)
+            n = int(counts.sum())
+            parts.append(
+                (
+                    np.repeat(mine, counts),
+                    np.repeat(lo, counts)
+                    + np.floor(big.random(n) * np.repeat(length, counts)).astype(np.int64),
+                    np.full(n, SHOCK),
+                    np.full(n, -1),
+                    draw(line.large_events.cost, big, n),
+                    np.full(n, 1.0),
+                    np.full(n, line.large_events.label, dtype=object),
+                )
+            )
+
         pol = np.concatenate([p[0] for p in parts]).astype(np.int64)
         occ = np.concatenate([p[1] for p in parts]).astype(np.int64)
         kind = np.concatenate([p[2] for p in parts]).astype(np.int64)
@@ -351,7 +372,7 @@ def build_claims(
         if infl_on and line.severity.capped_at_sum_insured and n:
             yrs = years_since(occ, market.base_day)
             index_at_loss = (
-                np.where(fx0 == 1.0, market.price_factor(occ), (1.0 + foreign) ** yrs / fx0)
+                np.where(fx0 == 1.0, market.price_factor(occ), (1.0 + foreign) ** yrs)
                 * (1.0 + world_si) ** yrs
             )
             cost = np.where(

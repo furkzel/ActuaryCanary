@@ -6,9 +6,10 @@ import numpy as np
 import polars as pl
 import pytest
 
-from actuarycanary.synthetic.build import simulate
+from actuarycanary.synthetic.build import anomalies, simulate
 from actuarycanary.synthetic.claims import SHOCK, Cumulative
 from actuarycanary.synthetic.days import to_day
+from tests.synthetic.conftest import simulate_with
 
 
 def review_ratios(sim, line: str) -> tuple[np.ndarray, np.ndarray]:
@@ -78,8 +79,17 @@ def test_high_inflation_is_listed_among_the_anomalies():
     assert [y for y, _ in years] == [2022, 2023, 2024, 2025]
 
 
-def test_large_loss_adds_three_shocks_on_the_chosen_days():
-    sim = simulate("large_loss", "tiny")
+THREE_SHOCKS = {
+    "large_claims": [
+        {"line": "PROPERTY", "date": "2022-05-10", "cost_base": 60_000_000},
+        {"line": "MOTOR_TPL", "date": "2023-09-12", "cost_base": 25_000_000},
+        {"line": "PROPERTY", "date": "2024-03-02", "cost_base": 45_000_000},
+    ]
+}
+
+
+def test_fixed_large_claims_land_on_the_chosen_days():
+    sim = simulate_with(THREE_SHOCKS)
     w = sim.world
     shocks = np.flatnonzero(w.c_kind == SHOCK)
     assert sorted(w.c_occ[shocks].tolist()) == sorted(
@@ -91,11 +101,57 @@ def test_large_loss_adds_three_shocks_on_the_chosen_days():
     assert largest > 3 * baseline_largest
 
 
-def test_large_loss_shocks_are_not_capped_by_the_sum_insured():
-    sim = simulate("large_loss", "tiny")
+def test_large_claims_are_not_capped_by_the_sum_insured():
+    sim = simulate_with(THREE_SHOCKS)
     w = sim.world
     shock = int(np.flatnonzero((w.c_kind == SHOCK) & (w.c_line == "PROPERTY"))[0])
     assert w.c_cost[shock] == pytest.approx(60_000_000.0)
+
+
+def _with_large_events(scale: float, rate: float = 0.02):
+    return simulate_with(
+        {
+            "lines": {
+                "PROPERTY": {
+                    "large_events": {
+                        "per_exposure_year": rate,
+                        "cost": {"dist": "lognormal", "median": 5_000_000, "sigma": 0.5},
+                    }
+                }
+            },
+            "sizes": {"tiny": {"portfolio_scale": scale}},
+        }
+    )
+
+
+def _large_events(sim, line: str = "PROPERTY") -> int:
+    w = sim.world
+    return int(((w.c_label == "LARGE_LOSS_EVENT") & (w.c_line == line)).sum())
+
+
+def test_large_events_follow_the_rate_per_exposure_and_grow_with_the_portfolio():
+    small, big = _with_large_events(0.02), _with_large_events(0.04)
+    for sim in (small, big):
+        exposure = sim.truth["frequency_severity"].filter(pl.col("line") == "PROPERTY")
+        expected = 0.02 * float(exposure["exposure_years"].to_numpy().sum())
+        assert expected > 40
+        assert abs(_large_events(sim) - expected) < 4 * expected**0.5  # a Poisson count
+    assert 1.5 < _large_events(big) / _large_events(small) < 2.7
+
+
+def test_large_events_are_listed_in_the_truth_and_touch_no_other_line():
+    sim, plain = (
+        _with_large_events(0.02),
+        simulate_with({"sizes": {"tiny": {"portfolio_scale": 0.02}}}),
+    )
+    other = [i for i in range(len(sim.world)) if sim.world.c_line[i] == "MOTOR_OD"]
+    same = [i for i in range(len(plain.world)) if plain.world.c_line[i] == "MOTOR_OD"]
+    assert sim.world.c_occ[other].tolist() == plain.world.c_occ[same].tolist()
+    assert sim.world.c_cost[other].tolist() == plain.world.c_cost[same].tolist()
+    assert int((sim.world.c_kind == SHOCK).sum()) == _large_events(sim)  # nothing else is a shock
+    listed = sim_anomalies(sim)
+    assert listed.height == _large_events(sim)
+    assert (listed["line"] == "PROPERTY").all()
 
 
 def test_messy_headers_has_the_same_world_as_the_baseline_and_only_the_layout_differs():
@@ -105,3 +161,18 @@ def test_messy_headers_has_the_same_world_as_the_baseline_and_only_the_layout_di
     assert (
         messy.frames["premiums"]["premiums"].height > base.frames["premiums"]["premiums"].height
     )  # repeated rows
+
+
+def sim_anomalies(sim) -> pl.DataFrame:
+    empty = pl.DataFrame(
+        schema={
+            "fault_type": pl.String,
+            "file": pl.String,
+            "key": pl.String,
+            "row": pl.Int64,
+            "sheet_row": pl.Int64,
+            "detail": pl.String,
+        }
+    )
+    table = anomalies(sim, empty)
+    return table.filter(pl.col("type") == "large_loss_event")

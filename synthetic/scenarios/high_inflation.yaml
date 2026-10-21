@@ -1,5 +1,11 @@
 # Prices rise faster and for longer, and claims costs outrun the tariff. Development factors
 # on nominal triangles then overstate development; inflation-adjusted ones should not.
+# The tariff follows prices at policy start (the sum insured, and so the premium, moves with the
+# price index) but not superimposed inflation, so claims inflation shows as a ratio that rises
+# with the accident year. Superimposed rates stay near the baseline so that the faster price
+# path carries the effect; the tariff answers with a higher third-party liability premium, a
+# partial pass-through at one level (record 0021). Ten-year ratios at medium: MOTOR_OD about
+# 1.0 to 1.1, MOTOR_TPL 1.4 to 1.8, PROPERTY 1.1 to 1.2.
 extends: baseline
 
 market:
@@ -13,6 +19,6 @@ market:
     - {series_id: EUR/TRY, start: 3.25, drift: inflation_differential, foreign_inflation: 0.02, monthly_vol: 0.06}
 
 lines:
-  MOTOR_OD: {severity: {superimposed_inflation: 0.08}}
-  MOTOR_TPL: {severity: {superimposed_inflation: 0.12}}
-  PROPERTY: {severity: {superimposed_inflation: 0.05}}
+  MOTOR_OD: {severity: {superimposed_inflation: 0.05}}
+  MOTOR_TPL: {premium: {per_policy: 12000}}                    # baseline 9500; superimposed stays 0.05
+  PROPERTY: {severity: {superimposed_inflation: 0.035}}

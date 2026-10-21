@@ -1,4 +1,4 @@
-# 0007 — Specification format
+# 0020 — Specification format
 
 ## Context
 Blueprint principle 2 asks for one specification per rule, readable without code. Later work items implement and test exactly what the specs say, so the specs must be machine-checked.
