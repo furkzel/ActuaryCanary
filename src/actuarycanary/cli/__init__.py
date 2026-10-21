@@ -5,13 +5,19 @@ from typing import Annotated
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
 from rich.table import Table
 
 from actuarycanary import __version__
 from actuarycanary.canonical.feeds import CanonicalError
+from actuarycanary.cli.confirm import confirm_tables
+from actuarycanary.io.excel import RawTable
 from actuarycanary.manifest.metadata import load_metadata
 from actuarycanary.pipeline import InputError, RunResult, RunSettings, run
+from actuarycanary.recognition.dictionary import Dictionary
+from actuarycanary.recognition.mapping_profiles import ProfileError
+from actuarycanary.recognition.tables import TableRecognition
 from actuarycanary.report import numbers
 from actuarycanary.structures.periods import Period
 from actuarycanary.structures.triangles import TriangleError, TriangleSettings
@@ -58,7 +64,18 @@ def info() -> None:
     Console(width=100).print(table)
 
 
+def _tables(console: Console, result: RunResult) -> None:
+    table = Table(title="Sheets read", title_justify="left")
+    for column in ("File [sheet]", "Concept", "Mapping", "Personal data dropped"):
+        table.add_column(column, overflow="fold")
+    for rec in result.tables:
+        dropped = ", ".join(m.source.strip() for m in rec.personal)
+        table.add_row(escape(rec.label), rec.concept or "-", str(rec.source), escape(dropped))
+    console.print(table)
+
+
 def _summary(console: Console, result: RunResult) -> None:
+    _tables(console, result)
     reserving = result.reserving
     currency = reserving.triangles.reporting_currency
     table = Table(title=f"Chain ladder, {currency}, cut-off {reserving.triangles.cut_off}")
@@ -92,8 +109,21 @@ def run_command(
     development_period: Annotated[
         Period, typer.Option("--development-period", case_sensitive=False)
     ] = Period.YEAR,
+    yes: Annotated[
+        bool,
+        typer.Option(
+            "--yes",
+            "-y",
+            help="Do not ask: use saved mapping profiles and, for new layouts, the proposals "
+            "(not saved).",
+        ),
+    ] = False,
+    profiles: Annotated[
+        Path, typer.Option("--profiles", help="Folder of mapping profiles.")
+    ] = Path("profiles"),
 ) -> None:
-    """Build paid and incurred triangles and chain ladder, then write report and manifest."""
+    """Recognise the spreadsheets in a folder, build paid and incurred triangles and chain
+    ladder, then write report and manifest."""
     console = Console(width=100)
     try:
         settings = RunSettings(
@@ -117,9 +147,31 @@ def run_command(
             progress.update(task, description=description)
             progress.console.print(f"  {description}")
 
+        def confirm(
+            pending: list[tuple[TableRecognition, RawTable]], dictionary: Dictionary
+        ) -> list[TableRecognition]:
+            progress.stop()
+            try:
+                return confirm_tables(console, pending, dictionary)
+            finally:
+                progress.start()
+
         try:
-            result = run(folder, out, settings, progress=step)
-        except (InputError, CanonicalError, TriangleError) as error:
-            console.print(f"[red]Cannot run:[/red] {error}")
+            result = run(
+                folder,
+                out,
+                settings,
+                progress=step,
+                profiles_dir=profiles,
+                confirm=None if yes else confirm,
+            )
+        except (InputError, CanonicalError, TriangleError, ProfileError) as error:
+            console.print(f"[red]Cannot run:[/red] {escape(str(error))}")
+            raise typer.Exit(1) from error
+        except EOFError as error:
+            console.print(
+                "[red]Cannot run:[/red] new layouts need confirming on the terminal; "
+                "rerun with --yes to use the proposals without saving them."
+            )
             raise typer.Exit(1) from error
     _summary(console, result)

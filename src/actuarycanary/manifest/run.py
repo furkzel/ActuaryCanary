@@ -1,8 +1,9 @@
 """Run manifest (blueprint section 12): what went in, which rules and settings, what came out.
 
 The run id is derived from everything that determines the outputs: input fingerprints,
-specification IDs and versions, settings and the package version. Output fingerprints are
-recorded in the manifest but are not part of the id, because the report shows the id.
+the column mappings applied to them, specification IDs and versions, settings and the
+package version. Output fingerprints are recorded in the manifest but are not part of the
+id, because the report shows the id.
 """
 
 import hashlib
@@ -50,10 +51,16 @@ def _canonical_json(value: Any) -> str:
 
 
 def run_id(
-    inputs: list[InputRecord], specs: list[SpecRecord], settings: dict[str, Any], version: str
+    inputs: list[InputRecord],
+    specs: list[SpecRecord],
+    settings: dict[str, Any],
+    version: str,
+    mappings: list[dict[str, Any]] | None = None,
 ) -> str:
+    """`mappings`: per sheet used, its file, sheet, concept and (column, field) pairs."""
     determinants = {
         "inputs": [[i.concept, i.name, i.sha256] for i in inputs],
+        "mappings": mappings or [],
         "specs": [[s.id, s.version] for s in specs],
         "settings": settings,
         "version": version,
@@ -79,6 +86,8 @@ def write_manifest(
     settings: dict[str, Any],
     outputs: list[OutputRecord],
     findings: list[dict[str, Any]],
+    mapping_profiles: list[dict[str, Any]] | None = None,
+    tables_not_used: list[dict[str, Any]] | None = None,
 ) -> Path:
     """Write manifest.json; no clock time, so a rerun on the same inputs writes the same file."""
     manifest = {
@@ -86,7 +95,8 @@ def write_manifest(
         "run_id": run,
         "software": {"actuarycanary": package_version},
         "inputs": [asdict(i) for i in inputs],
-        "mapping_profiles": [],  # columns matched by exact canonical names
+        "mapping_profiles": mapping_profiles or [],  # how each sheet used was read
+        "tables_not_used": tables_not_used or [],
         "specs": [asdict(s) for s in specs],
         "settings": settings,
         "randomness": [],  # no stochastic step ran

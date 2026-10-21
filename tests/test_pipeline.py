@@ -2,11 +2,15 @@
 
 import json
 import shutil
+from datetime import date
 from pathlib import Path
 
 import pytest
 
+from actuarycanary.io.excel import RawTable
 from actuarycanary.pipeline import InputError, RunSettings, run
+from actuarycanary.recognition.dictionary import Dictionary
+from actuarycanary.recognition.tables import TableRecognition
 from actuarycanary.structures.periods import Period
 from actuarycanary.structures.triangles import TriangleSettings
 
@@ -76,3 +80,82 @@ def test_claim_valuations_alone_use_proxy_origins(tmp_path: Path, cache: Path) -
 def test_missing_claim_valuations_is_an_input_error(tmp_path: Path) -> None:
     with pytest.raises(InputError, match="claim_valuations.xlsx"):
         run(tmp_path, tmp_path / "out", cache_dir=None)
+
+
+MESSY = Path(__file__).parent / "fixtures" / "synthetic" / "messy_headers"
+
+
+def _accept(
+    pending: list[tuple[TableRecognition, RawTable]], dictionary: Dictionary
+) -> list[TableRecognition]:
+    return [rec for rec, _ in pending]
+
+
+@pytest.mark.slow
+def test_messy_layout_gives_the_baseline_results(tmp_path: Path, cache: Path) -> None:
+    baseline = run(BASELINE, tmp_path / "b", cache_dir=cache)
+    messy = run(MESSY, tmp_path / "m", cache_dir=cache)
+    assert messy.run_id != baseline.run_id
+    for name in ("triangles.csv", "factors.csv", "chain_ladder.csv"):
+        assert (messy.folder / name).read_bytes() == (baseline.folder / name).read_bytes()
+    manifest = _manifest(messy.manifest)
+    assert [i["name"] for i in manifest["inputs"]] == ["claim_valuations.xlsx", "claims.xlsx"]
+    claims = next(m for m in manifest["mapping_profiles"] if m["concept"] == "claims")
+    assert claims["header_row"] == 3 and claims["rows_above_header"] == 2
+    assert sorted(claims["personal_data_dropped"]) == ["MUSTERI_NO", "SIGORTALI_ADI", "TCKN"]
+    assert claims["source"] == "automatic" and claims["profile_sha256"] is None
+    valuations = next(m for m in manifest["mapping_profiles"] if m["concept"] == "claim_valuations")
+    assert {u["label"] for u in valuations["unmapped_labels"]} == {"???", "PEND-REV"}
+    assert {t["concept"] for t in manifest["tables_not_used"]} == {
+        "expenses",
+        "market",
+        "policies",
+        "premiums",
+    }
+
+
+def test_manifest_records_the_cut_off_used_next_to_the_setting(tmp_path: Path, cache: Path) -> None:
+    latest = _manifest(run(BASELINE, tmp_path / "a", cache_dir=cache).manifest)
+    assert latest["settings"]["triangles"]["cut_off"] is None
+    assert latest["settings"]["triangles"]["cut_off_used"] == "2025-12-31"
+    chosen = RunSettings(triangles=TriangleSettings(cut_off=date(2024, 12, 15)))
+    given = _manifest(run(BASELINE, tmp_path / "b", chosen, cache_dir=cache).manifest)
+    assert given["settings"]["triangles"]["cut_off"] == "2024-12-15"
+    assert given["settings"]["triangles"]["cut_off_used"] == "2024-12-31"
+
+
+@pytest.mark.slow
+def test_profiles_are_saved_reused_and_an_edit_changes_the_run_id(
+    tmp_path: Path, cache: Path
+) -> None:
+    profiles = tmp_path / "profiles"
+    asked: list[int] = []
+
+    def confirm(
+        pending: list[tuple[TableRecognition, RawTable]], dictionary: Dictionary
+    ) -> list[TableRecognition]:
+        asked.append(len(pending))
+        return _accept(pending, dictionary)
+
+    first = run(MESSY, tmp_path / "1", cache_dir=cache, profiles_dir=profiles, confirm=confirm)
+    second = run(MESSY, tmp_path / "2", cache_dir=cache, profiles_dir=profiles, confirm=confirm)
+    assert asked == [7]  # six files, market on two sheets; the second run asks nothing
+    assert len(list(profiles.glob("*.yaml"))) == 7
+    assert {str(t.source) for t in first.tables} == {"confirmed"}
+    assert {str(t.source) for t in second.tables} == {"saved"}
+    assert second.run_id == first.run_id  # same mapping, however it was confirmed
+
+    record = next(
+        m for m in _manifest(second.manifest)["mapping_profiles"] if m["concept"] == "claims"
+    )
+    path = profiles / f"{record['fingerprint']}.yaml"
+    path.write_text(
+        path.read_text(encoding="utf-8").replace("field: cause", "field: null"), encoding="utf-8"
+    )
+    edited = run(MESSY, tmp_path / "3", cache_dir=cache, profiles_dir=profiles, confirm=confirm)
+    assert edited.run_id != first.run_id
+    claims = next(
+        m for m in _manifest(edited.manifest)["mapping_profiles"] if m["concept"] == "claims"
+    )
+    assert "NEDEN" in claims["columns_not_used"]
+    assert claims["profile_sha256"] != record["profile_sha256"]

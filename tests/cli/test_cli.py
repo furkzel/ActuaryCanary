@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 import pytest
@@ -45,3 +46,60 @@ def test_run_rejects_incompatible_periods(tmp_path: Path) -> None:
     result = runner.invoke(app, arguments)
     assert result.exit_code == 2
     assert "whole multiple" in result.output
+
+
+MESSY = Path(__file__).parents[1] / "fixtures" / "synthetic" / "messy_headers"
+SHEETS = 7  # six files, market on two sheets
+
+
+@pytest.mark.integration
+@pytest.mark.slow
+def test_messy_run_asks_once_saves_profiles_and_then_does_not_ask(tmp_path: Path) -> None:
+    arguments = ["run", str(MESSY), "--out", str(tmp_path / "out")]
+    arguments += ["--profiles", str(tmp_path / "profiles")]
+    first = runner.invoke(app, arguments, input="a\n" * SHEETS)
+    assert first.exit_code == 0, first.output
+    assert f"{SHEETS} sheet(s) have a layout without a saved mapping profile" in first.output
+    assert first.output.count("Accept, edit or skip") == SHEETS
+    assert "HASARR NO" in first.output and "fuzzy" in first.output
+    assert len(list((tmp_path / "profiles").glob("*.yaml"))) == SHEETS
+
+    second = runner.invoke(app, arguments)  # no input: a question would fail the run
+    assert second.exit_code == 0, second.output
+    assert "Accept, edit or skip" not in second.output
+    assert "saved" in second.output and "TCKN" in second.output
+
+
+@pytest.mark.integration
+def test_new_layouts_without_answers_or_yes_stop_with_a_message(tmp_path: Path) -> None:
+    arguments = ["run", str(MESSY), "--out", str(tmp_path / "out")]
+    result = runner.invoke(app, [*arguments, "--profiles", str(tmp_path / "profiles")])
+    assert result.exit_code == 1
+    assert "--yes" in result.output
+    assert not (tmp_path / "profiles").exists()
+
+
+@pytest.mark.integration
+def test_yes_uses_the_proposals_without_saving_or_asking(tmp_path: Path) -> None:
+    arguments = ["run", str(MESSY), "--out", str(tmp_path / "out"), "--yes"]
+    result = runner.invoke(app, [*arguments, "--profiles", str(tmp_path / "profiles")])
+    assert result.exit_code == 0, result.output
+    assert "Accept, edit or skip" not in result.output
+    assert "automatic" in result.output
+    assert not (tmp_path / "profiles").exists()
+
+
+@pytest.mark.integration
+def test_edits_are_saved_in_the_profile(tmp_path: Path) -> None:
+    folder = tmp_path / "in"
+    folder.mkdir()
+    shutil.copyfile(MESSY / "claim_valuations.xlsx", folder / "claim_valuations.xlsx")
+    arguments = ["run", str(folder), "--out", str(tmp_path / "out")]
+    arguments += ["--profiles", str(tmp_path / "profiles")]
+    answers = "e\n3=-\nx=y\n\n"  # leave column 3 (RUCU TAHSILAT) unused; one bad command
+    result = runner.invoke(app, arguments, input=answers)
+    assert result.exit_code == 0, result.output
+    assert "Not understood" in result.output
+    (profile,) = (tmp_path / "profiles").glob("*.yaml")
+    text = profile.read_text(encoding="utf-8")
+    assert "header: 'RUCU TAHSILAT '\n  field: null\n  layer: user" in text
