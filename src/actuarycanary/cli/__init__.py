@@ -1,5 +1,7 @@
 """Command line entry point (typer and rich)."""
 
+from datetime import date
+from enum import StrEnum
 from pathlib import Path
 from typing import Annotated
 
@@ -12,6 +14,8 @@ from rich.table import Table
 from actuarycanary import __version__
 from actuarycanary.canonical.feeds import CanonicalError
 from actuarycanary.cli.confirm import confirm_tables
+from actuarycanary.convert.bases import ReinsuranceBasis, ValueBasis
+from actuarycanary.convert.market import ConversionError
 from actuarycanary.io.excel import RawTable
 from actuarycanary.manifest.metadata import load_metadata
 from actuarycanary.pipeline import InputError, RunResult, RunSettings, run
@@ -20,7 +24,19 @@ from actuarycanary.recognition.mapping_profiles import ProfileError
 from actuarycanary.recognition.tables import TableRecognition
 from actuarycanary.report import numbers
 from actuarycanary.structures.periods import Period
-from actuarycanary.structures.triangles import TriangleError, TriangleSettings
+from actuarycanary.structures.triangles import OriginAxis, TriangleError, TriangleSettings
+
+
+class BasisOption(StrEnum):
+    GROSS = "gross"
+    CEDED = "ceded"
+    NET = "net"
+
+
+class ValueOption(StrEnum):
+    NOMINAL = "nominal"
+    INFLATION_ADJUSTED = "inflation-adjusted"
+
 
 app = typer.Typer(help="Auditable, early-warning actuarial reporting.", no_args_is_help=True)
 
@@ -78,7 +94,9 @@ def _summary(console: Console, result: RunResult) -> None:
     _tables(console, result)
     reserving = result.reserving
     currency = reserving.triangles.reporting_currency
-    table = Table(title=f"Chain ladder, {currency}, cut-off {reserving.triangles.cut_off}")
+    settings = reserving.triangles.settings
+    basis = f"{settings.reinsurance_basis.value}, {settings.value_basis.value}"
+    table = Table(title=f"Chain ladder, {currency}, {basis}, cut-off {reserving.triangles.cut_off}")
     for column in ("Segment / line", "Paid", "Incurred", "Ultimate (incurred CL)", "IBNR"):
         table.add_column(column, justify="left" if column.startswith("Segment") else "right")
     for group in reserving.groups:
@@ -109,6 +127,43 @@ def run_command(
     development_period: Annotated[
         Period, typer.Option("--development-period", case_sensitive=False)
     ] = Period.YEAR,
+    origin_axis: Annotated[
+        OriginAxis,
+        typer.Option(
+            "--origin-axis",
+            case_sensitive=False,
+            help="Origin of a claim: accident, report, underwriting or first_valuation.",
+        ),
+    ] = OriginAxis.ACCIDENT,
+    basis: Annotated[
+        BasisOption,
+        typer.Option(
+            "--basis", case_sensitive=False, help="Reinsurance basis: gross, ceded or net."
+        ),
+    ] = BasisOption.GROSS,
+    currency: Annotated[
+        str | None,
+        typer.Option(
+            "--currency",
+            help="Reporting currency; converts other currencies with the market data (CV01).",
+        ),
+    ] = None,
+    value: Annotated[
+        ValueOption,
+        typer.Option(
+            "--value",
+            case_sensitive=False,
+            help="Value basis: nominal or inflation-adjusted to the value date (CV02).",
+        ),
+    ] = ValueOption.NOMINAL,
+    value_date: Annotated[
+        str | None,
+        typer.Option("--value-date", help="Prices of this date, YYYY-MM-DD; default the cut-off."),
+    ] = None,
+    price_index: Annotated[
+        str | None,
+        typer.Option("--price-index", help="Price index series_id; default from project.yaml."),
+    ] = None,
     yes: Annotated[
         bool,
         typer.Option(
@@ -127,9 +182,17 @@ def run_command(
     console = Console(width=100)
     try:
         settings = RunSettings(
+            reporting_currency=currency.upper() if currency else None,
+            use_market=currency is not None,
             triangles=TriangleSettings(
-                origin_period=origin_period, development_period=development_period
-            )
+                origin_period=origin_period,
+                development_period=development_period,
+                origin_axis=origin_axis,
+                reinsurance_basis=ReinsuranceBasis(basis.value.upper()),
+                value_basis=ValueBasis(value.value.upper().replace("-", "_")),
+                value_date=date.fromisoformat(value_date) if value_date else None,
+                price_index=price_index,
+            ),
         )
     except ValueError as error:
         console.print(f"[red]Settings rejected:[/red] {error}")
@@ -165,7 +228,13 @@ def run_command(
                 profiles_dir=profiles,
                 confirm=None if yes else confirm,
             )
-        except (InputError, CanonicalError, TriangleError, ProfileError) as error:
+        except (
+            InputError,
+            CanonicalError,
+            TriangleError,
+            ConversionError,
+            ProfileError,
+        ) as error:
             console.print(f"[red]Cannot run:[/red] {escape(str(error))}")
             raise typer.Exit(1) from error
         except EOFError as error:

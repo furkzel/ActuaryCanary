@@ -20,7 +20,7 @@ from actuarycanary.manifest.run import InputRecord, SpecRecord
 from actuarycanary.methods.chain_ladder import ChainLadder, Skipped
 from actuarycanary.modules.reserving import GroupReserving, ReservingResult
 from actuarycanary.report import numbers
-from actuarycanary.structures.triangles import THIN_CELL_CLAIMS, Triangle
+from actuarycanary.structures.triangles import THIN_CELL_CLAIMS, Triangle, TriangleSet
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 REPORT_NAME = "report.html"
@@ -162,6 +162,11 @@ def _notes(group: GroupReserving) -> list[str]:
     return notes
 
 
+def _basis_label(triangles: TriangleSet) -> str:
+    settings = triangles.settings
+    return f"{settings.reinsurance_basis.value}, {settings.value_basis.value}"
+
+
 def render_report(context: ReportContext) -> str:
     triangles = context.reserving.triangles
     currency = triangles.reporting_currency
@@ -209,6 +214,9 @@ def render_report(context: ReportContext) -> str:
         cut_off=triangles.cut_off.isoformat(),
         currency=currency,
         origin_basis=triangles.origin_basis,
+        basis_label=_basis_label(triangles),
+        value_date=triangles.value_date.isoformat() if triangles.value_date else None,
+        price_index=triangles.price_index,
         settings=triangles.settings,
         chain_ladder=context.reserving.settings,
         claims_used=numbers.count(triangles.claims_used),
