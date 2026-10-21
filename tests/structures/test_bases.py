@@ -163,6 +163,7 @@ def test_recoveries_are_gross_only_and_shown_as_their_own_measures() -> None:
 
 
 def test_cl04_counts_reported_open_and_closed() -> None:
+    """CL04: reported counts rows on or before the point; open and closed use the as-of status."""
     status = ["OPEN", "OPEN", "CLOSED", "OPEN", "CLOSED_NIL", "OPEN", "REOPENED"]
     frame = valuations().with_columns(pl.Series("status", status))
     result = _build(frame=frame, measures=("reported_count", "open_count", "closed_count"))
