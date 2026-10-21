@@ -12,6 +12,7 @@ from dataclasses import dataclass
 
 import polars as pl
 
+from actuarycanary.canonical.dates import parse_dates
 from actuarycanary.io.excel import SOURCE_COLUMNS, SOURCE_ROW, RawTable
 from actuarycanary.spec.models import DataConceptSpec
 
@@ -62,6 +63,15 @@ def _first_distinct(frame: pl.DataFrame, columns: list[str]) -> pl.Series:
     return frame.select(pl.struct(columns).is_first_distinct()).to_series()
 
 
+def as_text(source: pl.Series) -> pl.Series:
+    """Text of each cell; whole numbers from number cells lose the ".0" (codes stay codes)."""
+    if source.dtype.is_float():
+        whole = source.is_null() | (source == source.round(0))
+        if whole.all():
+            return source.cast(pl.Int64, strict=False).cast(pl.String)
+    return source.cast(pl.String)
+
+
 def _typed(frame: pl.DataFrame, spec: DataConceptSpec) -> tuple[pl.DataFrame, list[Finding]]:
     """Keep the spec fields present, cast them to their spec types and report failed casts."""
     present = [f for f in spec.fields if f.name in frame.columns]
@@ -69,22 +79,23 @@ def _typed(frame: pl.DataFrame, spec: DataConceptSpec) -> tuple[pl.DataFrame, li
     if missing:
         raise CanonicalError(f"{spec.file_name}: required columns missing: {', '.join(missing)}")
     findings: list[Finding] = []
-    columns: list[pl.Expr] = []
+    columns: list[pl.Expr | pl.Series] = []
     for field in present:
         source = frame[field.name]
         target = _TYPES[field.type]
         if field.type == "text":
-            text = source.cast(pl.String).str.strip_chars()
+            text = as_text(source).str.strip_chars()
             typed = pl.when(text == "").then(None).otherwise(text)
             columns.append(typed.alias(field.name))
-            continue
-        if field.type == "date" and source.dtype == pl.Datetime:
-            columns.append(pl.col(field.name).dt.date())
             continue
         if source.dtype == target:
             columns.append(pl.col(field.name))
             continue
-        cast = source.cast(target, strict=False)
+        cast = (
+            parse_dates(source).values
+            if field.type == "date"
+            else source.cast(target, strict=False)
+        )
         failed = frame.filter(source.is_not_null() & cast.is_null())
         found = finding(
             spec.id,
@@ -95,7 +106,7 @@ def _typed(frame: pl.DataFrame, spec: DataConceptSpec) -> tuple[pl.DataFrame, li
         )
         if found:
             findings.append(found)
-        columns.append(pl.col(field.name).cast(target, strict=False))
+        columns.append(cast.alias(field.name))
     typed_frame = frame.select(*columns, *SOURCE_COLUMNS)
     return typed_frame, findings
 
