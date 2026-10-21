@@ -18,21 +18,23 @@ ActuaryCanary turns insurance data in any layout into an auditable, early-warnin
 - `tests/` — mirrors the package; `conftest.py` sets Hypothesis profiles
 - `tests/benchmarks/` — frozen reference values (`raa`, `genins`) and `load.py`; `tests/fixtures/hand/` — hand-worked 4×4 fixtures
 - `synthetic/scenarios/*.yaml` — synthetic scenario parameters (`baseline.yaml` is the base); code in `src/actuarycanary/synthetic/`
-- `docs/` — blueprint, spec/data/, `decisions/` records 0001–0018
+- `docs/` — blueprint, spec/data/, `decisions/` records 0001–0019
 - `project.yaml` — project metadata, single source for CLI and report
 - `.github/workflows/ci.yml` — `just check` on Ubuntu and Windows
 
 ## State
-- Phase: 0 · Last gate passed: none · Last checkpoint: none
-- Works: `just check` green locally on Windows (PowerShell; 199 fast tests, ~7 s) and `just test-all` (215 tests, ~14 s); `canary info`, `canary --version`; `just spec-index` lists 64 reviewed specs; benchmarks `raa`, `genins` and hand fixtures loadable
-- Works (P02, mode A): `just synth <scenario> <size>` writes the six spreadsheets, `canonical/*.parquet` and `truth/*.csv` for `baseline`, `messy_headers`, `high_inflation`, `large_loss`, `reserve_bias_change` at `tiny`, `medium`, `large`; `just synth-fixtures` refreshes `tests/fixtures/synthetic/` and `examples/` (baseline and messy_headers, tiny). Ran: all five at tiny (read back through `synthetic/check.py`, the violations are exactly the injected faults); baseline medium (180k valuation rows, 50 s, parameters recovered within 4 sigma in the slow tests); baseline large (994,821 valuation rows, 62 s; claim_valuations read back equal to the parquet)
-- Known gaps: UNVERIFIED: the spreadsheets opened in Excel (only calamine read them); byte-identical output on another machine or CPU (the same machine twice is tested; the slow test of the committed fixtures can fail elsewhere); `check_folder` on `large`; medium and large of the four scenarios other than baseline. Benchmark published figures UNVERIFIED; hand fixtures not yet checked by owner; no actuarial logic; CI workflow and pre-commit hooks UNVERIFIED (not run); no LICENSE (see 0006); `just` was installed with `uv tool install rust-just` (`~/.local/bin`)
-- Notes: the Open decisions section is left for the owner; `spec/` and `synthetic/scenarios/` must be bundled when packaging; baseline parameters changed from the first sheet (record 0016); the `large` size has no spreadsheet for `policies` and `premiums` (record 0017); baseline calibrated in P02b, TPL premium 9,500 (record 0018)
+- Phase: 0 complete · Last gate passed: G0 (2026-10-21, after the owner recorded checks of `hand`, `raa` and `genins`) · Last checkpoint: G0 (2026-10-21)
+- Works (run 2026-10-21): `just check` green (199 fast tests, 6.7 s of tests, 16 s whole); all 215 tests, 15.7 s (`uv run pytest -n auto`); 64 specs, all `reviewed`; `just synth baseline tiny` and `messy_headers tiny` write valid files with truth (the data checker tests pass); all five scenarios generated at medium in 50–61 s each; `canary info`, `canary --version`; benchmarks `raa`, `genins` and hand fixtures loadable
+- Medium measurement: baseline is inside every record 0018 target (OD 0.808, TPL 0.957, PROPERTY 0.789, life 0.595; TPL only just above its 0.95 bound); the other four scenarios deviate as designed (record 0019)
+- Known gaps: UNVERIFIED: spreadsheets in Excel (only calamine read them); byte-identical output on another machine; `check_folder` on `large`; medium/large of the four non-baseline scenarios against the checker; benchmark published figures; CI workflow and pre-commit hooks (not run). The unit of `earned_premium` in `truth/ultimates.csv` for USD/EUR rows (record 0019). No actuarial logic yet. No LICENSE (0006). Measure and method tests do not exist yet by plan: 37 of 64 spec IDs have no test naming them (information only); tests naming an unknown spec ID: none (CL99/PR99 in `test_loader_errors.py` are deliberate negative cases); no code rule without a spec found
+- Hygiene: no AI-tool wording as a whole word in any of the 254 tracked files or file names; no personal-data-like values (`personal_data_columns.csv` is header only). BUT 17 commit messages carry a `Co-Authored-By: [name] …` trailer, so the history does mention an AI tool; decide whether to rewrite history before the repository is published. Largest tracked file 299 KB. Two records are numbered 0007
+- Notes: `just` is in `~/.local/bin` (not on the Git Bash PATH); `spec/` and `synthetic/scenarios/` must be bundled when packaging; the `large` size has no `policies`/`premiums` spreadsheets (0017)
 
 ## Next
-- Owner: review and merge `s/P02-synthetic`and `s/P02b-calibration` (CV07 1.1.0 allows title rows, no conflict left; record 0017); check that the baseline loss ratios look right to an actuary (record 0018; at large the ten-year ultimate gross loss ratios are own damage 78.5%, third-party liability 102.5%, property 87.0%, group life 56.4%)
-- Owner action still open: check the hand fixtures in a spreadsheet; mark `checked_by_owner: true` in each `expected.yaml` (`tests/fixtures/hand/`, `tests/benchmarks/raa/`, `tests/benchmarks/genins/`)
-- Then the next work item. Readers and the recogniser can start from `examples/baseline`, `examples/messy_headers` and the matching `truth/` in `tests/fixtures/synthetic/`
+- Owner: set `checked_by_owner: true` in `tests/benchmarks/raa/expected.yaml` and `tests/benchmarks/genins/expected.yaml` after checking them (hand fixtures already true in the working tree; commit it); then G0 passes without re-running anything
+- Owner: merge `s/G0-checkpoint`; review record 0019 (TPL premium margin at medium, high_inflation and large_loss magnitudes, `earned_premium` unit, trailers in history)
+- Then the next work item (first reader/recogniser item in the plan), starting from `examples/baseline`, `examples/messy_headers` and the matching `truth/` in `tests/fixtures/synthetic/`
+- Hours: the log sums to about 1.75 h for P00–P02b plus ~10 min for this checkpoint; the plan's ranges are not in the repository, so no re-estimate is made here
 
 ## Open decisions
 - Licence (not decided); author line, contact and repository URL left empty on purpose
@@ -41,6 +43,7 @@ ActuaryCanary turns insurance data in any layout into an auditable, early-warnin
 ## Log (newest first, keep the last 15 lines)
 | Date | Item | Outcome | Elapsed | Commit |
 | --- | --- | --- | --- | --- |
+| 2026-10-21 | G0 | checkpoint: FAIL on owner check of raa/genins; medium measurement of five scenarios, record 0019 | ~10 min (08:05–08:15) | see branch s/G0-checkpoint |
 | 2026-10-20 | P02b | baseline calibration: TPL premium 5,500 → 9,500, TPL ten-year ratio 1.77 → 1.03, fixtures regenerated, record 0018, record 0017 updated | ~15 min | see branch s/P02b-calibration |
 | 2026-10-20 | P02 | seeded generator, 5 scenarios, tiny/medium/large, truth files, data checker, tiny fixtures, records 0015–0017 | ~50 min | see branch s/P02-synthetic |
 | 2026-10-20 | P03 | benchmarks raa/genins, hand fixtures, loader, record 0007 | ~4 min | see branch s/P03-benchmarks |
