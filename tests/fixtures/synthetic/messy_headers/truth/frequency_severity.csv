@@ -1,4 +1,4 @@
-line,accident_year,exposure_years,claims_regular,claims_catastrophe,claims_shock,claims_regular_non_nil,mean_base_severity,expected_frequency,observed_frequency,expected_base_severity
+line,accident_year,exposure_years,claims_regular,claims_catastrophe,claims_shock,claims_regular_non_nil,mean_base_severity_try,expected_frequency,observed_frequency,expected_base_severity_try
 MOTOR_OD,2022,96.449008,15,0,0,13,21814.909888,0.220000,0.155523,20845.085938
 MOTOR_TPL,2022,283.381246,18,0,0,16,104596.907455,0.050000,0.063519,51318.927012
 PROPERTY,2022,64.709103,0,0,0,0,0.000000,0.030000,0.000000,

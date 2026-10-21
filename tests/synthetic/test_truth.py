@@ -145,7 +145,7 @@ def test_expected_frequency_is_the_parameter(baseline):
     line = table.filter(pl.col("line") == "MOTOR_OD")
     assert (line["expected_frequency"] == 0.22).all()
     assert (
-        table.filter(pl.col("line") == "GROUP_TERM_LIFE")["expected_base_severity"].null_count()
+        table.filter(pl.col("line") == "GROUP_TERM_LIFE")["expected_base_severity_try"].null_count()
         == 4
     )
 

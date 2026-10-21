@@ -1,7 +1,10 @@
 """Ground truth: what the simulation knows and the data files do not.
 
-All amounts are in the claim's original currency unless a column name says otherwise.
-"base prices" means the inflation-free units of the money mechanics (TRY at the base date's prices).
+Every money column carries its currency (``MONEY_COLUMNS``, written to ``truth/money_columns.csv``):
+either the row's own ``currency`` column ("row") or the reporting currency, TRY ("reporting"),
+which the column name says. Amounts are never added across rows of different currencies unless
+they are in the reporting currency. "base prices" means the inflation-free units of the money
+mechanics (the reporting currency at the base date's prices and starting rates).
 """
 
 from datetime import date
@@ -26,6 +29,67 @@ from actuarycanary.synthetic.reinsurance import Reinsurance
 from actuarycanary.synthetic.scenario import Scenario, SizeSpec
 
 MAX_LAG_YEARS = 10
+
+ROW, REPORTING = "row", "reporting"
+_ULTIMATES_ROW = [
+    "ultimate_gross",
+    "ultimate_ceded",
+    "ultimate_net",
+    "ultimate_subrogation",
+    "ultimate_salvage",
+    "ultimate_allocated_expense",
+    "paid_at_cutoff",
+    "case_reserve_at_cutoff",
+    "incurred_at_cutoff",
+    "ibnr_at_cutoff",
+    "earned_premium",
+]
+_ULTIMATES_REPORTING = {
+    "ultimate_base_prices_try": "claim cost at base-date prices times the starting rate",
+    "ultimate_ceded_base_prices_try": "claim cost at base-date prices times the starting rate",
+    "ultimate_net_base_prices_try": "claim cost at base-date prices times the starting rate",
+    "ultimate_try_at_payment_spot": "each payment at the spot rate of its day",
+    "ultimate_try_at_cutoff_prices": "spot rate of the payment day, restated to cut-off prices",
+    "ultimate_try_at_cutoff_rate": "ultimate_gross at the constant rate of the cut-off (CV01)",
+    "earned_premium_try_at_cutoff_rate": "earned_premium at the constant cut-off rate (CV01)",
+}
+# file -> column -> (currency basis, how a reporting-currency amount was converted)
+MONEY_COLUMNS: dict[str, dict[str, tuple[str, str]]] = {
+    "ultimates": {
+        **{c: (ROW, "") for c in _ULTIMATES_ROW},
+        **{c: (REPORTING, how) for c, how in _ULTIMATES_REPORTING.items()},
+    },
+    "ibnr_by_valuation": {
+        c: (ROW, "") for c in ("ultimate", "paid", "case_reserve", "incurred", "ibnr_true")
+    },
+    "frequency_severity": {
+        "mean_base_severity_try": (
+            REPORTING,
+            "claim cost at base-date prices times the starting rate",
+        ),
+        "expected_base_severity_try": (REPORTING, "parameters at base-date prices, in TRY"),
+    },
+    "development_pattern": {},
+    "inflation": {},
+}
+
+
+def money_columns_table() -> pl.DataFrame:
+    """Which currency each money column of each truth file is in (truth/money_columns.csv)."""
+    rows = [
+        {"file": f"{name}.csv", "column": column, "currency": basis, "conversion": how}
+        for name, columns in MONEY_COLUMNS.items()
+        for column, (basis, how) in columns.items()
+    ]
+    return pl.DataFrame(
+        rows,
+        schema={
+            "file": pl.String,
+            "column": pl.String,
+            "currency": pl.String,
+            "conversion": pl.String,
+        },
+    )
 
 
 def _year_end(year: int) -> int:
@@ -120,6 +184,8 @@ def ultimates(
     claims: pl.DataFrame,
     policies: Policies,
     premiums: PremiumRows,
+    market: Market,
+    cut_off: int,
 ) -> pl.DataFrame:
     lines = list(scenario.lines)
     entities = [e.id for e in scenario.entities]
@@ -184,8 +250,15 @@ def ultimates(
     table = table.with_columns(
         pl.col("line").replace_strict(segment_of, return_dtype=pl.String).alias("segment")
     ).fill_null(0)
+    rate_at_cut_off = {
+        c: float(market.fx_at(c, np.array([cut_off]))[0]) if c in market.fx else 1.0
+        for c in currencies
+    }
     return (
         table.with_columns(
+            pl.col("currency")
+            .replace_strict(rate_at_cut_off, return_dtype=pl.Float64)
+            .alias("fx_cutoff_rate"),
             (pl.col("ultimate_gross") - pl.col("ultimate_ceded")).alias("ultimate_net"),
             (pl.col("ultimate_base_prices_try") - pl.col("ultimate_ceded_base_prices_try")).alias(
                 "ultimate_net_base_prices_try"
@@ -227,6 +300,10 @@ def ultimates(
             "incurred_at_cutoff",
             "ibnr_at_cutoff",
             "earned_premium",
+            "fx_cutoff_rate",
+            (pl.col("earned_premium") * pl.col("fx_cutoff_rate")).alias(
+                "earned_premium_try_at_cutoff_rate"
+            ),
             "ultimate_loss_ratio",
         )
         .sort("segment", "line", "entity", "accident_year", "currency")
@@ -376,7 +453,7 @@ def frequency_severity(
         .then(pl.col("base_cost"))
         .otherwise(None)
         .mean()
-        .alias("mean_base_severity"),
+        .alias("mean_base_severity_try"),
     )
     table = exposure.join(summary, on=["line", "accident_year"], how="left").fill_null(0)
     expected_frequency, expected_severity = [], []
@@ -392,7 +469,7 @@ def frequency_severity(
     return table.with_columns(
         pl.Series("expected_frequency", expected_frequency),
         (pl.col("claims_regular") / pl.col("exposure_years")).alias("observed_frequency"),
-        pl.Series("expected_base_severity", expected_severity, dtype=pl.Float64),
+        pl.Series("expected_base_severity_try", expected_severity, dtype=pl.Float64),
     )
 
 

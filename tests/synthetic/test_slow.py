@@ -38,7 +38,7 @@ def test_mean_severity_of_own_damage_lands_near_its_parameter(medium):
     keep = (w.c_line == "MOTOR_OD") & (w.c_kind == REGULAR) & ~w.c_nil
     sample = w.c_cost[keep]
     expected = medium.truth["frequency_severity"].filter(pl.col("line") == "MOTOR_OD")[
-        "expected_base_severity"
+        "expected_base_severity_try"
     ][0]
     assert abs(sample.mean() - expected) < 4 * sample.std() / np.sqrt(len(sample))
 

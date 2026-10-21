@@ -1,0 +1,26 @@
+file,column,currency,conversion
+ultimates.csv,ultimate_gross,row,""
+ultimates.csv,ultimate_ceded,row,""
+ultimates.csv,ultimate_net,row,""
+ultimates.csv,ultimate_subrogation,row,""
+ultimates.csv,ultimate_salvage,row,""
+ultimates.csv,ultimate_allocated_expense,row,""
+ultimates.csv,paid_at_cutoff,row,""
+ultimates.csv,case_reserve_at_cutoff,row,""
+ultimates.csv,incurred_at_cutoff,row,""
+ultimates.csv,ibnr_at_cutoff,row,""
+ultimates.csv,earned_premium,row,""
+ultimates.csv,ultimate_base_prices_try,reporting,claim cost at base-date prices times the starting rate
+ultimates.csv,ultimate_ceded_base_prices_try,reporting,claim cost at base-date prices times the starting rate
+ultimates.csv,ultimate_net_base_prices_try,reporting,claim cost at base-date prices times the starting rate
+ultimates.csv,ultimate_try_at_payment_spot,reporting,each payment at the spot rate of its day
+ultimates.csv,ultimate_try_at_cutoff_prices,reporting,"spot rate of the payment day, restated to cut-off prices"
+ultimates.csv,ultimate_try_at_cutoff_rate,reporting,ultimate_gross at the constant rate of the cut-off (CV01)
+ultimates.csv,earned_premium_try_at_cutoff_rate,reporting,earned_premium at the constant cut-off rate (CV01)
+ibnr_by_valuation.csv,ultimate,row,""
+ibnr_by_valuation.csv,paid,row,""
+ibnr_by_valuation.csv,case_reserve,row,""
+ibnr_by_valuation.csv,incurred,row,""
+ibnr_by_valuation.csv,ibnr_true,row,""
+frequency_severity.csv,mean_base_severity_try,reporting,claim cost at base-date prices times the starting rate
+frequency_severity.csv,expected_base_severity_try,reporting,"parameters at base-date prices, in TRY"
