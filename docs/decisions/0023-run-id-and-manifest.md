@@ -10,6 +10,7 @@ Blueprint section 12 asks for a run id derived from fingerprints and for a manif
 - Output fingerprints are computed from the bytes in memory while writing. Reading a freshly written 4.8 MB page back took 1.4 s on Windows (file scanning on open) against 0.01 s for the write.
 - Specs recorded: claim_valuations, claims (when loaded), CV01, CV03, CV04, CV06, CV07, MT01, MT02, CL01, CL03, RS01, RS02. Mapping profiles are empty (exact canonical names); randomness is empty (no stochastic step).
 - Data findings (rule, count, first source rows) are in the manifest as well as in the report.
+- The cut-off actually used is recorded as `settings.triangles.cut_off_used`, next to the setting `cut_off` (null by default, meaning the latest valuation date; otherwise the user's value moved to its month end). It is not a determinant of the run id: it follows from the inputs and settings already in it. (Added 2026-10-21 at the owner's request; the determinants themselves are superseded by 0029.)
 
 ## Consequences
 - A run time, user name or machine name, when wanted, must live outside `manifest.json` or the reproduction rule breaks.
