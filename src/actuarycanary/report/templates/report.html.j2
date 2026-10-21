@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }} report {{ run_id }}</title>
+<style>
+:root {
+  --surface: #fcfcfb; --surface-2: #f3f2ee; --border: #dddcd6;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #6f6e69;
+  --accent: #2a78d6; --warning-bg: #fff4d6; --warning-ink: #6b4a00; --critical: #b42f2f;
+  --grid: #e6e5e0;
+  --seq: "#cde2fb,#9ec5f4,#6da7ec,#3987e5,#256abf,#184f95,#0d366b";
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --surface: #1a1a19; --surface-2: #242423; --border: #3a3a37;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #9a998f;
+    --accent: #3987e5; --warning-bg: #3a2f12; --warning-ink: #f2d38a; --critical: #e66767;
+    --grid: #33332f;
+    --seq: "#0d366b,#184f95,#256abf,#3987e5,#6da7ec,#9ec5f4,#cde2fb";
+  }
+}
+:root[data-theme="dark"] {
+  --surface: #1a1a19; --surface-2: #242423; --border: #3a3a37;
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #9a998f;
+  --accent: #3987e5; --warning-bg: #3a2f12; --warning-ink: #f2d38a; --critical: #e66767;
+  --grid: #33332f;
+  --seq: "#0d366b,#184f95,#256abf,#3987e5,#6da7ec,#9ec5f4,#cde2fb";
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--surface); color: var(--text-primary);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { font-size: 1.7rem; margin: 0 0 4px; }
+h2 { font-size: 1.3rem; margin: 40px 0 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+h3 { font-size: 1.05rem; margin: 24px 0 8px; }
+p, li { color: var(--text-secondary); }
+.label {
+  display: inline-block; margin: 8px 0 16px; padding: 4px 10px; border-radius: 4px;
+  background: var(--warning-bg); color: var(--warning-ink); font-weight: 600;
+}
+dl.cover { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; }
+dl.cover dt { color: var(--text-muted); }
+dl.cover dd { margin: 0; overflow-wrap: anywhere; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; margin: 8px 0; }
+th, td { padding: 4px 8px; border-bottom: 1px solid var(--grid); text-align: right; white-space: nowrap; }
+th { color: var(--text-secondary); font-weight: 600; background: var(--surface-2); }
+th:first-child, td:first-child, td.text { text-align: left; }
+tr.total td { font-weight: 600; border-top: 2px solid var(--border); }
+td.negative { color: var(--critical); }
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.chart { min-height: 300px; }
+.footnote { font-size: 0.85rem; color: var(--text-muted); margin: 4px 0 0; }
+details { margin: 8px 0; }
+summary { cursor: pointer; color: var(--accent); }
+a { color: var(--accent); }
+ul.notes li { color: var(--text-secondary); }
+code { font-size: 0.9em; overflow-wrap: anywhere; }
+nav ul { padding-left: 20px; }
+@media print { .chart { break-inside: avoid; } details { display: block; } }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <h1>{{ title }}: claims reserving overview</h1>
+  <div class="label">Indicative — not an official reserve or price</div>
+  <dl class="cover">
+    <dt>Run id</dt><dd><code>{{ run_id }}</code></dd>
+    <dt>Valuation cut-off</dt><dd>{{ cut_off }}</dd>
+    <dt>Bases</dt><dd>GROSS · reporting currency {{ currency }} · NOMINAL</dd>
+    <dt>Origins</dt><dd>{{ settings.origin_period.value }} periods, origin axis {{ origin_basis }}</dd>
+    <dt>Development</dt><dd>{{ settings.development_period.value }} periods aligned to the cut-off</dd>
+    <dt>Claims used</dt><dd>{{ claims_used }}{% if proxy_claims != "0" %} ({{ proxy_claims }} with first-valuation proxy origins){% endif %}</dd>
+    <dt>Inputs</dt><dd>{% for i in inputs %}{{ i.name }}{% if not loop.last %}, {% endif %}{% endfor %}</dd>
+  </dl>
+  <p>{{ disclaimer }}</p>
+</header>
+
+<nav>
+  <h2>Contents</h2>
+  <ul>
+    <li><a href="#summary">Summary by segment and line</a></li>
+    {% for g in groups %}<li><a href="#{{ g.anchor }}">{{ g.name }}</a></li>
+    {% endfor %}<li><a href="#data">Data notes</a></li>
+    <li><a href="#methods">Methods and assumptions</a></li>
+    <li><a href="#reproducibility">Reproducibility</a></li>
+  </ul>
+</nav>
+
+<section id="summary">
+  <h2>Summary by segment and line</h2>
+  <p>Amounts in {{ currency }}; segments are shown separately and never added together.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Segment · line</th><th>Paid</th><th>Incurred</th><th>Ultimate, paid CL</th><th>Ultimate, incurred CL</th><th>IBNR, incurred CL</th></tr></thead>
+    <tbody>
+    {% for g in groups %}<tr><td><a href="#{{ g.anchor }}">{{ g.name }}</a></td><td>{{ g.summary.paid }}</td><td>{{ g.summary.incurred }}</td><td>{{ g.summary.ult_paid }}</td><td>{{ g.summary.ult_incurred }}</td><td>{{ g.summary.ibnr_incurred }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  <p class="footnote">Ultimates by chain ladder ({{ spec("MT02") }}) on paid and on incurred triangles ({{ spec("MT01") }}); IBNR = ultimate − incurred at the cut-off ({{ spec("RS02") }}). Paid {{ spec("CL01") }}, incurred {{ spec("CL03") }}. Rounded per {{ spec("CV06") }}; totals from unrounded values.</p>
+</section>
+
+{% for g in groups %}
+<section id="{{ g.anchor }}">
+  <h2>{{ g.name }}</h2>
+  <div class="label">Indicative — not an official reserve or price</div>
+
+  <h3>Development triangles</h3>
+  <div class="charts">
+    <div class="chart" id="{{ g.figure_ids.paid }}" role="img" aria-label="Heatmap of the cumulative paid triangle, {{ g.name }}"></div>
+    <div class="chart" id="{{ g.figure_ids.incurred }}" role="img" aria-label="Heatmap of the cumulative incurred triangle, {{ g.name }}"></div>
+  </div>
+  <p class="footnote">Cumulative cells by origin and development age, {{ currency }}, GROSS, NOMINAL; the more a cell stands out from the page, the larger it is ({{ spec("MT01") }}, {{ spec("CV04") }}). Hover a cell for its value and claim count.</p>
+  <details>
+    <summary>Triangle values</summary>
+    {% for measure in ["paid", "incurred"] %}
+    <div class="scroll"><table>
+      <thead><tr><th>{{ measure|capitalize }}</th>{% for a in g.ages %}<th>{{ a }}</th>{% endfor %}</tr></thead>
+      <tbody>{% for row in g.triangles[measure] %}<tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+    </table></div>
+    {% endfor %}
+  </details>
+
+  <h3>Development factors</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Age (months)</th><th>To</th><th>Factor, paid</th><th>CDF, paid</th><th>Factor, incurred</th><th>CDF, incurred</th></tr></thead>
+    <tbody>{% for f in g.factors %}<tr><td>{{ f.from }}</td><td>{{ f.to }}</td><td>{{ f.paid_factor }}</td><td>{{ f.paid_cdf }}</td><td>{{ f.incurred_factor }}</td><td>{{ f.incurred_cdf }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="footnote">Volume-weighted age-to-age factors and cumulative factors to ultimate; last row is the tail factor ({{ spec("RS01") }}, {{ spec("MT02") }}).</p>
+
+  <h3>Ultimate and IBNR</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Origin</th><th>Paid</th><th>Incurred</th><th>Ultimate, paid CL</th><th>Ultimate, incurred CL</th><th>IBNR, paid CL</th><th>IBNR, incurred CL</th></tr></thead>
+    <tbody>{% for e in g.estimates %}<tr{% if e.total %} class="total"{% endif %}><td>{{ e.origin }}</td><td>{{ e.paid }}</td><td>{{ e.incurred }}</td><td>{{ e.ult_paid }}</td><td>{{ e.ult_incurred }}</td><td{% if e.negative_paid %} class="negative"{% endif %}>{{ e.ibnr_paid }}</td><td{% if e.negative_incurred %} class="negative"{% endif %}>{{ e.ibnr_incurred }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="footnote">{{ currency }}, GROSS, NOMINAL. IBNR = ultimate − incurred at the cut-off; a negative IBNR (red) means the method expects case reserves to run off favourably ({{ spec("RS02") }}, {{ spec("MT02") }}).</p>
+  {% if g.notes %}<ul class="notes">{% for n in g.notes %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+</section>
+{% endfor %}
+
+<section id="data">
+  <h2>Data notes</h2>
+  {% if not_converted %}
+  <h3>Amounts not converted</h3>
+  <p>No exchange rate was available for these currencies, so their claims are left out of the {{ currency }} triangles and shown here at the cut-off ({{ spec("CV01") }}).</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Currency</th><th>Claims</th><th>Paid</th><th>Incurred</th></tr></thead>
+    <tbody>{% for r in not_converted %}<tr><td>{{ r.currency }}</td><td>{{ r.claims }}</td><td>{{ r.paid }}</td><td>{{ r.incurred }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% endif %}
+  <h3>Rules applied to rows</h3>
+  {% if findings %}
+  <div class="scroll"><table>
+    <thead><tr><th>Rule</th><th>File</th><th>Severity</th><th>Rows</th><th>What happened</th><th>First source rows</th></tr></thead>
+    <tbody>{% for f in findings %}<tr><td>{{ f.rule }}</td><td class="text">{{ f.concept }}</td><td class="text">{{ f.severity }}</td><td>{{ f.count }}</td><td class="text">{{ f.message }}</td><td class="text">{{ f.rows|join(", ") }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}<p>No row was changed or left out.</p>{% endif %}
+  <p class="footnote">Rule IDs refer to the data concept specifications (claim_valuations, claims); row numbers are spreadsheet rows.</p>
+</section>
+
+<section id="methods">
+  <h2>Methods and assumptions</h2>
+  <ul>
+    <li><strong>{{ spec("MT01") }} triangle construction.</strong> The state of a claim at a valuation point is its latest valuation row on or before that point. Origin {{ settings.origin_period.value }}, development {{ settings.development_period.value }}, origin axis {{ settings.origin_axis.value }}, fiscal year starting in month {{ settings.fiscal_year_start_month }}. Amounts converted with one constant rate per currency ({{ spec("CV01") }}).</li>
+    <li><strong>{{ spec("MT02") }} chain ladder.</strong> Average {{ chain_ladder.average.value }}, {% if chain_ladder.n_diagonals %}latest {{ chain_ladder.n_diagonals }} diagonals{% else %}all diagonals{% endif %}, high and low {% if chain_ladder.exclude_high_low %}excluded{% else %}kept{% endif %}, tail factor {{ chain_ladder.tail_factor }}, at least {{ chain_ladder.min_origins }} origins. No link ratio excluded and no factor overridden. Assumes future development follows past factors, comparable origins and no calendar-period shocks.</li>
+  </ul>
+</section>
+
+<section id="reproducibility">
+  <h2>Reproducibility</h2>
+  <p>Run id <code>{{ run_id }}</code>, {{ title }} {{ version }}. The full run manifest, with the fingerprints of every output file, is <code>manifest.json</code> next to this page.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Input</th><th>Size (bytes)</th><th>Rows</th><th>SHA-256</th></tr></thead>
+    <tbody>{% for i in inputs %}<tr><td>{{ i.name }}</td><td>{{ i.size }}</td><td>{% for s in i.sheets %}{{ s.name }}: {{ s.rows }}{% if not loop.last %}, {% endif %}{% endfor %}</td><td class="text"><code>{{ i.sha256 }}</code></td></tr>{% endfor %}</tbody>
+  </table></div>
+  <div class="scroll"><table>
+    <thead><tr><th>Specification</th><th>Version</th><th>Title</th></tr></thead>
+    <tbody>{% for s in specs %}<tr><td>{{ s.id }}</td><td>{{ s.version }}</td><td class="text">{{ s.title }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+
+</main>
+<script>{{ plotly_js|safe }}</script>
+<script type="application/json" id="figures">{{ figures_json|safe }}</script>
+<script>
+(function () {
+  var figures = JSON.parse(document.getElementById("figures").textContent);
+  function token(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+  function draw() {
+    var ramp = token("--seq").replace(/"/g, "").split(",");
+    var scale = ramp.map(function (c, k) { return [k / (ramp.length - 1), c]; });
+    Object.keys(figures).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) { return; }
+      var fig = JSON.parse(JSON.stringify(figures[id]));
+      fig.data.forEach(function (trace) { trace.colorscale = scale; });
+      var ink = token("--text-secondary");
+      fig.layout.paper_bgcolor = token("--surface");
+      fig.layout.plot_bgcolor = token("--surface");
+      fig.layout.font = { color: ink, family: "system-ui, sans-serif", size: 12 };
+      fig.layout.title.font = { color: token("--text-primary"), size: 14 };
+      fig.layout.margin = { l: 64, r: 16, t: 40, b: 48 };
+      fig.layout.height = 300;
+      fig.layout.xaxis.showgrid = false;
+      fig.layout.yaxis.showgrid = false;
+      fig.layout.xaxis.zeroline = false;
+      fig.layout.yaxis.zeroline = false;
+      Plotly.react(el, fig.data, fig.layout, { displaylogo: false, responsive: true });
+    });
+  }
+  draw();
+  if (window.matchMedia) {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+  }
+})();
+</script>
+</body>
+</html>
