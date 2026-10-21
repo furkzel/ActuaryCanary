@@ -5,6 +5,7 @@ from pathlib import Path
 
 import polars as pl
 import pytest
+import xlsxwriter
 
 from actuarycanary.io.excel import (
     READER_VERSION,
@@ -13,6 +14,7 @@ from actuarycanary.io.excel import (
     SOURCE_SHEET,
     file_sha256,
     read_workbook,
+    spreadsheets,
 )
 
 BASELINE = Path(__file__).parents[1] / "fixtures" / "synthetic" / "baseline"
@@ -65,3 +67,36 @@ def test_cache_is_optional(tmp_path: Path) -> None:
     cached = read_workbook(BASELINE / "claims.xlsx", tmp_path)
     assert uncached.table().frame.equals(cached.table().frame)
     assert uncached.size == (BASELINE / "claims.xlsx").stat().st_size
+
+
+MESSY = Path(__file__).parents[1] / "fixtures" / "synthetic" / "messy_headers"
+
+
+def test_header_row_is_found_below_title_rows(tmp_path: Path) -> None:
+    table = read_workbook(MESSY / "claim_valuations.xlsx", tmp_path).table()
+    assert (table.header_row, table.rows_above) == (4, 3)  # truth/layout.csv
+    assert "HASARR NO " in table.headers  # header text kept exactly as written
+    assert table.frame[SOURCE_ROW][0] == 5
+    assert table.frame["OS RSERVE"].dtype == pl.Float64  # typed from the header row down
+
+
+def test_rows_keep_spreadsheet_numbers_after_blank_and_title_rows(tmp_path: Path) -> None:
+    path = tmp_path / "blank.xlsx"
+    with xlsxwriter.Workbook(path) as book:
+        sheet = book.add_worksheet("Veri")
+        sheet.write(2, 1, "Hasar listesi")  # row 3, column B: a title below two blank rows
+        sheet.write_row(4, 1, ["Hasar No", "Ödenen", "Durum"])  # header on row 5
+        sheet.write_row(5, 1, ["0001", 10.5, "AÇIK"])
+        sheet.write_row(7, 1, ["0002", 3.0, "KAPALI"])  # row 8, after a blank row 7
+    table = read_workbook(path, tmp_path / "cache").table()
+    assert (table.header_row, table.rows_above) == (5, 1)
+    assert table.headers == ("Hasar No", "Ödenen", "Durum")
+    rows = table.frame.filter(pl.col("Hasar No").is_not_null())
+    assert rows[SOURCE_ROW].to_list() == [6, 8]
+    assert rows["Ödenen"].to_list() == [10.5, 3.0]
+
+
+def test_spreadsheets_in_a_folder_skip_lock_files(tmp_path: Path) -> None:
+    for name in ("b.xlsx", "a.XLSX", "~$a.xlsx", "notes.txt"):
+        (tmp_path / name).write_bytes(b"")
+    assert [p.name for p in spreadsheets(tmp_path)] == ["a.XLSX", "b.xlsx"]
