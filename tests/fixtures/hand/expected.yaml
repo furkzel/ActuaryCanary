@@ -1,6 +1,6 @@
 name: hand
 status: hand_computed
-checked_by_owner: false
+checked_by_owner: true
 description: 4x4 arithmetic fixtures for chain ladder, Bornhuetter-Ferguson and Cape Cod. Values are chosen
   for easy hand arithmetic, not calibrated to a real portfolio.
 conventions:
