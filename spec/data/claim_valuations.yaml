@@ -1,5 +1,5 @@
 id: claim_valuations
-version: 1.0.0
+version: 1.1.0
 title_en: Claim valuations
 title_tr: Hasar değerlemeleri
 status: reviewed
@@ -107,7 +107,10 @@ validation:
     dimension: consistency
     severity: WARNING
     fields: [claim_valuations.paid_to_date]
-    rule: paid_to_date never decreases between consecutive valuations of a claim.
+    rule: >-
+      paid_to_date never decreases between consecutive valuations of a claim, unless
+      subrogation_to_date plus salvage_to_date rose by at least the decrease at that valuation
+      (a recorded recovery).
     action: Values are kept as given, so the increment is negative; the decrease is listed.
   - id: DV-CLV-08
     dimension: reasonableness
@@ -166,6 +169,17 @@ validation:
     action: >-
       Unmatched claims are kept with segment and line UNKNOWN and origin by first valuation
       (MT01); they are listed.
+  - id: DV-CLV-15
+    dimension: reasonableness
+    severity: WARNING
+    fields:
+      - claim_valuations.paid_to_date
+      - claim_valuations.case_reserve
+    rule: >-
+      The payment between two consecutive valuations of a claim (the increase of paid_to_date)
+      is at most 10 times the claim's paid_to_date plus case_reserve at the earlier valuation.
+      Not evaluated when that earlier amount is zero.
+    action: Values are kept as given and listed.
 notes: >-
   Recoveries and allocated expenses are separate fields, so paid_to_date is the pure
   indemnity paid. When a ceded field is absent from the file, the CEDED and NET bases are
@@ -178,3 +192,8 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-10-21
+    change: >-
+      DV-CLV-07 allows a decrease that a recorded recovery explains; new rule DV-CLV-15 for
+      payments far above the claim's earlier incurred amount.
