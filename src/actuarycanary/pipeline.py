@@ -17,7 +17,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from actuarycanary import __version__
 from actuarycanary.canonical.feeds import CanonicalError, CanonicalFeed, Finding, canonicalise
-from actuarycanary.convert.rates import development_rates
+from actuarycanary.convert.bases import ValueBasis
+from actuarycanary.convert.market import MarketData
+from actuarycanary.convert.rates import DevelopmentRates, development_rates
 from actuarycanary.io.excel import RawTable, Workbook, read_workbook, spreadsheets
 from actuarycanary.manifest.metadata import load_metadata
 from actuarycanary.manifest.run import (
@@ -52,11 +54,20 @@ from actuarycanary.recognition.values import ValueMapping
 from actuarycanary.report.quality_section import render_quality_section
 from actuarycanary.report.render import REPORT_NAME, ReportContext, render_report
 from actuarycanary.spec.loader import load_specs
-from actuarycanary.structures.triangles import GROUP_FIELDS, TriangleSettings, build_triangles
+from actuarycanary.structures.triangles import (
+    GROUP_FIELDS,
+    OriginAxis,
+    TriangleSettings,
+    build_triangles,
+    resolve_cut_off,
+)
 
 REQUIRED_CONCEPT = "claim_valuations"
 OPTIONAL_CONCEPTS = ("claims",)
-# Read and checked for the quality report only; no analysis uses them yet.
+MARKET = "market"
+POLICIES = "policies"
+# Read and checked for the quality report; market and policies also feed the analysis when
+# a setting asks for them, the others are checked only.
 CHECKED_CONCEPTS = ("policies", "premiums", "expenses", "market")
 # Specifications whose rules this run applies; recorded with their versions.
 SPECS_USED = (
@@ -94,6 +105,10 @@ class RunSettings(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     reporting_currency: str | None = None  # None: project.yaml report.default_reporting_currency
+    # Read market data and convert foreign currencies into the reporting currency (CV01).
+    # Off: only amounts already in the reporting currency are used, the rest is reported
+    # apart; the inflation-adjusted basis always reads market data.
+    use_market: bool = False
     triangles: TriangleSettings = Field(default_factory=TriangleSettings)
     chain_ladder: ChainLadderSettings = Field(default_factory=ChainLadderSettings)
 
@@ -214,18 +229,59 @@ def _mapping_record(rec: TableRecognition, values: list[ValueMapping]) -> dict[s
     }
 
 
-def _settings_record(settings: RunSettings, reporting_currency: str) -> dict[str, Any]:
+def _settings_record(
+    settings: RunSettings, reporting_currency: str, price_index: str
+) -> dict[str, Any]:
     record = settings.model_dump(mode="json")
     record["reporting_currency"] = reporting_currency
-    record["bases"] = {"reinsurance": "GROSS", "currency": "REPORTING", "value": "NOMINAL"}
+    record["triangles"]["price_index"] = price_index
+    adjusted = settings.triangles.value_basis is ValueBasis.INFLATION_ADJUSTED
+    record["bases"] = {
+        "reinsurance": settings.triangles.reinsurance_basis.value,
+        "currency": "REPORTING",
+        "currency_conversion": "market" if settings.use_market or adjusted else "none",
+        "value": settings.triangles.value_basis.value,
+    }
     return record
 
 
 def _with_cut_off_used(record: dict[str, Any], cut_off: date) -> dict[str, Any]:
-    """The settings record with the cut-off actually used next to the `cut_off` setting."""
+    """The settings record with the cut-off actually used next to the `cut_off` setting, and
+    the dates that default to it."""
     triangles = dict(record["triangles"])
     triangles["cut_off_used"] = cut_off.isoformat()
+    if triangles["value_basis"] == ValueBasis.INFLATION_ADJUSTED.value:
+        triangles["value_date_used"] = triangles["value_date"] or cut_off.isoformat()
+    if record["bases"]["currency_conversion"] == "market":
+        triangles["development_rate_date_used"] = (
+            triangles["development_rate_date"] or cut_off.isoformat()
+        )
     return {**record, "triangles": triangles}
+
+
+def _rate_findings(rates: DevelopmentRates) -> list[Finding]:
+    """CV01 notes on the constant development rates: fallbacks used and currencies left out."""
+    notes = [
+        Finding(
+            "claim_valuations",
+            "CV01",
+            "INFO",
+            1,
+            f"development rate of {currency} taken from {flag}",
+        )
+        for currency, flag in sorted(rates.flags.items())
+    ]
+    if rates.missing:
+        notes.append(
+            Finding(
+                "claim_valuations",
+                "CV01",
+                "WARNING",
+                len(rates.missing),
+                "no development rate for " + ", ".join(rates.missing) + ": not converted",
+            )
+        )
+    return notes
 
 
 def _write_tables(folder: Path, reserving: ReservingResult) -> list[OutputRecord]:
@@ -330,7 +386,19 @@ def run(
             f"{folder}: no sheet was recognised as {REQUIRED_CONCEPT} (for example {name}); "
             "it is required"
         )
-    concepts = [c for c in (REQUIRED_CONCEPT, *OPTIONAL_CONCEPTS) if c in by_concept]
+    adjusted = settings.triangles.value_basis is ValueBasis.INFLATION_ADJUSTED
+    wanted = [REQUIRED_CONCEPT, *OPTIONAL_CONCEPTS]
+    if settings.use_market or adjusted:
+        wanted.append(MARKET)
+    if settings.triangles.origin_axis is OriginAxis.UNDERWRITING:
+        wanted.append(POLICIES)
+    if adjusted and MARKET not in by_concept:
+        name = specs.data[MARKET].file_name
+        raise InputError(
+            f"{folder}: the inflation-adjusted basis needs a price index and exchange rates, "
+            f"but no sheet was recognised as {MARKET} (for example {name})"
+        )
+    concepts = [c for c in wanted if c in by_concept]
 
     step("Checking data against the specifications")
     feeds: dict[str, CanonicalFeed] = {}
@@ -348,7 +416,7 @@ def run(
     checked = dict(feeds)
     unreadable: dict[str, str] = {}
     for concept in CHECKED_CONCEPTS:
-        if concept not in by_concept:
+        if concept not in by_concept or concept in feeds:
             continue
         parts = [
             canonical_table(i.table, i.recognition, dictionary)[0] for i in by_concept[concept]
@@ -366,13 +434,26 @@ def run(
     ]
 
     step("Building triangles")
+    valuations = feeds[REQUIRED_CONCEPT].frame
     claims = feeds["claims"].frame if "claims" in feeds else None
+    policies = feeds[POLICIES].frame if POLICIES in feeds else None
+    market = MarketData.from_frame(feeds[MARKET].frame) if MARKET in feeds else None
+    price_index = settings.triangles.price_index or metadata.report.default_price_index
+    rates = development_rates(
+        currency,
+        valuations["currency"].drop_nulls().unique().to_list(),
+        market,
+        settings.triangles.development_rate_date or resolve_cut_off(valuations, settings.triangles),
+    )
     triangles = build_triangles(
-        feeds[REQUIRED_CONCEPT].frame,
+        valuations,
         claims,
         settings.triangles,
-        development_rates(currency),
+        rates,
         currency,
+        policies=policies,
+        market=market,
+        price_index=price_index,
     )
 
     step("Running chain ladder")
@@ -380,13 +461,22 @@ def run(
 
     sources = {c: tuple(i.recognition.label for i in by_concept[c]) for c in checked}
     quality = evaluate(specs, checked, raw_tables, sources, triangles.cut_off, unreadable)
-    findings = tuple(f for feed in feeds.values() for f in feed.findings) + triangles.findings
+    rate_notes = tuple(_rate_findings(rates)) if market is not None and not adjusted else ()
+    findings = (
+        tuple(f for feed in feeds.values() for f in feed.findings) + rate_notes + triangles.findings
+    )
     inputs = _input_records(concepts, by_concept)
-    used = [s for s in SPECS_USED if s != "claims" or "claims" in feeds]
-    used += [c for c in CHECKED_CONCEPTS if c in checked]
+    extra = ["CV02"] if adjusted else []
+    checked_only = [c for c in CHECKED_CONCEPTS if c in checked]
+    used = [
+        s
+        for s in (*SPECS_USED, *extra, *concepts, *checked_only)
+        if s != "claims" or "claims" in feeds
+    ]
+    used = list(dict.fromkeys(used))
     catalogue = {f.spec.id: f.spec for f in specs.files}
     spec_records = [SpecRecord(s, catalogue[s].version, catalogue[s].title_en) for s in used]
-    settings_record = _settings_record(settings, currency)
+    settings_record = _settings_record(settings, currency, price_index)
     applied = [
         {"file": m["file"], "sheet": m["sheet"], "concept": m["concept"], "columns": m["columns"]}
         for m in mappings

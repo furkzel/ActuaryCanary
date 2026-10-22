@@ -73,7 +73,7 @@ nav ul { padding-left: 20px; }
   <dl class="cover">
     <dt>Run id</dt><dd><code>{{ run_id }}</code></dd>
     <dt>Valuation cut-off</dt><dd>{{ cut_off }}</dd>
-    <dt>Bases</dt><dd>GROSS · reporting currency {{ currency }} · NOMINAL</dd>
+    <dt>Bases</dt><dd>{{ basis_label }} · reporting currency {{ currency }}</dd>
     <dt>Origins</dt><dd>{{ settings.origin_period.value }} periods, origin axis {{ origin_basis }}</dd>
     <dt>Development</dt><dd>{{ settings.development_period.value }} periods aligned to the cut-off</dd>
     <dt>Claims used</dt><dd>{{ claims_used }}{% if proxy_claims != "0" %} ({{ proxy_claims }} with first-valuation proxy origins){% endif %}</dd>
@@ -98,7 +98,7 @@ nav ul { padding-left: 20px; }
 
 {% endif %}<section id="summary">
   <h2>Summary by segment and line</h2>
-  <p>Amounts in {{ currency }}; segments are shown separately and never added together.</p>
+  <p>Amounts in {{ currency }}; segments are shown separately and never added together.{% if value_date %} Amounts are at the prices of {{ value_date }} ({{ price_index }}); they are turned into nominal amounts only with a stated future inflation assumption ({{ spec("CV02") }}).{% endif %}</p>
   <div class="scroll"><table>
     <thead><tr><th>Segment · line</th><th>Paid</th><th>Incurred</th><th>Ultimate, paid CL</th><th>Ultimate, incurred CL</th><th>IBNR, incurred CL</th></tr></thead>
     <tbody>
@@ -119,7 +119,7 @@ nav ul { padding-left: 20px; }
     <div class="chart" id="{{ g.figure_ids.paid }}" role="img" aria-label="Heatmap of the cumulative paid triangle, {{ g.name }}"></div>
     <div class="chart" id="{{ g.figure_ids.incurred }}" role="img" aria-label="Heatmap of the cumulative incurred triangle, {{ g.name }}"></div>
   </div>
-  <p class="footnote">Cumulative cells by origin and development age, {{ currency }}, GROSS, NOMINAL; the more a cell stands out from the page, the larger it is ({{ spec("MT01") }}, {{ spec("CV04") }}). Hover a cell for its value and claim count.</p>
+  <p class="footnote">Cumulative cells by origin and development age, {{ currency }}, {{ basis_label }}; the more a cell stands out from the page, the larger it is ({{ spec("MT01") }}, {{ spec("CV04") }}). Hover a cell for its value and claim count.</p>
   <details>
     <summary>Triangle values</summary>
     {% for measure in ["paid", "incurred"] %}
@@ -142,7 +142,7 @@ nav ul { padding-left: 20px; }
     <thead><tr><th>Origin</th><th>Paid</th><th>Incurred</th><th>Ultimate, paid CL</th><th>Ultimate, incurred CL</th><th>IBNR, paid CL</th><th>IBNR, incurred CL</th></tr></thead>
     <tbody>{% for e in g.estimates %}<tr{% if e.total %} class="total"{% endif %}><td>{{ e.origin }}</td><td>{{ e.paid }}</td><td>{{ e.incurred }}</td><td>{{ e.ult_paid }}</td><td>{{ e.ult_incurred }}</td><td{% if e.negative_paid %} class="negative"{% endif %}>{{ e.ibnr_paid }}</td><td{% if e.negative_incurred %} class="negative"{% endif %}>{{ e.ibnr_incurred }}</td></tr>{% endfor %}</tbody>
   </table></div>
-  <p class="footnote">{{ currency }}, GROSS, NOMINAL. IBNR = ultimate − incurred at the cut-off; a negative IBNR (red) means the method expects case reserves to run off favourably ({{ spec("RS02") }}, {{ spec("MT02") }}).</p>
+  <p class="footnote">{{ currency }}, {{ basis_label }}. IBNR = ultimate − incurred at the cut-off; a negative IBNR (red) means the method expects case reserves to run off favourably ({{ spec("RS02") }}, {{ spec("MT02") }}).</p>
   {% if g.notes %}<ul class="notes">{% for n in g.notes %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
 </section>
 {% endfor %}
@@ -151,7 +151,7 @@ nav ul { padding-left: 20px; }
   <h2>Data notes</h2>
   {% if not_converted %}
   <h3>Amounts not converted</h3>
-  <p>No exchange rate was available for these currencies, so their claims are left out of the {{ currency }} triangles and shown here at the cut-off ({{ spec("CV01") }}).</p>
+  <p>No exchange rate{% if value_date %} or index value{% endif %} was available for these amounts, so the claims are left out of the {{ currency }} triangles{% if value_date %} from their first row that could not be converted or restated{% endif %} and shown here at the cut-off, in their own currency ({{ spec("CV01") }}).</p>
   <div class="scroll"><table>
     <thead><tr><th>Currency</th><th>Claims</th><th>Paid</th><th>Incurred</th></tr></thead>
     <tbody>{% for r in not_converted %}<tr><td>{{ r.currency }}</td><td>{{ r.claims }}</td><td>{{ r.paid }}</td><td>{{ r.incurred }}</td></tr>{% endfor %}</tbody>
@@ -164,13 +164,13 @@ nav ul { padding-left: 20px; }
     <tbody>{% for f in findings %}<tr><td>{{ f.rule }}</td><td class="text">{{ f.concept }}</td><td class="text">{{ f.severity }}</td><td>{{ f.count }}</td><td class="text">{{ f.message }}</td><td class="text">{{ f.rows|join(", ") }}</td></tr>{% endfor %}</tbody>
   </table></div>
   {% else %}<p>No row was changed or left out.</p>{% endif %}
-  <p class="footnote">Rule IDs refer to the data concept specifications (claim_valuations, claims); row numbers are spreadsheet rows.</p>
+  <p class="footnote">Rule IDs refer to the data concept and convention specifications; row numbers are spreadsheet rows.</p>
 </section>
 
 <section id="methods">
   <h2>Methods and assumptions</h2>
   <ul>
-    <li><strong>{{ spec("MT01") }} triangle construction.</strong> The state of a claim at a valuation point is its latest valuation row on or before that point. Origin {{ settings.origin_period.value }}, development {{ settings.development_period.value }}, origin axis {{ settings.origin_axis.value }}, fiscal year starting in month {{ settings.fiscal_year_start_month }}. Amounts converted with one constant rate per currency ({{ spec("CV01") }}).</li>
+    <li><strong>{{ spec("MT01") }} triangle construction.</strong> The state of a claim at a valuation point is its latest valuation row on or before that point. Origin {{ settings.origin_period.value }}, development {{ settings.development_period.value }}, origin axis {{ settings.origin_axis.value }}, fiscal year starting in month {{ settings.fiscal_year_start_month }}. {% if value_date %}Each amount is converted at the rate of its own date and restated to the prices of {{ value_date }} with {{ price_index }}; incurred is the accumulated restated paid flows plus the restated case reserve ({{ spec("CV01") }}, {{ spec("CV02") }}).{% else %}Amounts converted with one constant rate per currency ({{ spec("CV01") }}).{% endif %}</li>
     <li><strong>{{ spec("MT02") }} chain ladder.</strong> Average {{ chain_ladder.average.value }}, {% if chain_ladder.n_diagonals %}latest {{ chain_ladder.n_diagonals }} diagonals{% else %}all diagonals{% endif %}, high and low {% if chain_ladder.exclude_high_low %}excluded{% else %}kept{% endif %}, tail factor {{ chain_ladder.tail_factor }}, at least {{ chain_ladder.min_origins }} origins. No link ratio excluded and no factor overridden. Assumes future development follows past factors, comparable origins and no calendar-period shocks.</li>
   </ul>
 </section>
