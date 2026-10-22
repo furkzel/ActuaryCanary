@@ -110,7 +110,8 @@ def test_residuals_are_standardised_link_ratio_deviations() -> None:
 
 
 # Coverage: 200 simulations of the baseline at 2 per cent of its portfolio (about 0.5 s each).
-# Run with ACTUARYCANARY_MONTE_CARLO=1; record 0045 gives the reasons and the measured values.
+# Run with ACTUARYCANARY_MONTE_CARLO=1; records 0045 and 0062 give the measured values and why
+# they miss: calendar-year inflation breaks the independence of origins, not the code.
 COVERAGE_RUNS = 200
 COVERAGE_SCALE = 0.02
 COVERAGE_RANGE = (0.90, 0.99)  # MT06 tolerance
@@ -158,7 +159,7 @@ def _coverage() -> dict[str, float]:
 )
 @pytest.mark.xfail(
     strict=True,
-    reason="measured on 2026-10-22 below the MT06 range for every line (record 0045)",
+    reason="below the MT06 range for every line; a property of the data (records 0045, 0062)",
 )
 def test_ground_truth_95th_percentile_coverage() -> None:
     coverage = _coverage()
