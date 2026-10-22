@@ -1,13 +1,17 @@
 """Isolation forest anomaly flags (MT09) on claim-level features at the cut-off.
 
 Each group (segment by default) gets its own forest; claims are sorted by claim_id before
-fitting, so scores depend on the data and the seed only, never on row order.
+fitting, so scores depend on the data and the seed only, never on row order. Every tree sees
+every claim of its group by default: in a sample of 256 out of thousands of claims, a feature
+that is non-zero for a handful of claims (negative paid flows) is constant in most trees and
+never split on (MT09 1.1.0, record 0061).
 """
 
 import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date
+from typing import Literal
 
 import numpy as np
 import polars as pl
@@ -16,7 +20,7 @@ from sklearn.ensemble import IsolationForest
 from actuarycanary.io.excel import SOURCE_ROW
 
 N_ESTIMATORS = 200
-MAX_SAMPLES = 256  # Liu, Ting and Zhou (2008)
+MAX_SAMPLES: int | Literal["all"] = "all"  # every claim of the group; an integer caps it
 CONTAMINATION = 0.01
 SEED = 1
 MIN_GROUP_SIZE = 100
@@ -159,7 +163,7 @@ def isolation_forest_flags(
     features: pl.DataFrame,
     *,
     n_estimators: int = N_ESTIMATORS,
-    max_samples: int = MAX_SAMPLES,
+    max_samples: int | Literal["all"] = MAX_SAMPLES,
     contamination: float = CONTAMINATION,
     seed: int = SEED,
     min_group_size: int = MIN_GROUP_SIZE,
@@ -183,9 +187,10 @@ def isolation_forest_flags(
                 {**row, "claims": frame.height, "flagged": 0, "status": "too few claims"}
             )
             continue
+        size = frame.height if max_samples == "all" else min(max_samples, frame.height)
         forest = IsolationForest(
             n_estimators=n_estimators,
-            max_samples=min(max_samples, frame.height),  # type: ignore[arg-type]
+            max_samples=size,  # type: ignore[arg-type]
             contamination="auto",
             bootstrap=False,
             random_state=seed,

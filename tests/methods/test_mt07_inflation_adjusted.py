@@ -152,10 +152,13 @@ def test_chain_ladder_failure_is_passed_on() -> None:
 # of development against the true ultimate with every payment restated to the cut-off prices
 # (truth column ultimate_try_at_cutoff_prices), after undoing the injected amount faults.
 TOLERANCE = 0.05
-KNOWN_EXCEPTIONS = {  # measured 2026-10-22; owner-approved, record 0044
-    ("baseline", "MOTOR_TPL", "2023"),  # -15 %: superimposed inflation the CPI misses
-    ("high_inflation", "MOTOR_TPL", "2023"),  # -17 %, as above
-    ("high_inflation", "MOTOR_TPL", "2016"),  # -5.1 %: payments after ten years, tail 1.0
+# Measured 2026-10-22 (record 0063): MOTOR_TPL 2023, 36 months old, is -15.0 % in both scenarios.
+# Over 61 simulations its ratio has mean 0.96 and standard deviation 0.107, so the miss is
+# process variance of a young long-tailed origin, not a fault of the method. High_inflation TPL
+# 2016 (-5.1 % in record 0044) is -2.9 % on the data of the current generator and is checked.
+KNOWN_EXCEPTIONS = {
+    ("baseline", "MOTOR_TPL", "2023"),
+    ("high_inflation", "MOTOR_TPL", "2023"),
 }
 
 
@@ -215,7 +218,9 @@ def test_ground_truth_value_date_ultimates_within_five_per_cent(ground_truth) ->
 
 @pytest.mark.slow
 @pytest.mark.integration
-@pytest.mark.xfail(strict=True, reason="known exceptions outside 5 per cent (record 0044)")
+@pytest.mark.xfail(
+    strict=True, reason="MOTOR_TPL 2023 at 36 months outside 5 per cent (records 0044, 0063)"
+)
 def test_ground_truth_known_exceptions(ground_truth) -> None:
     exceptions = {k: r for k, r in ground_truth.items() if k in KNOWN_EXCEPTIONS}
     assert exceptions
