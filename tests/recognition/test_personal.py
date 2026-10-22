@@ -3,6 +3,7 @@
 from typing import Any
 
 import polars as pl
+import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -106,6 +107,7 @@ def _personal_column(draw: st.DrawFn, n: int) -> tuple[str, list[str]]:
     return header, values
 
 
+@pytest.mark.slow
 @given(
     st.lists(st.integers(0, 3), min_size=1, max_size=3).flatmap(
         lambda ns: st.tuples(*(_personal_column(i) for i in range(len(ns))))

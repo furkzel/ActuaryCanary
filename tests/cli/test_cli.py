@@ -1,11 +1,15 @@
+import io
+import os
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 from typer.testing import CliRunner
 
 from actuarycanary import __version__
-from actuarycanary.cli import app
+from actuarycanary.cli import app, main
 from actuarycanary.manifest.metadata import load_metadata
 
 runner = CliRunner()
@@ -21,6 +25,36 @@ def test_version_flag() -> None:
     result = runner.invoke(app, ["--version"])
     assert result.exit_code == 0
     assert __version__ in result.output
+
+
+def _cp1252_stream() -> io.TextIOWrapper:
+    return io.TextIOWrapper(io.BytesIO(), encoding="cp1252", errors="strict", write_through=True)
+
+
+def test_the_command_group_switches_the_console_streams_to_utf8(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    out, err = _cp1252_stream(), _cp1252_stream()
+    monkeypatch.setattr(sys, "stdout", out)
+    monkeypatch.setattr(sys, "stderr", err)
+    main(version=False)
+    for stream in (out, err):
+        assert stream.encoding == "utf-8"
+        stream.write("ultimate ÷ truth → ≥ 0.75")  # not in cp1252: would raise before
+        assert stream.buffer.getvalue().decode("utf-8") == "ultimate ÷ truth → ≥ 0.75"  # type: ignore[attr-defined]
+
+
+@pytest.mark.slow  # starts a Python process that imports the whole package
+def test_output_redirected_to_a_file_is_utf8_under_a_legacy_code_page(tmp_path: Path) -> None:
+    target = tmp_path / "out.txt"
+    code = "from actuarycanary.cli import main; main(version=False); print('ultimate ÷ truth → ≥')"
+    env = {**os.environ, "PYTHONIOENCODING": "cp1252", "PYTHONUTF8": "0"}
+    with target.open("wb") as handle:
+        done = subprocess.run(
+            [sys.executable, "-c", code], stdout=handle, stderr=subprocess.PIPE, env=env
+        )
+    assert done.returncode == 0, done.stderr.decode(errors="replace")
+    assert target.read_bytes().decode("utf-8").strip() == "ultimate ÷ truth → ≥"
 
 
 BASELINE = Path(__file__).parents[1] / "fixtures" / "synthetic" / "baseline"

@@ -1,5 +1,5 @@
 id: MT06
-version: 1.0.0
+version: 1.1.0
 title_en: Mack standard error with lognormal range
 title_tr: Mack standart hatası ve lognormal aralık
 status: reviewed
@@ -96,9 +96,18 @@ validation:
     tolerance: 1e-9 relative
   - kind: ground_truth
     description: >-
-      On repeated synthetic baseline simulations, the true reserve falls below the 95th
-      percentile in about 95 per cent of runs (slow test).
-    tolerance: coverage within 90 to 99 per cent over 200 runs
+      Calibration on triangles drawn from Mack's own model with the GenIns parameters (gamma
+      link ratios with mean f(j) C and variance sigma^2(j) C): the true total reserve falls
+      below the 95th percentile of the lognormal range in about 95 per cent of runs (slow
+      test, behind ACTUARYCANARY_MONTE_CARLO=1).
+    tolerance: coverage within 90 to 99 per cent over at least 2000 runs
+  - kind: ground_truth
+    description: >-
+      Coverage of the 95th percentile per line on repeated synthetic baseline simulations,
+      reported as information (slow test, behind ACTUARYCANARY_MONTE_CARLO=1). Calendar-year
+      inflation, development after ten years and origin shocks break the independence of
+      origins that the model assumes, so the range is too narrow on such lines (decision 0062).
+    tolerance: none; information only
 references:
   - Mack, T. (1993). Distribution-free calculation of the standard error of chain ladder reserve estimates. ASTIN Bulletin.
   - England, P. D. and Verrall, R. J. (2002). Stochastic claims reserving in general insurance. British Actuarial Journal.
@@ -109,3 +118,10 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-10-22
+    change: >-
+      Ground truth changed from 200 synthetic baseline runs with coverage 90 to 99 per cent
+      to a calibration test on triangles drawn from Mack's model (GenIns parameters, at least
+      2000 runs, same range); the synthetic baseline coverage per line is information without
+      a tolerance. Owner-approved; decision 0062 gives the evidence, decision 0075 records the change.

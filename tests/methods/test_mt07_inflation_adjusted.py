@@ -148,21 +148,17 @@ def test_chain_ladder_failure_is_passed_on() -> None:
     assert result == Skipped("MT07", "chain ladder needs at least 3 origin periods")
 
 
-# Ground truth (record 0044): value-date ultimates of accident years with at least three years
-# of development against the true ultimate with every payment restated to the cut-off prices
-# (truth column ultimate_try_at_cutoff_prices), after undoing the injected amount faults.
+# Ground truth (spec MT07 1.1.0, record 0063): the value-date ultimates of the accident years with
+# at least three years of development, summed per line, against the true ultimates with every
+# payment restated to the cut-off prices (truth column ultimate_try_at_cutoff_prices), after
+# undoing the injected amount faults. The ratio of each accident year is information: young
+# origins of MOTOR_TPL vary by one standard deviation of 0.107 at 36 months (process variance).
 TOLERANCE = 0.05
-# Measured 2026-10-22 (record 0063): MOTOR_TPL 2023, 36 months old, is -15.0 % in both scenarios.
-# Over 61 simulations its ratio has mean 0.96 and standard deviation 0.107, so the miss is
-# process variance of a young long-tailed origin, not a fault of the method. High_inflation TPL
-# 2016 (-5.1 % in record 0044) is -2.9 % on the data of the current generator and is checked.
-KNOWN_EXCEPTIONS = {
-    ("baseline", "MOTOR_TPL", "2023"),
-    ("high_inflation", "MOTOR_TPL", "2023"),
-}
+TOLERANCE_BY_LINE = {"MOTOR_TPL": 0.10}
 
 
-def _ground_truth(scenario: str) -> dict[tuple[str, str, str], float]:
+def _ground_truth(scenario: str) -> tuple[dict[str, float], dict[tuple[str, str], float]]:
+    """(ratio per line, ratio per line and accident year) of the value-date ultimate."""
     data = load_medium(scenario)
     rows = repair_amount_faults(data.valuations, data.faults)
     triangles = build_triangles(
@@ -181,7 +177,8 @@ def _ground_truth(scenario: str) -> dict[tuple[str, str, str], float]:
         .agg(pl.col("ultimate_try_at_cutoff_prices").sum())
     )
     true = {(r[0], str(r[1])): r[2] for r in truth.iter_rows()}
-    ratios: dict[tuple[str, str, str], float] = {}
+    per_line: dict[str, float] = {}
+    per_year: dict[tuple[str, str], float] = {}
     for triangle in triangles.triangles:
         result = inflation_adjusted_chain_ladder(
             triangle.cumulative,
@@ -192,36 +189,40 @@ def _ground_truth(scenario: str) -> dict[tuple[str, str, str], float]:
         )
         assert isinstance(result, InflationAdjusted)
         line = triangle.group[1]
+        estimated = actual = 0.0
         for i, origin in enumerate(triangle.origins):
             if triangle.latest_index[i] >= 2:
-                ratios[(scenario, line, origin)] = (
-                    result.ultimate_at_value_date_prices[i] / true[(line, origin)]
-                )
-    return ratios
+                ultimate = result.ultimate_at_value_date_prices[i]
+                per_year[(line, origin)] = ultimate / true[(line, origin)]
+                estimated += ultimate
+                actual += true[(line, origin)]
+        per_line[line] = estimated / actual
+    return per_line, per_year
 
 
 @pytest.fixture(scope="module", params=["baseline", "high_inflation"])
-def ground_truth(request: pytest.FixtureRequest) -> dict[tuple[str, str, str], float]:
+def ground_truth(
+    request: pytest.FixtureRequest,
+) -> tuple[str, dict[str, float], dict[tuple[str, str], float]]:
     if not medium(request.param).is_dir():
         pytest.skip(f"run `just synth {request.param} medium` first")
-    return _ground_truth(request.param)
+    return (request.param, *_ground_truth(request.param))
 
 
 @pytest.mark.slow
 @pytest.mark.integration
-def test_ground_truth_value_date_ultimates_within_five_per_cent(ground_truth) -> None:
-    checked = {k: r for k, r in ground_truth.items() if k not in KNOWN_EXCEPTIONS}
-    assert len(checked) >= 22
-    outside = {k: round(r, 4) for k, r in checked.items() if abs(r - 1) > TOLERANCE}
+def test_ground_truth_value_date_ultimates_within_tolerance_per_line(ground_truth) -> None:
+    scenario, per_line, per_year = ground_truth
+    print(scenario, "per line:", {k: round(float(v), 4) for k, v in per_line.items()})
+    print(
+        scenario,
+        "per accident year (information):",
+        {k: round(float(v), 4) for k, v in per_year.items()},
+    )
+    assert len(per_line) == 4 and len(per_year) >= 22
+    outside = {
+        line: round(r, 4)
+        for line, r in per_line.items()
+        if abs(r - 1) > TOLERANCE_BY_LINE.get(line, TOLERANCE)
+    }
     assert not outside
-
-
-@pytest.mark.slow
-@pytest.mark.integration
-@pytest.mark.xfail(
-    strict=True, reason="MOTOR_TPL 2023 at 36 months outside 5 per cent (records 0044, 0063)"
-)
-def test_ground_truth_known_exceptions(ground_truth) -> None:
-    exceptions = {k: r for k, r in ground_truth.items() if k in KNOWN_EXCEPTIONS}
-    assert exceptions
-    assert all(abs(r - 1) <= TOLERANCE for r in exceptions.values()), exceptions

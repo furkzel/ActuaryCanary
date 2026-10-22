@@ -1,5 +1,5 @@
 id: MT07
-version: 1.0.0
+version: 1.1.0
 title_en: Inflation-adjusted chain ladder
 title_tr: Enflasyondan arındırılmış zincir merdiven
 status: reviewed
@@ -92,9 +92,11 @@ validation:
     tolerance: 1e-9 relative
   - kind: ground_truth
     description: >-
-      On the synthetic high-inflation scenario, the value-date ultimate is within tolerance
-      of the true ultimate at base-date prices restated to the value date.
-    tolerance: 5 per cent per accident year with at least 3 years of development
+      On the synthetic baseline and high-inflation scenarios (medium), the value-date
+      ultimate, summed per line over the accident years with at least 3 years of development,
+      is within tolerance of the true ultimate at base-date prices restated to the value
+      date. The ratio of each accident year is reported as information.
+    tolerance: 5 per cent per line, 10 per cent for MOTOR_TPL
 references:
   - 'Taylor, G. (2000). Loss Reserving: An Actuarial Perspective. Kluwer.'
   - Friedland, J. Estimating Unpaid Claims Using Basic Techniques. Casualty Actuarial Society, chapter 11.
@@ -105,3 +107,9 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-10-22
+    change: >-
+      Ground truth tolerance moved from each accident year to the total per line (5 per cent,
+      10 per cent for MOTOR_TPL), on baseline and high-inflation medium; the ratio per
+      accident year is information. Owner-approved; decision 0063 gives the evidence, decision 0075 records the change.

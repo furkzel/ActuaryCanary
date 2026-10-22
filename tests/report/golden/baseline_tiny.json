@@ -48,7 +48,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "cca185beb2d9dc31"
+    "value": "4ecbe8130e88bcbb"
    },
    {
     "label": "Valuation date",
@@ -2475,7 +2475,7 @@
   },
   {
    "banner": false,
-   "evidence": "MT06 v1.0.0, RS03 v1.0.0",
+   "evidence": "MT06 v1.1.0, RS03 v1.0.0",
    "files": [
     "reserve_range.csv"
    ],
@@ -2521,7 +2521,7 @@
    "title": "Modules limited"
   }
  ],
- "inflation_spec": "MT07 v1.0.0",
+ "inflation_spec": "MT07 v1.1.0",
  "key_findings": [
   {
    "banner": true,
@@ -2861,7 +2861,7 @@
     }
    ],
    "plain": "Chain ladder on a paid triangle restated to value-date prices, so that development factors are free of past inflation; future payments are re-inflated only with an explicit future inflation assumption.",
-   "spec": "MT07 v1.0.0",
+   "spec": "MT07 v1.1.0",
    "title": "Inflation-adjusted chain ladder"
   },
   {
@@ -3754,7 +3754,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "cca185beb2d9dc31",
+  "run_id": "4ecbe8130e88bcbb",
   "settings": [
    {
     "name": "bases.currency",
@@ -4186,7 +4186,7 @@
    {
     "id": "MT07",
     "title": "Inflation-adjusted chain ladder",
-    "version": "1.0.0"
+    "version": "1.1.0"
    },
    {
     "id": "MT10",
@@ -4218,7 +4218,7 @@
    "factors": "Link ratio of every origin (dots) and the factor selected (bar), RS01 v1.0.0, MT02 v1.0.0; the tail factor is in the table. Rows of factors.csv.",
    "heatmaps": "Cumulative cells by origin and development age, GROSS, NOMINAL, TRY; paid on its own one-hue ramp, incurred on another; the further a cell stands from the page colour, the larger it is (MT01 v1.0.0, CV04 v1.0.0).",
    "methods": "Ultimate per origin by method on the incurred triangle (MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0), and the selected ultimate (diamond, MT10 v1.0.0). The spread between methods shows how much the answer depends on the method; it is not a confidence interval.",
-   "range": "Selected reserve (diamond) with the 25th to 75th percentile (dark bar) and the 5th to 95th percentile (light bar); the Mack coefficient of variation applied to the selected reserve, lognormal approximation (MT06 v1.0.0, RS03 v1.0.0). The upper percentiles are in the table.",
+   "range": "Selected reserve (diamond) with the 25th to 75th percentile (dark bar) and the 5th to 95th percentile (light bar); the Mack coefficient of variation applied to the selected reserve, lognormal approximation (MT06 v1.1.0, RS03 v1.0.0). The upper percentiles are in the table.",
    "summary": "TRY, GROSS, NOMINAL, TRY. Chain ladder MT02 v1.0.0 on paid and incurred triangles MT01 v1.0.0; selected ultimate MT10 v1.0.0; IBNR = ultimate − incurred at the valuation date RS02 v1.0.0. Rounded per CV06 v1.0.0; totals from unrounded values. Rows of ultimates.csv and lineage.csv (RS02)."
   },
   "lines": [
