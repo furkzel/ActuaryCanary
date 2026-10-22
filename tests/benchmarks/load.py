@@ -47,10 +47,13 @@ def benchmark_names() -> list[str]:
 
 def load_benchmark(name: str) -> dict[str, Any]:
     folder = BENCHMARK_DIR / name
-    return {
+    loaded = {
         "triangle": load_triangle(folder / "triangle.csv"),
         "expected": load_expected(folder / "expected.yaml"),
     }
+    if (folder / "premium.csv").exists():
+        loaded["premium"] = load_premium(folder / "premium.csv")
+    return loaded
 
 
 def load_hand() -> dict[str, Any]:
