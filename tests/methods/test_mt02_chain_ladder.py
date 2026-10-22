@@ -143,3 +143,22 @@ def test_property_identical_development_is_reproduced(
     result = _run(observed)
     np.testing.assert_allclose(result.factors, pattern, rtol=1e-9)
     np.testing.assert_allclose(result.ultimate, full[:, -1], rtol=1e-9)
+
+
+def test_selected_factor_replaces_the_average_and_keeps_it_as_the_alternative() -> None:
+    result = _run(_array(HAND["paid"]), selected={0: 2.0})
+    assert result.factors.tolist() == pytest.approx([2.0, 1.2, 1.1])
+    assert result.averages.tolist() == pytest.approx([1.9, 1.2, 1.1])
+    assert result.overridden.tolist() == [True, False, False]
+    assert result.ultimate[3] == pytest.approx(130 * 2.0 * 1.32)
+
+
+@pytest.mark.parametrize("selected", [{3: 1.1}, {0: 0.0}, {1: float("nan")}])
+def test_unusable_selected_factor_is_rejected(selected: dict[int, float]) -> None:
+    with pytest.raises(ValueError, match="selected factor"):
+        chain_ladder(_array(HAND["paid"]), selected=selected)
+
+
+def test_cdf_at_latest_is_the_pattern_per_origin() -> None:
+    result = _run(_array(HAND["paid"]))
+    np.testing.assert_allclose(result.cdf_at_latest, [1.0, 1.1, 1.32, 2.508], rtol=1e-12)
