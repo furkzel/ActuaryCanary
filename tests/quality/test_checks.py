@@ -235,7 +235,8 @@ def test_missing_fields_mean_not_evaluated() -> None:
     assert _run("DV-POL-07", {"policies": [{"policy_id": "P1"}]}) is None  # no class field
 
 
-def test_recorded_recovery_explains_a_decrease() -> None:
+def test_dv_clv_07_lists_a_decrease_even_when_a_recovery_rose() -> None:
+    # paid_to_date excludes recoveries by definition, so a recovery does not explain a decrease
     rows = {
         "claim_valuations": [
             cv(1, paid_to_date=100.0),
@@ -244,7 +245,7 @@ def test_recorded_recovery_explains_a_decrease() -> None:
         ]
     }
     outcome = _run("DV-CLV-07", rows)
-    assert (outcome.checked, outcome.failed) == (2, 1)  # type: ignore[union-attr]
+    assert (outcome.checked, outcome.failed) == (2, 2)  # type: ignore[union-attr]
 
 
 def test_example_references_are_limited_to_five_in_row_order() -> None:

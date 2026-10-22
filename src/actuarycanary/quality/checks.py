@@ -202,14 +202,7 @@ def paid_never_decreases(ctx: Context) -> Outcome | None:  # DV-CLV-07
     steps = _claim_steps(frame).filter(
         pl.col("paid_to_date").is_not_null() & pl.col("_previous_paid_to_date").is_not_null()
     )
-    recoveries = [
-        pl.col(n).fill_null(0.0) - pl.col(f"_previous_{n}").fill_null(0.0)
-        for n in ("subrogation_to_date", "salvage_to_date")
-        if n in frame.columns
-    ]
-    recovered = pl.sum_horizontal(recoveries) if recoveries else pl.lit(0.0)
-    decrease = pl.col("_previous_paid_to_date") - pl.col("paid_to_date")
-    bad = steps.filter((decrease > 0) & (recovered < decrease))
+    bad = steps.filter(pl.col("paid_to_date") < pl.col("_previous_paid_to_date"))
     return _outcome("DV-CLV-07", "claim_valuations", steps.height, bad)
 
 
@@ -435,6 +428,25 @@ CANONICAL_RULES: dict[str, tuple[str, ...]] = {
         "DV-CLV-06",
     ),
     "claims": ("DV-CLM-01", "DV-CLM-02", "DV-CLM-03", "DV-CLM-06"),
+    "market": ("DV-MKT-01", "DV-MKT-02", "DV-MKT-03", "DV-MKT-04", "DV-MKT-05"),
+    "premiums": (
+        "DV-PRM-01",
+        "DV-PRM-02",
+        "DV-PRM-03",
+        "DV-PRM-04",
+        "DV-PRM-05",
+        "DV-PRM-08",
+    ),
+    "policies": (
+        "DV-POL-01",
+        "DV-POL-02",
+        "DV-POL-03",
+        "DV-POL-04",
+        "DV-POL-05",
+        "DV-POL-06",
+        "DV-POL-07",
+        "DV-POL-08",
+    ),
 }
 CAST_RULE = "CV07"  # a value that is not the field's type; reported by the canonical step
 

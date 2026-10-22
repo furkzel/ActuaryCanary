@@ -3,9 +3,10 @@
 The truth file `ibnr_by_valuation.csv` holds paid and incurred per line, accident year and
 quarter end from the true transactions. The spreadsheets carry injected faults on top, so
 the expected cell is the truth plus each fault's known effect: an extreme payment adds its
-amount from its row on; a row with an empty currency is left out of the TRY triangle where
-it is the claim's as-of row. A paid_to_date lowered by an unknown amount cannot be restated,
-so the cells where such a row is the as-of row are not compared and are counted.
+amount from its row on. A row with an empty currency has no effect: it takes the one currency
+of its claim (DV-CLV-03, claim_valuations 1.2.0). A paid_to_date lowered by an unknown amount
+cannot be restated, so the cells where such a row is the as-of row are not compared and are
+counted.
 """
 
 from pathlib import Path
@@ -53,9 +54,6 @@ def _fault_effects(
                 case "extreme_payment_outliers" if as_of >= faulted["valuation_date"]:
                     spike = float(fault["detail"].split()[2])
                     effects += [(*cell, "paid", spike), (*cell, "incurred", spike)]
-                case "missing_currency" if as_of == faulted["valuation_date"]:
-                    paid, reserve = faulted["paid_to_date"], faulted["case_reserve"]
-                    effects += [(*cell, "paid", -paid), (*cell, "incurred", -paid - reserve)]
                 case "paid_to_date_decreasing_without_recovery" if (
                     as_of == faulted["valuation_date"]
                 ):

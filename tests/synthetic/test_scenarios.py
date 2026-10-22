@@ -129,6 +129,7 @@ def _large_events(sim, line: str = "PROPERTY") -> int:
     return int(((w.c_label == "LARGE_LOSS_EVENT") & (w.c_line == line)).sum())
 
 
+@pytest.mark.slow  # two simulations; 0.6 s
 def test_large_events_follow_the_rate_per_exposure_and_grow_with_the_portfolio():
     small, big = _with_large_events(0.02), _with_large_events(0.04)
     for sim in (small, big):

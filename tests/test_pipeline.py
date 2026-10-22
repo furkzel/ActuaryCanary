@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from actuarycanary.io.excel import RawTable
-from actuarycanary.pipeline import InputError, RunSettings, run
+from actuarycanary.pipeline import InputError, RunResult, RunSettings, run
 from actuarycanary.recognition.dictionary import Dictionary
 from actuarycanary.recognition.tables import TableRecognition
 from actuarycanary.structures.periods import Period
@@ -24,15 +24,24 @@ def cache(tmp_path_factory: pytest.TempPathFactory) -> Path:
     return tmp_path_factory.mktemp("cache")
 
 
+@pytest.fixture(scope="module")
+def default_run(tmp_path_factory: pytest.TempPathFactory, cache: Path) -> RunResult:
+    """The default run of the tiny baseline, made once for the tests that compare against it."""
+    return run(BASELINE, tmp_path_factory.mktemp("default"), cache_dir=cache)
+
+
 def _manifest(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def test_baseline_tiny_runs_and_reproduces(tmp_path: Path, cache: Path) -> None:
-    first = run(BASELINE, tmp_path / "a", cache_dir=cache)
+def test_baseline_tiny_runs_and_reproduces(
+    tmp_path: Path, cache: Path, default_run: RunResult
+) -> None:
+    first = default_run
     second = run(BASELINE, tmp_path / "b", cache_dir=cache)
     assert first.run_id == second.run_id
-    assert first.folder == tmp_path / "a" / first.run_id
+    assert first.folder.name == first.run_id
+    assert second.folder == tmp_path / "b" / second.run_id
     one, two = _manifest(first.manifest), _manifest(second.manifest)
     assert one["outputs"] == two["outputs"]
     assert first.manifest.read_bytes() == second.manifest.read_bytes()
@@ -57,8 +66,8 @@ def test_baseline_tiny_runs_and_reproduces(tmp_path: Path, cache: Path) -> None:
     }
 
 
-def test_settings_change_the_run_id(tmp_path: Path, cache: Path) -> None:
-    yearly = run(BASELINE, tmp_path / "y", cache_dir=cache)
+def test_settings_change_the_run_id(tmp_path: Path, cache: Path, default_run: RunResult) -> None:
+    yearly = default_run
     quarterly = run(
         BASELINE,
         tmp_path / "q",
@@ -115,8 +124,10 @@ def test_messy_layout_gives_the_baseline_results(tmp_path: Path, cache: Path) ->
     }
 
 
-def test_manifest_records_the_cut_off_used_next_to_the_setting(tmp_path: Path, cache: Path) -> None:
-    latest = _manifest(run(BASELINE, tmp_path / "a", cache_dir=cache).manifest)
+def test_manifest_records_the_cut_off_used_next_to_the_setting(
+    tmp_path: Path, cache: Path, default_run: RunResult
+) -> None:
+    latest = _manifest(default_run.manifest)
     assert latest["settings"]["triangles"]["cut_off"] is None
     assert latest["settings"]["triangles"]["cut_off_used"] == "2025-12-31"
     chosen = RunSettings(triangles=TriangleSettings(cut_off=date(2024, 12, 15)))
