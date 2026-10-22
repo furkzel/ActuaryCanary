@@ -18,6 +18,7 @@ from actuarycanary.convert.bases import ReinsuranceBasis, ValueBasis
 from actuarycanary.convert.market import ConversionError
 from actuarycanary.io.excel import RawTable
 from actuarycanary.manifest.metadata import load_metadata
+from actuarycanary.modules.runner import ModuleState
 from actuarycanary.pipeline import InputError, RunResult, RunSettings, run
 from actuarycanary.quality.output import print_summary
 from actuarycanary.recognition.dictionary import Dictionary
@@ -91,9 +92,24 @@ def _tables(console: Console, result: RunResult) -> None:
     console.print(table)
 
 
+def _modules(console: Console, result: RunResult) -> None:
+    table = Table(title="Modules", title_justify="left")
+    for column in ("Module", "State", "Why"):
+        table.add_column(column, overflow="fold")
+    for outcome in result.analysis.modules:
+        table.add_row(
+            escape(f"{outcome.module} {outcome.title}"),
+            outcome.state.value,
+            escape("; ".join(outcome.reasons)),
+            style="red" if outcome.state is ModuleState.SKIPPED else None,
+        )
+    console.print(table)
+
+
 def _summary(console: Console, result: RunResult) -> None:
     _tables(console, result)
     print_summary(console, result.quality)
+    _modules(console, result)
     reserving = result.reserving
     currency = reserving.triangles.reporting_currency
     settings = reserving.triangles.settings
@@ -147,7 +163,7 @@ def run_command(
         str | None,
         typer.Option(
             "--currency",
-            help="Reporting currency; converts other currencies with the market data (CV01).",
+            help="Reporting currency; other currencies are converted with the market data (CV01).",
         ),
     ] = None,
     value: Annotated[
@@ -185,7 +201,6 @@ def run_command(
     try:
         settings = RunSettings(
             reporting_currency=currency.upper() if currency else None,
-            use_market=currency is not None,
             triangles=TriangleSettings(
                 origin_period=origin_period,
                 development_period=development_period,

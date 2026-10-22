@@ -10,8 +10,9 @@ month on the inflation-adjusted basis, then earned (CV01, CV02); net is gross mi
 per transaction before any aggregation (CV03).
 """
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 
 import polars as pl
 from pydantic import BaseModel, ConfigDict, Field
@@ -28,6 +29,7 @@ WRITTEN_TYPES = ("WRITTEN", "ENDORSEMENT", "CANCELLATION", "REFUND")  # PR01
 CEDED_TYPE = "CEDED_PREMIUM"
 DAYS_PER_YEAR = 365.25  # CV04 days_per_year
 UNKNOWN = "UNKNOWN"
+GROUP_BY = ("segment", "line")  # policy attributes that earned values are grouped by
 
 
 class PremiumError(Exception):
@@ -45,6 +47,9 @@ class PremiumSettings(BaseModel):
     value_date: date | None = None  # CV02; None: the cut-off
     price_index: str = "CPI_TR"
     reporting_currency: str | None = None  # None: original currency, one row per currency
+    # Transaction types earned instead of the written types of the basis (for example
+    # COMMISSION, EX01, or RI_COMMISSION, RI02); gross only, amounts as given.
+    transaction_types: tuple[str, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -101,8 +106,14 @@ def _expand(intervals: pl.DataFrame, settings: PremiumSettings, cut_off: date) -
     )
     start = _first_day(pl.col("period_number") * length + offset)
     stop = _first_day(pl.col("period_number") * length + offset + length)
+    known_until = pl.lit(
+        cut_off + timedelta(days=1)
+    )  # a period still running counts to the cut-off
     overlap = (
-        (pl.min_horizontal(pl.col("end"), stop) - pl.max_horizontal(pl.col("begin"), start))
+        (
+            pl.min_horizontal(pl.col("end"), stop, known_until)
+            - pl.max_horizontal(pl.col("begin"), start)
+        )
         .dt.total_days()
         .clip(lower_bound=0)
     )
@@ -113,29 +124,35 @@ def _expand(intervals: pl.DataFrame, settings: PremiumSettings, cut_off: date) -
 def _transactions(premiums: pl.DataFrame, settings: PremiumSettings) -> pl.DataFrame:
     """Signed amounts of the premium transactions on the reinsurance basis (CV03)."""
     basis = settings.reinsurance_basis
+    if settings.transaction_types is not None:
+        sign = {t: 1.0 for t in settings.transaction_types}
+    else:
+        sign = _signs(premiums, basis)
+    effective = (
+        pl.col("effective_date").fill_null(pl.col("booking_date"))
+        if "effective_date" in premiums.columns
+        else pl.col("booking_date")
+    )
+    return premiums.filter(pl.col("type").is_in(list(sign))).with_columns(
+        (pl.col("amount") * pl.col("type").replace_strict(sign, return_dtype=pl.Float64)).alias(
+            "amount"
+        ),
+        effective.alias("effective_date"),
+    )
+
+
+def _signs(premiums: pl.DataFrame, basis: ReinsuranceBasis) -> dict[str, float]:
     has_ceded = (premiums["type"] == CEDED_TYPE).any()
     if basis is not ReinsuranceBasis.GROSS and not has_ceded:
         raise BasisUnavailableError(
             f"premiums on the {basis.value} basis need CEDED_PREMIUM rows, which the premium "
             "transactions do not have; the basis is not set equal to gross (CV03)"
         )
-    sign = {
+    return {
         ReinsuranceBasis.GROSS: {t: 1.0 for t in WRITTEN_TYPES},
         ReinsuranceBasis.CEDED: {CEDED_TYPE: 1.0},
         ReinsuranceBasis.NET: {**{t: 1.0 for t in WRITTEN_TYPES}, CEDED_TYPE: -1.0},
     }[basis]
-    effective = (
-        pl.col("effective_date").fill_null(pl.col("booking_date"))
-        if "effective_date" in premiums.columns
-        else pl.col("booking_date")
-    )
-    rows = premiums.filter(pl.col("type").is_in(list(sign))).with_columns(
-        (pl.col("amount") * pl.col("type").replace_strict(sign, return_dtype=pl.Float64)).alias(
-            "amount"
-        ),
-        effective.alias("effective_date"),
-    )
-    return rows
 
 
 def _nothing_left(amount: str = "amount") -> pl.DataFrame:
@@ -217,14 +234,27 @@ def _joined(
     settings: PremiumSettings,
     market: MarketData | None,
     cut_off: date,
+    by: Sequence[str] = GROUP_BY,
+    row_column: str | None = None,
 ) -> tuple[pl.DataFrame, pl.DataFrame, dict[str, int], list[Finding]]:
-    """Transactions known at `cut_off` on the basis of `settings`, joined to their policy."""
+    """Transactions known at `cut_off` on the basis of `settings`, joined to their policy.
+
+    `by` are policy attributes carried along; `row_column`, when given, names a column of both
+    frames that identifies the source row (lineage); the policy's one is `policy_row`.
+    """
     if SOURCE_ROW not in premiums.columns:
         premiums = premiums.with_row_index(SOURCE_ROW, offset=2).cast({SOURCE_ROW: pl.Int64})
     rows = _transactions(premiums.filter(pl.col("booking_date") <= cut_off), settings)
     rows, not_converted, flags, findings = _convert_flows(rows, settings, market, cut_off)
-    attributes = ["policy_id", "start_date", "end_date", "segment", "line"]
-    marked = policies.select(attributes).with_columns(pl.lit(True).alias("_linked"))
+    attributes = ["policy_id", "start_date", "end_date", *by]
+    present = [a for a in attributes if a in policies.columns]
+    absent = [pl.lit(None, pl.String).alias(a) for a in attributes if a not in policies.columns]
+    marked = policies.select(
+        *present,
+        *absent,
+        *([pl.col(row_column).alias("policy_row")] if row_column else []),
+        pl.lit(True).alias("_linked"),
+    )
     linked = rows.join(marked, on="policy_id", how="left")
     for left_out, rule, text in (
         (
@@ -244,6 +274,18 @@ def _joined(
     return linked.drop("_linked"), not_converted, flags, findings
 
 
+def booked_transactions(
+    premiums: pl.DataFrame, settings: PremiumSettings, market: MarketData | None, cut_off: date
+) -> tuple[pl.DataFrame, pl.DataFrame, dict[str, int], list[Finding]]:
+    """Premium transactions booked up to `cut_off` on the basis of `settings`, converted and
+    restated as flows (CV01, CV02, CV03): the rows with signed amounts, the original-currency
+    totals of the rows without a rate, the fallback flags and the findings (PR01)."""
+    if SOURCE_ROW not in premiums.columns:
+        premiums = premiums.with_row_index(SOURCE_ROW, offset=2).cast({SOURCE_ROW: pl.Int64})
+    rows = _transactions(premiums.filter(pl.col("booking_date") <= cut_off), settings)
+    return _convert_flows(rows, settings, market, cut_off)
+
+
 def _cut_off(premiums: pl.DataFrame, settings: PremiumSettings) -> date:
     """The cut-off month end: the setting, else the latest booking date (CV04)."""
     if premiums.height == 0:
@@ -254,18 +296,30 @@ def _cut_off(premiums: pl.DataFrame, settings: PremiumSettings) -> date:
     return month_end(month_index(cut))
 
 
-def _intervals(linked: pl.DataFrame) -> pl.DataFrame:
+def _intervals(
+    linked: pl.DataFrame, by: Sequence[str] = GROUP_BY, row_column: str | None = None
+) -> pl.DataFrame:
     """Earning interval [begin, end) of each transaction that has cover dates (PR02)."""
     return linked.filter(
         pl.col("start_date").is_not_null() & pl.col("end_date").is_not_null()
     ).select(
-        pl.col("segment").fill_null(UNKNOWN),
-        pl.col("line").fill_null(UNKNOWN),
+        *[pl.col(a).fill_null(UNKNOWN) for a in by],
         "currency",
         "amount",
         pl.max_horizontal("effective_date", "start_date").alias("begin"),
         pl.col("end_date").alias("end"),
+        *([pl.col(row_column).alias("row"), pl.col("policy_row")] if row_column else []),
     )
+
+
+def _lineage(row_column: str | None) -> list[pl.Expr]:
+    """Aggregations that keep the source rows of the transactions and policies behind a value."""
+    if row_column is None:
+        return []
+    return [
+        pl.col("row").unique().sort().alias("rows"),
+        pl.col("policy_row").unique().sort().alias("policy_rows"),
+    ]
 
 
 def earned_premium(
@@ -273,17 +327,22 @@ def earned_premium(
     policies: pl.DataFrame,
     settings: PremiumSettings,
     market: MarketData | None = None,
+    by: Sequence[str] = GROUP_BY,
+    row_column: str | None = None,
 ) -> PremiumStructure:
-    """Earned premium by segment, line, currency and period up to the cut-off (PR02)."""
+    """Earned premium by the policy attributes `by` (default segment and line), currency and
+    period up to the cut-off (PR02); with `row_column` also the source rows behind each value."""
     cut_off = _cut_off(premiums, settings)
-    linked, not_converted, flags, findings = _joined(premiums, policies, settings, market, cut_off)
-    expanded = _expand(_intervals(linked), settings, cut_off)
+    linked, not_converted, flags, findings = _joined(
+        premiums, policies, settings, market, cut_off, by, row_column
+    )
+    expanded = _expand(_intervals(linked, by, row_column), settings, cut_off)
     grouped = (
         expanded.with_columns((pl.col("amount") * pl.col("share")).alias("earned_premium"))
-        .group_by("segment", "line", "currency", "period_number")
-        .agg(pl.col("earned_premium").sum())
+        .group_by(*by, "currency", "period_number", maintain_order=True)
+        .agg(pl.col("earned_premium").sum(), *_lineage(row_column))
     )
-    frame = _label(grouped, settings).sort("segment", "line", "currency", "period_number")
+    frame = _label(grouped, settings).sort(*by, "currency", "period_number")
     return PremiumStructure(frame, not_converted, tuple(findings), cut_off, flags)
 
 
@@ -293,6 +352,8 @@ def unearned_premium(
     settings: PremiumSettings,
     at: date,
     market: MarketData | None = None,
+    by: Sequence[str] = GROUP_BY,
+    row_column: str | None = None,
 ) -> PremiumStructure:
     """Premium booked on or before `at` that pays for cover after it (PR03).
 
@@ -301,7 +362,7 @@ def unearned_premium(
     if settings.value_basis is not ValueBasis.NOMINAL:
         raise PremiumError("unearned premium exists on the nominal value basis only (PR03)")
     at_settings = settings.model_copy(update={"reporting_currency": None})
-    linked, _, _, findings = _joined(premiums, policies, at_settings, None, at)
+    linked, _, _, findings = _joined(premiums, policies, at_settings, None, at, by, row_column)
     total = (pl.col("end") - pl.col("begin")).dt.total_days()
     after = (
         pl.col("end") - pl.max_horizontal("begin", pl.lit(at) + pl.duration(days=1))
@@ -312,11 +373,11 @@ def unearned_premium(
         .otherwise(after.clip(lower_bound=0) / total)
     )
     grouped = (
-        _intervals(linked)
+        _intervals(linked, by, row_column)
         .with_columns((pl.col("amount") * share).alias("unearned_premium"))
-        .group_by("segment", "line", "currency")
-        .agg(pl.col("unearned_premium").sum())
-        .sort("segment", "line", "currency")
+        .group_by(*by, "currency", maintain_order=True)
+        .agg(pl.col("unearned_premium").sum(), *_lineage(row_column))
+        .sort(*by, "currency")
     )
     flags: dict[str, int] = {}
     not_converted = _nothing_left("unearned_premium")
@@ -331,24 +392,39 @@ def unearned_premium(
         )
         flags = {str(k): int(v) for k, v in done.flagged().select("rate_flag", "rows").iter_rows()}
         not_converted = done.not_converted
+        merged = (
+            [
+                pl.col("rows").list.explode().unique().sort(),
+                pl.col("policy_rows").list.explode().unique().sort(),
+            ]
+            if row_column
+            else []
+        )
         grouped = (
             done.frame.filter(pl.col("rate").is_not_null())
             .with_columns(pl.lit(settings.reporting_currency).alias("currency"))
-            .group_by("segment", "line", "currency")
-            .agg(pl.col("unearned_premium").sum())
-            .sort("segment", "line", "currency")
+            .group_by(*by, "currency", maintain_order=True)
+            .agg(pl.col("unearned_premium").sum(), *merged)
+            .sort(*by, "currency")
         )
     return PremiumStructure(grouped, not_converted, tuple(findings), at, flags)
 
 
 def earned_exposure(
-    policies: pl.DataFrame, settings: PremiumSettings, cut_off: date
+    policies: pl.DataFrame,
+    settings: PremiumSettings,
+    cut_off: date,
+    by: Sequence[str] = GROUP_BY,
+    row_column: str | None = None,
+    by_currency: bool = False,
 ) -> pl.DataFrame:
-    """Earned exposure by segment, line and period up to the cut-off (CV04).
+    """Earned exposure by the policy attributes `by`, period and optionally policy currency up
+    to the cut-off (CV04).
 
     Cover runs from start_date to the earlier of end_date and cancellation_date; empty
     exposure_units count as 1. A policy with no cover dates or with start on or after end has
-    no exposure (DV-POL-03, DV-POL-04).
+    no exposure (DV-POL-03, DV-POL-04). With `row_column` the policy rows behind each value
+    are returned as `policy_rows`.
     """
     cut_off = month_end(month_index(cut_off))
     units = (
@@ -361,22 +437,29 @@ def earned_exposure(
         if "cancellation_date" in policies.columns
         else pl.lit(None, pl.Date)
     )
+    keys = [
+        pl.col(a).fill_null(UNKNOWN) if a in policies.columns else pl.lit(UNKNOWN).alias(a)
+        for a in by
+    ]
+    currency = pl.col("currency") if by_currency else pl.lit("").alias("currency")
     intervals = policies.filter(
         pl.col("start_date").is_not_null() & pl.col("end_date").is_not_null()
     ).select(
-        pl.col("segment").fill_null(UNKNOWN),
-        pl.col("line").fill_null(UNKNOWN),
-        pl.lit("").alias("currency"),
+        *keys,
+        currency,
         units.alias("amount"),
         pl.col("start_date").alias("begin"),
         pl.min_horizontal(pl.col("end_date"), cancel.fill_null(pl.col("end_date"))).alias("end"),
+        *([pl.col(row_column).alias("policy_row")] if row_column else []),
     )
     expanded = _expand(intervals.filter(pl.col("end") > pl.col("begin")), settings, cut_off)
     total = (pl.col("end") - pl.col("begin")).dt.total_days()
     days = pl.col("share") * total  # days of cover in the period
+    lineage = [pl.col("policy_row").unique().sort().alias("policy_rows")] if row_column else []
+    group_keys = [*by, "currency"] if by_currency else list(by)
     grouped = (
         expanded.with_columns((pl.col("amount") * days / DAYS_PER_YEAR).alias("earned_exposure"))
-        .group_by("segment", "line", "period_number")
-        .agg(pl.col("earned_exposure").sum())
+        .group_by(*group_keys, "period_number", maintain_order=True)
+        .agg(pl.col("earned_exposure").sum(), *lineage)
     )
-    return _label(grouped, settings).sort("segment", "line", "period_number")
+    return _label(grouped, settings).sort(*group_keys, "period_number")

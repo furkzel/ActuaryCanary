@@ -29,7 +29,8 @@ CEDED_PAID = "ceded_paid_to_date"
 CEDED_RESERVE = "ceded_reserve"
 SUBROGATION = "subrogation_to_date"
 SALVAGE = "salvage_to_date"
-FLOW_COMPONENTS = (PAID, CEDED_PAID, SUBROGATION, SALVAGE)  # cumulative flows
+EXPENSE = "expense_allocated_to_date"
+FLOW_COMPONENTS = (PAID, CEDED_PAID, SUBROGATION, SALVAGE, EXPENSE)  # cumulative flows
 STOCK_COMPONENTS = (RESERVE, CEDED_RESERVE)  # amounts at the valuation date
 CEDED_COMPONENTS = (CEDED_PAID, CEDED_RESERVE)
 
@@ -41,6 +42,7 @@ MONEY_MEASURES = (
     "salvage",
     "recoveries",
     "paid_net_of_recoveries",
+    "expense_allocated",
 )
 COUNT_MEASURES = ("reported_count", "open_count", "closed_count")
 MEASURES = (*MONEY_MEASURES, *COUNT_MEASURES)
@@ -114,6 +116,13 @@ def components(measure: str, reinsurance: ReinsuranceBasis) -> list[tuple[int, s
                     "only GROSS exists (CV03)"
                 )
             return [(1, PAID), (-1, SUBROGATION), (-1, SALVAGE)]
+        case "expense_allocated":  # CV03: expenses exist on the gross basis only
+            if reinsurance is not ReinsuranceBasis.GROSS:
+                raise BasisUnavailableError(
+                    "allocated expense is not part of the reinsurance basis, "
+                    "only GROSS exists (CV03)"
+                )
+            return [(1, EXPENSE)]
         case "subrogation" | "salvage" | "recoveries":
             if reinsurance is not ReinsuranceBasis.GROSS:
                 raise BasisUnavailableError(

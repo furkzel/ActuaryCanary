@@ -39,6 +39,7 @@ class ReportContext:
     specs: tuple[SpecRecord, ...]
     settings: dict[str, Any]
     quality_html: str = ""  # the data quality section, shown first
+    modules_html: str = ""  # which modules ran and why others did not, shown after it
 
 
 @cache
@@ -226,6 +227,7 @@ def render_report(context: ReportContext) -> str:
         not_converted=not_converted,
         findings=context.findings,
         quality_html=context.quality_html,
+        modules_html=context.modules_html,
         inputs=context.inputs,
         specs=context.specs,
         spec=lambda spec_id: f"{spec_id} v{specs[spec_id].version}",

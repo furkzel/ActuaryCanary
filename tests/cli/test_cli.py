@@ -103,3 +103,17 @@ def test_edits_are_saved_in_the_profile(tmp_path: Path) -> None:
     (profile,) = (tmp_path / "profiles").glob("*.yaml")
     text = profile.read_text(encoding="utf-8")
     assert "header: 'RUCU TAHSILAT '\n  field: null\n  layer: user" in text
+
+
+@pytest.mark.integration
+def test_run_lists_which_modules_ran_and_why_others_did_not(tmp_path: Path) -> None:
+    folder = tmp_path / "in"
+    folder.mkdir()
+    shutil.copyfile(BASELINE / "claim_valuations.xlsx", folder / "claim_valuations.xlsx")
+    result = runner.invoke(app, ["run", str(folder), "--out", str(tmp_path / "out"), "--yes"])
+    assert result.exit_code == 0, result.output
+    assert "Modules" in result.output
+    for module in ("M01 Data understanding", "M02 Portfolio and premium", "M05 Profitability"):
+        assert module in result.output
+    assert "skipped" in result.output and "ran" in result.output
+    assert "premium" in result.output and "loaded" in result.output

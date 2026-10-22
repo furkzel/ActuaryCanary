@@ -86,6 +86,7 @@ nav ul { padding-left: 20px; }
   <h2>Contents</h2>
   <ul>
     {% if quality_html %}<li><a href="#quality">Data quality</a></li>
+    {% endif %}{% if modules_html %}<li><a href="#modules">Modules and measures</a></li>
     {% endif %}<li><a href="#summary">Summary by segment and line</a></li>
     {% for g in groups %}<li><a href="#{{ g.anchor }}">{{ g.name }}</a></li>
     {% endfor %}<li><a href="#data">Data notes</a></li>
@@ -95,6 +96,8 @@ nav ul { padding-left: 20px; }
 </nav>
 
 {% if quality_html %}{{ quality_html|safe }}
+
+{% endif %}{% if modules_html %}{{ modules_html|safe }}
 
 {% endif %}<section id="summary">
   <h2>Summary by segment and line</h2>
