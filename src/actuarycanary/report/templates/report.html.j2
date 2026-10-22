@@ -85,7 +85,8 @@ nav ul { padding-left: 20px; }
 <nav>
   <h2>Contents</h2>
   <ul>
-    <li><a href="#summary">Summary by segment and line</a></li>
+    {% if quality_html %}<li><a href="#quality">Data quality</a></li>
+    {% endif %}<li><a href="#summary">Summary by segment and line</a></li>
     {% for g in groups %}<li><a href="#{{ g.anchor }}">{{ g.name }}</a></li>
     {% endfor %}<li><a href="#data">Data notes</a></li>
     <li><a href="#methods">Methods and assumptions</a></li>
@@ -93,7 +94,9 @@ nav ul { padding-left: 20px; }
   </ul>
 </nav>
 
-<section id="summary">
+{% if quality_html %}{{ quality_html|safe }}
+
+{% endif %}<section id="summary">
   <h2>Summary by segment and line</h2>
   <p>Amounts in {{ currency }}; segments are shown separately and never added together.</p>
   <div class="scroll"><table>

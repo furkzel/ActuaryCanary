@@ -38,6 +38,7 @@ def test_baseline_tiny_runs_and_reproduces(tmp_path: Path, cache: Path) -> None:
     assert first.manifest.read_bytes() == second.manifest.read_bytes()
     assert [o["name"] for o in one["outputs"]] == [
         "report.html",
+        "quality.json",
         "triangles.csv",
         "factors.csv",
         "chain_ladder.csv",
