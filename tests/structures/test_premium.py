@@ -352,3 +352,23 @@ def test_cv02_premium_booked_before_the_index_starts_is_left_out_and_listed() ->
     # WRITTEN is booked in July, before the first index month: only the later two remain
     assert [(f.rule, f.count, f.rows) for f in result.findings] == [("CV02", 1, (2,))]
     assert result.frame["earned_premium"].sum() == pytest.approx((2730 - 1810) * 1.5)
+
+
+def test_a_yearly_period_that_contains_the_cut_off_counts_only_the_days_up_to_it() -> None:
+    """Decision 0053: premium 366 over the 366 days of 2024 earns 182 by 2024-06-30 in a yearly
+    period, as the sum of its months does, and so does the exposure."""
+    cut_off = date(2024, 6, 15)  # the cut-off month ends on 2024-06-30: 182 days of cover
+    yearly = earned_premium(
+        _premiums(), _policies(), PremiumSettings(period=Period.YEAR, cut_off=cut_off)
+    )
+    monthly = earned_premium(
+        _premiums(), _policies(), PremiumSettings(period=Period.MONTH, cut_off=cut_off)
+    )
+    assert yearly.frame["earned_premium"].sum() == pytest.approx(
+        monthly.frame["earned_premium"].sum()
+    )
+    policies = _policies().with_columns(
+        pl.lit(date(2024, 1, 1)).alias("start_date"), pl.lit(date(2025, 1, 1)).alias("end_date")
+    )
+    exposure = earned_exposure(policies, PremiumSettings(period=Period.YEAR), cut_off)
+    assert exposure["earned_exposure"].sum() == pytest.approx(182 / 365.25)
