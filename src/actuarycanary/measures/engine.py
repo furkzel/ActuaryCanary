@@ -22,8 +22,11 @@ from actuarycanary.measures import (
     ratio_measures,
     reinsurance_measures,
 )
+from actuarycanary.measures.claim_base import with_dimensions
 from actuarycanary.measures.model import (
     NOTE,
+    REF,
+    REFS_PREFIX,
     VALUE,
     Computed,
     CurrencyView,
@@ -172,6 +175,37 @@ def check_request(
     return ""
 
 
+VALUATIONS = "claim_valuations"
+
+
+def method_refs(
+    inputs: MeasureInputs, request: MeasureRequest, table: pl.DataFrame
+) -> tuple[pl.DataFrame, tuple[str, ...]]:
+    """Lineage of a method output (decision 0071): the claim_valuations rows up to the cut-off
+    of the claims of its segment, line and origin period; a row without an origin period (a
+    development column, a total) gets the rows of its whole segment and line, because the
+    development factors of a line rest on all its origins."""
+    feed = inputs.feeds.get(VALUATIONS)
+    keys = ["segment", "line"]
+    if feed is None or table.height == 0 or not set(keys) <= set(table.columns):
+        return table, ()
+    column = REFS_PREFIX + VALUATIONS
+    rows = feed.filter(pl.col("valuation_date") <= inputs.cut_off).select("claim_id", REF)
+    rows, _ = with_dimensions(rows, (*keys, "origin_period"), inputs, request)
+    rows = rows.with_columns(pl.col("origin_period").cast(pl.String))
+    by_group = rows.group_by(keys).agg(pl.col(REF).sort().alias("_group_refs"))
+    out = table.join(by_group, on=keys, how="left")
+    if "origin_period" in table.columns:
+        by_origin = rows.group_by([*keys, "origin_period"]).agg(pl.col(REF).sort().alias(column))
+        out = out.with_columns(pl.col("origin_period").cast(pl.String).alias("_origin")).join(
+            by_origin.rename({"origin_period": "_origin"}), on=[*keys, "_origin"], how="left"
+        )
+        out = out.with_columns(pl.coalesce(column, "_group_refs").alias(column)).drop("_origin")
+    else:
+        out = out.with_columns(pl.col("_group_refs").alias(column))
+    return out.drop("_group_refs"), (VALUATIONS,)
+
+
 def run_measure(
     catalogue: SpecCatalogue, inputs: MeasureInputs, measure_id: str, request: MeasureRequest
 ) -> MeasureResult:
@@ -181,6 +215,7 @@ def run_measure(
         table = inputs.methods.measure(measure_id, request.basis.label())
         if isinstance(table, NotAvailable):
             return _unavailable(spec, inputs, request, table.reason)
+        table, concepts = method_refs(inputs, request, table)
         return MeasureResult(
             spec.id,
             spec.version,
@@ -189,6 +224,7 @@ def run_measure(
             request,
             inputs.reporting_currency,
             frame=table,
+            concepts=concepts,
         )
     implementation = IMPLEMENTATIONS.get(measure_id)
     if implementation is None:

@@ -16,6 +16,7 @@ def reference_problems(catalogue: SpecCatalogue) -> list[str]:
         *_module_problems(catalogue),
         *_column_alias_problems(catalogue),
         *_value_alias_problems(catalogue),
+        *_finding_rule_problems(catalogue),
     ]
 
 
@@ -187,4 +188,17 @@ def _value_alias_problems(catalogue: SpecCatalogue) -> list[str]:
             ref = f"{concept.id}.{field.name}"
             if field.classes and covered[ref] != 1:
                 problems.append(f"{aliases.id}: {ref} has {covered[ref]} value entries, needs 1")
+    return problems
+
+
+def _finding_rule_problems(catalogue: SpecCatalogue) -> list[str]:
+    spec = catalogue.finding_rules
+    counts = Counter(rule.id for rule in spec.rules)
+    problems = [f"{spec.id}: rule {r} is defined {n} times" for r, n in counts.items() if n > 1]
+    problems += [
+        f"{spec.id} {rule.id}: evidence spec {ref} is not a defined spec id"
+        for rule in spec.rules
+        for ref in rule.evidence.specs
+        if ref not in catalogue.ids
+    ]
     return problems

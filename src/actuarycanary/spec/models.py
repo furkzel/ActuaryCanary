@@ -262,6 +262,31 @@ class ValueAliasSpec(SpecBase):
     values: list[ValueAliasEntry] = Field(min_length=1)
 
 
+# --- report --------------------------------------------------------------------------
+
+
+class FindingEvidence(_Strict):
+    section: str = Field(pattern=r"^[a-z][a-z0-9-]*$")  # report section the sentence links to
+    files: list[str] = []  # output files in the run folder that hold the numbers
+    specs: list[str] = []  # spec IDs the evidence rests on
+
+
+class FindingRule(_Strict):
+    id: str = Field(pattern=r"^KF\d{2}$")
+    title: str = Field(min_length=1)
+    scope: Literal["run", "segment", "line"]
+    priority: int = Field(ge=0)  # lower first
+    condition: str = Field(min_length=1)  # clauses `fact op fact-or-number` joined by `and`
+    template: str = Field(min_length=1)  # `{fact}` placeholders, formatted by the fact's kind
+    evidence: FindingEvidence
+    banner: bool = False  # also shown at the top of the cover and the analytic pages
+
+
+class FindingRulesSpec(SpecBase):
+    id: str = Field(pattern=r"^RP\d{2}$")
+    rules: list[FindingRule] = Field(min_length=1)
+
+
 AnySpec = (
     DataConceptSpec
     | ConventionSpec
@@ -270,4 +295,5 @@ AnySpec = (
     | ModuleSpec
     | ColumnAliasSpec
     | ValueAliasSpec
+    | FindingRulesSpec
 )

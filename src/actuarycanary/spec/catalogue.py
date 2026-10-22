@@ -7,6 +7,7 @@ from actuarycanary.spec.models import (
     ColumnAliasSpec,
     ConventionSpec,
     DataConceptSpec,
+    FindingRulesSpec,
     MeasureSpec,
     MethodSpec,
     ModuleSpec,
@@ -56,6 +57,10 @@ class SpecCatalogue:
     @property
     def value_aliases(self) -> ValueAliasSpec:
         return next(iter(self._of_type(ValueAliasSpec).values()))
+
+    @property
+    def finding_rules(self) -> FindingRulesSpec:
+        return next(iter(self._of_type(FindingRulesSpec).values()))
 
     @property
     def ids(self) -> set[str]:
