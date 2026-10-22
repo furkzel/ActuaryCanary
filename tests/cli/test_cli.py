@@ -106,6 +106,7 @@ def test_messy_run_asks_once_saves_profiles_and_then_does_not_ask(tmp_path: Path
     assert "saved" in second.output and "TCKN" in second.output
 
 
+@pytest.mark.slow
 @pytest.mark.integration
 def test_new_layouts_without_answers_or_yes_stop_with_a_message(tmp_path: Path) -> None:
     arguments = ["run", str(MESSY), "--out", str(tmp_path / "out")]

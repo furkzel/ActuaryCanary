@@ -65,6 +65,7 @@ def test_the_six_spreadsheets_and_the_truth_are_there(folder):
     } <= truth
 
 
+@pytest.mark.slow
 def test_the_files_break_exactly_the_rules_of_the_injected_faults(folder):
     found = {}
     for violation in check_folder(folder):
