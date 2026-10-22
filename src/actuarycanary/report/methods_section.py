@@ -1,7 +1,7 @@
 """Plain tables of the reserving methods for one group of the report: ultimates by method,
 Mack standard errors, the inflation-adjusted chain ladder, factor stability and diagnostics.
 
-Data and tables only; the executive report that organises them is a later item. Rounding is
+Data and tables only; the reserving pages of the executive report draw them. Rounding is
 CV06 (`report.numbers`); the files `ultimates.csv`, `reserve_range.csv`, `cash_flows.csv`,
 `diagnostics.csv` and `assumptions.csv` hold the unrounded values.
 """

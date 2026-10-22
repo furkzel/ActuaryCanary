@@ -1,0 +1,6205 @@
+{
+ "assumptions": {
+  "by_kind": [
+   {
+    "entries": 24,
+    "method": "MT02",
+    "name": "selected factor"
+   },
+   {
+    "entries": 8,
+    "method": "MT02",
+    "name": "tail factor"
+   },
+   {
+    "entries": 8,
+    "method": "MT03",
+    "name": "prior loss ratio"
+   },
+   {
+    "entries": 8,
+    "method": "MT05",
+    "name": "expected loss ratio"
+   },
+   {
+    "entries": 4,
+    "method": "MT07",
+    "name": "future inflation"
+   },
+   {
+    "entries": 4,
+    "method": "MT10",
+    "name": "bf below maturity"
+   }
+  ],
+  "by_who": [
+   {
+    "entries": 56,
+    "who": "default"
+   }
+  ],
+  "judgements": [],
+  "total": 56
+ },
+ "banners": [
+  "Only 4 origin periods (2022 to 2025) are loaded for 4 of 4 lines, fewer than the 8 the methods need for solid evidence: every factor, ratio and range rests on few observations, and the differences between methods show how much the answer depends on the method, not how precise it is."
+ ],
+ "cover": {
+  "rows": [
+   {
+    "label": "Run id",
+    "value": "d07b310fce3391ce"
+   },
+   {
+    "label": "Valuation date",
+    "value": "2025-12-31"
+   },
+   {
+    "label": "Segments",
+    "value": "LIFE, NON_LIFE"
+   },
+   {
+    "label": "Lines",
+    "value": "4"
+   },
+   {
+    "label": "Bases",
+    "value": "GROSS, TRY, NOMINAL"
+   },
+   {
+    "label": "Origins",
+    "value": "year periods on the accident axis, development year"
+   },
+   {
+    "label": "Claims used",
+    "value": "175"
+   },
+   {
+    "label": "Inputs",
+    "value": "claim_valuations.xlsx, claims.xlsx, market.xlsx, policies.xlsx, premiums.xlsx, expenses.xlsx"
+   },
+   {
+    "label": "Software",
+    "value": "ActuaryCanary 0.1.0"
+   }
+  ],
+  "tagline": "Turns insurance data in any layout into an auditable, early-warning actuarial report on your own computer.",
+  "title": "ActuaryCanary"
+ },
+ "data_findings": [
+  {
+   "concept": "claim_valuations",
+   "count": "2",
+   "message": "status labels outside the classes become UNMAPPED",
+   "rows": "518, 856",
+   "rule": "DV-CLV-04",
+   "severity": "WARNING"
+  },
+  {
+   "concept": "claim_valuations",
+   "count": "4",
+   "message": "empty or invalid currency taken from the other rows of the claim",
+   "rows": "164, 376, 625, 786",
+   "rule": "DV-CLV-03",
+   "severity": "WARNING"
+  },
+  {
+   "concept": "claim_valuations",
+   "count": "8",
+   "message": "identical duplicate rows kept once",
+   "rows": "83, 385, 436, 571, 601, 897, 931, 1092",
+   "rule": "DV-CLV-06",
+   "severity": "WARNING"
+  }
+ ],
+ "disclaimer": "Indicative analysis on the data provided. Not an official reserve, price or financial statement figure.",
+ "figures": {
+  "anomalies-rate": {
+   "data": [
+    {
+     "hovertemplate": "%{y}: %{x:.1%}<extra></extra>",
+     "marker": {
+      "color": [
+       "var(--segment-life)",
+       "var(--segment-non-life)",
+       "var(--segment-non-life)"
+      ]
+     },
+     "orientation": "h",
+     "type": "bar",
+     "x": [
+      0.0,
+      0.267925,
+      0.058091
+     ],
+     "y": [
+      "LIFE · GROUP_TERM_LIFE",
+      "NON_LIFE · MOTOR_OD",
+      "NON_LIFE · MOTOR_TPL"
+     ]
+    }
+   ],
+   "layout": {
+    "height": 180,
+    "margin": {
+     "b": 48,
+     "l": 180,
+     "r": 16,
+     "t": 40
+    },
+    "shapes": [
+     {
+      "line": {
+       "color": "var(--text-muted)",
+       "dash": "dash",
+       "width": 1.5
+      },
+      "type": "line",
+      "x0": 0.05,
+      "x1": 0.05,
+      "y0": 0,
+      "y1": 1,
+      "yref": "paper"
+     }
+    ],
+    "showlegend": false,
+    "title": {
+     "text": "Share of values flagged by the robust z-score, by line"
+    },
+    "xaxis": {
+     "tickformat": ".0%",
+     "title": {
+      "text": "Share flagged"
+     }
+    },
+    "yaxis": {
+     "automargin": true,
+     "autorange": "reversed",
+     "type": "category"
+    }
+   }
+  },
+  "claims-incurred": {
+   "data": [
+    {
+     "hovertemplate": "%{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": [
+       "var(--segment-life)",
+       "var(--segment-non-life)",
+       "var(--segment-non-life)",
+       "var(--segment-non-life)"
+      ]
+     },
+     "orientation": "h",
+     "type": "bar",
+     "x": [
+      77580233.07,
+      18575490.41,
+      20418156.15,
+      944564.098
+     ],
+     "y": [
+      "LIFE · GROUP_TERM_LIFE",
+      "NON_LIFE · MOTOR_OD",
+      "NON_LIFE · MOTOR_TPL",
+      "NON_LIFE · PROPERTY"
+     ]
+    }
+   ],
+   "layout": {
+    "height": 220,
+    "margin": {
+     "b": 48,
+     "l": 180,
+     "r": 16,
+     "t": 40
+    },
+    "showlegend": false,
+    "title": {
+     "text": "Incurred to date by line, TRY"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Incurred (TRY)"
+     }
+    },
+    "yaxis": {
+     "automargin": true,
+     "autorange": "reversed",
+     "type": "category"
+    }
+   }
+  },
+  "line-0-factors-incurred": {
+   "data": [
+    {
+     "hovertemplate": "%{x}: %{y:.3f}, %{text}<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.7,
+      "size": 8
+     },
+     "mode": "markers",
+     "name": "Link ratio of one origin",
+     "text": [
+      "origin 2022",
+      "origin 2023",
+      "origin 2024",
+      "origin 2022",
+      "origin 2023",
+      "origin 2022"
+     ],
+     "type": "scatter",
+     "x": [
+      "12-24",
+      "12-24",
+      "12-24",
+      "24-36",
+      "24-36",
+      "36-48"
+     ],
+     "y": [
+      1.1407,
+      1.0,
+      1.532,
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    {
+     "hovertemplate": "%{x}: selected %{y:.3f}<extra></extra>",
+     "marker": {
+      "color": "var(--text-primary)",
+      "line": {
+       "width": 3
+      },
+      "size": 26,
+      "symbol": "line-ew-open"
+     },
+     "mode": "markers",
+     "name": "Selected factor",
+     "type": "scatter",
+     "x": [
+      "12-24",
+      "24-36",
+      "36-48"
+     ],
+     "y": [
+      1.3047,
+      1.0,
+      1.0
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": true,
+    "title": {
+     "text": "Link ratios and the selected factor, incurred"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Development (months)"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "title": {
+      "text": "Factor"
+     }
+    }
+   }
+  },
+  "line-0-factors-paid": {
+   "data": [
+    {
+     "hovertemplate": "%{x}: %{y:.3f}, %{text}<extra></extra>",
+     "marker": {
+      "color": "var(--basis-paid)",
+      "opacity": 0.7,
+      "size": 8
+     },
+     "mode": "markers",
+     "name": "Link ratio of one origin",
+     "text": [
+      "origin 2022",
+      "origin 2023",
+      "origin 2024",
+      "origin 2022",
+      "origin 2023",
+      "origin 2022"
+     ],
+     "type": "scatter",
+     "x": [
+      "12-24",
+      "12-24",
+      "12-24",
+      "24-36",
+      "24-36",
+      "36-48"
+     ],
+     "y": [
+      1.1407,
+      1.4084,
+      1.532,
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    {
+     "hovertemplate": "%{x}: selected %{y:.3f}<extra></extra>",
+     "marker": {
+      "color": "var(--text-primary)",
+      "line": {
+       "width": 3
+      },
+      "size": 26,
+      "symbol": "line-ew-open"
+     },
+     "mode": "markers",
+     "name": "Selected factor",
+     "type": "scatter",
+     "x": [
+      "12-24",
+      "24-36",
+      "36-48"
+     ],
+     "y": [
+      1.4465,
+      1.0,
+      1.0
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": true,
+    "title": {
+     "text": "Link ratios and the selected factor, paid"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Development (months)"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "title": {
+      "text": "Factor"
+     }
+    }
+   }
+  },
+  "line-0-heatmap-incurred": {
+   "data": [
+    {
+     "colorscale": "ramp:incurred",
+     "hovertemplate": "Origin %{y} · age %{x} months<br>%{text}<extra></extra>",
+     "showscale": false,
+     "text": [
+      [
+       "3,981,152 TRY · 7 claims",
+       "4,541,477 TRY · 8 claims",
+       "4,541,477 TRY · 8 claims",
+       "4,541,477 TRY · 8 claims"
+      ],
+      [
+       "11,080,279 TRY · 10 claims",
+       "11,080,279 TRY · 10 claims",
+       "11,080,279 TRY · 10 claims",
+       ""
+      ],
+      [
+       "17,724,330 TRY · 7 claims",
+       "27,153,819 TRY · 8 claims",
+       "",
+       ""
+      ],
+      [
+       "34,804,658 TRY · 11 claims",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "type": "heatmap",
+     "x": [
+      "12",
+      "24",
+      "36",
+      "48"
+     ],
+     "xgap": 2,
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ],
+     "ygap": 2,
+     "z": [
+      [
+       3981152.38,
+       4541477.12,
+       4541477.12,
+       4541477.12
+      ],
+      [
+       11080279.0,
+       11080279.0,
+       11080279.0,
+       null
+      ],
+      [
+       17724329.94,
+       27153819.23,
+       null,
+       null
+      ],
+      [
+       34804657.72,
+       null,
+       null,
+       null
+      ]
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": false,
+    "title": {
+     "text": "Cumulative incurred, TRY"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Development age (months)"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "autorange": "reversed",
+     "title": {
+      "text": "Origin"
+     },
+     "type": "category"
+    }
+   }
+  },
+  "line-0-heatmap-paid": {
+   "data": [
+    {
+     "colorscale": "ramp:paid",
+     "hovertemplate": "Origin %{y} · age %{x} months<br>%{text}<extra></extra>",
+     "showscale": false,
+     "text": [
+      [
+       "3,981,152 TRY · 7 claims",
+       "4,541,477 TRY · 8 claims",
+       "4,541,477 TRY · 8 claims",
+       "4,541,477 TRY · 8 claims"
+      ],
+      [
+       "7,867,314 TRY · 10 claims",
+       "11,080,279 TRY · 10 claims",
+       "11,080,279 TRY · 10 claims",
+       ""
+      ],
+      [
+       "17,724,330 TRY · 7 claims",
+       "27,153,819 TRY · 8 claims",
+       "",
+       ""
+      ],
+      [
+       "24,185,242 TRY · 11 claims",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "type": "heatmap",
+     "x": [
+      "12",
+      "24",
+      "36",
+      "48"
+     ],
+     "xgap": 2,
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ],
+     "ygap": 2,
+     "z": [
+      [
+       3981152.38,
+       4541477.12,
+       4541477.12,
+       4541477.12
+      ],
+      [
+       7867313.88,
+       11080279.0,
+       11080279.0,
+       null
+      ],
+      [
+       17724329.94,
+       27153819.23,
+       null,
+       null
+      ],
+      [
+       24185241.83,
+       null,
+       null,
+       null
+      ]
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": false,
+    "title": {
+     "text": "Cumulative paid, TRY"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Development age (months)"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "autorange": "reversed",
+     "title": {
+      "text": "Origin"
+     },
+     "type": "category"
+    }
+   }
+  },
+  "line-0-methods": {
+   "data": [
+    {
+     "hovertemplate": "Chain ladder, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.85,
+      "size": 9,
+      "symbol": "circle"
+     },
+     "mode": "markers",
+     "name": "Chain ladder",
+     "type": "scatter",
+     "x": [
+      4541477.12,
+      11080279.0,
+      27153819.23,
+      45409629.02
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    },
+    {
+     "hovertemplate": "Bornhuetter–Ferguson, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.85,
+      "size": 9,
+      "symbol": "square"
+     },
+     "mode": "markers",
+     "name": "Bornhuetter–Ferguson",
+     "type": "scatter",
+     "x": [
+      4541477.12,
+      11080279.0,
+      27153819.23,
+      42723004.74
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    },
+    {
+     "hovertemplate": "Cape Cod, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.85,
+      "size": 9,
+      "symbol": "triangle-up"
+     },
+     "mode": "markers",
+     "name": "Cape Cod",
+     "type": "scatter",
+     "x": [
+      4541477.12,
+      11080279.0,
+      27153819.23,
+      42723004.74
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    },
+    {
+     "hovertemplate": "Expected loss ratio, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.85,
+      "size": 9,
+      "symbol": "x"
+     },
+     "mode": "markers",
+     "name": "Expected loss ratio",
+     "type": "scatter",
+     "x": [
+      8483686.75,
+      11957802.79,
+      31151369.34,
+      33905721.21
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    },
+    {
+     "hovertemplate": "Selected, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--text-primary)",
+      "line": {
+       "width": 2
+      },
+      "size": 15,
+      "symbol": "diamond-open"
+     },
+     "mode": "markers",
+     "name": "Selected",
+     "type": "scatter",
+     "x": [
+      4541477.12,
+      11080279.0,
+      27153819.23,
+      45409629.02
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": true,
+    "title": {
+     "text": "Ultimate by method, incurred, TRY"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Ultimate (TRY)"
+     }
+    },
+    "yaxis": {
+     "autorange": "reversed",
+     "title": {
+      "text": "Origin"
+     },
+     "type": "category"
+    }
+   }
+  },
+  "line-1-factors-incurred": {
+   "data": [
+    {
+     "hovertemplate": "%{x}: %{y:.3f}, %{text}<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.7,
+      "size": 8
+     },
+     "mode": "markers",
+     "name": "Link ratio of one origin",
+     "text": [
+      "origin 2022",
+      "origin 2023",
+      "origin 2024",
+      "origin 2022",
+      "origin 2023",
+      "origin 2022"
+     ],
+     "type": "scatter",
+     "x": [
+      "12-24",
+      "12-24",
+      "12-24",
+      "24-36",
+      "24-36",
+      "36-48"
+     ],
+     "y": [
+      1.0115,
+      1.1514,
+      0.8747,
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    {
+     "hovertemplate": "%{x}: selected %{y:.3f}<extra></extra>",
+     "marker": {
+      "color": "var(--text-primary)",
+      "line": {
+       "width": 3
+      },
+      "size": 26,
+      "symbol": "line-ew-open"
+     },
+     "mode": "markers",
+     "name": "Selected factor",
+     "type": "scatter",
+     "x": [
+      "12-24",
+      "24-36",
+      "36-48"
+     ],
+     "y": [
+      0.9874,
+      1.0,
+      1.0
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": true,
+    "title": {
+     "text": "Link ratios and the selected factor, incurred"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Development (months)"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "title": {
+      "text": "Factor"
+     }
+    }
+   }
+  },
+  "line-1-factors-paid": {
+   "data": [
+    {
+     "hovertemplate": "%{x}: %{y:.3f}, %{text}<extra></extra>",
+     "marker": {
+      "color": "var(--basis-paid)",
+      "opacity": 0.7,
+      "size": 8
+     },
+     "mode": "markers",
+     "name": "Link ratio of one origin",
+     "text": [
+      "origin 2022",
+      "origin 2023",
+      "origin 2024",
+      "origin 2022",
+      "origin 2023",
+      "origin 2022"
+     ],
+     "type": "scatter",
+     "x": [
+      "12-24",
+      "12-24",
+      "12-24",
+      "24-36",
+      "24-36",
+      "36-48"
+     ],
+     "y": [
+      1.0278,
+      1.5098,
+      1.0746,
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    {
+     "hovertemplate": "%{x}: selected %{y:.3f}<extra></extra>",
+     "marker": {
+      "color": "var(--text-primary)",
+      "line": {
+       "width": 3
+      },
+      "size": 26,
+      "symbol": "line-ew-open"
+     },
+     "mode": "markers",
+     "name": "Selected factor",
+     "type": "scatter",
+     "x": [
+      "12-24",
+      "24-36",
+      "36-48"
+     ],
+     "y": [
+      1.1299,
+      1.0,
+      1.0
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": true,
+    "title": {
+     "text": "Link ratios and the selected factor, paid"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Development (months)"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "title": {
+      "text": "Factor"
+     }
+    }
+   }
+  },
+  "line-1-heatmap-incurred": {
+   "data": [
+    {
+     "colorscale": "ramp:incurred",
+     "hovertemplate": "Origin %{y} · age %{x} months<br>%{text}<extra></extra>",
+     "showscale": false,
+     "text": [
+      [
+       "5,083,876 TRY · 15 claims",
+       "5,142,092 TRY · 15 claims",
+       "5,142,092 TRY · 15 claims",
+       "5,142,092 TRY · 15 claims"
+      ],
+      [
+       "2,497,848 TRY · 21 claims",
+       "2,876,013 TRY · 23 claims",
+       "2,876,013 TRY · 23 claims",
+       ""
+      ],
+      [
+       "4,722,973 TRY · 18 claims",
+       "4,131,087 TRY · 19 claims",
+       "",
+       ""
+      ],
+      [
+       "6,426,297 TRY · 21 claims",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "type": "heatmap",
+     "x": [
+      "12",
+      "24",
+      "36",
+      "48"
+     ],
+     "xgap": 2,
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ],
+     "ygap": 2,
+     "z": [
+      [
+       5083876.1,
+       5142092.41,
+       5142092.41,
+       5142092.41
+      ],
+      [
+       2497848.45,
+       2876013.44,
+       2876013.44,
+       null
+      ],
+      [
+       4722973.39,
+       4131087.42,
+       null,
+       null
+      ],
+      [
+       6426297.14,
+       null,
+       null,
+       null
+      ]
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": false,
+    "title": {
+     "text": "Cumulative incurred, TRY"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Development age (months)"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "autorange": "reversed",
+     "title": {
+      "text": "Origin"
+     },
+     "type": "category"
+    }
+   }
+  },
+  "line-1-heatmap-paid": {
+   "data": [
+    {
+     "colorscale": "ramp:paid",
+     "hovertemplate": "Origin %{y} · age %{x} months<br>%{text}<extra></extra>",
+     "showscale": false,
+     "text": [
+      [
+       "5,003,042 TRY · 15 claims",
+       "5,142,092 TRY · 15 claims",
+       "5,142,092 TRY · 15 claims",
+       "5,142,092 TRY · 15 claims"
+      ],
+      [
+       "1,904,932 TRY · 21 claims",
+       "2,876,013 TRY · 23 claims",
+       "2,876,013 TRY · 23 claims",
+       ""
+      ],
+      [
+       "3,844,280 TRY · 18 claims",
+       "4,131,087 TRY · 19 claims",
+       "",
+       ""
+      ],
+      [
+       "3,685,090 TRY · 21 claims",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "type": "heatmap",
+     "x": [
+      "12",
+      "24",
+      "36",
+      "48"
+     ],
+     "xgap": 2,
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ],
+     "ygap": 2,
+     "z": [
+      [
+       5003042.02,
+       5142092.41,
+       5142092.41,
+       5142092.41
+      ],
+      [
+       1904932.4,
+       2876013.44,
+       2876013.44,
+       null
+      ],
+      [
+       3844280.15,
+       4131087.42,
+       null,
+       null
+      ],
+      [
+       3685090.21,
+       null,
+       null,
+       null
+      ]
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": false,
+    "title": {
+     "text": "Cumulative paid, TRY"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Development age (months)"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "autorange": "reversed",
+     "title": {
+      "text": "Origin"
+     },
+     "type": "category"
+    }
+   }
+  },
+  "line-1-methods": {
+   "data": [
+    {
+     "hovertemplate": "Chain ladder, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.85,
+      "size": 9,
+      "symbol": "circle"
+     },
+     "mode": "markers",
+     "name": "Chain ladder",
+     "type": "scatter",
+     "x": [
+      5142092.41,
+      2876013.44,
+      4131087.42,
+      6345082.69
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    },
+    {
+     "hovertemplate": "Bornhuetter–Ferguson, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.85,
+      "size": 9,
+      "symbol": "square"
+     },
+     "mode": "markers",
+     "name": "Bornhuetter–Ferguson",
+     "type": "scatter",
+     "x": [
+      5142092.41,
+      2876013.44,
+      4131087.42,
+      6328001.99
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    },
+    {
+     "hovertemplate": "Cape Cod, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.85,
+      "size": 9,
+      "symbol": "triangle-up"
+     },
+     "mode": "markers",
+     "name": "Cape Cod",
+     "type": "scatter",
+     "x": [
+      5142092.41,
+      2876013.44,
+      4131087.42,
+      6328001.99
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    },
+    {
+     "hovertemplate": "Expected loss ratio, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.85,
+      "size": 9,
+      "symbol": "x"
+     },
+     "mode": "markers",
+     "name": "Expected loss ratio",
+     "type": "scatter",
+     "x": [
+      2193260.62,
+      3697375.48,
+      4907003.81,
+      7679555.35
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    },
+    {
+     "hovertemplate": "Selected, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--text-primary)",
+      "line": {
+       "width": 2
+      },
+      "size": 15,
+      "symbol": "diamond-open"
+     },
+     "mode": "markers",
+     "name": "Selected",
+     "type": "scatter",
+     "x": [
+      5142092.41,
+      2876013.44,
+      4131087.42,
+      6345082.69
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": true,
+    "title": {
+     "text": "Ultimate by method, incurred, TRY"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Ultimate (TRY)"
+     }
+    },
+    "yaxis": {
+     "autorange": "reversed",
+     "title": {
+      "text": "Origin"
+     },
+     "type": "category"
+    }
+   }
+  },
+  "line-2-factors-incurred": {
+   "data": [
+    {
+     "hovertemplate": "%{x}: %{y:.3f}, %{text}<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.7,
+      "size": 8
+     },
+     "mode": "markers",
+     "name": "Link ratio of one origin",
+     "text": [
+      "origin 2022",
+      "origin 2023",
+      "origin 2024",
+      "origin 2022",
+      "origin 2023",
+      "origin 2022"
+     ],
+     "type": "scatter",
+     "x": [
+      "12-24",
+      "12-24",
+      "12-24",
+      "24-36",
+      "24-36",
+      "36-48"
+     ],
+     "y": [
+      1.0387,
+      2.0006,
+      0.8241,
+      1.5952,
+      0.7605,
+      0.9507
+     ]
+    },
+    {
+     "hovertemplate": "%{x}: selected %{y:.3f}<extra></extra>",
+     "marker": {
+      "color": "var(--text-primary)",
+      "line": {
+       "width": 3
+      },
+      "size": 26,
+      "symbol": "line-ew-open"
+     },
+     "mode": "markers",
+     "name": "Selected factor",
+     "type": "scatter",
+     "x": [
+      "12-24",
+      "24-36",
+      "36-48"
+     ],
+     "y": [
+      1.1397,
+      1.343,
+      0.9507
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": true,
+    "title": {
+     "text": "Link ratios and the selected factor, incurred"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Development (months)"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "title": {
+      "text": "Factor"
+     }
+    }
+   }
+  },
+  "line-2-factors-paid": {
+   "data": [
+    {
+     "hovertemplate": "%{x}: %{y:.3f}, %{text}<extra></extra>",
+     "marker": {
+      "color": "var(--basis-paid)",
+      "opacity": 0.7,
+      "size": 8
+     },
+     "mode": "markers",
+     "name": "Link ratio of one origin",
+     "text": [
+      "origin 2022",
+      "origin 2023",
+      "origin 2024",
+      "origin 2022",
+      "origin 2023",
+      "origin 2022"
+     ],
+     "type": "scatter",
+     "x": [
+      "12-24",
+      "12-24",
+      "12-24",
+      "24-36",
+      "24-36",
+      "36-48"
+     ],
+     "y": [
+      1.4539,
+      8.0336,
+      2.2982,
+      1.3708,
+      1.929,
+      1.3818
+     ]
+    },
+    {
+     "hovertemplate": "%{x}: selected %{y:.3f}<extra></extra>",
+     "marker": {
+      "color": "var(--text-primary)",
+      "line": {
+       "width": 3
+      },
+      "size": 26,
+      "symbol": "line-ew-open"
+     },
+     "mode": "markers",
+     "name": "Selected factor",
+     "type": "scatter",
+     "x": [
+      "12-24",
+      "24-36",
+      "36-48"
+     ],
+     "y": [
+      1.6007,
+      1.4168,
+      1.3818
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": true,
+    "title": {
+     "text": "Link ratios and the selected factor, paid"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Development (months)"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "title": {
+      "text": "Factor"
+     }
+    }
+   }
+  },
+  "line-2-heatmap-incurred": {
+   "data": [
+    {
+     "colorscale": "ramp:incurred",
+     "hovertemplate": "Origin %{y} · age %{x} months<br>%{text}<extra></extra>",
+     "showscale": false,
+     "text": [
+      [
+       "7,831,231 TRY · 18 claims",
+       "8,134,038 TRY · 18 claims",
+       "12,975,742 TRY · 18 claims",
+       "12,336,218 TRY · 18 claims"
+      ],
+      [
+       "1,760,582 TRY · 10 claims",
+       "3,522,183 TRY · 15 claims",
+       "2,678,630 TRY · 15 claims",
+       ""
+      ],
+      [
+       "2,295,445 TRY · 8 claims",
+       "1,891,680 TRY · 8 claims",
+       "",
+       ""
+      ],
+      [
+       "3,511,628 TRY · 12 claims",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "type": "heatmap",
+     "x": [
+      "12",
+      "24",
+      "36",
+      "48"
+     ],
+     "xgap": 2,
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ],
+     "ygap": 2,
+     "z": [
+      [
+       7831230.71,
+       8134037.84,
+       12975742.4,
+       12336217.69
+      ],
+      [
+       1760582.4,
+       3522183.39,
+       2678629.79,
+       null
+      ],
+      [
+       2295444.79,
+       1891680.2,
+       null,
+       null
+      ],
+      [
+       3511628.47,
+       null,
+       null,
+       null
+      ]
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": false,
+    "title": {
+     "text": "Cumulative incurred, TRY"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Development age (months)"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "autorange": "reversed",
+     "title": {
+      "text": "Origin"
+     },
+     "type": "category"
+    }
+   }
+  },
+  "line-2-heatmap-paid": {
+   "data": [
+    {
+     "colorscale": "ramp:paid",
+     "hovertemplate": "Origin %{y} · age %{x} months<br>%{text}<extra></extra>",
+     "showscale": false,
+     "text": [
+      [
+       "4,466,883 TRY · 18 claims",
+       "6,494,414 TRY · 18 claims",
+       "8,902,239 TRY · 18 claims",
+       "12,301,465 TRY · 18 claims"
+      ],
+      [
+       "72,761 TRY · 10 claims",
+       "584,531 TRY · 15 claims",
+       "1,127,544 TRY · 15 claims",
+       ""
+      ],
+      [
+       "268,869 TRY · 8 claims",
+       "617,909 TRY · 8 claims",
+       "",
+       ""
+      ],
+      [
+       "462,254 TRY · 12 claims",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "type": "heatmap",
+     "x": [
+      "12",
+      "24",
+      "36",
+      "48"
+     ],
+     "xgap": 2,
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ],
+     "ygap": 2,
+     "z": [
+      [
+       4466883.02,
+       6494413.97,
+       8902239.32,
+       12301465.02
+      ],
+      [
+       72761.02,
+       584530.77,
+       1127544.31,
+       null
+      ],
+      [
+       268869.44,
+       617908.64,
+       null,
+       null
+      ],
+      [
+       462253.59,
+       null,
+       null,
+       null
+      ]
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": false,
+    "title": {
+     "text": "Cumulative paid, TRY"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Development age (months)"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "autorange": "reversed",
+     "title": {
+      "text": "Origin"
+     },
+     "type": "category"
+    }
+   }
+  },
+  "line-2-methods": {
+   "data": [
+    {
+     "hovertemplate": "Chain ladder, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.85,
+      "size": 9,
+      "symbol": "circle"
+     },
+     "mode": "markers",
+     "name": "Chain ladder",
+     "type": "scatter",
+     "x": [
+      12336217.69,
+      2546610.37,
+      2415324.02,
+      5110066.92
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    },
+    {
+     "hovertemplate": "Bornhuetter–Ferguson, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.85,
+      "size": 9,
+      "symbol": "square"
+     },
+     "mode": "markers",
+     "name": "Bornhuetter–Ferguson",
+     "type": "scatter",
+     "x": [
+      12336217.69,
+      2451817.62,
+      3456104.31,
+      6892455.35
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    },
+    {
+     "hovertemplate": "Cape Cod, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.85,
+      "size": 9,
+      "symbol": "triangle-up"
+     },
+     "mode": "markers",
+     "name": "Cape Cod",
+     "type": "scatter",
+     "x": [
+      12336217.69,
+      2451817.62,
+      3456104.31,
+      6892455.35
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    },
+    {
+     "hovertemplate": "Expected loss ratio, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.85,
+      "size": 9,
+      "symbol": "x"
+     },
+     "mode": "markers",
+     "name": "Expected loss ratio",
+     "type": "scatter",
+     "x": [
+      2737301.74,
+      4375130.86,
+      7215956.64,
+      10808205.73
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    },
+    {
+     "hovertemplate": "Selected, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--text-primary)",
+      "line": {
+       "width": 2
+      },
+      "size": 15,
+      "symbol": "diamond-open"
+     },
+     "mode": "markers",
+     "name": "Selected",
+     "type": "scatter",
+     "x": [
+      12336217.69,
+      2546610.37,
+      2415324.02,
+      5110066.92
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": true,
+    "title": {
+     "text": "Ultimate by method, incurred, TRY"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Ultimate (TRY)"
+     }
+    },
+    "yaxis": {
+     "autorange": "reversed",
+     "title": {
+      "text": "Origin"
+     },
+     "type": "category"
+    }
+   }
+  },
+  "line-3-factors-incurred": {
+   "data": [
+    {
+     "hovertemplate": "%{x}: %{y:.3f}, %{text}<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.7,
+      "size": 8
+     },
+     "mode": "markers",
+     "name": "Link ratio of one origin",
+     "text": [
+      "origin 2023",
+      "origin 2024",
+      "origin 2023"
+     ],
+     "type": "scatter",
+     "x": [
+      "12-24",
+      "12-24",
+      "24-36"
+     ],
+     "y": [
+      1.0,
+      1.1079,
+      1.0
+     ]
+    },
+    {
+     "hovertemplate": "%{x}: selected %{y:.3f}<extra></extra>",
+     "marker": {
+      "color": "var(--text-primary)",
+      "line": {
+       "width": 3
+      },
+      "size": 26,
+      "symbol": "line-ew-open"
+     },
+     "mode": "markers",
+     "name": "Selected factor",
+     "type": "scatter",
+     "x": [
+      "12-24",
+      "24-36",
+      "36-48"
+     ],
+     "y": [
+      1.0817,
+      1.0,
+      1.0
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": true,
+    "title": {
+     "text": "Link ratios and the selected factor, incurred"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Development (months)"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "title": {
+      "text": "Factor"
+     }
+    }
+   }
+  },
+  "line-3-factors-paid": {
+   "data": [
+    {
+     "hovertemplate": "%{x}: %{y:.3f}, %{text}<extra></extra>",
+     "marker": {
+      "color": "var(--basis-paid)",
+      "opacity": 0.7,
+      "size": 8
+     },
+     "mode": "markers",
+     "name": "Link ratio of one origin",
+     "text": [
+      "origin 2023",
+      "origin 2023"
+     ],
+     "type": "scatter",
+     "x": [
+      "12-24",
+      "24-36"
+     ],
+     "y": [
+      1.0,
+      1.0
+     ]
+    },
+    {
+     "hovertemplate": "%{x}: selected %{y:.3f}<extra></extra>",
+     "marker": {
+      "color": "var(--text-primary)",
+      "line": {
+       "width": 3
+      },
+      "size": 26,
+      "symbol": "line-ew-open"
+     },
+     "mode": "markers",
+     "name": "Selected factor",
+     "type": "scatter",
+     "x": [
+      "12-24",
+      "24-36",
+      "36-48"
+     ],
+     "y": [
+      4.4594,
+      1.0,
+      1.0
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": true,
+    "title": {
+     "text": "Link ratios and the selected factor, paid"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Development (months)"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "title": {
+      "text": "Factor"
+     }
+    }
+   }
+  },
+  "line-3-heatmap-incurred": {
+   "data": [
+    {
+     "colorscale": "ramp:incurred",
+     "hovertemplate": "Origin %{y} · age %{x} months<br>%{text}<extra></extra>",
+     "showscale": false,
+     "text": [
+      [
+       "0 TRY · 0 claims · thin",
+       "0 TRY · 0 claims · thin",
+       "0 TRY · 0 claims · thin",
+       "0 TRY · 0 claims · thin"
+      ],
+      [
+       "161,906 TRY · 3 claims · thin",
+       "161,906 TRY · 3 claims · thin",
+       "161,906 TRY · 3 claims · thin",
+       ""
+      ],
+      [
+       "505,556 TRY · 2 claims · thin",
+       "560,092 TRY · 2 claims · thin",
+       "",
+       ""
+      ],
+      [
+       "222,566 TRY · 2 claims · thin",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "type": "heatmap",
+     "x": [
+      "12",
+      "24",
+      "36",
+      "48"
+     ],
+     "xgap": 2,
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ],
+     "ygap": 2,
+     "z": [
+      [
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      [
+       161905.66,
+       161905.66,
+       161905.66,
+       null
+      ],
+      [
+       505555.79,
+       560092.38,
+       null,
+       null
+      ],
+      [
+       222566.06,
+       null,
+       null,
+       null
+      ]
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": false,
+    "title": {
+     "text": "Cumulative incurred, TRY"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Development age (months)"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "autorange": "reversed",
+     "title": {
+      "text": "Origin"
+     },
+     "type": "category"
+    }
+   }
+  },
+  "line-3-heatmap-paid": {
+   "data": [
+    {
+     "colorscale": "ramp:paid",
+     "hovertemplate": "Origin %{y} · age %{x} months<br>%{text}<extra></extra>",
+     "showscale": false,
+     "text": [
+      [
+       "0 TRY · 0 claims · thin",
+       "0 TRY · 0 claims · thin",
+       "0 TRY · 0 claims · thin",
+       "0 TRY · 0 claims · thin"
+      ],
+      [
+       "161,906 TRY · 3 claims · thin",
+       "161,906 TRY · 3 claims · thin",
+       "161,906 TRY · 3 claims · thin",
+       ""
+      ],
+      [
+       "0 TRY · 2 claims · thin",
+       "560,092 TRY · 2 claims · thin",
+       "",
+       ""
+      ],
+      [
+       "222,566 TRY · 2 claims · thin",
+       "",
+       "",
+       ""
+      ]
+     ],
+     "type": "heatmap",
+     "x": [
+      "12",
+      "24",
+      "36",
+      "48"
+     ],
+     "xgap": 2,
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ],
+     "ygap": 2,
+     "z": [
+      [
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      [
+       161905.66,
+       161905.66,
+       161905.66,
+       null
+      ],
+      [
+       0.0,
+       560092.38,
+       null,
+       null
+      ],
+      [
+       222566.06,
+       null,
+       null,
+       null
+      ]
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": false,
+    "title": {
+     "text": "Cumulative paid, TRY"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Development age (months)"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "autorange": "reversed",
+     "title": {
+      "text": "Origin"
+     },
+     "type": "category"
+    }
+   }
+  },
+  "line-3-methods": {
+   "data": [
+    {
+     "hovertemplate": "Chain ladder, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.85,
+      "size": 9,
+      "symbol": "circle"
+     },
+     "mode": "markers",
+     "name": "Chain ladder",
+     "type": "scatter",
+     "x": [
+      0.0,
+      161905.66,
+      560092.38,
+      240751.37
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    },
+    {
+     "hovertemplate": "Bornhuetter–Ferguson, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.85,
+      "size": 9,
+      "symbol": "square"
+     },
+     "mode": "markers",
+     "name": "Bornhuetter–Ferguson",
+     "type": "scatter",
+     "x": [
+      0.0,
+      161905.66,
+      560092.38,
+      255913.31
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    },
+    {
+     "hovertemplate": "Cape Cod, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.85,
+      "size": 9,
+      "symbol": "triangle-up"
+     },
+     "mode": "markers",
+     "name": "Cape Cod",
+     "type": "scatter",
+     "x": [
+      0.0,
+      161905.66,
+      560092.38,
+      255913.31
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    },
+    {
+     "hovertemplate": "Expected loss ratio, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--basis-incurred)",
+      "opacity": 0.85,
+      "size": 9,
+      "symbol": "x"
+     },
+     "mode": "markers",
+     "name": "Expected loss ratio",
+     "type": "scatter",
+     "x": [
+      85940.6,
+      185843.72,
+      264650.08,
+      441476.93
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    },
+    {
+     "hovertemplate": "Selected, origin %{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": "var(--text-primary)",
+      "line": {
+       "width": 2
+      },
+      "size": 15,
+      "symbol": "diamond-open"
+     },
+     "mode": "markers",
+     "name": "Selected",
+     "type": "scatter",
+     "x": [
+      0.0,
+      161905.66,
+      560092.38,
+      240751.37
+     ],
+     "y": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ]
+    }
+   ],
+   "layout": {
+    "showlegend": true,
+    "title": {
+     "text": "Ultimate by method, incurred, TRY"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Ultimate (TRY)"
+     }
+    },
+    "yaxis": {
+     "autorange": "reversed",
+     "title": {
+      "text": "Origin"
+     },
+     "type": "category"
+    }
+   }
+  },
+  "portfolio-written": {
+   "data": [
+    {
+     "hovertemplate": "%{y}: %{x:,.0f} TRY<extra></extra>",
+     "marker": {
+      "color": [
+       "var(--segment-life)",
+       "var(--segment-non-life)",
+       "var(--segment-non-life)",
+       "var(--segment-non-life)"
+      ]
+     },
+     "orientation": "h",
+     "type": "bar",
+     "x": [
+      48910936.24,
+      10393268.69,
+      31863343.27,
+      3527127.327
+     ],
+     "y": [
+      "LIFE · GROUP_TERM_LIFE",
+      "NON_LIFE · MOTOR_OD",
+      "NON_LIFE · MOTOR_TPL",
+      "NON_LIFE · PROPERTY"
+     ]
+    }
+   ],
+   "layout": {
+    "height": 220,
+    "margin": {
+     "b": 48,
+     "l": 180,
+     "r": 16,
+     "t": 40
+    },
+    "showlegend": false,
+    "title": {
+     "text": "Written premium 2025 by line, TRY"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Written premium (TRY)"
+     }
+    },
+    "yaxis": {
+     "automargin": true,
+     "autorange": "reversed",
+     "type": "category"
+    }
+   }
+  },
+  "profitability-0": {
+   "data": [
+    {
+     "hovertemplate": "Origin %{x}: %{y:.1%}<extra></extra>",
+     "line": {
+      "color": "var(--segment-life)",
+      "width": 2
+     },
+     "marker": {
+      "color": "var(--segment-life)",
+      "size": 8
+     },
+     "mode": "lines+markers",
+     "type": "scatter",
+     "x": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ],
+     "y": [
+      0.421437,
+      0.72949,
+      0.686236,
+      1.054375
+     ]
+    }
+   ],
+   "layout": {
+    "height": 240,
+    "showlegend": false,
+    "title": {
+     "text": "Ultimate loss ratio by origin, GROUP_TERM_LIFE"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Origin"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "rangemode": "tozero",
+     "tickformat": ".0%",
+     "title": {
+      "text": "Ratio"
+     }
+    }
+   }
+  },
+  "profitability-1": {
+   "data": [
+    {
+     "hovertemplate": "Origin %{x}: %{y:.1%}<extra></extra>",
+     "line": {
+      "color": "var(--segment-non-life)",
+      "width": 2
+     },
+     "marker": {
+      "color": "var(--segment-non-life)",
+      "size": 8
+     },
+     "mode": "lines+markers",
+     "type": "scatter",
+     "x": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ],
+     "y": [
+      2.184857,
+      0.724888,
+      0.784551,
+      0.769971
+     ]
+    }
+   ],
+   "layout": {
+    "height": 240,
+    "showlegend": false,
+    "title": {
+     "text": "Ultimate loss ratio by origin, MOTOR_OD"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Origin"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "rangemode": "tozero",
+     "tickformat": ".0%",
+     "title": {
+      "text": "Ratio"
+     }
+    }
+   }
+  },
+  "profitability-2": {
+   "data": [
+    {
+     "hovertemplate": "Origin %{x}: %{y:.1%}<extra></extra>",
+     "line": {
+      "color": "var(--segment-non-life)",
+      "width": 2
+     },
+     "marker": {
+      "color": "var(--segment-non-life)",
+      "size": 8
+     },
+     "mode": "lines+markers",
+     "type": "scatter",
+     "x": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ],
+     "y": [
+      1.686336,
+      0.217799,
+      0.125247,
+      0.176912
+     ]
+    }
+   ],
+   "layout": {
+    "height": 240,
+    "showlegend": false,
+    "title": {
+     "text": "Ultimate loss ratio by origin, MOTOR_TPL"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Origin"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "rangemode": "tozero",
+     "tickformat": ".0%",
+     "title": {
+      "text": "Ratio"
+     }
+    }
+   }
+  },
+  "profitability-3": {
+   "data": [
+    {
+     "hovertemplate": "Origin %{x}: %{y:.1%}<extra></extra>",
+     "line": {
+      "color": "var(--segment-non-life)",
+      "width": 2
+     },
+     "marker": {
+      "color": "var(--segment-non-life)",
+      "size": 8
+     },
+     "mode": "lines+markers",
+     "type": "scatter",
+     "x": [
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+     ],
+     "y": [
+      0.0,
+      0.139916,
+      0.339893,
+      0.087582
+     ]
+    }
+   ],
+   "layout": {
+    "height": 240,
+    "showlegend": false,
+    "title": {
+     "text": "Ultimate loss ratio by origin, PROPERTY"
+    },
+    "xaxis": {
+     "title": {
+      "text": "Origin"
+     },
+     "type": "category"
+    },
+    "yaxis": {
+     "rangemode": "tozero",
+     "tickformat": ".0%",
+     "title": {
+      "text": "Ratio"
+     }
+    }
+   }
+  }
+ },
+ "findings_spec": "RP01 v1.0.0",
+ "further_findings": [
+  {
+   "banner": false,
+   "evidence": "MT02 v1.0.0, RS01 v1.0.0",
+   "files": [
+    "diagnostics.csv",
+    "factors.csv"
+   ],
+   "key": "",
+   "rule": "KF11",
+   "scope": "run",
+   "section": "reserving",
+   "specs": [
+    "MT02",
+    "RS01"
+   ],
+   "text": "Development factors that take a cell growing from zero: 1 (PROPERTY paid 2024:12-24). Such a cell adds to the numerator only and raises the factor; it is kept by default and can be excluded in the assumptions register.",
+   "title": "Factor on a zero denominator"
+  },
+  {
+   "banner": false,
+   "evidence": "MT02 v1.0.0, RS01 v1.0.0",
+   "files": [
+    "diagnostics.csv",
+    "factors.csv"
+   ],
+   "key": "",
+   "rule": "KF12",
+   "scope": "run",
+   "section": "reserving",
+   "specs": [
+    "MT02",
+    "RS01"
+   ],
+   "text": "Development factors resting on fewer than 3 origins: 16, in 4 of 4 lines. Each is an average of one or two link ratios.",
+   "title": "Factors on few origins"
+  },
+  {
+   "banner": false,
+   "evidence": "MT06 v1.0.0, RS03 v1.0.0",
+   "files": [
+    "reserve_range.csv"
+   ],
+   "key": "",
+   "rule": "KF13",
+   "scope": "run",
+   "section": "reserving",
+   "specs": [
+    "MT06",
+    "RS03"
+   ],
+   "text": "Triangles without a reserve range: 8 of 8. The Mack standard error needs more link ratios than they have.",
+   "title": "Reserve range not available"
+  },
+  {
+   "banner": false,
+   "evidence": "DQ01 v1.0.0",
+   "files": [
+    "quality.json"
+   ],
+   "key": "",
+   "rule": "KF14",
+   "scope": "run",
+   "section": "quality",
+   "specs": [
+    "DQ01"
+   ],
+   "text": "Data quality score 99.9 out of 100. Warnings: 6, on 23 rows in all; the largest is \"DV-CLV-06: identical duplicate rows kept once\".",
+   "title": "Data quality warnings"
+  },
+  {
+   "banner": false,
+   "evidence": "",
+   "files": [
+    "modules.json"
+   ],
+   "key": "",
+   "rule": "KF16",
+   "scope": "run",
+   "section": "not-run",
+   "specs": [],
+   "text": "Modules that ran with some measures or methods missing: 2 (M04 Reserving (indicative), M06 Anomalies and large losses).",
+   "title": "Modules limited"
+  }
+ ],
+ "inflation_spec": "MT07 v1.0.0",
+ "key_findings": [
+  {
+   "banner": true,
+   "evidence": "MT02 v1.0.0, MT10 v1.0.0",
+   "files": [
+    "diagnostics.csv"
+   ],
+   "key": "",
+   "rule": "KF01",
+   "scope": "run",
+   "section": "reserving",
+   "specs": [
+    "MT02",
+    "MT10"
+   ],
+   "text": "Only 4 origin periods (2022 to 2025) are loaded for 4 of 4 lines, fewer than the 8 the methods need for solid evidence: every factor, ratio and range rests on few observations, and the differences between methods show how much the answer depends on the method, not how precise it is.",
+   "title": "Thin evidence"
+  },
+  {
+   "banner": false,
+   "evidence": "RS02 v1.0.0, MT10 v1.0.0",
+   "files": [
+    "ultimates.csv"
+   ],
+   "key": "LIFE",
+   "rule": "KF03",
+   "scope": "segment",
+   "section": "reserving",
+   "specs": [
+    "RS02",
+    "MT10"
+   ],
+   "text": "LIFE: selected ultimate claims 88,185,204 TRY, of which 10,604,971 TRY (12.0% of the ultimate) lies above the incurred to date (IBNR); the largest part is GROUP_TERM_LIFE with 10,604,971 TRY.",
+   "title": "Reserve estimate per segment"
+  },
+  {
+   "banner": false,
+   "evidence": "RS02 v1.0.0, MT10 v1.0.0",
+   "files": [
+    "ultimates.csv"
+   ],
+   "key": "NON_LIFE",
+   "rule": "KF03",
+   "scope": "segment",
+   "section": "reserving",
+   "specs": [
+    "RS02",
+    "MT10"
+   ],
+   "text": "NON_LIFE: selected ultimate claims 41,865,244 TRY, of which 1,927,034 TRY (4.6% of the ultimate) lies above the incurred to date (IBNR); the largest part is MOTOR_TPL with 1,990,063 TRY.",
+   "title": "Reserve estimate per segment"
+  },
+  {
+   "banner": false,
+   "evidence": "RT01 v1.0.0",
+   "files": [
+    "measures.csv",
+    "lineage.csv"
+   ],
+   "key": "LIFE",
+   "rule": "KF04",
+   "scope": "segment",
+   "section": "profitability",
+   "specs": [
+    "RT01"
+   ],
+   "text": "LIFE: the ultimate loss ratio rose from 68.6% for origin 2024 to 105.4% for origin 2025.",
+   "title": "Loss ratio rose"
+  },
+  {
+   "banner": false,
+   "evidence": "PR01 v1.0.0",
+   "files": [
+    "measures.csv",
+    "lineage.csv"
+   ],
+   "key": "NON_LIFE",
+   "rule": "KF06",
+   "scope": "segment",
+   "section": "portfolio",
+   "specs": [
+    "PR01"
+   ],
+   "text": "NON_LIFE: written premium grew by 41.2% to 45,783,739 TRY in 2025 against 2024.",
+   "title": "Written premium grew"
+  },
+  {
+   "banner": false,
+   "evidence": "MT02 v1.0.0, RS02 v1.0.0",
+   "files": [
+    "diagnostics.csv",
+    "ultimates.csv"
+   ],
+   "key": "",
+   "rule": "KF08",
+   "scope": "run",
+   "section": "reserving",
+   "specs": [
+    "MT02",
+    "RS02"
+   ],
+   "text": "Origins where the paid chain ladder gives an ultimate below what is already incurred: 5 (MOTOR_OD 2025, MOTOR_TPL 2022, 2023, 2024, 2025). The paid pattern is too short or case reserves are high, so the paid estimates of these origins are not used on their own.",
+   "title": "Paid ultimate below incurred to date"
+  },
+  {
+   "banner": false,
+   "evidence": "MT02 v1.0.0, RS01 v1.0.0",
+   "files": [
+    "diagnostics.csv",
+    "assumptions.csv"
+   ],
+   "key": "",
+   "rule": "KF09",
+   "scope": "run",
+   "section": "reserving",
+   "specs": [
+    "MT02",
+    "RS01"
+   ],
+   "text": "Development is still above 1.050 in the last observed period (MOTOR_TPL paid 36-48 (1.382)) while the tail factor is 1.0, so ultimates of these lines may be understated; a tail factor can be set in the assumptions register.",
+   "title": "High last development with tail 1.0"
+  },
+  {
+   "banner": false,
+   "evidence": "MT08 v1.0.0",
+   "files": [
+    "anomalies.csv"
+   ],
+   "key": "",
+   "rule": "KF10",
+   "scope": "run",
+   "section": "anomalies",
+   "specs": [
+    "MT08"
+   ],
+   "text": "Lines where the robust z-score flags more than 5.0% of the values: 2 (highest 26.8% in MOTOR_OD). Such a line may mix populations, so its flags are leads to review, not errors.",
+   "title": "Anomaly rate above the limit"
+  }
+ ],
+ "label": "Indicative — not an official reserve or price",
+ "lineage": {
+  "measures": 32,
+  "traced": [
+   "AE01",
+   "CL01",
+   "CL02",
+   "CL03",
+   "CL04",
+   "CL05",
+   "CL06",
+   "CL07",
+   "CL08",
+   "CL09",
+   "CL10",
+   "CL11",
+   "CL12",
+   "EX01",
+   "EX02",
+   "EX03",
+   "PR01",
+   "PR02",
+   "PR03",
+   "PR04",
+   "PR05",
+   "PR06",
+   "RC01",
+   "RC02",
+   "RI01",
+   "RI02",
+   "RS01",
+   "RS02",
+   "RS03",
+   "RT01",
+   "RT02"
+  ],
+  "untraced": [
+   "DQ01"
+  ]
+ },
+ "methods": [
+  {
+   "assumptions": [
+    "Each claim has one origin period, fixed for the run.",
+    "Valuation rows describe the claim as known at their date (as-of rule, CV04)."
+   ],
+   "id": "MT01",
+   "parameters": [
+    {
+     "default": "incurred",
+     "name": "measure"
+    },
+    {
+     "default": "accident",
+     "name": "origin_axis"
+    },
+    {
+     "default": "YEAR",
+     "name": "origin_period"
+    },
+    {
+     "default": "YEAR",
+     "name": "development_period"
+    },
+    {
+     "default": "['segment', 'line']",
+     "name": "group_by"
+    },
+    {
+     "default": "GROSS",
+     "name": "reinsurance_basis"
+    },
+    {
+     "default": "NOMINAL",
+     "name": "value_basis"
+    }
+   ],
+   "plain": "Builds cumulative and incremental development triangles of paid, incurred, case reserve and claim counts from claim valuations, for any origin and development period and on any basis.",
+   "spec": "MT01 v1.0.0",
+   "title": "Triangle construction"
+  },
+  {
+   "assumptions": [
+    "Future development of each origin follows the same age-to-age factors as the past.",
+    "Origins are comparable; no change in case reserving, payment speed or mix.",
+    "No calendar-period effect such as inflation shocks."
+   ],
+   "id": "MT02",
+   "parameters": [
+    {
+     "default": "volume_weighted",
+     "name": "average"
+    },
+    {
+     "default": "",
+     "name": "n_diagonals"
+    },
+    {
+     "default": "[]",
+     "name": "exclusions"
+    },
+    {
+     "default": "False",
+     "name": "exclude_high_low"
+    },
+    {
+     "default": "1.0",
+     "name": "tail_factor"
+    },
+    {
+     "default": "3",
+     "name": "min_origins"
+    }
+   ],
+   "plain": "Projects each origin's cumulative claims to ultimate with age-to-age factors estimated from the triangle, using volume-weighted, simple or recent-diagonal averages, with optional exclusions.",
+   "spec": "MT02 v1.0.0",
+   "title": "Chain ladder"
+  },
+  {
+   "assumptions": [
+    "The prior loss ratio is a credible estimate of each origin's ultimate loss ratio.",
+    "The chain-ladder pattern describes the share of claims still to emerge.",
+    "Earned premium measures exposure consistently across origins."
+   ],
+   "id": "MT03",
+   "parameters": [
+    {
+     "default": "cape_cod",
+     "name": "prior_loss_ratio"
+    },
+    {
+     "default": "chain_ladder_selected",
+     "name": "pattern"
+    }
+   ],
+   "plain": "Ultimate claims as reported claims plus the still-unreported share of an a priori expected ultimate (prior loss ratio times earned premium), the unreported share coming from the chain-ladder pattern.",
+   "spec": "MT03 v1.0.0",
+   "title": "Bornhuetter–Ferguson"
+  },
+  {
+   "assumptions": [
+    "One expected loss ratio holds for all origins of the group.",
+    "The chain-ladder pattern describes reporting, as in MT02."
+   ],
+   "id": "MT04",
+   "parameters": [
+    {
+     "default": "chain_ladder_selected",
+     "name": "pattern"
+    },
+    {
+     "default": "all",
+     "name": "origins_used"
+    }
+   ],
+   "plain": "Bornhuetter–Ferguson with the prior loss ratio estimated from the data: reported claims divided by the premium already \"used up\" by development, over all origins of a group.",
+   "spec": "MT04 v1.0.0",
+   "title": "Cape Cod"
+  },
+  {
+   "assumptions": [
+    "The expected loss ratio is a better guide than the claims reported so far."
+   ],
+   "id": "MT05",
+   "parameters": [
+    {
+     "default": "cape_cod",
+     "name": "expected_loss_ratio"
+    }
+   ],
+   "plain": "Ultimate claims as an expected loss ratio times earned premium, ignoring reported claims.",
+   "spec": "MT05 v1.0.0",
+   "title": "Expected loss ratio method"
+  },
+  {
+   "assumptions": [
+    "The chosen index reflects claims inflation of the line.",
+    "Development in real terms is stable, as MT02 assumes.",
+    "Future payments of development period k fall at its middle."
+   ],
+   "id": "MT07",
+   "parameters": [
+    {
+     "default": "CV02 price_index",
+     "name": "price_index"
+    },
+    {
+     "default": "cut-off",
+     "name": "value_date"
+    },
+    {
+     "default": "",
+     "name": "future_inflation"
+    },
+    {
+     "default": "MT02 defaults",
+     "name": "chain_ladder"
+    }
+   ],
+   "plain": "Chain ladder on a paid triangle restated to value-date prices, so that development factors are free of past inflation; future payments are re-inflated only with an explicit future inflation assumption.",
+   "spec": "MT07 v1.0.0",
+   "title": "Inflation-adjusted chain ladder"
+  },
+  {
+   "assumptions": [
+    "Anomalies are rare, so the median and MAD describe normal behaviour.",
+    "On the log scale the variables are roughly symmetric."
+   ],
+   "id": "MT08",
+   "parameters": [
+    {
+     "default": "3.5",
+     "name": "threshold"
+    },
+    {
+     "default": "30",
+     "name": "min_group_size"
+    },
+    {
+     "default": "['segment', 'line']",
+     "name": "group_by"
+    },
+    {
+     "default": "['paid_flow', 'reserve_change']",
+     "name": "variables"
+    }
+   ],
+   "plain": "Flags individual payments and case-reserve changes that lie far from the typical values of their segment and line, measured by a z-score built on the median and the median absolute deviation, which outliers cannot distort.",
+   "spec": "MT08 v1.0.0",
+   "title": "Robust z-score anomaly flags"
+  },
+  {
+   "assumptions": [
+    "Anomalous claims are few and differ from the rest on the chosen features."
+   ],
+   "id": "MT09",
+   "parameters": [
+    {
+     "default": "200",
+     "name": "n_estimators"
+    },
+    {
+     "default": "256",
+     "name": "max_samples"
+    },
+    {
+     "default": "0.01",
+     "name": "contamination"
+    },
+    {
+     "default": "1",
+     "name": "seed"
+    },
+    {
+     "default": "100",
+     "name": "min_group_size"
+    },
+    {
+     "default": "['segment']",
+     "name": "group_by"
+    }
+   ],
+   "plain": "Scores whole claims by how easily random splits isolate them on a set of claim-level features, and flags the most isolated ones; complements MT08, which looks at single movements.",
+   "spec": "MT09 v1.0.0",
+   "title": "Isolation forest anomaly flags"
+  },
+  {
+   "assumptions": [
+    "Below the maturity threshold the reported claims are too thin to extrapolate by factors alone."
+   ],
+   "id": "MT10",
+   "parameters": [
+    {
+     "default": "incurred",
+     "name": "measure"
+    },
+    {
+     "default": "0.5",
+     "name": "bf_below_maturity"
+    },
+    {
+     "default": "[]",
+     "name": "overrides"
+    }
+   ],
+   "plain": "Chooses one ultimate per origin from the methods that ran: chain ladder for origins developed enough, Bornhuetter–Ferguson for immature ones, unless the user selects otherwise.",
+   "spec": "MT10 v1.0.0",
+   "title": "Ultimate selection"
+  }
+ ],
+ "not_run": {
+  "modules": [
+   {
+    "load": "",
+    "missing": [],
+    "module": "M04 Reserving (indicative)",
+    "state": "limited",
+    "why": [
+     "MT06 Mack standard error did not run for 8 of 8 triangles: too few link ratios to estimate variance"
+    ]
+   },
+   {
+    "load": "",
+    "missing": [],
+    "module": "M06 Anomalies and large losses",
+    "state": "limited",
+    "why": [
+     "MT08: NON_LIFE/MOTOR_OD reserve_change: 40.1% of values flagged, above 5%; the group may mix populations (for example two currencies)",
+     "MT08: NON_LIFE/MOTOR_TPL reserve_change: 6.3% of values flagged, above 5%; the group may mix populations (for example two currencies)",
+     "MT08: 2 groups have too few values to score",
+     "MT09: 1 group has too few claims to score"
+    ]
+   }
+  ]
+ },
+ "pages": [
+  {
+   "anchor": "data",
+   "body": {
+    "coverage": [
+     {
+      "concept": "claim_valuations",
+      "first": "2022-01-31",
+      "last": "2025-12-31",
+      "loaded": true,
+      "rows": "1,242",
+      "score": "99.9"
+     },
+     {
+      "concept": "claims",
+      "first": "2022-01-17",
+      "last": "2025-12-28",
+      "loaded": true,
+      "rows": "175",
+      "score": "99.8"
+     },
+     {
+      "concept": "expenses",
+      "first": "2022-01-31",
+      "last": "2025-12-31",
+      "loaded": true,
+      "rows": "846",
+      "score": "100.0"
+     },
+     {
+      "concept": "market",
+      "first": "2016-01-01",
+      "last": "2025-12-31",
+      "loaded": true,
+      "rows": "5,818",
+      "score": "100.0"
+     },
+     {
+      "concept": "policies",
+      "first": "2021-01-01",
+      "last": "2025-12-31",
+      "loaded": true,
+      "rows": "2,477",
+      "score": "100.0"
+     },
+     {
+      "concept": "premiums",
+      "first": "2020-12-23",
+      "last": "2025-12-31",
+      "loaded": true,
+      "rows": "8,031",
+      "score": "100.0"
+     }
+    ],
+    "footnote": "DQ01 v1.0.0; rows as read from the spreadsheets; scores out of 100.",
+    "score": "99.9"
+   },
+   "module": "M01",
+   "question": "What did I load, and can I trust it?",
+   "reasons": [],
+   "spec": "M01 v1.0.0",
+   "state": "ran",
+   "title": "Data understanding"
+  },
+  {
+   "anchor": "portfolio",
+   "body": {
+    "business": [
+     {
+      "basis": "GROSS, REPORTING, NOMINAL",
+      "measure": "PR04 Cancellation rate",
+      "points": [
+       {
+        "period": "2024",
+        "value": "0.9%"
+       },
+       {
+        "period": "2025",
+        "value": "1.9%"
+       }
+      ],
+      "ref": "PR04 [calendar_period] rows 4, 5"
+     },
+     {
+      "basis": "NET, REPORTING, NOMINAL",
+      "measure": "PR05 Retention ratio",
+      "points": [
+       {
+        "period": "2024",
+        "value": "98.6%"
+       },
+       {
+        "period": "2025",
+        "value": "98.0%"
+       }
+      ],
+      "ref": "PR05 [calendar_period] rows 4, 5"
+     }
+    ],
+    "figure": "portfolio-written",
+    "footnote": "TRY, GROSS, REPORTING, NOMINAL. Written premium PR01 v1.0.0 by calendar period; earned PR02 v1.0.0 in the latest period; unearned at the valuation date PR03 v1.0.0; average premium PR06 v1.0.0. Each line's colour is its segment.",
+    "period": "2025",
+    "rows": [
+     {
+      "average": "7,034",
+      "change": "+5.5%",
+      "earned": "43,067,828",
+      "latest": "48,910,936",
+      "line": "LIFE · GROUP_TERM_LIFE",
+      "previous": "46,353,114",
+      "ref": "PR01 [segment,line,calendar_period] rows 4, 5; PR02 [segment,line,calendar_period] rows 4; PR03 [segment,line] rows 0",
+      "segment": "LIFE",
+      "unearned": "26,884,260"
+     },
+     {
+      "average": "77,777",
+      "change": "+56.8%",
+      "earned": "8,240,673",
+      "latest": "10,393,269",
+      "line": "NON_LIFE · MOTOR_OD",
+      "previous": "6,629,676",
+      "ref": "PR01 [segment,line,calendar_period] rows 10, 11; PR02 [segment,line,calendar_period] rows 9; PR03 [segment,line] rows 1",
+      "segment": "NON_LIFE",
+      "unearned": "5,683,386"
+     },
+     {
+      "average": "93,839",
+      "change": "+33.3%",
+      "earned": "28,884,763",
+      "latest": "31,863,343",
+      "line": "NON_LIFE · MOTOR_TPL",
+      "previous": "23,898,237",
+      "ref": "PR01 [segment,line,calendar_period] rows 16, 17; PR02 [segment,line,calendar_period] rows 14; PR03 [segment,line] rows 2",
+      "segment": "NON_LIFE",
+      "unearned": "15,553,949"
+     },
+     {
+      "average": "38,163",
+      "change": "+86.1%",
+      "earned": "2,748,864",
+      "latest": "3,527,127",
+      "line": "NON_LIFE · PROPERTY",
+      "previous": "1,894,804",
+      "ref": "PR01 [segment,line,calendar_period] rows 22, 23; PR02 [segment,line,calendar_period] rows 19; PR03 [segment,line] rows 3",
+      "segment": "NON_LIFE",
+      "unearned": "1,843,672"
+     }
+    ]
+   },
+   "module": "M02",
+   "question": "How big is the book, and where does it grow or shrink?",
+   "reasons": [],
+   "spec": "M02 v1.0.0",
+   "state": "ran",
+   "title": "Portfolio and premium"
+  },
+  {
+   "anchor": "claims",
+   "body": {
+    "figure": "claims-incurred",
+    "footnote": "TRY, GROSS, REPORTING, NOMINAL; all origin periods to the valuation date. Claim counts CL04 v1.0.0; paid CL01 v1.0.0, case reserve CL02 v1.0.0, incurred CL03 v1.0.0; mean reporting delay in days CL07 v1.0.0 weighted by claims; mean settlement time in days CL08 v1.0.0; large-loss share of incurred CL12 v1.0.0. Each line's colour is its segment.",
+    "rows": [
+     {
+      "case": "10,619,416",
+      "delay": "30",
+      "incurred": "77,580,233",
+      "large_share": "0.0%",
+      "line": "LIFE · GROUP_TERM_LIFE",
+      "open": "3",
+      "paid": "66,960,817",
+      "ref": "CL04 [segment,line] rows 0, 1, 2, 3, 4, 5, 6; CL01 [segment,line,origin_period] rows 0, 1, 2, 3; CL02 [segment,line,origin_period] rows 0, 1, 2, 3; CL03 [segment,line,origin_period] rows 0, 1, 2, 3; CL07 [segment,line,origin_period] rows 0, 1, 2, 3; CL12 [segment,line,origin_period] rows 0, 1, 2, 3",
+      "reported": "37",
+      "settlement": "54"
+     },
+     {
+      "case": "2,741,207",
+      "delay": "8",
+      "incurred": "18,575,490",
+      "large_share": "21.7%",
+      "line": "NON_LIFE · MOTOR_OD",
+      "open": "6",
+      "paid": "15,834,283",
+      "ref": "CL04 [segment,line] rows 7, 8, 9, 10, 11, 12, 13; CL01 [segment,line,origin_period] rows 4, 5, 6, 7; CL02 [segment,line,origin_period] rows 4, 5, 6, 7; CL03 [segment,line,origin_period] rows 4, 5, 6, 7; CL07 [segment,line,origin_period] rows 4, 5, 6, 7; CL12 [segment,line,origin_period] rows 4, 5, 6, 7",
+      "reported": "78",
+      "settlement": "71"
+     },
+     {
+      "case": "5,908,985",
+      "delay": "48",
+      "incurred": "20,418,156",
+      "large_share": "19.0%",
+      "line": "NON_LIFE · MOTOR_TPL",
+      "open": "22",
+      "paid": "14,509,172",
+      "ref": "CL04 [segment,line] rows 14, 15, 16, 17, 18, 19, 20; CL01 [segment,line,origin_period] rows 8, 9, 10, 11; CL02 [segment,line,origin_period] rows 8, 9, 10, 11; CL03 [segment,line,origin_period] rows 8, 9, 10, 11; CL07 [segment,line,origin_period] rows 8, 9, 10, 11; CL12 [segment,line,origin_period] rows 8, 9, 10, 11",
+      "reported": "53",
+      "settlement": "361"
+     },
+     {
+      "case": "0",
+      "delay": "34",
+      "incurred": "944,564",
+      "large_share": "0.0%",
+      "line": "NON_LIFE · PROPERTY",
+      "open": "0",
+      "paid": "944,564",
+      "ref": "CL04 [segment,line] rows 21, 22, 23, 24, 25, 26, 27; CL01 [segment,line,origin_period] rows 12, 13, 14; CL02 [segment,line,origin_period] rows 12, 13, 14; CL03 [segment,line,origin_period] rows 12, 13, 14; CL07 [segment,line,origin_period] rows 12, 13, 14; CL12 [segment,line,origin_period] rows 12, 13, 14",
+      "reported": "7",
+      "settlement": "115"
+     }
+    ]
+   },
+   "module": "M03",
+   "question": "How many claims, how large, how fast?",
+   "reasons": [],
+   "spec": "M03 v1.0.0",
+   "state": "ran",
+   "title": "Claims experience"
+  },
+  {
+   "anchor": "profitability",
+   "body": {
+    "expenses": [
+     {
+      "basis": "GROSS, REPORTING, NOMINAL",
+      "measure": "EX01 Commission ratio",
+      "points": [
+       {
+        "period": "2024",
+        "value": "9.4%"
+       },
+       {
+        "period": "2025",
+        "value": "9.8%"
+       }
+      ],
+      "ref": "EX01 [calendar_period] rows 3, 4"
+     },
+     {
+      "basis": "GROSS, REPORTING, NOMINAL",
+      "measure": "EX02 Expense ratio",
+      "points": [
+       {
+        "period": "2024",
+        "value": "7.8%"
+       },
+       {
+        "period": "2025",
+        "value": "8.0%"
+       }
+      ],
+      "ref": "EX02 [calendar_period] rows 2, 3"
+     },
+     {
+      "basis": "GROSS, REPORTING, NOMINAL",
+      "measure": "EX03 Claims handling ratio",
+      "points": [
+       {
+        "period": "2024",
+        "value": "4.5%"
+       },
+       {
+        "period": "2025",
+        "value": "4.8%"
+       }
+      ],
+      "ref": "EX03 [calendar_period] rows 2, 3"
+     }
+    ],
+    "figure_note": "Ultimate loss ratio per origin: selected ultimate over earned premium (RT01 v1.0.0, MT10 v1.0.0, PR02 v1.0.0), GROSS, REPORTING, NOMINAL; one chart per line in the colour of its segment, each starting at zero.",
+    "footnote": "TRY, GROSS, REPORTING, NOMINAL. Loss ratios RT01 v1.0.0 over earned premium PR02 v1.0.0; the ultimate is the selected ultimate MT10 v1.0.0; combined ratio RT02 v1.0.0. Expense ratios are for all business together, the one combined view the blueprint allows (section 10).",
+    "lines": [
+     {
+      "figure": "profitability-0",
+      "line": "LIFE · GROUP_TERM_LIFE",
+      "rows": [
+       {
+        "combined": "57.1%",
+        "earned": "10,776,174",
+        "incurred": "4,541,477",
+        "incurred_ratio": "42.1%",
+        "origin": "2022",
+        "ref": "RT01 [segment,line,origin_period] rows 0; RT02 [segment,line,origin_period] rows 0",
+        "ultimate": "4,541,477",
+        "ultimate_ratio": "42.1%"
+       },
+       {
+        "combined": "88.0%",
+        "earned": "15,189,076",
+        "incurred": "11,080,279",
+        "incurred_ratio": "72.9%",
+        "origin": "2023",
+        "ref": "RT01 [segment,line,origin_period] rows 1; RT02 [segment,line,origin_period] rows 1",
+        "ultimate": "11,080,279",
+        "ultimate_ratio": "72.9%"
+       },
+       {
+        "combined": "83.6%",
+        "earned": "39,569,187",
+        "incurred": "27,153,819",
+        "incurred_ratio": "68.6%",
+        "origin": "2024",
+        "ref": "RT01 [segment,line,origin_period] rows 2; RT02 [segment,line,origin_period] rows 2",
+        "ultimate": "27,153,819",
+        "ultimate_ratio": "68.6%"
+       },
+       {
+        "combined": "120.4%",
+        "earned": "43,067,828",
+        "incurred": "34,804,658",
+        "incurred_ratio": "80.8%",
+        "origin": "2025",
+        "ref": "RT01 [segment,line,origin_period] rows 3; RT02 [segment,line,origin_period] rows 3",
+        "ultimate": "45,409,629",
+        "ultimate_ratio": "105.4%"
+       }
+      ]
+     },
+     {
+      "figure": "profitability-1",
+      "line": "NON_LIFE · MOTOR_OD",
+      "rows": [
+       {
+        "combined": "243.5%",
+        "earned": "2,353,514",
+        "incurred": "5,142,092",
+        "incurred_ratio": "218.5%",
+        "origin": "2022",
+        "ref": "RT01 [segment,line,origin_period] rows 4; RT02 [segment,line,origin_period] rows 4",
+        "ultimate": "5,142,092",
+        "ultimate_ratio": "218.5%"
+       },
+       {
+        "combined": "97.5%",
+        "earned": "3,967,530",
+        "incurred": "2,876,013",
+        "incurred_ratio": "72.5%",
+        "origin": "2023",
+        "ref": "RT01 [segment,line,origin_period] rows 5; RT02 [segment,line,origin_period] rows 5",
+        "ultimate": "2,876,013",
+        "ultimate_ratio": "72.5%"
+       },
+       {
+        "combined": "103.4%",
+        "earned": "5,265,541",
+        "incurred": "4,131,087",
+        "incurred_ratio": "78.5%",
+        "origin": "2024",
+        "ref": "RT01 [segment,line,origin_period] rows 6; RT02 [segment,line,origin_period] rows 6",
+        "ultimate": "4,131,087",
+        "ultimate_ratio": "78.5%"
+       },
+       {
+        "combined": "102.0%",
+        "earned": "8,240,673",
+        "incurred": "6,426,297",
+        "incurred_ratio": "78.0%",
+        "origin": "2025",
+        "ref": "RT01 [segment,line,origin_period] rows 7; RT02 [segment,line,origin_period] rows 7",
+        "ultimate": "6,345,083",
+        "ultimate_ratio": "77.0%"
+       }
+      ]
+     },
+     {
+      "figure": "profitability-2",
+      "line": "NON_LIFE · MOTOR_TPL",
+      "rows": [
+       {
+        "combined": "187.1%",
+        "earned": "7,315,397",
+        "incurred": "12,336,218",
+        "incurred_ratio": "168.6%",
+        "origin": "2022",
+        "ref": "RT01 [segment,line,origin_period] rows 8; RT02 [segment,line,origin_period] rows 8",
+        "ultimate": "12,336,218",
+        "ultimate_ratio": "168.6%"
+       },
+       {
+        "combined": "40.3%",
+        "earned": "11,692,470",
+        "incurred": "2,678,630",
+        "incurred_ratio": "22.9%",
+        "origin": "2023",
+        "ref": "RT01 [segment,line,origin_period] rows 9; RT02 [segment,line,origin_period] rows 9",
+        "ultimate": "2,546,610",
+        "ultimate_ratio": "21.8%"
+       },
+       {
+        "combined": "31.0%",
+        "earned": "19,284,533",
+        "incurred": "1,891,680",
+        "incurred_ratio": "9.8%",
+        "origin": "2024",
+        "ref": "RT01 [segment,line,origin_period] rows 10; RT02 [segment,line,origin_period] rows 10",
+        "ultimate": "2,415,324",
+        "ultimate_ratio": "12.5%"
+       },
+       {
+        "combined": "36.2%",
+        "earned": "28,884,763",
+        "incurred": "3,511,628",
+        "incurred_ratio": "12.2%",
+        "origin": "2025",
+        "ref": "RT01 [segment,line,origin_period] rows 11; RT02 [segment,line,origin_period] rows 11",
+        "ultimate": "5,110,067",
+        "ultimate_ratio": "17.7%"
+       }
+      ]
+     },
+     {
+      "figure": "profitability-3",
+      "line": "NON_LIFE · PROPERTY",
+      "rows": [
+       {
+        "combined": "32.3%",
+        "earned": "535,111",
+        "incurred": "0",
+        "incurred_ratio": "0.0%",
+        "origin": "2022",
+        "ref": "RT01 [segment,line,origin_period] rows 12; RT02 [segment,line,origin_period] rows 12",
+        "ultimate": "0",
+        "ultimate_ratio": "0.0%"
+       },
+       {
+        "combined": "46.5%",
+        "earned": "1,157,159",
+        "incurred": "161,906",
+        "incurred_ratio": "14.0%",
+        "origin": "2023",
+        "ref": "RT01 [segment,line,origin_period] rows 13; RT02 [segment,line,origin_period] rows 13",
+        "ultimate": "161,906",
+        "ultimate_ratio": "14.0%"
+       },
+       {
+        "combined": "66.3%",
+        "earned": "1,647,848",
+        "incurred": "560,092",
+        "incurred_ratio": "34.0%",
+        "origin": "2024",
+        "ref": "RT01 [segment,line,origin_period] rows 14; RT02 [segment,line,origin_period] rows 14",
+        "ultimate": "560,092",
+        "ultimate_ratio": "34.0%"
+       },
+       {
+        "combined": "41.3%",
+        "earned": "2,748,864",
+        "incurred": "222,566",
+        "incurred_ratio": "8.1%",
+        "origin": "2025",
+        "ref": "RT01 [segment,line,origin_period] rows 15; RT02 [segment,line,origin_period] rows 15",
+        "ultimate": "240,751",
+        "ultimate_ratio": "8.8%"
+       }
+      ]
+     }
+    ]
+   },
+   "module": "M05",
+   "question": "Do we make money, by line and period?",
+   "reasons": [],
+   "spec": "M05 v1.0.0",
+   "state": "ran",
+   "title": "Profitability"
+  },
+  {
+   "anchor": "anomalies",
+   "body": {
+    "figure": "anomalies-rate",
+    "footnote": "Robust z-score MT08 v1.0.0 on payments and case-reserve movements per line, isolation forest MT09 v1.0.0 on claims per segment; the dashed line is the flag rate above which MT08 warns that a group may mix populations. Flags are leads for a reviewer, not errors; anomalies.csv lists every flag with its rows.",
+    "limit": "5.0%",
+    "rows": [
+     {
+      "above": false,
+      "flagged": "0",
+      "isolation": "0",
+      "line": "LIFE · GROUP_TERM_LIFE",
+      "rate": "0.0%",
+      "scored": "96"
+     },
+     {
+      "above": true,
+      "flagged": "71",
+      "isolation": "0",
+      "line": "NON_LIFE · MOTOR_OD",
+      "rate": "26.8%",
+      "scored": "265"
+     },
+     {
+      "above": true,
+      "flagged": "42",
+      "isolation": "2",
+      "line": "NON_LIFE · MOTOR_TPL",
+      "rate": "5.8%",
+      "scored": "723"
+     },
+     {
+      "above": false,
+      "flagged": "–",
+      "isolation": "0",
+      "line": "NON_LIFE · PROPERTY",
+      "rate": "–",
+      "scored": "not scored"
+     }
+    ],
+    "top": [
+     {
+      "claim": "00000168",
+      "date": "2025-12-31",
+      "line": "NON_LIFE · MOTOR_OD",
+      "method": "MT08",
+      "reason": "case reserve moved from 954549.03 to 0.0, log change -13.769 against the group median 0.0 (robust z 42.12, threshold 3.5)",
+      "score": "-42.115",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 1236",
+      "variable": "reserve change"
+     },
+     {
+      "claim": "00000138",
+      "date": "2025-03-31",
+      "line": "NON_LIFE · MOTOR_OD",
+      "method": "MT08",
+      "reason": "case reserve moved from 561820.11 to 0.0, log change -13.239 against the group median 0.0 (robust z 40.49, threshold 3.5)",
+      "score": "-40.494",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 959",
+      "variable": "reserve change"
+     },
+     {
+      "claim": "00000106",
+      "date": "2024-08-31",
+      "line": "NON_LIFE · MOTOR_OD",
+      "method": "MT08",
+      "reason": "case reserve moved from 457779.57 to 0.0, log change -13.034 against the group median 0.0 (robust z 39.87, threshold 3.5)",
+      "score": "-39.868",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 717",
+      "variable": "reserve change"
+     },
+     {
+      "claim": "00000114",
+      "date": "2025-07-31",
+      "line": "NON_LIFE · MOTOR_OD",
+      "method": "MT08",
+      "reason": "case reserve moved from 451531.39 to 0.0, log change -13.02 against the group median 0.0 (robust z 39.83, threshold 3.5)",
+      "score": "-39.826",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 1064",
+      "variable": "reserve change"
+     },
+     {
+      "claim": "00000089",
+      "date": "2024-02-29",
+      "line": "NON_LIFE · MOTOR_OD",
+      "method": "MT08",
+      "reason": "case reserve moved from 424958.12 to 0.0, log change -12.96 against the group median 0.0 (robust z 39.64, threshold 3.5)",
+      "score": "-39.640",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 537",
+      "variable": "reserve change"
+     },
+     {
+      "claim": "00000140",
+      "date": "2025-04-30",
+      "line": "NON_LIFE · MOTOR_OD",
+      "method": "MT08",
+      "reason": "case reserve moved from 350143.93 to 0.0, log change -12.766 against the group median 0.0 (robust z 39.05, threshold 3.5)",
+      "score": "-39.048",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 988",
+      "variable": "reserve change"
+     },
+     {
+      "claim": "00000045",
+      "date": "2023-09-30",
+      "line": "NON_LIFE · MOTOR_OD",
+      "method": "MT08",
+      "reason": "case reserve moved from 337986.07 to 0.0, log change -12.731 against the group median 0.0 (robust z 38.94, threshold 3.5)",
+      "score": "-38.940",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 360",
+      "variable": "reserve change"
+     },
+     {
+      "claim": "00000008",
+      "date": "2022-09-30",
+      "line": "NON_LIFE · MOTOR_OD",
+      "method": "MT08",
+      "reason": "case reserve moved from 290845.26 to 0.0, log change -12.581 against the group median 0.0 (robust z 38.48, threshold 3.5)",
+      "score": "-38.480",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 91",
+      "variable": "reserve change"
+     },
+     {
+      "claim": "00000102",
+      "date": "2024-09-30",
+      "line": "NON_LIFE · MOTOR_OD",
+      "method": "MT08",
+      "reason": "case reserve moved from 264847.23 to 0.0, log change -12.487 against the group median 0.0 (robust z 38.19, threshold 3.5)",
+      "score": "-38.194",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 742",
+      "variable": "reserve change"
+     },
+     {
+      "claim": "00000048",
+      "date": "2023-06-30",
+      "line": "NON_LIFE · MOTOR_OD",
+      "method": "MT08",
+      "reason": "case reserve moved from 258326.54 to 0.0, log change -12.462 against the group median 0.0 (robust z 38.12, threshold 3.5)",
+      "score": "-38.118",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 278",
+      "variable": "reserve change"
+     }
+    ],
+    "total": "115"
+   },
+   "module": "M06",
+   "question": "What looks wrong or unusual?",
+   "reasons": [
+    "MT08: NON_LIFE/MOTOR_OD reserve_change: 40.1% of values flagged, above 5%; the group may mix populations (for example two currencies)",
+    "MT08: NON_LIFE/MOTOR_TPL reserve_change: 6.3% of values flagged, above 5%; the group may mix populations (for example two currencies)",
+    "MT08: 2 groups have too few values to score",
+    "MT09: 1 group has too few claims to score"
+   ],
+   "spec": "M06 v1.0.0",
+   "state": "limited",
+   "title": "Anomalies and large losses"
+  }
+ ],
+ "quality_tile": {
+  "against": "no earlier run to compare",
+  "change": "–",
+  "label": "Data quality score",
+  "note": "0 blocking, 6 warning findings",
+  "source": "DQ01 v1.0.0 · 59 rules",
+  "value": "99.9 / 100"
+ },
+ "reproducibility": {
+  "inputs": [
+   {
+    "concept": "claim_valuations",
+    "name": "claim_valuations.xlsx",
+    "sha256": "928c880f9240eaa44c8264adedb886f16c12a020824bebddae03266703f233b4",
+    "sheets": "claim_valuations: 1242",
+    "size": "56,642"
+   },
+   {
+    "concept": "claims",
+    "name": "claims.xlsx",
+    "sha256": "ae262962724201d6cd1a648ad8a0ace7e42ef07666d028fa426463e7327928b2",
+    "sheets": "claims: 175",
+    "size": "14,911"
+   },
+   {
+    "concept": "market",
+    "name": "market.xlsx",
+    "sha256": "7e20cce9845eab9184d8a0bee6a2309da81d3e2830bda363e5d1c38298bf6ebf",
+    "sheets": "fx: 5698, cpi: 120",
+    "size": "143,821"
+   },
+   {
+    "concept": "policies",
+    "name": "policies.xlsx",
+    "sha256": "ed8bb4977ae6bc73a6658409b5e886f40c7719a6f380a353a813e549d6edb075",
+    "sheets": "policies: 2477",
+    "size": "143,555"
+   },
+   {
+    "concept": "premiums",
+    "name": "premiums.xlsx",
+    "sha256": "fa2cc7d341c17c8df6b9997365109cc470883110d7dd6072edfe0f0f54f29572",
+    "sheets": "premiums: 8031",
+    "size": "274,709"
+   },
+   {
+    "concept": "expenses",
+    "name": "expenses.xlsx",
+    "sha256": "fcb51582868d6601fe6e1d676a55efd4ae095ca19bd6e268c27899a5994f7054",
+    "sheets": "expenses: 846",
+    "size": "31,308"
+   }
+  ],
+  "mappings": [
+   {
+    "columns": 11,
+    "concept": "claim_valuations",
+    "file": "claim_valuations.xlsx",
+    "sheet": "claim_valuations",
+    "source": "canonical"
+   },
+   {
+    "columns": 12,
+    "concept": "claims",
+    "file": "claims.xlsx",
+    "sheet": "claims",
+    "source": "canonical"
+   },
+   {
+    "columns": 4,
+    "concept": "market",
+    "file": "market.xlsx",
+    "sheet": "fx",
+    "source": "canonical"
+   },
+   {
+    "columns": 4,
+    "concept": "market",
+    "file": "market.xlsx",
+    "sheet": "cpi",
+    "source": "canonical"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "quality.json",
+    "sha256": "00a8551a65d222b5c72e4ecda40affbf98686204a2fde124dbd07f5c60a5905d",
+    "size": "29,731"
+   },
+   {
+    "name": "triangles.csv",
+    "sha256": "f95e4e32f212281f93dd05d7048d2b177d187cc46e1825a5f5c7295389028efb",
+    "size": "5,893"
+   },
+   {
+    "name": "factors.csv",
+    "sha256": "73628feea5a01967a7ccc2e9018646e13244315589aed4868d803f8dbe9f8e18",
+    "size": "1,998"
+   },
+   {
+    "name": "chain_ladder.csv",
+    "sha256": "0254714b249dae8fae1fac4c1ee3099128b316ea3a9756383dc9578ca2603d15",
+    "size": "3,412"
+   },
+   {
+    "name": "measures.csv",
+    "sha256": "d102da7e358d4bf653c130a13592fee1baff2449d0b7779867dc95798d789519",
+    "size": "422,139"
+   },
+   {
+    "name": "lineage.csv",
+    "sha256": "7438a33cdd411242627263562ee9154fccab3e800906e3e1efd4eb9c59d6bf4a",
+    "size": "493,215"
+   },
+   {
+    "name": "modules.json",
+    "sha256": "92eb5ef998d22cea4c448108dbeccb89f86c38c2f389bde56fd4ade5448c3cbc",
+    "size": "18,530"
+   },
+   {
+    "name": "assumptions.csv",
+    "sha256": "b710a37a7897cf39bb05f716ea1fccda620f6a02c0a3b9bd1f4e2ba58d4ed6d9",
+    "size": "8,142"
+   },
+   {
+    "name": "ultimates.csv",
+    "sha256": "d5c64ccde7414b7c6405e7cd3389a1dc5c71075b76aad94d0d217a6f0b5fe45b",
+    "size": "19,390"
+   },
+   {
+    "name": "reserve_range.csv",
+    "sha256": "7e1f8c95626a4d3066be8505fc485de6fa8d5746f116ccde3715c375b5481bde",
+    "size": "768"
+   },
+   {
+    "name": "cash_flows.csv",
+    "sha256": "1a97487fa8038500d16a2844ba09d9389b679bb303289d701093cf6bcd5d83ce",
+    "size": "866"
+   },
+   {
+    "name": "diagnostics.csv",
+    "sha256": "0493adc495caec8eae1d6366f76c53986a6863636c0f1881a8f0c4a446bb0971",
+    "size": "4,223"
+   },
+   {
+    "name": "anomalies.csv",
+    "sha256": "1da04eb512efb6c21e7a91e2542dca8277936afc0024ce219aaf32fd8757eb10",
+    "size": "31,022"
+   }
+  ],
+  "randomness": [
+   {
+    "method": "MT09",
+    "seed": "1"
+   }
+  ],
+  "run_id": "d07b310fce3391ce",
+  "settings": [
+   {
+    "name": "bases.currency",
+    "value": "REPORTING"
+   },
+   {
+    "name": "bases.currency_conversion",
+    "value": "market"
+   },
+   {
+    "name": "bases.reinsurance",
+    "value": "GROSS"
+   },
+   {
+    "name": "bases.value",
+    "value": "NOMINAL"
+   },
+   {
+    "name": "chain_ladder.average",
+    "value": "volume_weighted"
+   },
+   {
+    "name": "chain_ladder.exclude_high_low",
+    "value": "False"
+   },
+   {
+    "name": "chain_ladder.min_origins",
+    "value": "3"
+   },
+   {
+    "name": "chain_ladder.n_diagonals",
+    "value": ""
+   },
+   {
+    "name": "chain_ladder.tail_factor",
+    "value": "1.0"
+   },
+   {
+    "name": "methods.bf_below_maturity",
+    "value": "0.5"
+   },
+   {
+    "name": "methods.diagnostics.few_link_ratios",
+    "value": "3"
+   },
+   {
+    "name": "methods.diagnostics.late_development_factor",
+    "value": "1.05"
+   },
+   {
+    "name": "methods.diagnostics.thin_evidence_origins",
+    "value": "8"
+   },
+   {
+    "name": "methods.isolation_forest.contamination",
+    "value": "0.01"
+   },
+   {
+    "name": "methods.isolation_forest.max_samples",
+    "value": "256"
+   },
+   {
+    "name": "methods.isolation_forest.min_group_size",
+    "value": "100"
+   },
+   {
+    "name": "methods.isolation_forest.n_estimators",
+    "value": "200"
+   },
+   {
+    "name": "methods.isolation_forest.seed",
+    "value": "1"
+   },
+   {
+    "name": "methods.robust_z.group_by",
+    "value": "segment, line"
+   },
+   {
+    "name": "methods.robust_z.min_group_size",
+    "value": "30"
+   },
+   {
+    "name": "methods.robust_z.threshold",
+    "value": "3.5"
+   },
+   {
+    "name": "methods.selection_measure",
+    "value": "incurred"
+   },
+   {
+    "name": "reporting_currency",
+    "value": "TRY"
+   },
+   {
+    "name": "triangles.cut_off",
+    "value": ""
+   },
+   {
+    "name": "triangles.cut_off_used",
+    "value": "2025-12-31"
+   },
+   {
+    "name": "triangles.development_period",
+    "value": "YEAR"
+   },
+   {
+    "name": "triangles.development_rate_date",
+    "value": ""
+   },
+   {
+    "name": "triangles.development_rate_date_used",
+    "value": "2025-12-31"
+   },
+   {
+    "name": "triangles.fiscal_year_start_month",
+    "value": "1"
+   },
+   {
+    "name": "triangles.origin_axis",
+    "value": "accident"
+   },
+   {
+    "name": "triangles.origin_period",
+    "value": "YEAR"
+   },
+   {
+    "name": "triangles.price_index",
+    "value": "CPI_TR"
+   },
+   {
+    "name": "triangles.reinsurance_basis",
+    "value": "GROSS"
+   },
+   {
+    "name": "triangles.value_basis",
+    "value": "NOMINAL"
+   },
+   {
+    "name": "triangles.value_date",
+    "value": ""
+   },
+   {
+    "name": "use_market",
+    "value": "True"
+   }
+  ],
+  "software": "ActuaryCanary 0.1.0",
+  "specs": [
+   {
+    "id": "claim_valuations",
+    "title": "Claim valuations",
+    "version": "1.2.0"
+   },
+   {
+    "id": "claims",
+    "title": "Claims",
+    "version": "1.0.0"
+   },
+   {
+    "id": "AL01",
+    "title": "Column aliases",
+    "version": "1.0.0"
+   },
+   {
+    "id": "AL02",
+    "title": "Value aliases",
+    "version": "1.0.0"
+   },
+   {
+    "id": "CV01",
+    "title": "Currency conversion",
+    "version": "1.1.0"
+   },
+   {
+    "id": "CV03",
+    "title": "Gross, ceded and net",
+    "version": "1.0.0"
+   },
+   {
+    "id": "CV04",
+    "title": "Periods, development lags and day counts",
+    "version": "1.0.0"
+   },
+   {
+    "id": "CV06",
+    "title": "Precision and rounding",
+    "version": "1.0.0"
+   },
+   {
+    "id": "CV07",
+    "title": "Input files and canonical values",
+    "version": "1.1.0"
+   },
+   {
+    "id": "MT01",
+    "title": "Triangle construction",
+    "version": "1.0.0"
+   },
+   {
+    "id": "MT02",
+    "title": "Chain ladder",
+    "version": "1.0.0"
+   },
+   {
+    "id": "CL01",
+    "title": "Paid claims",
+    "version": "1.0.0"
+   },
+   {
+    "id": "CL03",
+    "title": "Incurred claims (reported)",
+    "version": "1.0.0"
+   },
+   {
+    "id": "RS01",
+    "title": "Development factors",
+    "version": "1.0.0"
+   },
+   {
+    "id": "RS02",
+    "title": "Ultimate, IBNR and IBNER (indicative)",
+    "version": "1.0.0"
+   },
+   {
+    "id": "DQ01",
+    "title": "Data quality score",
+    "version": "1.0.0"
+   },
+   {
+    "id": "market",
+    "title": "Market series",
+    "version": "1.0.0"
+   },
+   {
+    "id": "policies",
+    "title": "Policies",
+    "version": "1.0.0"
+   },
+   {
+    "id": "premiums",
+    "title": "Premium transactions",
+    "version": "1.0.0"
+   },
+   {
+    "id": "expenses",
+    "title": "Expenses",
+    "version": "1.0.0"
+   },
+   {
+    "id": "M01",
+    "title": "Data understanding",
+    "version": "1.0.0"
+   },
+   {
+    "id": "M02",
+    "title": "Portfolio and premium",
+    "version": "1.0.0"
+   },
+   {
+    "id": "PR01",
+    "title": "Written premium",
+    "version": "1.0.0"
+   },
+   {
+    "id": "PR02",
+    "title": "Earned premium",
+    "version": "1.0.0"
+   },
+   {
+    "id": "PR03",
+    "title": "Unearned premium",
+    "version": "1.0.0"
+   },
+   {
+    "id": "PR04",
+    "title": "Cancellation rate",
+    "version": "1.0.0"
+   },
+   {
+    "id": "PR05",
+    "title": "Retention ratio",
+    "version": "1.0.0"
+   },
+   {
+    "id": "PR06",
+    "title": "Average premium",
+    "version": "1.0.0"
+   },
+   {
+    "id": "RI01",
+    "title": "Cession ratio",
+    "version": "1.0.0"
+   },
+   {
+    "id": "M03",
+    "title": "Claims experience",
+    "version": "1.0.0"
+   },
+   {
+    "id": "CL02",
+    "title": "Case reserve",
+    "version": "1.0.0"
+   },
+   {
+    "id": "CL04",
+    "title": "Claim counts by status",
+    "version": "1.0.0"
+   },
+   {
+    "id": "CL05",
+    "title": "Claim frequency",
+    "version": "1.0.0"
+   },
+   {
+    "id": "CL06",
+    "title": "Average claim severity",
+    "version": "1.0.0"
+   },
+   {
+    "id": "CL07",
+    "title": "Reporting delay",
+    "version": "1.0.0"
+   },
+   {
+    "id": "CL08",
+    "title": "Settlement time",
+    "version": "1.0.0"
+   },
+   {
+    "id": "CL09",
+    "title": "Settlement rate",
+    "version": "1.0.0"
+   },
+   {
+    "id": "CL10",
+    "title": "Paid-to-incurred ratio",
+    "version": "1.0.0"
+   },
+   {
+    "id": "CL11",
+    "title": "Case reserve run-off",
+    "version": "1.0.0"
+   },
+   {
+    "id": "CL12",
+    "title": "Large-loss share",
+    "version": "1.0.0"
+   },
+   {
+    "id": "RC01",
+    "title": "Subrogation ratio",
+    "version": "1.0.0"
+   },
+   {
+    "id": "RC02",
+    "title": "Salvage ratio",
+    "version": "1.0.0"
+   },
+   {
+    "id": "M04",
+    "title": "Reserving (indicative)",
+    "version": "1.0.0"
+   },
+   {
+    "id": "RS03",
+    "title": "Reserve range and risk measures",
+    "version": "1.0.0"
+   },
+   {
+    "id": "AE01",
+    "title": "Actual versus expected development",
+    "version": "1.0.0"
+   },
+   {
+    "id": "M05",
+    "title": "Profitability",
+    "version": "1.0.0"
+   },
+   {
+    "id": "RT01",
+    "title": "Loss ratio (paid, incurred, ultimate)",
+    "version": "1.0.0"
+   },
+   {
+    "id": "RT02",
+    "title": "Combined ratio",
+    "version": "1.0.0"
+   },
+   {
+    "id": "EX01",
+    "title": "Commission ratio",
+    "version": "1.0.0"
+   },
+   {
+    "id": "EX02",
+    "title": "Expense ratio",
+    "version": "1.0.0"
+   },
+   {
+    "id": "EX03",
+    "title": "Claims-handling expense ratio",
+    "version": "1.0.0"
+   },
+   {
+    "id": "RI02",
+    "title": "Reinsurance result",
+    "version": "1.0.0"
+   },
+   {
+    "id": "M06",
+    "title": "Anomalies and large losses",
+    "version": "1.0.0"
+   },
+   {
+    "id": "MT03",
+    "title": "Bornhuetter–Ferguson",
+    "version": "1.0.0"
+   },
+   {
+    "id": "MT04",
+    "title": "Cape Cod",
+    "version": "1.0.0"
+   },
+   {
+    "id": "MT05",
+    "title": "Expected loss ratio method",
+    "version": "1.0.0"
+   },
+   {
+    "id": "MT07",
+    "title": "Inflation-adjusted chain ladder",
+    "version": "1.0.0"
+   },
+   {
+    "id": "MT10",
+    "title": "Ultimate selection",
+    "version": "1.0.0"
+   },
+   {
+    "id": "MT08",
+    "title": "Robust z-score anomaly flags",
+    "version": "1.0.0"
+   },
+   {
+    "id": "MT09",
+    "title": "Isolation forest anomaly flags",
+    "version": "1.0.0"
+   },
+   {
+    "id": "RP01",
+    "title": "Key finding rules",
+    "version": "1.0.0"
+   }
+  ]
+ },
+ "reserving": {
+  "anchor": "reserving",
+  "basis": "GROSS, NOMINAL, TRY",
+  "currency": "TRY",
+  "footnotes": {
+   "factors": "Link ratio of every origin (dots) and the factor selected (bar), RS01 v1.0.0, MT02 v1.0.0; the tail factor is in the table. Rows of factors.csv.",
+   "heatmaps": "Cumulative cells by origin and development age, GROSS, NOMINAL, TRY; paid on its own one-hue ramp, incurred on another; the further a cell stands from the page colour, the larger it is (MT01 v1.0.0, CV04 v1.0.0).",
+   "methods": "Ultimate per origin by method on the incurred triangle (MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0), and the selected ultimate (diamond, MT10 v1.0.0). The spread between methods shows how much the answer depends on the method; it is not a confidence interval.",
+   "range": "Selected reserve (diamond) with the 25th to 75th percentile (dark bar) and the 5th to 95th percentile (light bar); the Mack coefficient of variation applied to the selected reserve, lognormal approximation (MT06 v1.0.0, RS03 v1.0.0). The upper percentiles are in the table.",
+   "summary": "TRY, GROSS, NOMINAL, TRY. Chain ladder MT02 v1.0.0 on paid and incurred triangles MT01 v1.0.0; selected ultimate MT10 v1.0.0; IBNR = ultimate − incurred at the valuation date RS02 v1.0.0. Rounded per CV06 v1.0.0; totals from unrounded values. Rows of ultimates.csv and lineage.csv (RS02)."
+  },
+  "lines": [
+   {
+    "ages": [
+     "12",
+     "24",
+     "36",
+     "48"
+    ],
+    "anchor": "line-0",
+    "figures": {
+     "factors_incurred": "line-0-factors-incurred",
+     "factors_paid": "line-0-factors-paid",
+     "heatmap_incurred": "line-0-heatmap-incurred",
+     "heatmap_paid": "line-0-heatmap-paid",
+     "methods": "line-0-methods",
+     "range": ""
+    },
+    "findings": [
+     {
+      "banner": false,
+      "evidence": "MT02 v1.0.0",
+      "files": [
+       "diagnostics.csv"
+      ],
+      "key": "LIFE · GROUP_TERM_LIFE",
+      "rule": "KF20",
+      "scope": "line",
+      "section": "line-0",
+      "specs": [
+       "MT02"
+      ],
+      "text": "Origin periods: 4, fewer than 8. The methods below agree or differ on little evidence.",
+      "title": "Thin evidence in the line"
+     },
+     {
+      "banner": false,
+      "evidence": "MT02 v1.0.0",
+      "files": [
+       "diagnostics.csv"
+      ],
+      "key": "LIFE · GROUP_TERM_LIFE",
+      "rule": "KF25",
+      "scope": "line",
+      "section": "line-0",
+      "specs": [
+       "MT02"
+      ],
+      "text": "Factors resting on fewer than 3 origins: 4 (paid 24-36, paid 36-48, incurred 24-36, incurred 36-48).",
+      "title": "Few link ratios in the line"
+     }
+    ],
+    "methods": {
+     "diagnostics": [
+      {
+       "code": "thin evidence",
+       "measure": "all",
+       "message": "only 4 origin periods: thin evidence; factors, ratios and ranges rest on few observations (fewer than 8)",
+       "method": "MT02, MT03, MT04, MT05, MT07, MT10",
+       "target": ""
+      },
+      {
+       "code": "few link ratios",
+       "measure": "paid",
+       "message": "factor 24-36 (1) rests on 2 origins, fewer than 3",
+       "method": "MT02",
+       "target": "24-36"
+      },
+      {
+       "code": "few link ratios",
+       "measure": "paid",
+       "message": "factor 36-48 (1) rests on 1 origin, fewer than 3",
+       "method": "MT02",
+       "target": "36-48"
+      },
+      {
+       "code": "few link ratios",
+       "measure": "incurred",
+       "message": "factor 24-36 (1) rests on 2 origins, fewer than 3",
+       "method": "MT02",
+       "target": "24-36"
+      },
+      {
+       "code": "few link ratios",
+       "measure": "incurred",
+       "message": "factor 36-48 (1) rests on 1 origin, fewer than 3",
+       "method": "MT02",
+       "target": "36-48"
+      }
+     ],
+     "inflation": {
+      "future_inflation": null,
+      "rows": [
+       {
+        "cells": [
+         "16,529,842",
+         "16,529,842",
+         "0",
+         "4,541,477",
+         "–",
+         "–"
+        ],
+        "origin": "2022"
+       },
+       {
+        "cells": [
+         "22,343,758",
+         "22,343,758",
+         "0",
+         "11,080,279",
+         "–",
+         "–"
+        ],
+        "origin": "2023"
+       },
+       {
+        "cells": [
+         "37,586,521",
+         "37,586,521",
+         "0",
+         "27,153,819",
+         "–",
+         "–"
+        ],
+        "origin": "2024"
+       },
+       {
+        "cells": [
+         "28,751,832",
+         "38,818,986",
+         "10,067,154",
+         "24,185,242",
+         "–",
+         "–"
+        ],
+        "origin": "2025"
+       }
+      ],
+      "value_date": "2025-12-31"
+     },
+     "mack": null,
+     "not_run": [
+      "Mack standard error (MT06) on paid did not run: too few link ratios to estimate variance.",
+      "Mack standard error (MT06) on incurred did not run: too few link ratios to estimate variance."
+     ],
+     "selection_measure": "incurred",
+     "stability": [
+      {
+       "measure": "paid",
+       "names": [
+        "volume weighted",
+        "simple",
+        "volume weighted latest 3"
+       ],
+       "rows": [
+        {
+         "cells": [
+          "3",
+          "1.141",
+          "1.532",
+          "0.147",
+          "1.446",
+          "1.360",
+          "1.446",
+          "1.446"
+         ],
+         "column": "12-24"
+        },
+        {
+         "cells": [
+          "2",
+          "1.000",
+          "1.000",
+          "0.000",
+          "1.000",
+          "1.000",
+          "1.000",
+          "1.000"
+         ],
+         "column": "24-36"
+        },
+        {
+         "cells": [
+          "1",
+          "1.000",
+          "1.000",
+          "–",
+          "1.000",
+          "1.000",
+          "1.000",
+          "1.000"
+         ],
+         "column": "36-48"
+        }
+       ]
+      },
+      {
+       "measure": "incurred",
+       "names": [
+        "volume weighted",
+        "simple",
+        "volume weighted latest 3"
+       ],
+       "rows": [
+        {
+         "cells": [
+          "3",
+          "1.000",
+          "1.532",
+          "0.225",
+          "1.305",
+          "1.224",
+          "1.305",
+          "1.305"
+         ],
+         "column": "12-24"
+        },
+        {
+         "cells": [
+          "2",
+          "1.000",
+          "1.000",
+          "0.000",
+          "1.000",
+          "1.000",
+          "1.000",
+          "1.000"
+         ],
+         "column": "24-36"
+        },
+        {
+         "cells": [
+          "1",
+          "1.000",
+          "1.000",
+          "–",
+          "1.000",
+          "1.000",
+          "1.000",
+          "1.000"
+         ],
+         "column": "36-48"
+        }
+       ]
+      }
+     ],
+     "ultimates": {
+      "headers": [
+       "Chain ladder, paid",
+       "Bornhuetter–Ferguson, paid",
+       "Cape Cod, paid",
+       "Expected loss ratio, paid",
+       "Chain ladder, incurred",
+       "Bornhuetter–Ferguson, incurred",
+       "Cape Cod, incurred",
+       "Expected loss ratio, incurred",
+       "Inflation-adjusted chain ladder, paid, value-date prices"
+      ],
+      "rows": [
+       {
+        "cells": [
+         "4,541,477",
+         "4,541,477",
+         "4,541,477",
+         "7,570,946",
+         "4,541,477",
+         "4,541,477",
+         "4,541,477",
+         "8,483,687",
+         "16,529,842"
+        ],
+        "chosen": "chain ladder",
+        "origin": "2022",
+        "selected": "4,541,477",
+        "total": false,
+        "why": "maturity 1.000 at least 0.5"
+       },
+       {
+        "cells": [
+         "11,080,279",
+         "11,080,279",
+         "11,080,279",
+         "10,671,290",
+         "11,080,279",
+         "11,080,279",
+         "11,080,279",
+         "11,957,803",
+         "22,343,758"
+        ],
+        "chosen": "chain ladder",
+        "origin": "2023",
+        "selected": "11,080,279",
+        "total": false,
+        "why": "maturity 1.000 at least 0.5"
+       },
+       {
+        "cells": [
+         "27,153,819",
+         "27,153,819",
+         "27,153,819",
+         "27,799,864",
+         "27,153,819",
+         "27,153,819",
+         "27,153,819",
+         "31,151,369",
+         "37,586,521"
+        ],
+        "chosen": "chain ladder",
+        "origin": "2024",
+        "selected": "27,153,819",
+        "total": false,
+        "why": "maturity 1.000 at least 0.5"
+       },
+       {
+        "cells": [
+         "34,982,747",
+         "33,524,406",
+         "33,524,406",
+         "30,257,881",
+         "45,409,629",
+         "42,723,005",
+         "42,723,005",
+         "33,905,721",
+         "38,818,986"
+        ],
+        "chosen": "chain ladder",
+        "origin": "2025",
+        "selected": "45,409,629",
+        "total": false,
+        "why": "maturity 0.766 at least 0.5"
+       },
+       {
+        "cells": [
+         "77,758,322",
+         "76,299,981",
+         "76,299,981",
+         "76,299,981",
+         "88,185,204",
+         "85,498,580",
+         "85,498,580",
+         "85,498,580",
+         "115,279,106"
+        ],
+        "chosen": "",
+        "origin": "Total",
+        "selected": "88,185,204",
+        "total": true,
+        "why": ""
+       }
+      ]
+     }
+    },
+    "name": "LIFE · GROUP_TERM_LIFE",
+    "origins": 4,
+    "segment": "LIFE",
+    "summary": {
+     "anchor": "line-0",
+     "diagnostics": 5,
+     "ibnr_selected": "10,604,971",
+     "incurred": "77,580,233",
+     "line": "LIFE · GROUP_TERM_LIFE",
+     "paid": "66,960,817",
+     "ult_incurred": "88,185,204",
+     "ult_paid": "77,758,322",
+     "ult_selected": "88,185,204"
+    },
+    "thin_cells": 0,
+    "triangles": {
+     "incurred": [
+      [
+       "2022",
+       "3,981,152",
+       "4,541,477",
+       "4,541,477",
+       "4,541,477"
+      ],
+      [
+       "2023",
+       "11,080,279",
+       "11,080,279",
+       "11,080,279",
+       "–"
+      ],
+      [
+       "2024",
+       "17,724,330",
+       "27,153,819",
+       "–",
+       "–"
+      ],
+      [
+       "2025",
+       "34,804,658",
+       "–",
+       "–",
+       "–"
+      ]
+     ],
+     "paid": [
+      [
+       "2022",
+       "3,981,152",
+       "4,541,477",
+       "4,541,477",
+       "4,541,477"
+      ],
+      [
+       "2023",
+       "7,867,314",
+       "11,080,279",
+       "11,080,279",
+       "–"
+      ],
+      [
+       "2024",
+       "17,724,330",
+       "27,153,819",
+       "–",
+       "–"
+      ],
+      [
+       "2025",
+       "24,185,242",
+       "–",
+       "–",
+       "–"
+      ]
+     ]
+    }
+   },
+   {
+    "ages": [
+     "12",
+     "24",
+     "36",
+     "48"
+    ],
+    "anchor": "line-1",
+    "figures": {
+     "factors_incurred": "line-1-factors-incurred",
+     "factors_paid": "line-1-factors-paid",
+     "heatmap_incurred": "line-1-heatmap-incurred",
+     "heatmap_paid": "line-1-heatmap-paid",
+     "methods": "line-1-methods",
+     "range": ""
+    },
+    "findings": [
+     {
+      "banner": false,
+      "evidence": "MT02 v1.0.0",
+      "files": [
+       "diagnostics.csv"
+      ],
+      "key": "NON_LIFE · MOTOR_OD",
+      "rule": "KF20",
+      "scope": "line",
+      "section": "line-1",
+      "specs": [
+       "MT02"
+      ],
+      "text": "Origin periods: 4, fewer than 8. The methods below agree or differ on little evidence.",
+      "title": "Thin evidence in the line"
+     },
+     {
+      "banner": false,
+      "evidence": "MT02 v1.0.0",
+      "files": [
+       "diagnostics.csv"
+      ],
+      "key": "NON_LIFE · MOTOR_OD",
+      "rule": "KF22",
+      "scope": "line",
+      "section": "line-1",
+      "specs": [
+       "MT02"
+      ],
+      "text": "Origins whose paid chain ladder ultimate is below the incurred to date: 2025.",
+      "title": "Paid ultimate below incurred in the line"
+     },
+     {
+      "banner": false,
+      "evidence": "MT02 v1.0.0",
+      "files": [
+       "diagnostics.csv"
+      ],
+      "key": "NON_LIFE · MOTOR_OD",
+      "rule": "KF25",
+      "scope": "line",
+      "section": "line-1",
+      "specs": [
+       "MT02"
+      ],
+      "text": "Factors resting on fewer than 3 origins: 4 (paid 24-36, paid 36-48, incurred 24-36, incurred 36-48).",
+      "title": "Few link ratios in the line"
+     }
+    ],
+    "methods": {
+     "diagnostics": [
+      {
+       "code": "thin evidence",
+       "measure": "all",
+       "message": "only 4 origin periods: thin evidence; factors, ratios and ranges rest on few observations (fewer than 8)",
+       "method": "MT02, MT03, MT04, MT05, MT07, MT10",
+       "target": ""
+      },
+      {
+       "code": "few link ratios",
+       "measure": "paid",
+       "message": "factor 24-36 (1) rests on 2 origins, fewer than 3",
+       "method": "MT02",
+       "target": "24-36"
+      },
+      {
+       "code": "few link ratios",
+       "measure": "paid",
+       "message": "factor 36-48 (1) rests on 1 origin, fewer than 3",
+       "method": "MT02",
+       "target": "36-48"
+      },
+      {
+       "code": "few link ratios",
+       "measure": "incurred",
+       "message": "factor 24-36 (1) rests on 2 origins, fewer than 3",
+       "method": "MT02",
+       "target": "24-36"
+      },
+      {
+       "code": "few link ratios",
+       "measure": "incurred",
+       "message": "factor 36-48 (1) rests on 1 origin, fewer than 3",
+       "method": "MT02",
+       "target": "36-48"
+      },
+      {
+       "code": "negative ibnr",
+       "measure": "paid",
+       "message": "paid ultimate of origin 2025 (4,163,859.11) is below the incurred to date (6,426,297.14): IBNR -2,262,438.03",
+       "method": "MT02",
+       "target": "2025"
+      }
+     ],
+     "inflation": {
+      "future_inflation": null,
+      "rows": [
+       {
+        "cells": [
+         "19,594,876",
+         "19,594,876",
+         "0",
+         "5,142,092",
+         "–",
+         "–"
+        ],
+        "origin": "2022"
+       },
+       {
+        "cells": [
+         "6,133,963",
+         "6,133,963",
+         "0",
+         "2,876,013",
+         "–",
+         "–"
+        ],
+        "origin": "2023"
+       },
+       {
+        "cells": [
+         "6,265,333",
+         "6,265,333",
+         "0",
+         "4,131,087",
+         "–",
+         "–"
+        ],
+        "origin": "2024"
+       },
+       {
+        "cells": [
+         "4,128,031",
+         "4,491,591",
+         "363,560",
+         "3,685,090",
+         "–",
+         "–"
+        ],
+        "origin": "2025"
+       }
+      ],
+      "value_date": "2025-12-31"
+     },
+     "mack": null,
+     "not_run": [
+      "Mack standard error (MT06) on paid did not run: too few link ratios to estimate variance.",
+      "Mack standard error (MT06) on incurred did not run: too few link ratios to estimate variance."
+     ],
+     "selection_measure": "incurred",
+     "stability": [
+      {
+       "measure": "paid",
+       "names": [
+        "volume weighted",
+        "simple",
+        "volume weighted latest 3"
+       ],
+       "rows": [
+        {
+         "cells": [
+          "3",
+          "1.028",
+          "1.510",
+          "0.221",
+          "1.130",
+          "1.204",
+          "1.130",
+          "1.130"
+         ],
+         "column": "12-24"
+        },
+        {
+         "cells": [
+          "2",
+          "1.000",
+          "1.000",
+          "0.000",
+          "1.000",
+          "1.000",
+          "1.000",
+          "1.000"
+         ],
+         "column": "24-36"
+        },
+        {
+         "cells": [
+          "1",
+          "1.000",
+          "1.000",
+          "–",
+          "1.000",
+          "1.000",
+          "1.000",
+          "1.000"
+         ],
+         "column": "36-48"
+        }
+       ]
+      },
+      {
+       "measure": "incurred",
+       "names": [
+        "volume weighted",
+        "simple",
+        "volume weighted latest 3"
+       ],
+       "rows": [
+        {
+         "cells": [
+          "3",
+          "0.875",
+          "1.151",
+          "0.137",
+          "0.987",
+          "1.013",
+          "0.987",
+          "0.987"
+         ],
+         "column": "12-24"
+        },
+        {
+         "cells": [
+          "2",
+          "1.000",
+          "1.000",
+          "0.000",
+          "1.000",
+          "1.000",
+          "1.000",
+          "1.000"
+         ],
+         "column": "24-36"
+        },
+        {
+         "cells": [
+          "1",
+          "1.000",
+          "1.000",
+          "–",
+          "1.000",
+          "1.000",
+          "1.000",
+          "1.000"
+         ],
+         "column": "36-48"
+        }
+       ]
+      }
+     ],
+     "ultimates": {
+      "headers": [
+       "Chain ladder, paid",
+       "Bornhuetter–Ferguson, paid",
+       "Cape Cod, paid",
+       "Expected loss ratio, paid",
+       "Chain ladder, incurred",
+       "Bornhuetter–Ferguson, incurred",
+       "Cape Cod, incurred",
+       "Expected loss ratio, incurred",
+       "Inflation-adjusted chain ladder, paid, value-date prices"
+      ],
+      "rows": [
+       {
+        "cells": [
+         "5,142,092",
+         "5,142,092",
+         "5,142,092",
+         "1,973,874",
+         "5,142,092",
+         "5,142,092",
+         "5,142,092",
+         "2,193,261",
+         "19,594,876"
+        ],
+        "chosen": "chain ladder",
+        "origin": "2022",
+        "selected": "5,142,092",
+        "total": false,
+        "why": "maturity 1.000 at least 0.5"
+       },
+       {
+        "cells": [
+         "2,876,013",
+         "2,876,013",
+         "2,876,013",
+         "3,327,537",
+         "2,876,013",
+         "2,876,013",
+         "2,876,013",
+         "3,697,375",
+         "6,133,963"
+        ],
+        "chosen": "chain ladder",
+        "origin": "2023",
+        "selected": "2,876,013",
+        "total": false,
+        "why": "maturity 1.000 at least 0.5"
+       },
+       {
+        "cells": [
+         "4,131,087",
+         "4,131,087",
+         "4,131,087",
+         "4,416,169",
+         "4,131,087",
+         "4,131,087",
+         "4,131,087",
+         "4,907,004",
+         "6,265,333"
+        ],
+        "chosen": "chain ladder",
+        "origin": "2024",
+        "selected": "4,131,087",
+        "total": false,
+        "why": "maturity 1.000 at least 0.5"
+       },
+       {
+        "cells": [
+         "4,163,859",
+         "4,479,776",
+         "4,479,776",
+         "6,911,389",
+         "6,345,083",
+         "6,328,002",
+         "6,328,002",
+         "7,679,555",
+         "4,491,591"
+        ],
+        "chosen": "chain ladder",
+        "origin": "2025",
+        "selected": "6,345,083",
+        "total": false,
+        "why": "maturity 1.013 at least 0.5"
+       },
+       {
+        "cells": [
+         "16,313,052",
+         "16,628,969",
+         "16,628,969",
+         "16,628,969",
+         "18,494,276",
+         "18,477,195",
+         "18,477,195",
+         "18,477,195",
+         "36,485,763"
+        ],
+        "chosen": "",
+        "origin": "Total",
+        "selected": "18,494,276",
+        "total": true,
+        "why": ""
+       }
+      ]
+     }
+    },
+    "name": "NON_LIFE · MOTOR_OD",
+    "origins": 4,
+    "segment": "NON_LIFE",
+    "summary": {
+     "anchor": "line-1",
+     "diagnostics": 6,
+     "ibnr_selected": "-81,214",
+     "incurred": "18,575,490",
+     "line": "NON_LIFE · MOTOR_OD",
+     "paid": "15,834,283",
+     "ult_incurred": "18,494,276",
+     "ult_paid": "16,313,052",
+     "ult_selected": "18,494,276"
+    },
+    "thin_cells": 0,
+    "triangles": {
+     "incurred": [
+      [
+       "2022",
+       "5,083,876",
+       "5,142,092",
+       "5,142,092",
+       "5,142,092"
+      ],
+      [
+       "2023",
+       "2,497,848",
+       "2,876,013",
+       "2,876,013",
+       "–"
+      ],
+      [
+       "2024",
+       "4,722,973",
+       "4,131,087",
+       "–",
+       "–"
+      ],
+      [
+       "2025",
+       "6,426,297",
+       "–",
+       "–",
+       "–"
+      ]
+     ],
+     "paid": [
+      [
+       "2022",
+       "5,003,042",
+       "5,142,092",
+       "5,142,092",
+       "5,142,092"
+      ],
+      [
+       "2023",
+       "1,904,932",
+       "2,876,013",
+       "2,876,013",
+       "–"
+      ],
+      [
+       "2024",
+       "3,844,280",
+       "4,131,087",
+       "–",
+       "–"
+      ],
+      [
+       "2025",
+       "3,685,090",
+       "–",
+       "–",
+       "–"
+      ]
+     ]
+    }
+   },
+   {
+    "ages": [
+     "12",
+     "24",
+     "36",
+     "48"
+    ],
+    "anchor": "line-2",
+    "figures": {
+     "factors_incurred": "line-2-factors-incurred",
+     "factors_paid": "line-2-factors-paid",
+     "heatmap_incurred": "line-2-heatmap-incurred",
+     "heatmap_paid": "line-2-heatmap-paid",
+     "methods": "line-2-methods",
+     "range": ""
+    },
+    "findings": [
+     {
+      "banner": false,
+      "evidence": "MT02 v1.0.0",
+      "files": [
+       "diagnostics.csv"
+      ],
+      "key": "NON_LIFE · MOTOR_TPL",
+      "rule": "KF20",
+      "scope": "line",
+      "section": "line-2",
+      "specs": [
+       "MT02"
+      ],
+      "text": "Origin periods: 4, fewer than 8. The methods below agree or differ on little evidence.",
+      "title": "Thin evidence in the line"
+     },
+     {
+      "banner": false,
+      "evidence": "MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT10 v1.0.0",
+      "files": [
+       "ultimates.csv"
+      ],
+      "key": "NON_LIFE · MOTOR_TPL",
+      "rule": "KF21",
+      "scope": "line",
+      "section": "line-2",
+      "specs": [
+       "MT02",
+       "MT03",
+       "MT04",
+       "MT05",
+       "MT10"
+      ],
+      "text": "The total ultimates of the methods on the incurred triangle lie between 22,408,219 and 25,136,595 TRY, 12.2% of the selected ultimate apart; this spread shows how much the answer depends on the method, not a confidence interval.",
+      "title": "Methods differ"
+     },
+     {
+      "banner": false,
+      "evidence": "MT02 v1.0.0",
+      "files": [
+       "diagnostics.csv"
+      ],
+      "key": "NON_LIFE · MOTOR_TPL",
+      "rule": "KF22",
+      "scope": "line",
+      "section": "line-2",
+      "specs": [
+       "MT02"
+      ],
+      "text": "Origins whose paid chain ladder ultimate is below the incurred to date: 2022, 2023, 2024, 2025.",
+      "title": "Paid ultimate below incurred in the line"
+     },
+     {
+      "banner": false,
+      "evidence": "MT02 v1.0.0",
+      "files": [
+       "diagnostics.csv"
+      ],
+      "key": "NON_LIFE · MOTOR_TPL",
+      "rule": "KF23",
+      "scope": "line",
+      "section": "line-2",
+      "specs": [
+       "MT02"
+      ],
+      "text": "Last observed development paid 36-48 (1.382) is above 1.050 with tail factor 1.0: the ultimate may be understated.",
+      "title": "High last development in the line"
+     },
+     {
+      "banner": false,
+      "evidence": "MT02 v1.0.0",
+      "files": [
+       "diagnostics.csv"
+      ],
+      "key": "NON_LIFE · MOTOR_TPL",
+      "rule": "KF25",
+      "scope": "line",
+      "section": "line-2",
+      "specs": [
+       "MT02"
+      ],
+      "text": "Factors resting on fewer than 3 origins: 4 (paid 24-36, paid 36-48, incurred 24-36, incurred 36-48).",
+      "title": "Few link ratios in the line"
+     }
+    ],
+    "methods": {
+     "diagnostics": [
+      {
+       "code": "thin evidence",
+       "measure": "all",
+       "message": "only 4 origin periods: thin evidence; factors, ratios and ranges rest on few observations (fewer than 8)",
+       "method": "MT02, MT03, MT04, MT05, MT07, MT10",
+       "target": ""
+      },
+      {
+       "code": "late development",
+       "measure": "paid",
+       "message": "development from 36 to 48 months is still 1.382 and the tail factor is 1.0, so ultimates may be understated; a tail factor can be set in the assumptions register",
+       "method": "MT02",
+       "target": "36-48"
+      },
+      {
+       "code": "few link ratios",
+       "measure": "paid",
+       "message": "factor 24-36 (1.417) rests on 2 origins, fewer than 3",
+       "method": "MT02",
+       "target": "24-36"
+      },
+      {
+       "code": "few link ratios",
+       "measure": "paid",
+       "message": "factor 36-48 (1.382) rests on 1 origin, fewer than 3",
+       "method": "MT02",
+       "target": "36-48"
+      },
+      {
+       "code": "few link ratios",
+       "measure": "incurred",
+       "message": "factor 24-36 (1.343) rests on 2 origins, fewer than 3",
+       "method": "MT02",
+       "target": "24-36"
+      },
+      {
+       "code": "few link ratios",
+       "measure": "incurred",
+       "message": "factor 36-48 (0.9507) rests on 1 origin, fewer than 3",
+       "method": "MT02",
+       "target": "36-48"
+      },
+      {
+       "code": "negative ibnr",
+       "measure": "paid",
+       "message": "paid ultimate of origin 2022 (12,301,465.02) is below the incurred to date (12,336,217.69): IBNR -34,752.67",
+       "method": "MT02",
+       "target": "2022"
+      },
+      {
+       "code": "negative ibnr",
+       "measure": "paid",
+       "message": "paid ultimate of origin 2023 (1,558,085.15) is below the incurred to date (2,678,629.79): IBNR -1,120,544.64",
+       "method": "MT02",
+       "target": "2023"
+      },
+      {
+       "code": "negative ibnr",
+       "measure": "paid",
+       "message": "paid ultimate of origin 2024 (1,209,775.77) is below the incurred to date (1,891,680.20): IBNR -681,904.43",
+       "method": "MT02",
+       "target": "2024"
+      },
+      {
+       "code": "negative ibnr",
+       "measure": "paid",
+       "message": "paid ultimate of origin 2025 (1,448,649.37) is below the incurred to date (3,511,628.47): IBNR -2,062,979.10",
+       "method": "MT02",
+       "target": "2025"
+      }
+     ],
+     "inflation": {
+      "future_inflation": null,
+      "rows": [
+       {
+        "cells": [
+         "30,976,803",
+         "30,976,803",
+         "0",
+         "12,301,465",
+         "–",
+         "–"
+        ],
+        "origin": "2022"
+       },
+       {
+        "cells": [
+         "1,557,449",
+         "1,799,443",
+         "241,994",
+         "1,127,544",
+         "–",
+         "–"
+        ],
+        "origin": "2023"
+       },
+       {
+        "cells": [
+         "766,556",
+         "1,072,623",
+         "306,067",
+         "617,909",
+         "–",
+         "–"
+        ],
+        "origin": "2024"
+       },
+       {
+        "cells": [
+         "463,747",
+         "870,660",
+         "406,913",
+         "462,254",
+         "–",
+         "–"
+        ],
+        "origin": "2025"
+       }
+      ],
+      "value_date": "2025-12-31"
+     },
+     "mack": null,
+     "not_run": [
+      "Mack standard error (MT06) on paid did not run: too few link ratios to estimate variance.",
+      "Mack standard error (MT06) on incurred did not run: too few link ratios to estimate variance."
+     ],
+     "selection_measure": "incurred",
+     "stability": [
+      {
+       "measure": "paid",
+       "names": [
+        "volume weighted",
+        "simple",
+        "volume weighted latest 3"
+       ],
+       "rows": [
+        {
+         "cells": [
+          "3",
+          "1.454",
+          "8.034",
+          "0.911",
+          "1.601",
+          "3.929",
+          "1.601",
+          "1.601"
+         ],
+         "column": "12-24"
+        },
+        {
+         "cells": [
+          "2",
+          "1.371",
+          "1.929",
+          "0.239",
+          "1.417",
+          "1.650",
+          "1.417",
+          "1.417"
+         ],
+         "column": "24-36"
+        },
+        {
+         "cells": [
+          "1",
+          "1.382",
+          "1.382",
+          "–",
+          "1.382",
+          "1.382",
+          "1.382",
+          "1.382"
+         ],
+         "column": "36-48"
+        }
+       ]
+      },
+      {
+       "measure": "incurred",
+       "names": [
+        "volume weighted",
+        "simple",
+        "volume weighted latest 3"
+       ],
+       "rows": [
+        {
+         "cells": [
+          "3",
+          "0.824",
+          "2.001",
+          "0.487",
+          "1.140",
+          "1.288",
+          "1.140",
+          "1.140"
+         ],
+         "column": "12-24"
+        },
+        {
+         "cells": [
+          "2",
+          "0.761",
+          "1.595",
+          "0.501",
+          "1.343",
+          "1.178",
+          "1.343",
+          "1.343"
+         ],
+         "column": "24-36"
+        },
+        {
+         "cells": [
+          "1",
+          "0.951",
+          "0.951",
+          "–",
+          "0.951",
+          "0.951",
+          "0.951",
+          "0.951"
+         ],
+         "column": "36-48"
+        }
+       ]
+      }
+     ],
+     "ultimates": {
+      "headers": [
+       "Chain ladder, paid",
+       "Bornhuetter–Ferguson, paid",
+       "Cape Cod, paid",
+       "Expected loss ratio, paid",
+       "Chain ladder, incurred",
+       "Bornhuetter–Ferguson, incurred",
+       "Cape Cod, incurred",
+       "Expected loss ratio, incurred",
+       "Inflation-adjusted chain ladder, paid, value-date prices"
+      ],
+      "rows": [
+       {
+        "cells": [
+         "12,301,465",
+         "12,301,465",
+         "12,301,465",
+         "3,046,188",
+         "12,336,218",
+         "12,336,218",
+         "12,336,218",
+         "2,737,302",
+         "30,976,803"
+        ],
+        "chosen": "chain ladder",
+        "origin": "2022",
+        "selected": "12,336,218",
+        "total": false,
+        "why": "maturity 1.000 at least 0.5"
+       },
+       {
+        "cells": [
+         "1,558,085",
+         "2,472,934",
+         "2,472,934",
+         "4,868,834",
+         "2,546,610",
+         "2,451,818",
+         "2,451,818",
+         "4,375,131",
+         "1,799,443"
+        ],
+        "chosen": "chain ladder",
+        "origin": "2023",
+        "selected": "2,546,610",
+        "total": false,
+        "why": "maturity 1.052 at least 0.5"
+       },
+       {
+        "cells": [
+         "1,209,776",
+         "4,546,594",
+         "4,546,594",
+         "8,030,228",
+         "2,415,324",
+         "3,456,104",
+         "3,456,104",
+         "7,215,957",
+         "1,072,623"
+        ],
+        "chosen": "chain ladder",
+        "origin": "2024",
+        "selected": "2,415,324",
+        "total": false,
+        "why": "maturity 0.783 at least 0.5"
+       },
+       {
+        "cells": [
+         "1,448,649",
+         "8,652,095",
+         "8,652,095",
+         "12,027,838",
+         "5,110,067",
+         "6,892,455",
+         "6,892,455",
+         "10,808,206",
+         "870,660"
+        ],
+        "chosen": "chain ladder",
+        "origin": "2025",
+        "selected": "5,110,067",
+        "total": false,
+        "why": "maturity 0.687 at least 0.5"
+       },
+       {
+        "cells": [
+         "16,517,975",
+         "27,973,088",
+         "27,973,088",
+         "27,973,088",
+         "22,408,219",
+         "25,136,595",
+         "25,136,595",
+         "25,136,595",
+         "34,719,530"
+        ],
+        "chosen": "",
+        "origin": "Total",
+        "selected": "22,408,219",
+        "total": true,
+        "why": ""
+       }
+      ]
+     }
+    },
+    "name": "NON_LIFE · MOTOR_TPL",
+    "origins": 4,
+    "segment": "NON_LIFE",
+    "summary": {
+     "anchor": "line-2",
+     "diagnostics": 10,
+     "ibnr_selected": "1,990,063",
+     "incurred": "20,418,156",
+     "line": "NON_LIFE · MOTOR_TPL",
+     "paid": "14,509,172",
+     "ult_incurred": "22,408,219",
+     "ult_paid": "16,517,975",
+     "ult_selected": "22,408,219"
+    },
+    "thin_cells": 0,
+    "triangles": {
+     "incurred": [
+      [
+       "2022",
+       "7,831,231",
+       "8,134,038",
+       "12,975,742",
+       "12,336,218"
+      ],
+      [
+       "2023",
+       "1,760,582",
+       "3,522,183",
+       "2,678,630",
+       "–"
+      ],
+      [
+       "2024",
+       "2,295,445",
+       "1,891,680",
+       "–",
+       "–"
+      ],
+      [
+       "2025",
+       "3,511,628",
+       "–",
+       "–",
+       "–"
+      ]
+     ],
+     "paid": [
+      [
+       "2022",
+       "4,466,883",
+       "6,494,414",
+       "8,902,239",
+       "12,301,465"
+      ],
+      [
+       "2023",
+       "72,761",
+       "584,531",
+       "1,127,544",
+       "–"
+      ],
+      [
+       "2024",
+       "268,869",
+       "617,909",
+       "–",
+       "–"
+      ],
+      [
+       "2025",
+       "462,254",
+       "–",
+       "–",
+       "–"
+      ]
+     ]
+    }
+   },
+   {
+    "ages": [
+     "12",
+     "24",
+     "36",
+     "48"
+    ],
+    "anchor": "line-3",
+    "figures": {
+     "factors_incurred": "line-3-factors-incurred",
+     "factors_paid": "line-3-factors-paid",
+     "heatmap_incurred": "line-3-heatmap-incurred",
+     "heatmap_paid": "line-3-heatmap-paid",
+     "methods": "line-3-methods",
+     "range": ""
+    },
+    "findings": [
+     {
+      "banner": false,
+      "evidence": "MT02 v1.0.0",
+      "files": [
+       "diagnostics.csv"
+      ],
+      "key": "NON_LIFE · PROPERTY",
+      "rule": "KF20",
+      "scope": "line",
+      "section": "line-3",
+      "specs": [
+       "MT02"
+      ],
+      "text": "Origin periods: 4, fewer than 8. The methods below agree or differ on little evidence.",
+      "title": "Thin evidence in the line"
+     },
+     {
+      "banner": false,
+      "evidence": "MT02 v1.0.0",
+      "files": [
+       "diagnostics.csv"
+      ],
+      "key": "NON_LIFE · PROPERTY",
+      "rule": "KF24",
+      "scope": "line",
+      "section": "line-3",
+      "specs": [
+       "MT02"
+      ],
+      "text": "Factors resting on a cell that grows from zero: paid 2024:12-24.",
+      "title": "Zero denominator in the line"
+     },
+     {
+      "banner": false,
+      "evidence": "MT02 v1.0.0",
+      "files": [
+       "diagnostics.csv"
+      ],
+      "key": "NON_LIFE · PROPERTY",
+      "rule": "KF25",
+      "scope": "line",
+      "section": "line-3",
+      "specs": [
+       "MT02"
+      ],
+      "text": "Factors resting on fewer than 3 origins: 4 (paid 24-36, paid 36-48, incurred 24-36, incurred 36-48).",
+      "title": "Few link ratios in the line"
+     }
+    ],
+    "methods": {
+     "diagnostics": [
+      {
+       "code": "thin evidence",
+       "measure": "all",
+       "message": "only 4 origin periods: thin evidence; factors, ratios and ranges rest on few observations (fewer than 8)",
+       "method": "MT02, MT03, MT04, MT05, MT07, MT10",
+       "target": ""
+      },
+      {
+       "code": "zero denominator",
+       "measure": "paid",
+       "message": "factor 12-24 is 4.459: origin 2024 has 0 at 12 months and 560,092.38 at 24 months, so it adds to the numerator only; without that cell the factor is 1. The cell is kept by default (MT02); exclude cell 2024:12-24 in the assumptions register to leave it out",
+       "method": "MT02",
+       "target": "2024:12-24"
+      },
+      {
+       "code": "few link ratios",
+       "measure": "paid",
+       "message": "factor 24-36 (1) rests on 2 origins, fewer than 3",
+       "method": "MT02",
+       "target": "24-36"
+      },
+      {
+       "code": "few link ratios",
+       "measure": "paid",
+       "message": "factor 36-48 (1) rests on 1 origin, fewer than 3",
+       "method": "MT02",
+       "target": "36-48"
+      },
+      {
+       "code": "few link ratios",
+       "measure": "incurred",
+       "message": "factor 24-36 (1) rests on 2 origins, fewer than 3",
+       "method": "MT02",
+       "target": "24-36"
+      },
+      {
+       "code": "few link ratios",
+       "measure": "incurred",
+       "message": "factor 36-48 (1) rests on 1 origin, fewer than 3",
+       "method": "MT02",
+       "target": "36-48"
+      }
+     ],
+     "inflation": {
+      "future_inflation": null,
+      "rows": [
+       {
+        "cells": [
+         "0",
+         "0",
+         "0",
+         "0",
+         "–",
+         "–"
+        ],
+        "origin": "2022"
+       },
+       {
+        "cells": [
+         "426,571",
+         "426,571",
+         "0",
+         "161,906",
+         "–",
+         "–"
+        ],
+        "origin": "2023"
+       },
+       {
+        "cells": [
+         "694,232",
+         "694,232",
+         "0",
+         "560,092",
+         "–",
+         "–"
+        ],
+        "origin": "2024"
+       },
+       {
+        "cells": [
+         "246,985",
+         "648,947",
+         "401,962",
+         "222,566",
+         "–",
+         "–"
+        ],
+        "origin": "2025"
+       }
+      ],
+      "value_date": "2025-12-31"
+     },
+     "mack": null,
+     "not_run": [
+      "Mack standard error (MT06) on paid did not run: too few link ratios to estimate variance.",
+      "Mack standard error (MT06) on incurred did not run: too few link ratios to estimate variance."
+     ],
+     "selection_measure": "incurred",
+     "stability": [
+      {
+       "measure": "paid",
+       "names": [
+        "volume weighted",
+        "simple",
+        "volume weighted latest 3"
+       ],
+       "rows": [
+        {
+         "cells": [
+          "1",
+          "1.000",
+          "1.000",
+          "–",
+          "4.459",
+          "1.000",
+          "4.459",
+          "4.459"
+         ],
+         "column": "12-24"
+        },
+        {
+         "cells": [
+          "1",
+          "1.000",
+          "1.000",
+          "–",
+          "1.000",
+          "1.000",
+          "1.000",
+          "1.000"
+         ],
+         "column": "24-36"
+        },
+        {
+         "cells": [
+          "0",
+          "–",
+          "–",
+          "–",
+          "1.000",
+          "1.000",
+          "1.000",
+          "1.000"
+         ],
+         "column": "36-48"
+        }
+       ]
+      },
+      {
+       "measure": "incurred",
+       "names": [
+        "volume weighted",
+        "simple",
+        "volume weighted latest 3"
+       ],
+       "rows": [
+        {
+         "cells": [
+          "2",
+          "1.000",
+          "1.108",
+          "0.072",
+          "1.082",
+          "1.054",
+          "1.082",
+          "1.082"
+         ],
+         "column": "12-24"
+        },
+        {
+         "cells": [
+          "1",
+          "1.000",
+          "1.000",
+          "–",
+          "1.000",
+          "1.000",
+          "1.000",
+          "1.000"
+         ],
+         "column": "24-36"
+        },
+        {
+         "cells": [
+          "0",
+          "–",
+          "–",
+          "–",
+          "1.000",
+          "1.000",
+          "1.000",
+          "1.000"
+         ],
+         "column": "36-48"
+        }
+       ]
+      }
+     ],
+     "ultimates": {
+      "headers": [
+       "Chain ladder, paid",
+       "Bornhuetter–Ferguson, paid",
+       "Cape Cod, paid",
+       "Expected loss ratio, paid",
+       "Chain ladder, incurred",
+       "Bornhuetter–Ferguson, incurred",
+       "Cape Cod, incurred",
+       "Expected loss ratio, incurred",
+       "Inflation-adjusted chain ladder, paid, value-date prices"
+      ],
+      "rows": [
+       {
+        "cells": [
+         "0",
+         "0",
+         "0",
+         "127,750",
+         "0",
+         "0",
+         "0",
+         "85,941",
+         "0"
+        ],
+        "chosen": "chain ladder",
+        "origin": "2022",
+        "selected": "0",
+        "total": false,
+        "why": "maturity 1.000 at least 0.5"
+       },
+       {
+        "cells": [
+         "161,906",
+         "161,906",
+         "161,906",
+         "276,254",
+         "161,906",
+         "161,906",
+         "161,906",
+         "185,844",
+         "426,571"
+        ],
+        "chosen": "chain ladder",
+        "origin": "2023",
+        "selected": "161,906",
+        "total": false,
+        "why": "maturity 1.000 at least 0.5"
+       },
+       {
+        "cells": [
+         "560,092",
+         "560,092",
+         "560,092",
+         "393,399",
+         "560,092",
+         "560,092",
+         "560,092",
+         "264,650",
+         "694,232"
+        ],
+        "chosen": "chain ladder",
+        "origin": "2024",
+        "selected": "560,092",
+        "total": false,
+        "why": "maturity 1.000 at least 0.5"
+       },
+       {
+        "cells": [
+         "992,506",
+         "731,654",
+         "731,654",
+         "656,249",
+         "240,751",
+         "255,913",
+         "255,913",
+         "441,477",
+         "648,947"
+        ],
+        "chosen": "chain ladder",
+        "origin": "2025",
+        "selected": "240,751",
+        "total": false,
+        "why": "maturity 0.924 at least 0.5"
+       },
+       {
+        "cells": [
+         "1,714,504",
+         "1,453,652",
+         "1,453,652",
+         "1,453,652",
+         "962,749",
+         "977,911",
+         "977,911",
+         "977,911",
+         "1,769,750"
+        ],
+        "chosen": "",
+        "origin": "Total",
+        "selected": "962,749",
+        "total": true,
+        "why": ""
+       }
+      ]
+     }
+    },
+    "name": "NON_LIFE · PROPERTY",
+    "origins": 4,
+    "segment": "NON_LIFE",
+    "summary": {
+     "anchor": "line-3",
+     "diagnostics": 6,
+     "ibnr_selected": "18,185",
+     "incurred": "944,564",
+     "line": "NON_LIFE · PROPERTY",
+     "paid": "944,564",
+     "ult_incurred": "962,749",
+     "ult_paid": "1,714,504",
+     "ult_selected": "962,749"
+    },
+    "thin_cells": 10,
+    "triangles": {
+     "incurred": [
+      [
+       "2022",
+       "0",
+       "0",
+       "0",
+       "0"
+      ],
+      [
+       "2023",
+       "161,906",
+       "161,906",
+       "161,906",
+       "–"
+      ],
+      [
+       "2024",
+       "505,556",
+       "560,092",
+       "–",
+       "–"
+      ],
+      [
+       "2025",
+       "222,566",
+       "–",
+       "–",
+       "–"
+      ]
+     ],
+     "paid": [
+      [
+       "2022",
+       "0",
+       "0",
+       "0",
+       "0"
+      ],
+      [
+       "2023",
+       "161,906",
+       "161,906",
+       "161,906",
+       "–"
+      ],
+      [
+       "2024",
+       "0",
+       "560,092",
+       "–",
+       "–"
+      ],
+      [
+       "2025",
+       "222,566",
+       "–",
+       "–",
+       "–"
+      ]
+     ]
+    }
+   }
+  ],
+  "module": "M04",
+  "question": "What will claims finally cost, and how sure are we?",
+  "reasons": [
+   "MT06 Mack standard error did not run for 8 of 8 triangles: too few link ratios to estimate variance"
+  ],
+  "selection_measure": "incurred",
+  "spec": "M04 v1.0.0",
+  "state": "limited",
+  "summary": [
+   {
+    "anchor": "line-0",
+    "diagnostics": 5,
+    "ibnr_selected": "10,604,971",
+    "incurred": "77,580,233",
+    "line": "LIFE · GROUP_TERM_LIFE",
+    "paid": "66,960,817",
+    "ult_incurred": "88,185,204",
+    "ult_paid": "77,758,322",
+    "ult_selected": "88,185,204"
+   },
+   {
+    "anchor": "line-1",
+    "diagnostics": 6,
+    "ibnr_selected": "-81,214",
+    "incurred": "18,575,490",
+    "line": "NON_LIFE · MOTOR_OD",
+    "paid": "15,834,283",
+    "ult_incurred": "18,494,276",
+    "ult_paid": "16,313,052",
+    "ult_selected": "18,494,276"
+   },
+   {
+    "anchor": "line-2",
+    "diagnostics": 10,
+    "ibnr_selected": "1,990,063",
+    "incurred": "20,418,156",
+    "line": "NON_LIFE · MOTOR_TPL",
+    "paid": "14,509,172",
+    "ult_incurred": "22,408,219",
+    "ult_paid": "16,517,975",
+    "ult_selected": "22,408,219"
+   },
+   {
+    "anchor": "line-3",
+    "diagnostics": 6,
+    "ibnr_selected": "18,185",
+    "incurred": "944,564",
+    "line": "NON_LIFE · PROPERTY",
+    "paid": "944,564",
+    "ult_incurred": "962,749",
+    "ult_paid": "1,714,504",
+    "ult_selected": "962,749"
+   }
+  ],
+  "title": "Reserving (indicative)"
+ },
+ "tiles": [
+  {
+   "colour": "--segment-life",
+   "segment": "LIFE",
+   "tiles": [
+    {
+     "against": "against 2024",
+     "change": "+5.5%",
+     "label": "Written premium 2025",
+     "note": "",
+     "source": "PR01 v1.0.0 · GROSS, TRY, NOMINAL",
+     "value": "48,910,936 TRY"
+    },
+    {
+     "against": "against 2024-12-31",
+     "change": "+44,234,147",
+     "label": "Incurred to date",
+     "note": "",
+     "source": "CL03 v1.0.0, MT01 v1.0.0 · GROSS, TRY, NOMINAL",
+     "value": "77,580,233 TRY"
+    },
+    {
+     "against": "against origin 2024",
+     "change": "+36.8 pts",
+     "label": "Ultimate loss ratio, origin 2025",
+     "note": "",
+     "source": "RT01 v1.0.0, MT10 v1.0.0 · GROSS, TRY, NOMINAL",
+     "value": "105.4%"
+    },
+    {
+     "against": "against 2024-12-31",
+     "change": "+9,945,580",
+     "label": "Reserve estimate (IBNR, selected)",
+     "note": "no range: the Mack standard error did not run",
+     "source": "RS02 v1.0.0, MT10 v1.0.0, RS03 v1.0.0 · GROSS, TRY, NOMINAL",
+     "value": "10,604,971 TRY"
+    }
+   ]
+  },
+  {
+   "colour": "--segment-non-life",
+   "segment": "NON_LIFE",
+   "tiles": [
+    {
+     "against": "against 2024",
+     "change": "+41.2%",
+     "label": "Written premium 2025",
+     "note": "",
+     "source": "PR01 v1.0.0 · GROSS, TRY, NOMINAL",
+     "value": "45,783,739 TRY"
+    },
+    {
+     "against": "against 2024-12-31",
+     "change": "+7,736,299",
+     "label": "Incurred to date",
+     "note": "",
+     "source": "CL03 v1.0.0, MT01 v1.0.0 · GROSS, TRY, NOMINAL",
+     "value": "39,938,211 TRY"
+    },
+    {
+     "against": "against origin 2024",
+     "change": "+2.2 pts",
+     "label": "Ultimate loss ratio, origin 2025",
+     "note": "",
+     "source": "RT01 v1.0.0, MT10 v1.0.0 · GROSS, TRY, NOMINAL",
+     "value": "29.3%"
+    },
+    {
+     "against": "against 2024-12-31",
+     "change": "−2,595,803",
+     "label": "Reserve estimate (IBNR, selected)",
+     "note": "no range: the Mack standard error did not run",
+     "source": "RS02 v1.0.0, MT10 v1.0.0, RS03 v1.0.0 · GROSS, TRY, NOMINAL",
+     "value": "1,927,034 TRY"
+    }
+   ]
+  }
+ ]
+}

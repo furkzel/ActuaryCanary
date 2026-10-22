@@ -12,6 +12,7 @@ from actuarycanary.spec.models import (
     ColumnAliasSpec,
     ConventionSpec,
     DataConceptSpec,
+    FindingRulesSpec,
     MeasureSpec,
     MethodSpec,
     ModuleSpec,
@@ -34,6 +35,9 @@ ALIAS_MODELS: dict[str, type[SpecBase]] = {
     "columns.yaml": ColumnAliasSpec,
     "values.yaml": ValueAliasSpec,
 }
+# Report specifications: one file per kind of rule, named by what it holds.
+REPORT_MODELS: dict[str, type[SpecBase]] = {"findings.yaml": FindingRulesSpec}
+NAMED_FILE_KINDS = ("aliases", "report")
 
 _YamlLoader: Any = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
 
@@ -63,7 +67,7 @@ def _read_one(kind: str, model: type[SpecBase], path: Path) -> tuple[SpecFile | 
     except (yaml.YAMLError, ValidationError) as error:
         return None, f"{path.as_posix()}: {error}"
     named_after_id = path.stem == spec.id or path.stem.startswith(f"{spec.id}-")
-    if kind != "aliases" and not named_after_id:
+    if kind not in NAMED_FILE_KINDS and not named_after_id:
         return None, f"{path.as_posix()}: file name must start with the spec id {spec.id}"
     return SpecFile(kind, path, spec), None
 
@@ -76,6 +80,7 @@ def read_spec_files(root: Path) -> tuple[list[SpecFile], list[str]]:
         for path in sorted((root / kind).glob("*.yaml"))
     ]
     jobs += [("aliases", model, root / "aliases" / name) for name, model in ALIAS_MODELS.items()]
+    jobs += [("report", model, root / "report" / name) for name, model in REPORT_MODELS.items()]
     files: list[SpecFile] = []
     problems: list[str] = []
     for kind, model, path in jobs:

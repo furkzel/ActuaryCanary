@@ -3,262 +3,395 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ title }} report {{ run_id }}</title>
+<title>{{ m.cover.title }} report {{ m.cover.rows[0].value }}</title>
 <style>
 :root {
-  --surface: #fcfcfb; --surface-2: #f3f2ee; --border: #dddcd6;
+  color-scheme: light;
+  --surface: #fcfcfb; --surface-2: #f3f2ee; --border: #dddcd6; --grid: #e6e5e0;
   --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #6f6e69;
-  --accent: #2a78d6; --warning-bg: #fff4d6; --warning-ink: #6b4a00; --critical: #b42f2f;
-  --grid: #e6e5e0;
-  --seq: "#cde2fb,#9ec5f4,#6da7ec,#3987e5,#256abf,#184f95,#0d366b";
+  --accent: #2a78d6; --label-bg: #fff4d6; --label-ink: #6b4a00; --critical: #b42f2f;
+  --basis-paid: #2a78d6; --basis-incurred: #eb6834;
+  --segment-non-life: #6250d6; --segment-life: #1baf7a; --segment-pension: #eda100;
+  --segment-health: #e87ba4; --segment-other: #898781;
+  --ramp-paid: "#cde2fb,#9ec5f4,#6da7ec,#3987e5,#256abf,#184f95,#0d366b";
+  --ramp-incurred: "#fde5d9,#f9c4a9,#f4a27b,#ee8354,#eb6834,#c24f1f,#8f3a15";
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --surface: #1a1a19; --surface-2: #242423; --border: #3a3a37;
+    color-scheme: dark;
+    --surface: #1a1a19; --surface-2: #242423; --border: #3a3a37; --grid: #33332f;
     --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #9a998f;
-    --accent: #3987e5; --warning-bg: #3a2f12; --warning-ink: #f2d38a; --critical: #e66767;
-    --grid: #33332f;
-    --seq: "#0d366b,#184f95,#256abf,#3987e5,#6da7ec,#9ec5f4,#cde2fb";
+    --accent: #3987e5; --label-bg: #3a2f12; --label-ink: #f2d38a; --critical: #e66767;
+    --basis-paid: #3987e5; --basis-incurred: #d95926;
+    --segment-non-life: #9085e9; --segment-life: #199e70; --segment-pension: #c98500;
+    --segment-health: #d55181; --segment-other: #898781;
+    --ramp-paid: "#0d366b,#184f95,#256abf,#3987e5,#6da7ec,#9ec5f4,#cde2fb";
+    --ramp-incurred: "#5a240c,#8f3a15,#c24f1f,#d95926,#ee8354,#f4a27b,#f9c4a9";
   }
 }
 :root[data-theme="dark"] {
-  --surface: #1a1a19; --surface-2: #242423; --border: #3a3a37;
+  color-scheme: dark;
+  --surface: #1a1a19; --surface-2: #242423; --border: #3a3a37; --grid: #33332f;
   --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #9a998f;
-  --accent: #3987e5; --warning-bg: #3a2f12; --warning-ink: #f2d38a; --critical: #e66767;
-  --grid: #33332f;
-  --seq: "#0d366b,#184f95,#256abf,#3987e5,#6da7ec,#9ec5f4,#cde2fb";
+  --accent: #3987e5; --label-bg: #3a2f12; --label-ink: #f2d38a; --critical: #e66767;
+  --basis-paid: #3987e5; --basis-incurred: #d95926;
+  --segment-non-life: #9085e9; --segment-life: #199e70; --segment-pension: #c98500;
+  --segment-health: #d55181; --segment-other: #898781;
+  --ramp-paid: "#0d366b,#184f95,#256abf,#3987e5,#6da7ec,#9ec5f4,#cde2fb";
+  --ramp-incurred: "#5a240c,#8f3a15,#c24f1f,#d95926,#ee8354,#f4a27b,#f9c4a9";
 }
 * { box-sizing: border-box; }
 body {
   margin: 0; background: var(--surface); color: var(--text-primary);
   font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
-main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 64px; }
-h1 { font-size: 1.7rem; margin: 0 0 4px; }
-h2 { font-size: 1.3rem; margin: 40px 0 8px; padding-top: 8px; border-top: 1px solid var(--border); }
-h3 { font-size: 1.05rem; margin: 24px 0 8px; }
+main { max-width: 1080px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { font-size: 1.8rem; margin: 0 0 4px; }
+h2 { font-size: 1.35rem; margin: 48px 0 8px; padding-top: 12px; border-top: 2px solid var(--border); }
+h3 { font-size: 1.08rem; margin: 28px 0 8px; }
+h4 { font-size: 1rem; margin: 18px 0 6px; }
 p, li { color: var(--text-secondary); }
+.tagline { margin: 0 0 16px; }
 .label {
-  display: inline-block; margin: 8px 0 16px; padding: 4px 10px; border-radius: 4px;
-  background: var(--warning-bg); color: var(--warning-ink); font-weight: 600;
+  margin: 8px 0 16px; padding: 6px 10px; border-radius: 4px;
+  background: var(--label-bg); color: var(--label-ink); font-size: 0.9rem;
 }
-dl.cover { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; }
+.label strong { font-weight: 700; }
+.banner {
+  margin: 12px 0; padding: 10px 14px; border-left: 4px solid var(--critical);
+  background: var(--surface-2); color: var(--text-primary); font-weight: 600;
+}
+dl.cover { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0 0 12px; }
 dl.cover dt { color: var(--text-muted); }
 dl.cover dd { margin: 0; overflow-wrap: anywhere; }
 .scroll { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; margin: 8px 0; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; margin: 8px 0; font-size: 0.92rem; }
 th, td { padding: 4px 8px; border-bottom: 1px solid var(--grid); text-align: right; white-space: nowrap; }
 th { color: var(--text-secondary); font-weight: 600; background: var(--surface-2); }
-th:first-child, td:first-child, td.text { text-align: left; }
+th:first-child, td:first-child, td.text, th.text { text-align: left; }
+td.text { white-space: normal; }
+td.nowrap { white-space: nowrap; }
 tr.total td { font-weight: 600; border-top: 2px solid var(--border); }
-td.negative { color: var(--critical); }
+td.negative, .negative { color: var(--critical); }
+ol.findings { padding-left: 22px; }
+ol.findings li { margin: 6px 0; color: var(--text-primary); }
+.evidence { font-size: 0.82rem; color: var(--text-muted); }
+.tiles-segment { margin: 12px 0 20px; }
+.tiles-segment h3 { display: flex; align-items: center; gap: 8px; margin: 12px 0 8px; }
+.swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.tile { border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; background: var(--surface); }
+.tile .k { font-size: 0.85rem; color: var(--text-secondary); }
+.tile .v { font-size: 1.35rem; font-weight: 650; margin: 2px 0; overflow-wrap: anywhere; }
+.tile .d { font-size: 0.88rem; color: var(--text-primary); }
+.tile .n, .tile .s { font-size: 0.78rem; color: var(--text-muted); }
 .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
-.chart { min-height: 300px; }
-.footnote { font-size: 0.85rem; color: var(--text-muted); margin: 4px 0 0; }
+.chart { min-height: 220px; width: 100%; }
+.footnote { font-size: 0.82rem; color: var(--text-muted); margin: 4px 0 12px; }
 details { margin: 8px 0; }
 summary { cursor: pointer; color: var(--accent); }
 a { color: var(--accent); }
-ul.notes li { color: var(--text-secondary); }
-code { font-size: 0.9em; overflow-wrap: anywhere; }
-nav ul { padding-left: 20px; }
-@media print { .chart { break-inside: avoid; } details { display: block; } }
+code { font-size: 0.88em; overflow-wrap: anywhere; }
+nav ul { padding-left: 20px; columns: 2; }
+ul.why li { font-size: 0.85rem; }
+.legend-note { font-size: 0.82rem; color: var(--text-muted); }
+@page { size: A4; margin: 14mm 12mm; }
+@media print {
+  body { font-size: 10.5pt; background: #fff; }
+  main { max-width: none; padding: 0; }
+  nav, summary { display: none; }
+  section.page { break-before: page; }
+  h2 { margin-top: 0; }
+  .chart, .tile, table, .banner { break-inside: avoid; }
+  .charts { grid-template-columns: 1fr 1fr; }
+  .scroll { overflow: visible; }
+  th, td { white-space: normal; padding: 2px 4px; }
+  table.wide { font-size: 7pt; }
+  a { color: inherit; text-decoration: none; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 </style>
 </head>
 <body>
 <main>
+{% macro label() %}<div class="label"><strong>{{ m.label }}.</strong> {{ m.disclaimer }}</div>
+{% for b in m.banners %}<div class="banner">{{ b }}</div>
+{% endfor %}{% endmacro %}
+{% macro figure(id, title) %}{% if id %}<div class="chart" id="{{ id }}" role="img" aria-label="{{ title }}"></div>{% endif %}{% endmacro %}
+{% macro values(items) %}{% for x in items %}<tr><td class="text">{{ x.measure }}</td>{% for v in x.points %}<td>{{ v.period }}: {{ v.value }}</td>{% endfor %}<td class="text">{{ x.basis }}</td></tr>{% endfor %}{% endmacro %}
 
-<header>
-  <h1>{{ title }}: claims reserving overview</h1>
-  <div class="label">Indicative — not an official reserve or price</div>
+<header id="cover">
+  <h1>{{ m.cover.title }}: executive report</h1>
+  <p class="tagline">{{ m.cover.tagline }}</p>
+  {{ label() }}
   <dl class="cover">
-    <dt>Run id</dt><dd><code>{{ run_id }}</code></dd>
-    <dt>Valuation cut-off</dt><dd>{{ cut_off }}</dd>
-    <dt>Bases</dt><dd>{{ basis_label }} · reporting currency {{ currency }}</dd>
-    <dt>Origins</dt><dd>{{ settings.origin_period.value }} periods, origin axis {{ origin_basis }}</dd>
-    <dt>Development</dt><dd>{{ settings.development_period.value }} periods aligned to the cut-off</dd>
-    <dt>Claims used</dt><dd>{{ claims_used }}{% if proxy_claims != "0" %} ({{ proxy_claims }} with first-valuation proxy origins){% endif %}</dd>
-    <dt>Inputs</dt><dd>{% for i in inputs %}{{ i.name }}{% if not loop.last %}, {% endif %}{% endfor %}</dd>
+    {% for r in m.cover.rows %}<dt>{{ r.label }}</dt><dd>{% if r.label == "Run id" %}<code>{{ r.value }}</code>{% else %}{{ r.value }}{% endif %}</dd>
+    {% endfor %}
   </dl>
-  <p>{{ disclaimer }}</p>
 </header>
 
 <nav>
   <h2>Contents</h2>
   <ul>
-    {% if quality_html %}<li><a href="#quality">Data quality</a></li>
-    {% endif %}{% if modules_html %}<li><a href="#modules">Modules and measures</a></li>
-    {% endif %}<li><a href="#summary">Summary by segment and line</a></li>
-    {% for g in groups %}<li><a href="#{{ g.anchor }}">{{ g.name }}</a></li>
-    {% endfor %}<li><a href="#data">Data notes</a></li>
-    <li><a href="#methods">Methods and assumptions</a></li>
-    <li><a href="#reproducibility">Reproducibility</a></li>
+    <li><a href="#findings">Key findings</a></li>
+    <li><a href="#glance">At a glance</a></li>
+    {% for p in m.pages %}<li><a href="#{{ p.anchor }}">{{ p.module }} {{ p.title }}</a></li>
+    {% endfor %}<li><a href="#reserving">Reserving</a></li>
+    {% for l in m.reserving.lines %}<li><a href="#{{ l.anchor }}">Reserving: {{ l.name }}</a></li>
+    {% endfor %}<li><a href="#not-run">What did not run and why</a></li>
+    <li><a href="#quality">Data quality appendix</a></li>
+    <li><a href="#methods">Methods and assumptions appendix</a></li>
+    <li><a href="#reproducibility">Reproducibility appendix</a></li>
   </ul>
 </nav>
 
-{% if quality_html %}{{ quality_html|safe }}
-
-{% endif %}{% if modules_html %}{{ modules_html|safe }}
-
-{% endif %}<section id="summary">
-  <h2>Summary by segment and line</h2>
-  <p>Amounts in {{ currency }}; segments are shown separately and never added together.{% if value_date %} Amounts are at the prices of {{ value_date }} ({{ price_index }}); they are turned into nominal amounts only with a stated future inflation assumption ({{ spec("CV02") }}).{% endif %}</p>
-  <div class="scroll"><table>
-    <thead><tr><th>Segment · line</th><th>Paid</th><th>Incurred</th><th>Ultimate, paid CL</th><th>Ultimate, incurred CL</th><th>IBNR, incurred CL</th><th>Ultimate, selected</th><th>IBNR, selected</th></tr></thead>
-    <tbody>
-    {% for g in groups %}<tr><td><a href="#{{ g.anchor }}">{{ g.name }}</a></td><td>{{ g.summary.paid }}</td><td>{{ g.summary.incurred }}</td><td>{{ g.summary.ult_paid }}</td><td>{{ g.summary.ult_incurred }}</td><td>{{ g.summary.ibnr_incurred }}</td><td>{{ g.summary.ult_selected }}</td><td>{{ g.summary.ibnr_selected }}</td></tr>
+<section id="findings" class="page">
+  <h2>Key findings</h2>
+  {{ label() }}
+  {% if m.key_findings %}
+  <ol class="findings">
+    {% for f in m.key_findings %}<li>{{ f.text }} <span class="evidence">Evidence: <a href="#{{ f.section }}">{{ f.section }}</a>{% if f.files %} · {{ f.files|join(", ") }}{% endif %}{% if f.evidence %} · {{ f.evidence }}{% endif %} · rule {{ f.rule }}</span></li>
     {% endfor %}
-    </tbody>
-  </table></div>
-  <p class="footnote">Ultimates by chain ladder ({{ spec("MT02") }}) on paid and on incurred triangles ({{ spec("MT01") }}); IBNR = ultimate − incurred at the cut-off ({{ spec("RS02") }}). The selected ultimate is chain ladder where the reported share is at least 0.5 and Bornhuetter–Ferguson below it ({{ spec("MT10") }}). Paid {{ spec("CL01") }}, incurred {{ spec("CL03") }}. Rounded per {{ spec("CV06") }}; totals from unrounded values.</p>
+  </ol>
+  {% else %}<p>No finding rule fired on this run.</p>{% endif %}
+  {% if m.further_findings %}
+  <details open>
+    <summary>{{ m.further_findings|length }} further findings</summary>
+    <ol class="findings" start="{{ m.key_findings|length + 1 }}">
+      {% for f in m.further_findings %}<li>{{ f.text }} <span class="evidence">Evidence: <a href="#{{ f.section }}">{{ f.section }}</a>{% if f.files %} · {{ f.files|join(", ") }}{% endif %}{% if f.evidence %} · {{ f.evidence }}{% endif %} · rule {{ f.rule }}</span></li>
+      {% endfor %}
+    </ol>
+  </details>
+  {% endif %}
+  <p class="footnote">Every sentence comes from a fixed rule of {{ m.findings_spec }} with its number filled in; nothing on this page is free text. Rules, conditions and templates are in spec/report/findings.yaml.</p>
 </section>
 
-{% for g in groups %}
-<section id="{{ g.anchor }}">
-  <h2>{{ g.name }}</h2>
-  <div class="label">Indicative — not an official reserve or price</div>
-
-  <h3>Development triangles</h3>
-  <div class="charts">
-    <div class="chart" id="{{ g.figure_ids.paid }}" role="img" aria-label="Heatmap of the cumulative paid triangle, {{ g.name }}"></div>
-    <div class="chart" id="{{ g.figure_ids.incurred }}" role="img" aria-label="Heatmap of the cumulative incurred triangle, {{ g.name }}"></div>
+<section id="glance" class="page">
+  <h2>At a glance</h2>
+  {{ label() }}
+  <p>Segments are shown separately and never added together. Each change compares with the previous period named under it.</p>
+  {% for s in m.tiles %}
+  <div class="tiles-segment">
+    <h3><span class="swatch" style="background: var({{ s.colour or '--segment-other' }})"></span>{{ s.segment }}</h3>
+    <div class="tiles">
+      {% for t in s.tiles %}<div class="tile"><div class="k">{{ t.label }}</div><div class="v">{{ t.value }}</div><div class="d">{{ t.change }} {{ t.against }}</div>{% if t.note %}<div class="n">{{ t.note }}</div>{% endif %}<div class="s">{{ t.source }}</div></div>
+      {% endfor %}
+    </div>
   </div>
-  <p class="footnote">Cumulative cells by origin and development age, {{ currency }}, {{ basis_label }}; the more a cell stands out from the page, the larger it is ({{ spec("MT01") }}, {{ spec("CV04") }}). Hover a cell for its value and claim count.</p>
-  <details>
-    <summary>Triangle values</summary>
-    {% for measure in ["paid", "incurred"] %}
-    <div class="scroll"><table>
-      <thead><tr><th>{{ measure|capitalize }}</th>{% for a in g.ages %}<th>{{ a }}</th>{% endfor %}</tr></thead>
-      <tbody>{% for row in g.triangles[measure] %}<tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>{% endfor %}</tbody>
-    </table></div>
-    {% endfor %}
-  </details>
+  {% endfor %}
+  <div class="tiles-segment">
+    <h3>All data</h3>
+    <div class="tiles">
+      {% set t = m.quality_tile %}<div class="tile"><div class="k">{{ t.label }}</div><div class="v">{{ t.value }}</div><div class="d">{{ t.change }} {{ t.against }}</div><div class="n">{{ t.note }}</div><div class="s">{{ t.source }}</div></div>
+    </div>
+  </div>
+</section>
 
-  <h3>Development factors</h3>
+{% for p in m.pages %}
+<section id="{{ p.anchor }}" class="page">
+  <h2>{{ p.module }} {{ p.title }}</h2>
+  {{ label() }}
+  <p><em>{{ p.question }}</em> State: {{ p.state }}{% if p.reasons %}: {{ p.reasons|join("; ") }}{% endif %}.</p>
+  {% set b = p.body %}
+  {% if p.module == "M01" %}
+  <p>Data quality score <strong>{{ b.score }}</strong> out of 100; the findings are in the <a href="#quality">data quality appendix</a>.</p>
   <div class="scroll"><table>
-    <thead><tr><th>Age (months)</th><th>To</th><th>Factor, paid</th><th>CDF, paid</th><th>Factor, incurred</th><th>CDF, incurred</th></tr></thead>
-    <tbody>{% for f in g.factors %}<tr><td>{{ f.from }}</td><td>{{ f.to }}</td><td>{{ f.paid_factor }}</td><td>{{ f.paid_cdf }}</td><td>{{ f.incurred_factor }}</td><td>{{ f.incurred_cdf }}</td></tr>{% endfor %}</tbody>
+    <thead><tr><th>Concept</th><th>Rows</th><th>First date</th><th>Last date</th><th>Score</th></tr></thead>
+    <tbody>{% for c in b.coverage %}<tr><td>{{ c.concept }}{% if not c.loaded %} (not loaded){% endif %}</td><td>{{ c.rows }}</td><td>{{ c.first }}</td><td>{{ c.last }}</td><td>{{ c.score }}</td></tr>{% endfor %}</tbody>
   </table></div>
-  <p class="footnote">Volume-weighted age-to-age factors and cumulative factors to ultimate; last row is the tail factor ({{ spec("RS01") }}, {{ spec("MT02") }}).</p>
-
-  <h3>Ultimate and IBNR</h3>
+  <p class="footnote">{{ b.footnote }}</p>
+  {% elif p.module == "M02" %}
+  {{ figure(b.figure, "Written premium by line") }}
   <div class="scroll"><table>
-    <thead><tr><th>Origin</th><th>Paid</th><th>Incurred</th><th>Ultimate, paid CL</th><th>Ultimate, incurred CL</th><th>IBNR, paid CL</th><th>IBNR, incurred CL</th></tr></thead>
-    <tbody>{% for e in g.estimates %}<tr{% if e.total %} class="total"{% endif %}><td>{{ e.origin }}</td><td>{{ e.paid }}</td><td>{{ e.incurred }}</td><td>{{ e.ult_paid }}</td><td>{{ e.ult_incurred }}</td><td{% if e.negative_paid %} class="negative"{% endif %}>{{ e.ibnr_paid }}</td><td{% if e.negative_incurred %} class="negative"{% endif %}>{{ e.ibnr_incurred }}</td></tr>{% endfor %}</tbody>
+    <thead><tr><th>Line</th><th>Written, previous</th><th>Written, {{ b.period }}</th><th>Change</th><th>Earned, {{ b.period }}</th><th>Unearned</th><th>Average premium</th></tr></thead>
+    <tbody>{% for r in b.rows %}<tr title="{{ r.ref }}"><td>{{ r.line }}</td><td>{{ r.previous }}</td><td>{{ r.latest }}</td><td>{{ r.change }}</td><td>{{ r.earned }}</td><td>{{ r.unearned }}</td><td>{{ r.average }}</td></tr>{% endfor %}</tbody>
   </table></div>
-  <p class="footnote">{{ currency }}, {{ basis_label }}. IBNR = ultimate − incurred at the cut-off; a negative IBNR (red) means the method expects case reserves to run off favourably ({{ spec("RS02") }}, {{ spec("MT02") }}).</p>
-  {% if g.notes %}<ul class="notes">{% for n in g.notes %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
-
-  {% set m = g.methods %}
-  <h3>Ultimates by method</h3>
+  <p class="footnote">{{ b.footnote }} Hover a row for the measure rows behind it (lineage.csv).</p>
+  {% if b.business %}<h3>All business</h3>
+  <div class="scroll"><table><tbody>{{ values(b.business) }}</tbody></table></div>{% endif %}
+  {% elif p.module == "M03" %}
+  {{ figure(b.figure, "Incurred to date by line") }}
   <div class="scroll"><table>
-    <thead><tr><th>Origin</th>{% for h in m.ultimates.headers %}<th>{{ h }}</th>{% endfor %}<th>Selected</th><th>Chosen</th><th>Why</th></tr></thead>
-    <tbody>{% for r in m.ultimates.rows %}<tr{% if r.total %} class="total"{% endif %}><td>{{ r.origin }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}<td>{{ r.selected }}</td><td class="text">{{ r.chosen }}</td><td class="text">{{ r.why }}</td></tr>{% endfor %}</tbody>
+    <thead><tr><th>Line</th><th>Reported claims</th><th>Open</th><th>Paid</th><th>Case reserve</th><th>Incurred</th><th>Reporting delay (days)</th><th>Settlement (days)</th><th>Large-loss share</th></tr></thead>
+    <tbody>{% for r in b.rows %}<tr title="{{ r.ref }}"><td>{{ r.line }}</td><td>{{ r.reported }}</td><td>{{ r.open }}</td><td>{{ r.paid }}</td><td>{{ r.case }}</td><td>{{ r.incurred }}</td><td>{{ r.delay }}</td><td>{{ r.settlement }}</td><td>{{ r.large_share }}</td></tr>{% endfor %}</tbody>
   </table></div>
-  <p class="footnote">{{ currency }}, {{ basis_label }}. Selected ultimate on the {{ m.selection_measure }} triangle ({{ spec("MT10") }}); other methods {{ spec("MT03") }}, {{ spec("MT04") }}, {{ spec("MT05") }}, {{ spec("MT07") }}. The inflation-adjusted figures are at the prices of the value date unless a future inflation is stated.</p>
-  {% if m.not_run %}<ul class="notes">{% for n in m.not_run %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
-
-  {% if m.mack %}
-  <h3>Mack standard error</h3>
+  <p class="footnote">{{ b.footnote }} Hover a row for the measure rows behind it (lineage.csv).</p>
+  {% elif p.module == "M05" %}
+  <div class="charts">{% for l in b.lines %}{{ figure(l.figure, "Ultimate loss ratio by origin, " ~ l.line) }}{% endfor %}</div>
+  <p class="footnote">{{ b.figure_note }}</p>
+  {% for l in b.lines %}
+  <h4>{{ l.line }}</h4>
   <div class="scroll"><table>
-    <thead><tr><th>Origin</th><th>Reserve, paid</th><th>Standard error, paid</th><th>CV, paid</th><th>Reserve, incurred</th><th>Standard error, incurred</th><th>CV, incurred</th></tr></thead>
-    <tbody>{% for r in m.mack.rows %}<tr{% if r.total %} class="total"{% endif %}><td>{{ r.origin }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+    <thead><tr><th>Origin</th><th>Earned premium</th><th>Incurred</th><th>Ultimate</th><th>Incurred loss ratio</th><th>Ultimate loss ratio</th><th>Combined ratio</th></tr></thead>
+    <tbody>{% for r in l.rows %}<tr title="{{ r.ref }}"><td>{{ r.origin }}</td><td>{{ r.earned }}</td><td>{{ r.incurred }}</td><td>{{ r.ultimate }}</td><td>{{ r.incurred_ratio }}</td><td>{{ r.ultimate_ratio }}</td><td>{{ r.combined }}</td></tr>{% endfor %}</tbody>
   </table></div>
+  {% endfor %}
+  {% if b.expenses %}<h3>Expenses, all business</h3>
+  <div class="scroll"><table><tbody>{{ values(b.expenses) }}</tbody></table></div>{% endif %}
+  <p class="footnote">{{ b.footnote }}</p>
+  {% elif p.module == "M06" %}
+  {{ figure(b.figure, "Share of values flagged by line") }}
   <div class="scroll"><table>
-    <thead><tr><th>Total reserve (selected)</th><th>Reserve</th><th>75th percentile</th><th>95th percentile</th><th>99.5th percentile</th><th>VaR 99.5%</th><th>TVaR 99%</th></tr></thead>
-    <tbody>{% for r in m.mack.ranges %}<tr><td>{{ r.measure }}</td><td>{{ r.reserve }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}{% if not r.cells %}<td class="text" colspan="5">not shown: the reserve is not positive or the standard error is zero</td>{% endif %}</tr>{% endfor %}</tbody>
+    <thead><tr><th>Line</th><th>Values scored (MT08)</th><th>Flagged</th><th>Share flagged</th><th>Claims flagged (MT09)</th></tr></thead>
+    <tbody>{% for r in b.rows %}<tr><td>{{ r.line }}</td><td>{{ r.scored }}</td><td>{{ r.flagged }}</td><td{% if r.above %} class="negative"{% endif %}>{{ r.rate }}{% if r.above %} (above {{ b.limit }}){% endif %}</td><td>{{ r.isolation }}</td></tr>{% endfor %}</tbody>
   </table></div>
-  <p class="footnote">Approximation: Mack standard error with a lognormal assumption ({{ spec("MT06") }}, {{ spec("RS03") }}); where the selected reserve is not the Mack chain-ladder reserve the Mack coefficient of variation is applied to it.</p>
-  {% endif %}
-
-  {% if m.inflation %}
-  <h3>Inflation-adjusted chain ladder</h3>
+  <p class="footnote">{{ b.footnote }}</p>
+  {% if b.top %}<h3>Largest flags ({{ b.top|length }} of {{ b.total }})</h3>
   <div class="scroll"><table>
-    <thead><tr><th>Origin</th><th>Paid, value-date prices</th><th>Ultimate, value-date prices</th><th>Unpaid, value-date prices</th><th>Paid, nominal</th><th>Ultimate, nominal</th><th>Unpaid, nominal</th></tr></thead>
-    <tbody>{% for r in m.inflation.rows %}<tr><td>{{ r.origin }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+    <thead><tr><th>Method</th><th>Claim</th><th>Line</th><th>Date</th><th>What</th><th>Score</th><th class="text">Why</th><th class="text">Source rows</th></tr></thead>
+    <tbody>{% for f in b.top %}<tr><td>{{ f.method }}</td><td>{{ f.claim }}</td><td>{{ f.line }}</td><td>{{ f.date }}</td><td>{{ f.variable }}</td><td>{{ f.score }}</td><td class="text">{{ f.reason }}</td><td class="text">{{ f.source }}</td></tr>{% endfor %}</tbody>
   </table></div>
-  <p class="footnote">Paid chain ladder on triangles at the prices of {{ m.inflation.value_date }} ({{ spec("MT07") }}). {% if m.inflation.future_inflation %}Future payments are re-inflated with {{ m.inflation.future_inflation }} a year (assumptions register).{% else %}No future inflation is stated, so the nominal ultimate and unpaid are empty.{% endif %}</p>
-  {% endif %}
-
-  <h3>Diagnostics</h3>
-  {% if m.diagnostics %}
-  <div class="scroll"><table>
-    <thead><tr><th>Triangle</th><th>Method</th><th>Diagnostic</th><th>Where</th><th>What</th></tr></thead>
-    <tbody>{% for d in m.diagnostics %}<tr><td class="text">{{ d.measure }}</td><td class="text">{{ d.method }}</td><td class="text">{{ d.code }}</td><td class="text">{{ d.target }}</td><td class="text">{{ d.message }}</td></tr>{% endfor %}</tbody>
-  </table></div>
-  {% else %}<p>No diagnostic was raised for this group.</p>{% endif %}
-  {% if m.stability %}
-  <details>
-    <summary>Factor stability</summary>
-    {% for t in m.stability %}
-    <div class="scroll"><table>
-      <thead><tr><th>{{ t.measure|capitalize }} column</th><th>Link ratios used</th><th>Lowest</th><th>Highest</th><th>CV</th>{% for n in t.names %}<th>{{ n }}</th>{% endfor %}<th>Selected</th></tr></thead>
-      <tbody>{% for r in t.rows %}<tr><td>{{ r.column }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
-    </table></div>
-    {% endfor %}
-  </details>
+  <p class="footnote">Source rows are spreadsheet rows; anomalies.csv has every flag.</p>{% endif %}
   {% endif %}
 </section>
 {% endfor %}
 
-<section id="data">
-  <h2>Data notes</h2>
-  {% if not_converted %}
-  <h3>Amounts not converted</h3>
-  <p>No exchange rate{% if value_date %} or index value{% endif %} was available for these amounts, so the claims are left out of the {{ currency }} triangles{% if value_date %} from their first row that could not be converted or restated{% endif %} and shown here at the cut-off, in their own currency ({{ spec("CV01") }}).</p>
+{% set rv = m.reserving %}
+<section id="reserving" class="page">
+  <h2>Reserving{% if rv.module %} ({{ rv.module }}){% endif %}</h2>
+  {{ label() }}
+  {% if rv.question %}<p><em>{{ rv.question }}</em> State: {{ rv.state }}{% if rv.reasons %}: {{ rv.reasons|join("; ") }}{% endif %}.</p>{% endif %}
   <div class="scroll"><table>
-    <thead><tr><th>Currency</th><th>Claims</th><th>Paid</th><th>Incurred</th></tr></thead>
-    <tbody>{% for r in not_converted %}<tr><td>{{ r.currency }}</td><td>{{ r.claims }}</td><td>{{ r.paid }}</td><td>{{ r.incurred }}</td></tr>{% endfor %}</tbody>
+    <thead><tr><th>Segment · line</th><th>Paid</th><th>Incurred</th><th>Ultimate, paid CL</th><th>Ultimate, incurred CL</th><th>Ultimate, selected</th><th>IBNR, selected</th><th>Diagnostics</th></tr></thead>
+    <tbody>{% for s in rv.summary %}<tr><td><a href="#{{ s.anchor }}">{{ s.line }}</a></td><td>{{ s.paid }}</td><td>{{ s.incurred }}</td><td>{{ s.ult_paid }}</td><td>{{ s.ult_incurred }}</td><td>{{ s.ult_selected }}</td><td>{{ s.ibnr_selected }}</td><td>{{ s.diagnostics }}</td></tr>{% endfor %}</tbody>
   </table></div>
-  {% endif %}
-  <h3>Rules applied to rows</h3>
-  {% if findings %}
-  <div class="scroll"><table>
-    <thead><tr><th>Rule</th><th>File</th><th>Severity</th><th>Rows</th><th>What happened</th><th>First source rows</th></tr></thead>
-    <tbody>{% for f in findings %}<tr><td>{{ f.rule }}</td><td class="text">{{ f.concept }}</td><td class="text">{{ f.severity }}</td><td>{{ f.count }}</td><td class="text">{{ f.message }}</td><td class="text">{{ f.rows|join(", ") }}</td></tr>{% endfor %}</tbody>
-  </table></div>
-  {% else %}<p>No row was changed or left out.</p>{% endif %}
-  <p class="footnote">Rule IDs refer to the data concept and convention specifications; row numbers are spreadsheet rows.</p>
+  <p class="footnote">{{ rv.footnotes.summary }}</p>
+  <p class="legend-note">Colours: <span class="swatch" style="background: var(--basis-paid)"></span> paid, <span class="swatch" style="background: var(--basis-incurred)"></span> incurred, wherever they appear; the selected ultimate is drawn in ink.</p>
 </section>
 
-<section id="methods">
-  <h2>Methods and assumptions</h2>
-  <ul>
-    <li><strong>{{ spec("MT01") }} triangle construction.</strong> The state of a claim at a valuation point is its latest valuation row on or before that point. Origin {{ settings.origin_period.value }}, development {{ settings.development_period.value }}, origin axis {{ settings.origin_axis.value }}, fiscal year starting in month {{ settings.fiscal_year_start_month }}. {% if value_date %}Each amount is converted at the rate of its own date and restated to the prices of {{ value_date }} with {{ price_index }}; incurred is the accumulated restated paid flows plus the restated case reserve ({{ spec("CV01") }}, {{ spec("CV02") }}).{% else %}Amounts converted with one constant rate per currency ({{ spec("CV01") }}).{% endif %}</li>
-    <li><strong>{{ spec("MT02") }} chain ladder.</strong> Average {{ chain_ladder.average.value }}, {% if chain_ladder.n_diagonals %}latest {{ chain_ladder.n_diagonals }} diagonals{% else %}all diagonals{% endif %}, high and low {% if chain_ladder.exclude_high_low %}excluded{% else %}kept{% endif %}, tail factor {{ chain_ladder.tail_factor }}, at least {{ chain_ladder.min_origins }} origins. No link ratio excluded and no factor overridden. Assumes future development follows past factors, comparable origins and no calendar-period shocks.</li>
-      <li><strong>{{ spec("MT03") }}, {{ spec("MT04") }}, {{ spec("MT05") }} premium-based methods.</strong> Earned premium per origin from {{ spec("PR02") }} on the same bases. The prior loss ratio is the register's entry or, without one, the Cape Cod ratio of the same triangle, labelled data-derived.</li>
-    <li><strong>{{ spec("MT06") }} Mack standard error.</strong> Volume-weighted factors over all diagonals, no exclusions; percentiles, value at risk and tail value at risk assume a lognormal reserve and are an approximation.</li>
-    <li><strong>{{ spec("MT07") }} inflation-adjusted chain ladder.</strong> Paid chain ladder on triangles restated to the prices of the value date; future payments stay at those prices unless a future inflation is stated.</li>
-    <li><strong>{{ spec("MT10") }} selection.</strong> Chain ladder for origins with a reported share of at least 0.5, Bornhuetter–Ferguson below it, unless the register overrides.</li>
-    <li><strong>{{ spec("MT08") }} and {{ spec("MT09") }} anomaly flags.</strong> Robust z-score on payments and case-reserve movements, isolation forest on claims; the flags are leads for a reviewer, listed with their source rows in <code>anomalies.csv</code>.</li>
-  </ul>
-  <h3>Anomaly flags</h3>
-  {% if anomaly_rows %}
-  <div class="scroll"><table>
-    <thead><tr><th>Method</th><th>Segment · line</th><th>Flags</th></tr></thead>
-    <tbody>{% for r in anomaly_rows %}<tr><td class="text">{{ r.method }}</td><td class="text">{{ r.group }}</td><td>{{ r.flags }}</td></tr>{% endfor %}</tbody>
-  </table></div>
-  {% else %}<p>No claim or payment was flagged.</p>{% endif %}
-  <h3>Assumptions in force</h3>
+{% for l in rv.lines %}
+{% set mm = l.methods %}
+<section id="{{ l.anchor }}" class="page">
+  <h2>Reserving: {{ l.name }}</h2>
+  {{ label() }}
+  {% if l.findings %}<ul>{% for f in l.findings %}<li>{{ f.text }} <span class="evidence">rule {{ f.rule }} · {{ f.files|join(", ") }}</span></li>{% endfor %}</ul>{% endif %}
+
+  <h3>Development triangles</h3>
+  <div class="charts">{{ figure(l.figures.heatmap_paid, "Heatmap of the cumulative paid triangle, " ~ l.name) }}{{ figure(l.figures.heatmap_incurred, "Heatmap of the cumulative incurred triangle, " ~ l.name) }}</div>
+  <p class="footnote">{{ rv.footnotes.heatmaps }}{% if l.thin_cells %} {{ l.thin_cells }} paid cells have fewer than 5 claims (marked thin on hover).{% endif %}</p>
   <details>
-    <summary>{{ assumptions|length }} judgements, those by default included</summary>
-    <div class="scroll"><table>
-      <thead><tr><th>Method</th><th>Parameter</th><th>Scope</th><th>Target</th><th>Value</th><th>Default</th><th>Who</th><th>When</th><th>Why</th></tr></thead>
-      <tbody>{% for a in assumptions %}<tr><td class="text">{{ a.method }}</td><td class="text">{{ a.name }}</td><td class="text">{{ a.scope }}</td><td class="text">{{ a.target }}</td><td class="text">{{ a.value }}</td><td class="text">{{ a.default }}</td><td class="text">{{ a.who }}</td><td class="text">{{ a.when }}</td><td class="text">{{ a.why }}</td></tr>{% endfor %}</tbody>
-    </table></div>
+    <summary>Triangle values</summary>
+    {% for measure in ["paid", "incurred"] %}<div class="scroll"><table>
+      <thead><tr><th>{{ measure|capitalize }}</th>{% for a in l.ages %}<th>{{ a }}</th>{% endfor %}</tr></thead>
+      <tbody>{% for row in l.triangles[measure] %}<tr>{% for c in row %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+    </table></div>{% endfor %}
   </details>
+
+  <h3>Development factors and selection</h3>
+  <div class="charts">{{ figure(l.figures.factors_paid, "Link ratios and selected factor, paid") }}{{ figure(l.figures.factors_incurred, "Link ratios and selected factor, incurred") }}</div>
+  <p class="footnote">{{ rv.footnotes.factors }}</p>
+  {% for t in mm.stability %}<div class="scroll"><table>
+    <thead><tr><th>{{ t.measure|capitalize }} column</th><th>Link ratios</th><th>Lowest</th><th>Highest</th><th>CV</th>{% for n in t.names %}<th>{{ n }}</th>{% endfor %}<th>Selected</th></tr></thead>
+    <tbody>{% for r in t.rows %}<tr><td>{{ r.column }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table></div>{% endfor %}
+
+  <h3>Ultimates by method</h3>
+  {{ figure(l.figures.methods, "Ultimate by method, " ~ l.name) }}
+  <p class="footnote">{{ rv.footnotes.methods }}</p>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>Origin</th>{% for h in mm.ultimates.headers %}<th>{{ h }}</th>{% endfor %}<th>Selected</th><th class="text">Chosen</th></tr></thead>
+    <tbody>{% for r in mm.ultimates.rows %}<tr{% if r.total %} class="total"{% endif %}><td>{{ r.origin }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}<td>{{ r.selected }}</td><td class="text nowrap">{{ r.chosen }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <ul class="why">{% for r in mm.ultimates.rows if r.why %}<li>{{ r.origin }}: {{ r.why }}</li>{% endfor %}</ul>
+  {% if mm.not_run %}<ul>{% for n in mm.not_run %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+
+  <h3>Reserve range</h3>
+  {% if l.figures.range %}{{ figure(l.figures.range, "Selected reserve and its range, " ~ l.name) }}
+  <p class="footnote">{{ rv.footnotes.range }}</p>{% endif %}
+  {% if mm.mack %}<div class="scroll"><table>
+    <thead><tr><th>Total reserve (selected)</th><th>Reserve</th><th>75th percentile</th><th>95th percentile</th><th>99.5th percentile</th><th>VaR 99.5%</th><th>TVaR 99%</th></tr></thead>
+    <tbody>{% for r in mm.mack.ranges %}<tr><td>{{ r.measure }}</td><td>{{ r.reserve }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}{% if not r.cells %}<td class="text" colspan="5">not shown: the reserve is not positive or the standard error is zero</td>{% endif %}</tr>{% endfor %}</tbody>
+  </table></div>{% else %}<p>No range: the Mack standard error (MT06) did not run on this line, so no reserve range is given. A range needs more origin periods than are loaded.</p>{% endif %}
+
+  {% if mm.inflation %}<h3>Inflation-adjusted chain ladder</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Origin</th><th>Paid, value-date prices</th><th>Ultimate, value-date prices</th><th>Unpaid, value-date prices</th><th>Paid, nominal</th><th>Ultimate, nominal</th><th>Unpaid, nominal</th></tr></thead>
+    <tbody>{% for r in mm.inflation.rows %}<tr><td>{{ r.origin }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="footnote">Paid chain ladder on triangles at the prices of {{ mm.inflation.value_date }} ({{ m.inflation_spec }}). {% if mm.inflation.future_inflation %}Future payments re-inflated with {{ mm.inflation.future_inflation }} a year (assumptions register).{% else %}No future inflation is stated, so the nominal ultimate and unpaid are empty.{% endif %}</p>{% endif %}
+
+  <h3>Diagnostics</h3>
+  {% if mm.diagnostics %}<div class="scroll"><table>
+    <thead><tr><th>Triangle</th><th>Method</th><th>Diagnostic</th><th>Where</th><th class="text">What</th></tr></thead>
+    <tbody>{% for d in mm.diagnostics %}<tr><td>{{ d.measure }}</td><td>{{ d.method }}</td><td>{{ d.code }}</td><td>{{ d.target }}</td><td class="text">{{ d.message }}</td></tr>{% endfor %}</tbody>
+  </table></div>{% else %}<p>No diagnostic was raised for this line.</p>{% endif %}
+  <p class="footnote">Rows of diagnostics.csv; thresholds in the manifest settings (methods.diagnostics).</p>
+</section>
+{% endfor %}
+
+<section id="not-run" class="page">
+  <h2>What did not run and why</h2>
+  {% if m.not_run.modules %}
+  {% for x in m.not_run.modules %}<h3>{{ x.module }}: {{ x.state }}</h3>
+  {% if x.why %}<ul>{% for w in x.why %}<li>{{ w }}</li>{% endfor %}</ul>{% endif %}
+  {% if x.load %}<p><strong>What to load:</strong> {{ x.load }}</p>{% endif %}
+  {% if x.missing %}<details><summary>{{ x.missing|length }} measure views not available</summary><ul>{% for w in x.missing %}<li>{{ w }}</li>{% endfor %}</ul></details>{% endif %}
+  {% endfor %}
+  {% else %}<p>Every phase 1 module ran in full.</p>{% endif %}
 </section>
 
-<section id="reproducibility">
-  <h2>Reproducibility</h2>
-  <p>Run id <code>{{ run_id }}</code>, {{ title }} {{ version }}. The full run manifest, with the fingerprints of every output file, is <code>manifest.json</code> next to this page.</p>
+{{ quality_html|safe }}
+
+<section id="methods" class="page">
+  <h2>Methods and assumptions appendix</h2>
+  <p>Each method used in this run, in plain words, with its version and its stated assumptions. The settings of this run are in the reproducibility appendix.</p>
+  {% for x in m.methods %}<h3>{{ x.title }} ({{ x.spec }})</h3>
+  <p>{{ x.plain }}</p>
+  {% if x.assumptions %}<ul>{% for a in x.assumptions %}<li>{{ a }}</li>{% endfor %}</ul>{% endif %}
+  {% if x.parameters %}<p class="footnote">Parameters and defaults: {% for p in x.parameters %}{{ p.name }} = {{ p.default or "none" }}{% if not loop.last %}; {% endif %}{% endfor %}.</p>{% endif %}
+  {% endfor %}
+  <h3>Assumptions register</h3>
+  {% set a = m.assumptions %}
+  <p>{{ a.total }} entries in force, written to <code>assumptions.csv</code> with who chose each, when, why and the default it replaces. {% if a.judgements %}{{ a.judgements|length }} are judgements of a user.{% else %}All are method defaults: no user judgement was registered for this run.{% endif %}</p>
   <div class="scroll"><table>
-    <thead><tr><th>Input</th><th>Size (bytes)</th><th>Rows</th><th>SHA-256</th></tr></thead>
-    <tbody>{% for i in inputs %}<tr><td>{{ i.name }}</td><td>{{ i.size }}</td><td>{% for s in i.sheets %}{{ s.name }}: {{ s.rows }}{% if not loop.last %}, {% endif %}{% endfor %}</td><td class="text"><code>{{ i.sha256 }}</code></td></tr>{% endfor %}</tbody>
+    <thead><tr><th>Method</th><th>Parameter</th><th>Entries</th></tr></thead>
+    <tbody>{% for x in a.by_kind %}<tr><td>{{ x.method }}</td><td class="text">{{ x.name }}</td><td>{{ x.entries }}</td></tr>{% endfor %}</tbody>
   </table></div>
+  {% if a.judgements %}<div class="scroll"><table>
+    <thead><tr><th>Method</th><th>Parameter</th><th>Scope</th><th>Target</th><th>Value</th><th>Default</th><th>Who</th><th>When</th><th class="text">Why</th></tr></thead>
+    <tbody>{% for x in a.judgements %}<tr><td>{{ x.method }}</td><td>{{ x.name }}</td><td>{{ x.scope }}</td><td>{{ x.target }}</td><td>{{ x.value }}</td><td>{{ x.default }}</td><td>{{ x.who }}</td><td>{{ x.when }}</td><td class="text">{{ x.why }}</td></tr>{% endfor %}</tbody>
+  </table></div>{% endif %}
+  <h3>Lineage</h3>
+  <p><code>lineage.csv</code> gives, for every value of {{ m.lineage.traced|length }} of {{ m.lineage.measures }} measures, the file, sheet and spreadsheet rows behind it, keyed by measure, view and row as in <code>measures.csv</code>; the rows named under each table of this report are those keys. Traced: {{ m.lineage.traced|join(", ") }}.{% if m.lineage.untraced %} Not traced to rows: {{ m.lineage.untraced|join(", ") }}; these are computed from other measures or from the quality report (quality.json).{% endif %}</p>
+  <h3>Rules applied to rows</h3>
+  {% if m.data_findings %}<div class="scroll"><table>
+    <thead><tr><th>Rule</th><th>Concept</th><th>Severity</th><th>Rows</th><th class="text">What happened</th><th class="text">First source rows</th></tr></thead>
+    <tbody>{% for f in m.data_findings %}<tr><td>{{ f.rule }}</td><td>{{ f.concept }}</td><td>{{ f.severity }}</td><td>{{ f.count }}</td><td class="text">{{ f.message }}</td><td class="text">{{ f.rows }}</td></tr>{% endfor %}</tbody>
+  </table></div>{% else %}<p>No row was changed or left out.</p>{% endif %}
+  {{ modules_html|safe }}
+</section>
+
+<section id="reproducibility" class="page">
+  {% set rp = m.reproducibility %}
+  <h2>Reproducibility appendix</h2>
+  <p>Run id <code>{{ rp.run_id }}</code>, {{ rp.software }}. The run manifest <code>manifest.json</code> next to this page holds everything below in full; rerunning it on the same inputs must reproduce every output fingerprint.</p>
+  <h3>Inputs</h3>
   <div class="scroll"><table>
-    <thead><tr><th>Specification</th><th>Version</th><th>Title</th></tr></thead>
-    <tbody>{% for s in specs %}<tr><td>{{ s.id }}</td><td>{{ s.version }}</td><td class="text">{{ s.title }}</td></tr>{% endfor %}</tbody>
+    <thead><tr><th>File</th><th>Concept</th><th>Size (bytes)</th><th class="text">Sheets: rows</th><th class="text">SHA-256</th></tr></thead>
+    <tbody>{% for i in rp.inputs %}<tr><td>{{ i.name }}</td><td>{{ i.concept }}</td><td>{{ i.size }}</td><td class="text">{{ i.sheets }}</td><td class="text"><code>{{ i.sha256 }}</code></td></tr>{% endfor %}</tbody>
   </table></div>
+  {% if rp.mappings %}<h3>Mappings applied</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>File</th><th>Sheet</th><th>Concept</th><th>How</th><th>Columns used</th></tr></thead>
+    <tbody>{% for x in rp.mappings %}<tr><td>{{ x.file }}</td><td>{{ x.sheet }}</td><td>{{ x.concept }}</td><td>{{ x.source }}</td><td>{{ x.columns }}</td></tr>{% endfor %}</tbody>
+  </table></div>{% endif %}
+  <h3>Settings</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Setting</th><th class="text">Value</th></tr></thead>
+    <tbody>{% for x in rp.settings %}<tr><td>{{ x.name }}</td><td class="text">{{ x.value }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% if rp.randomness %}<p>Seeds: {% for x in rp.randomness %}{{ x.method }} {{ x.seed }}{% if not loop.last %}, {% endif %}{% endfor %}.</p>{% endif %}
+  <h3>Specifications</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>ID</th><th>Version</th><th class="text">Title</th></tr></thead>
+    <tbody>{% for s in rp.specs %}<tr><td>{{ s.id }}</td><td>{{ s.version }}</td><td class="text">{{ s.title }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <h3>Output files</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>File</th><th>Size (bytes)</th><th class="text">SHA-256</th></tr></thead>
+    <tbody>{% for o in rp.outputs %}<tr><td>{{ o.name }}</td><td>{{ o.size }}</td><td class="text"><code>{{ o.sha256 }}</code></td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="footnote">This page and the manifest are written after the files above, so their own fingerprints are in manifest.json only.</p>
 </section>
 
 </main>
@@ -267,35 +400,73 @@ nav ul { padding-left: 20px; }
 <script>
 (function () {
   var figures = JSON.parse(document.getElementById("figures").textContent);
-  function token(name) {
-    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  var root = document.documentElement;
+  function token(name) { return getComputedStyle(root).getPropertyValue(name).trim(); }
+  function resolve(value) {
+    if (typeof value === "string" && value.indexOf("var(") === 0) {
+      return token(value.slice(4, -1));
+    }
+    if (Array.isArray(value)) { return value.map(resolve); }
+    if (value && typeof value === "object") {
+      var out = {};
+      Object.keys(value).forEach(function (k) { out[k] = resolve(value[k]); });
+      return out;
+    }
+    return value;
+  }
+  function ramp(measure) {
+    var steps = token("--ramp-" + measure).replace(/"/g, "").split(",");
+    return steps.map(function (c, k) { return [k / (steps.length - 1), c.trim()]; });
   }
   function draw() {
-    var ramp = token("--seq").replace(/"/g, "").split(",");
-    var scale = ramp.map(function (c, k) { return [k / (ramp.length - 1), c]; });
     Object.keys(figures).forEach(function (id) {
       var el = document.getElementById(id);
       if (!el) { return; }
-      var fig = JSON.parse(JSON.stringify(figures[id]));
-      fig.data.forEach(function (trace) { trace.colorscale = scale; });
-      var ink = token("--text-secondary");
-      fig.layout.paper_bgcolor = token("--surface");
-      fig.layout.plot_bgcolor = token("--surface");
-      fig.layout.font = { color: ink, family: "system-ui, sans-serif", size: 12 };
-      fig.layout.title.font = { color: token("--text-primary"), size: 14 };
-      fig.layout.margin = { l: 64, r: 16, t: 40, b: 48 };
-      fig.layout.height = 300;
-      fig.layout.xaxis.showgrid = false;
-      fig.layout.yaxis.showgrid = false;
-      fig.layout.xaxis.zeroline = false;
-      fig.layout.yaxis.zeroline = false;
-      Plotly.react(el, fig.data, fig.layout, { displaylogo: false, responsive: true });
+      var fig = resolve(JSON.parse(JSON.stringify(figures[id])));
+      fig.data.forEach(function (trace) {
+        if (typeof trace.colorscale === "string" && trace.colorscale.indexOf("ramp:") === 0) {
+          trace.colorscale = ramp(trace.colorscale.slice(5));
+        }
+      });
+      var layout = fig.layout;
+      layout.paper_bgcolor = token("--surface");
+      layout.plot_bgcolor = token("--surface");
+      layout.font = { color: token("--text-secondary"), family: "system-ui, sans-serif", size: 12 };
+      layout.title.font = { color: token("--text-primary"), size: 14 };
+      layout.margin = layout.margin || { l: 72, r: 16, t: 40, b: 48 };
+      layout.height = layout.height || 300;
+      layout.legend = { orientation: "h", x: 0, y: 1, yanchor: "bottom", xanchor: "left" };
+      if (layout.showlegend) { layout.margin.t = 72; layout.title.y = 0.98; layout.title.yanchor = "top"; }
+      ["xaxis", "yaxis"].forEach(function (axis) {
+        layout[axis] = layout[axis] || {};
+        layout[axis].gridcolor = token("--grid");
+        layout[axis].zeroline = false;
+        layout[axis].automargin = true;
+      });
+      Plotly.react(el, fig.data, layout, { displaylogo: false, responsive: true });
     });
   }
   draw();
   if (window.matchMedia) {
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
   }
+  var theme = null, closed = [];
+  window.addEventListener("beforeprint", function () {
+    theme = root.getAttribute("data-theme");
+    root.setAttribute("data-theme", "light");
+    closed = Array.prototype.filter.call(document.querySelectorAll("details"), function (d) { return !d.open; });
+    closed.forEach(function (d) { d.open = true; });
+    draw();
+    Object.keys(figures).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) { Plotly.Plots.resize(el); }
+    });
+  });
+  window.addEventListener("afterprint", function () {
+    if (theme === null) { root.removeAttribute("data-theme"); } else { root.setAttribute("data-theme", theme); }
+    closed.forEach(function (d) { d.open = false; });
+    draw();
+  });
 })();
 </script>
 </body>

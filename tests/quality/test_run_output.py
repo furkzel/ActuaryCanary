@@ -1,15 +1,14 @@
 """Quality output appears in every run: quality.json, the terminal summary and the report."""
 
 import json
-from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
+from actuarycanary.pipeline import RunResult
 from actuarycanary.quality.model import ModuleStatus, QualityReport, Score
 from actuarycanary.report.quality_section import render_quality_section
 from actuarycanary.report.render import render_report
-from tests.report.test_render import _context
 
 BASELINE = Path(__file__).parents[1] / "fixtures" / "synthetic" / "baseline"
 pytestmark = pytest.mark.integration
@@ -40,12 +39,12 @@ def test_terminal_shows_the_quality_summary_before_the_chain_ladder(
     assert output.index("Data quality") < output.index("Chain ladder")
 
 
-def test_report_starts_with_the_quality_section() -> None:
-    section = render_quality_section(_report(), "1.0.0")
-    html = render_report(replace(_context(), quality_html=section))
-    assert html.index('id="quality"') < html.index('id="summary"')
-    assert 'href="#quality"' in html
-    assert 'id="quality"' not in render_report(_context())  # no section without a report
+def test_report_has_the_quality_appendix_after_the_reserving_pages(default_run: RunResult) -> None:
+    section = render_quality_section(default_run.quality, "1.0.0")
+    html = render_report(default_run.report_data, quality_html=section)
+    assert html.index('id="reserving"') < html.index('id="quality"')
+    assert 'href="#quality"' in html and "Data quality appendix" in html
+    assert 'id="quality"' not in render_report(default_run.report_data)  # only with a section
 
 
 def _report() -> QualityReport:

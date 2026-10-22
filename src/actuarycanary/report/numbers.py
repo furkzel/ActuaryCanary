@@ -40,3 +40,30 @@ def ratio(value: float | None) -> str:
 
 def count(value: float | None) -> str:
     return _show(value, COUNT_DECIMALS)
+
+
+def score(value: float | None) -> str:
+    """A score out of 100 (DQ01), one decimal."""
+    return _show(value, RATIO_DECIMALS)
+
+
+def _signed(text: str) -> str:
+    if text == EMPTY or text.startswith("-"):
+        return text.replace("-", "−", 1)
+    return text if text in ("0", "0.0%", "0.0") else f"+{text}"
+
+
+def change_amount(value: float | None) -> str:
+    """A change with its sign: +1,234 or −1,234."""
+    return _signed(amount(value))
+
+
+def change_ratio(value: float | None) -> str:
+    """A relative change with its sign: +12.3% or −4.0%."""
+    return _signed(ratio(value))
+
+
+def change_points(value: float | None) -> str:
+    """A change of a ratio in percentage points: +1.2 pts."""
+    shown = _show(None if value is None else value * 100, RATIO_DECIMALS)
+    return shown if shown == EMPTY else f"{_signed(shown)} pts"

@@ -41,3 +41,7 @@ synth scenario="baseline" size="tiny":
 # refresh the committed tiny fixtures and examples
 synth-fixtures:
     uv run python -m actuarycanary.synthetic fixtures
+
+# rewrite the golden copy of the report numbers after an intended change, then review its diff
+golden $ACTUARYCANARY_UPDATE_GOLDEN="1":
+    uv run pytest tests/report/test_golden.py -q
