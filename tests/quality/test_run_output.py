@@ -5,9 +5,7 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
-from typer.testing import CliRunner
 
-from actuarycanary.cli import app
 from actuarycanary.quality.model import ModuleStatus, QualityReport, Score
 from actuarycanary.report.quality_section import render_quality_section
 from actuarycanary.report.render import render_report
@@ -17,12 +15,9 @@ BASELINE = Path(__file__).parents[1] / "fixtures" / "synthetic" / "baseline"
 pytestmark = pytest.mark.integration
 
 
-@pytest.fixture(scope="module")
-def run_folder(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, str]:
-    out = tmp_path_factory.mktemp("out")
-    result = CliRunner().invoke(app, ["run", str(BASELINE), "--out", str(out)])
-    assert result.exit_code == 0, result.output
-    return next(out.iterdir()), result.output
+@pytest.fixture
+def run_folder(cli_run: tuple[Path, str]) -> tuple[Path, str]:
+    return cli_run
 
 
 def test_run_writes_quality_json_and_records_it_in_the_manifest(

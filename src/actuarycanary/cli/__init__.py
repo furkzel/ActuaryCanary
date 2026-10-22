@@ -1,5 +1,6 @@
 """Command line entry point (typer and rich)."""
 
+import textwrap
 from datetime import date
 from enum import StrEnum
 from pathlib import Path
@@ -18,6 +19,8 @@ from actuarycanary.convert.bases import ReinsuranceBasis, ValueBasis
 from actuarycanary.convert.market import ConversionError
 from actuarycanary.io.excel import RawTable
 from actuarycanary.manifest.metadata import load_metadata
+from actuarycanary.methods.assumptions import AssumptionError, AssumptionsRegister
+from actuarycanary.modules.runner import ModuleState
 from actuarycanary.pipeline import InputError, RunResult, RunSettings, run
 from actuarycanary.quality.output import print_summary
 from actuarycanary.recognition.dictionary import Dictionary
@@ -91,9 +94,39 @@ def _tables(console: Console, result: RunResult) -> None:
     console.print(table)
 
 
+def _modules(console: Console, result: RunResult) -> None:
+    table = Table(title="Modules", title_justify="left")
+    for column in ("Module", "State", "Why"):
+        table.add_column(column, overflow="fold")
+    for outcome in result.analysis.modules:
+        table.add_row(
+            escape(f"{outcome.module} {outcome.title}"),
+            outcome.state.value,
+            escape("; ".join(outcome.reasons)),
+            style="red" if outcome.state is ModuleState.SKIPPED else None,
+        )
+    console.print(table)
+
+
+SUMMARY_WIDTH = 78  # the new summary lines wrap here so they fit an 80-column window
+
+
+def _diagnostics(console: Console, result: RunResult) -> None:
+    """One line: the method diagnostics per line of business, wrapped for 80 columns."""
+    counts = result.reserving.diagnostics_by_group()
+    if not counts:
+        return
+    total = sum(counts.values())
+    per_line = ", ".join(f"{group[1]} {count}" for group, count in counts.items())
+    line = f"Method diagnostics: {total} ({per_line}); see the report."
+    for part in textwrap.wrap(line, SUMMARY_WIDTH, subsequent_indent="  "):
+        console.print(escape(part), soft_wrap=True)
+
+
 def _summary(console: Console, result: RunResult) -> None:
     _tables(console, result)
     print_summary(console, result.quality)
+    _modules(console, result)
     reserving = result.reserving
     currency = reserving.triangles.reporting_currency
     settings = reserving.triangles.settings
@@ -111,6 +144,7 @@ def _summary(console: Console, result: RunResult) -> None:
             numbers.amount(totals.ibnr("incurred")),
         )
     console.print(table)
+    _diagnostics(console, result)
     if result.findings:
         rows = sum(f.count for f in result.findings)
         console.print(f"{len(result.findings)} data rules touched {rows} rows; see the report.")
@@ -147,7 +181,7 @@ def run_command(
         str | None,
         typer.Option(
             "--currency",
-            help="Reporting currency; converts other currencies with the market data (CV01).",
+            help="Reporting currency; other currencies are converted with the market data (CV01).",
         ),
     ] = None,
     value: Annotated[
@@ -178,6 +212,14 @@ def run_command(
     profiles: Annotated[
         Path, typer.Option("--profiles", help="Folder of mapping profiles.")
     ] = Path("profiles"),
+    assumptions: Annotated[
+        Path | None,
+        typer.Option(
+            "--assumptions",
+            help="YAML file with the assumptions register: selected factors, exclusions, "
+            "priors, future inflation, overrides (every entry needs who and why).",
+        ),
+    ] = None,
 ) -> None:
     """Recognise the spreadsheets in a folder, build paid and incurred triangles and chain
     ladder, then write report and manifest."""
@@ -185,7 +227,6 @@ def run_command(
     try:
         settings = RunSettings(
             reporting_currency=currency.upper() if currency else None,
-            use_market=currency is not None,
             triangles=TriangleSettings(
                 origin_period=origin_period,
                 development_period=development_period,
@@ -195,8 +236,11 @@ def run_command(
                 value_date=date.fromisoformat(value_date) if value_date else None,
                 price_index=price_index,
             ),
+            assumptions=(
+                AssumptionsRegister.from_yaml(assumptions) if assumptions else AssumptionsRegister()
+            ),
         )
-    except ValueError as error:
+    except (ValueError, OSError) as error:
         console.print(f"[red]Settings rejected:[/red] {error}")
         raise typer.Exit(2) from error
     with Progress(
@@ -236,6 +280,7 @@ def run_command(
             TriangleError,
             ConversionError,
             ProfileError,
+            AssumptionError,
         ) as error:
             console.print(f"[red]Cannot run:[/red] {escape(str(error))}")
             raise typer.Exit(1) from error

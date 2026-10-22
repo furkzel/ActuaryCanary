@@ -18,7 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from actuarycanary import __version__
 from actuarycanary.canonical.feeds import CanonicalError, CanonicalFeed, Finding, canonicalise
 from actuarycanary.convert.bases import ValueBasis
-from actuarycanary.convert.market import MarketData
+from actuarycanary.convert.market import ConversionError, MarketData
 from actuarycanary.convert.rates import DevelopmentRates, development_rates
 from actuarycanary.io.excel import RawTable, Workbook, read_workbook, spreadsheets
 from actuarycanary.manifest.metadata import load_metadata
@@ -31,8 +31,41 @@ from actuarycanary.manifest.run import (
     write_manifest,
     write_output,
 )
+from actuarycanary.measures.model import Basis, CurrencyView, MeasureInputs, with_refs
+from actuarycanary.measures.output import lineage_table, values_table
+from actuarycanary.methods import diagnostics as diagnostic_limits
+from actuarycanary.methods import isolation_forest, robust_z
+from actuarycanary.methods.assumptions import AssumptionsRegister, records
 from actuarycanary.methods.chain_ladder import ChainLadder
-from actuarycanary.modules.reserving import ChainLadderSettings, ReservingResult, run_reserving
+from actuarycanary.methods.selection import BF_BELOW_MATURITY
+from actuarycanary.modules.anomalies import AnomalyResult, run_anomalies
+from actuarycanary.modules.methods_port import ReservingPort
+from actuarycanary.modules.output import analysis_json
+from actuarycanary.modules.premium_input import earned_premium_by_origin
+from actuarycanary.modules.reserving import (
+    SELECTION_MEASURE,
+    ChainLadderSettings,
+    MethodInputs,
+    ReservingResult,
+    methods_run,
+    not_run_notes,
+    run_reserving,
+)
+from actuarycanary.modules.reserving_output import (
+    ANOMALIES_NAME,
+    ASSUMPTIONS_NAME,
+    CASH_FLOWS_NAME,
+    DIAGNOSTICS_NAME,
+    RANGE_NAME,
+    ULTIMATES_NAME,
+    anomalies_csv,
+    assumptions_csv,
+    cash_flows_csv,
+    diagnostics_csv,
+    range_csv,
+    ultimates_csv,
+)
+from actuarycanary.modules.runner import AnalysisResult, run_modules
 from actuarycanary.quality.engine import evaluate
 from actuarycanary.quality.model import QualityReport
 from actuarycanary.quality.output import QUALITY_NAME, quality_json
@@ -51,12 +84,15 @@ from actuarycanary.recognition.tables import (
     with_profile,
 )
 from actuarycanary.recognition.values import ValueMapping
+from actuarycanary.report.modules_section import render_modules_section
 from actuarycanary.report.quality_section import render_quality_section
 from actuarycanary.report.render import REPORT_NAME, ReportContext, render_report
 from actuarycanary.spec.loader import load_specs
 from actuarycanary.structures.triangles import (
     GROUP_FIELDS,
     OriginAxis,
+    TriangleError,
+    TriangleSet,
     TriangleSettings,
     build_triangles,
     resolve_cut_off,
@@ -66,8 +102,8 @@ REQUIRED_CONCEPT = "claim_valuations"
 OPTIONAL_CONCEPTS = ("claims",)
 MARKET = "market"
 POLICIES = "policies"
-# Read and checked for the quality report; market and policies also feed the analysis when
-# a setting asks for them, the others are checked only.
+# Read, checked for the quality report and used by the measures; market and policies also feed
+# the triangles when a setting asks for them.
 CHECKED_CONCEPTS = ("policies", "premiums", "expenses", "market")
 # Specifications whose rules this run applies; recorded with their versions.
 SPECS_USED = (
@@ -91,6 +127,9 @@ SPECS_USED = (
 TRIANGLES_NAME = "triangles.csv"
 ESTIMATES_NAME = "chain_ladder.csv"
 FACTORS_NAME = "factors.csv"
+MEASURES_NAME = "measures.csv"
+LINEAGE_NAME = "lineage.csv"
+MODULES_NAME = "modules.json"
 
 Progress = Callable[[str], None]
 # Shown the sheets whose layout has no saved profile; returns them accepted, edited or skipped.
@@ -105,12 +144,16 @@ class RunSettings(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     reporting_currency: str | None = None  # None: project.yaml report.default_reporting_currency
-    # Read market data and convert foreign currencies into the reporting currency (CV01).
-    # Off: only amounts already in the reporting currency are used, the rest is reported
-    # apart; the inflation-adjusted basis always reads market data.
-    use_market: bool = False
+    # Read market data and convert foreign currencies into the reporting currency (CV01)
+    # whenever the folder has a market sheet (decision 0052, reverses 0034). Off: only amounts
+    # already in the reporting currency are used, the rest is reported apart; the
+    # inflation-adjusted basis always reads market data.
+    use_market: bool = True
     triangles: TriangleSettings = Field(default_factory=TriangleSettings)
     chain_ladder: ChainLadderSettings = Field(default_factory=ChainLadderSettings)
+    # the judgements of the user: selected factors, exclusions, priors, future inflation,
+    # overrides (record 0037); part of the settings, so of the run id
+    assumptions: AssumptionsRegister = Field(default_factory=AssumptionsRegister)
 
 
 @dataclass(frozen=True)
@@ -130,6 +173,8 @@ class RunResult:
     findings: tuple[Finding, ...]
     tables: tuple[TableRecognition, ...]
     quality: QualityReport
+    analysis: AnalysisResult
+    anomalies: AnomalyResult
 
 
 def recognise_folder(
@@ -230,16 +275,16 @@ def _mapping_record(rec: TableRecognition, values: list[ValueMapping]) -> dict[s
 
 
 def _settings_record(
-    settings: RunSettings, reporting_currency: str, price_index: str
+    settings: RunSettings, reporting_currency: str, price_index: str, market_read: bool
 ) -> dict[str, Any]:
     record = settings.model_dump(mode="json")
     record["reporting_currency"] = reporting_currency
     record["triangles"]["price_index"] = price_index
-    adjusted = settings.triangles.value_basis is ValueBasis.INFLATION_ADJUSTED
+    record["methods"] = _methods_record()
     record["bases"] = {
         "reinsurance": settings.triangles.reinsurance_basis.value,
         "currency": "REPORTING",
-        "currency_conversion": "market" if settings.use_market or adjusted else "none",
+        "currency_conversion": "market" if market_read else "none",
         "value": settings.triangles.value_basis.value,
     }
     return record
@@ -282,6 +327,97 @@ def _rate_findings(rates: DevelopmentRates) -> list[Finding]:
             )
         )
     return notes
+
+
+def _earned_premium(
+    specs: Any, inputs: MeasureInputs, axis: OriginAxis, cache: dict[Any, Any]
+) -> tuple[pl.DataFrame | None, str]:
+    """Earned premium per segment, line and origin period for the premium-based methods, from
+    PR02 on the basis of the run; the measure is kept in `cache` for the module runner."""
+    if axis is not OriginAxis.ACCIDENT:
+        return None, (
+            "the premium-based methods need accident or underwriting origins matched to earned "
+            f"premium, and the origin axis is {axis.value}"
+        )
+    settings = inputs.triangles.settings if inputs.triangles else TriangleSettings()
+    frame, reason, measure = earned_premium_by_origin(
+        specs,
+        inputs,
+        settings.origin_period,
+        settings.reinsurance_basis,
+        settings.value_basis,
+    )
+    if measure is not None:
+        request, result = measure
+        cache[(result.measure, request)] = result
+    return frame, reason
+
+
+def _other_value_basis(
+    valuations: pl.DataFrame,
+    claims: pl.DataFrame | None,
+    policies: pl.DataFrame | None,
+    market: MarketData | None,
+    settings: RunSettings,
+    rates: DevelopmentRates,
+    currency: str,
+    price_index: str,
+    triangles: TriangleSet,
+) -> tuple[TriangleSet | None, str]:
+    """The paid triangles on the other value basis, for the inflation-adjusted chain ladder
+    (MT07), which needs the same claims restated and not restated. None, with the reason,
+    when the market data has no price index or the triangles cannot be built."""
+    if market is None:
+        return None, "no market data (exchange rates and a price index) was loaded"
+    if market.index(price_index) is None:
+        return None, f"the price index {price_index} is not in the market data"
+    adjusted = settings.triangles.value_basis is ValueBasis.INFLATION_ADJUSTED
+    other = settings.triangles.model_copy(
+        update={"value_basis": ValueBasis.NOMINAL if adjusted else ValueBasis.INFLATION_ADJUSTED}
+    )
+    try:
+        return (
+            build_triangles(
+                valuations,
+                claims,
+                other,
+                rates,
+                currency,
+                policies=policies,
+                market=market,
+                price_index=price_index,
+                measures=("paid",),
+            ),
+            "",
+        )
+    except (ConversionError, TriangleError) as error:
+        return None, f"the triangles on the other value basis could not be built: {error}"
+
+
+def _methods_record() -> dict[str, Any]:
+    """The fixed settings of the methods, part of the manifest and the run id: a change of a
+    threshold in the code gives another run id."""
+    return {
+        "selection_measure": SELECTION_MEASURE,
+        "bf_below_maturity": BF_BELOW_MATURITY,
+        "diagnostics": {
+            "thin_evidence_origins": diagnostic_limits.THIN_EVIDENCE_ORIGINS,
+            "late_development_factor": diagnostic_limits.LATE_DEVELOPMENT_FACTOR,
+            "few_link_ratios": diagnostic_limits.FEW_LINK_RATIOS,
+        },
+        "robust_z": {
+            "threshold": robust_z.THRESHOLD,
+            "min_group_size": robust_z.MIN_GROUP_SIZE,
+            "group_by": list(robust_z.GROUP_BY),
+        },
+        "isolation_forest": {
+            "n_estimators": isolation_forest.N_ESTIMATORS,
+            "max_samples": isolation_forest.MAX_SAMPLES,
+            "contamination": isolation_forest.CONTAMINATION,
+            "min_group_size": isolation_forest.MIN_GROUP_SIZE,
+            "seed": isolation_forest.SEED,
+        },
+    }
 
 
 def _write_tables(folder: Path, reserving: ReservingResult) -> list[OutputRecord]:
@@ -399,6 +535,7 @@ def run(
             f"but no sheet was recognised as {MARKET} (for example {name})"
         )
     concepts = [c for c in wanted if c in by_concept]
+    market_read = MARKET in concepts
 
     step("Checking data against the specifications")
     feeds: dict[str, CanonicalFeed] = {}
@@ -430,7 +567,7 @@ def run(
     not_used = [
         {"file": t.recognition.file, "sheet": t.recognition.sheet, "concept": t.recognition.concept}
         for t in loaded
-        if t.recognition.concept not in concepts
+        if t.recognition.concept not in concepts and t.recognition.concept not in checked
     ]
 
     step("Building triangles")
@@ -456,27 +593,82 @@ def run(
         price_index=price_index,
     )
 
-    step("Running chain ladder")
-    reserving = run_reserving(triangles, settings.chain_ladder)
-
     sources = {c: tuple(i.recognition.label for i in by_concept[c]) for c in checked}
     quality = evaluate(specs, checked, raw_tables, sources, triangles.cut_off, unreadable)
     rate_notes = tuple(_rate_findings(rates)) if market is not None and not adjusted else ()
     findings = (
         tuple(f for feed in feeds.values() for f in feed.findings) + rate_notes + triangles.findings
     )
-    inputs = _input_records(concepts, by_concept)
-    extra = ["CV02"] if adjusted else []
+    measure_inputs = MeasureInputs(
+        feeds=with_refs({c: f.frame for c, f in checked.items()}),
+        cut_off=triangles.cut_off,
+        reporting_currency=currency,
+        rates=rates,
+        market=market,
+        price_index=price_index,
+        value_date=settings.triangles.value_date,
+        fiscal_year_start_month=settings.triangles.fiscal_year_start_month,
+        origin_axis=settings.triangles.origin_axis.value,
+        triangles=triangles,
+    )
+    reinsurance, value_basis = settings.triangles.reinsurance_basis, settings.triangles.value_basis
+    period = settings.triangles.origin_period
+    cache: dict[Any, Any] = {}
+
+    step("Running the reserving methods")
+    premium, premium_reason = _earned_premium(
+        specs, measure_inputs, settings.triangles.origin_axis, cache
+    )
+    other_value, other_reason = _other_value_basis(
+        valuations, claims, policies, market, settings, rates, currency, price_index, triangles
+    )
+    method_inputs = MethodInputs(
+        register=settings.assumptions,
+        premium=premium,
+        premium_reason=premium_reason,
+        adjusted=triangles if adjusted else other_value,
+        nominal=other_value if adjusted else triangles,
+        adjusted_reason=other_reason,
+        origin_axis=settings.triangles.origin_axis.value,
+    )
+    reserving = run_reserving(triangles, settings.chain_ladder, method_inputs)
+
+    step("Flagging anomalies")
+    anomalies = run_anomalies(valuations, claims, rates, triangles.cut_off)
+
+    step("Computing measures and running modules")
+    basis_label = Basis(reinsurance, CurrencyView.REPORTING, value_basis).label()
+    measure_inputs.methods = ReservingPort(reserving, basis_label, frozenset({"MT08", "MT09"}))
+    analysis = run_modules(
+        specs,
+        measure_inputs,
+        quality,
+        period,
+        reinsurance,
+        value_basis,
+        cache=cache,
+        notes={"M04": not_run_notes(reserving), "M06": anomalies.reasons},
+    )
     checked_only = [c for c in CHECKED_CONCEPTS if c in checked]
+    inputs = _input_records(
+        [*concepts, *[c for c in checked_only if c not in concepts]], by_concept
+    )
+    extra = ["CV02"] if adjusted else []
+    ran = [
+        i
+        for module in sorted(specs.modules.values(), key=lambda m: m.id)
+        for i in (module.id, *module.measures)
+    ]
+    ran_methods = [*methods_run(reserving), "MT08", "MT09"]
     used = [
         s
-        for s in (*SPECS_USED, *extra, *concepts, *checked_only)
+        for s in (*SPECS_USED, *extra, *concepts, *checked_only, *ran, *ran_methods)
         if s != "claims" or "claims" in feeds
     ]
     used = list(dict.fromkeys(used))
     catalogue = {f.spec.id: f.spec for f in specs.files}
     spec_records = [SpecRecord(s, catalogue[s].version, catalogue[s].title_en) for s in used]
-    settings_record = _settings_record(settings, currency, price_index)
+    settings_record = _settings_record(settings, currency, price_index, market_read)
     applied = [
         {"file": m["file"], "sheet": m["sheet"], "concept": m["concept"], "columns": m["columns"]}
         for m in mappings
@@ -500,10 +692,29 @@ def run(
         specs=tuple(spec_records),
         settings=settings_used,
         quality_html=render_quality_section(quality, catalogue["DQ01"].version),
+        modules_html=render_modules_section(analysis),
+        anomaly_counts=anomalies.counts(),
     )
     outputs = [write_output(out, REPORT_NAME, render_report(context))]
     outputs.append(write_output(out, QUALITY_NAME, quality_json(quality)))
     outputs += _write_tables(out, reserving)
+    results = analysis.results()
+    assert analysis.inputs is not None
+    outputs.append(write_output(out, MEASURES_NAME, values_table(results).write_csv()))
+    outputs.append(
+        write_output(out, LINEAGE_NAME, lineage_table(results, analysis.inputs).write_csv())
+    )
+    outputs.append(write_output(out, MODULES_NAME, analysis_json(analysis, reserving)))
+    in_force = reserving.assumptions()
+    for name, content in (
+        (ASSUMPTIONS_NAME, assumptions_csv(in_force)),
+        (ULTIMATES_NAME, ultimates_csv(reserving)),
+        (RANGE_NAME, range_csv(reserving)),
+        (CASH_FLOWS_NAME, cash_flows_csv(reserving)),
+        (DIAGNOSTICS_NAME, diagnostics_csv(reserving)),
+        (ANOMALIES_NAME, anomalies_csv(anomalies)),
+    ):
+        outputs.append(write_output(out, name, content))
 
     step("Writing the manifest")
     manifest = write_manifest(
@@ -517,6 +728,21 @@ def run(
         settings=settings_used,
         outputs=outputs,
         findings=[asdict(f) for f in findings],
+        assumptions=records(in_force),
+        randomness=[
+            {"method": "MT09", "seed": isolation_forest.SEED, "purpose": "isolation forest"}
+        ],
     )
     tables = tuple(t.recognition for t in loaded)
-    return RunResult(run, out, out / REPORT_NAME, manifest, reserving, findings, tables, quality)
+    return RunResult(
+        run,
+        out,
+        out / REPORT_NAME,
+        manifest,
+        reserving,
+        findings,
+        tables,
+        quality,
+        analysis,
+        anomalies,
+    )

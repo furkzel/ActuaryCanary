@@ -27,12 +27,14 @@ BASELINE = Path(__file__).parents[1] / "fixtures" / "synthetic" / "baseline"
 
 
 @pytest.mark.integration
-def test_run_writes_report_and_manifest(tmp_path: Path) -> None:
-    result = runner.invoke(app, ["run", str(BASELINE), "--out", str(tmp_path)])
-    assert result.exit_code == 0, result.output
-    assert "Run id" in result.output
-    assert len(list(tmp_path.glob("*/report.html"))) == 1
-    assert len(list(tmp_path.glob("*/manifest.json"))) == 1
+def test_run_writes_report_and_manifest(cli_run: tuple[Path, str]) -> None:
+    folder, output = cli_run
+    assert "Run id" in output
+    # one line counts the method diagnostics per line of business, wrapped for 80 columns
+    start = output.index("Method diagnostics:")
+    block = output[start : output.index("data rules touched")].splitlines()
+    assert "MOTOR_TPL" in " ".join(block) and all(len(line) <= 80 for line in block)
+    assert (folder / "report.html").exists() and (folder / "manifest.json").exists()
 
 
 def test_run_without_claim_valuations_fails_with_a_message(tmp_path: Path) -> None:
@@ -80,6 +82,7 @@ def test_new_layouts_without_answers_or_yes_stop_with_a_message(tmp_path: Path) 
 
 
 @pytest.mark.integration
+@pytest.mark.slow
 def test_yes_uses_the_proposals_without_saving_or_asking(tmp_path: Path) -> None:
     arguments = ["run", str(MESSY), "--out", str(tmp_path / "out"), "--yes"]
     result = runner.invoke(app, [*arguments, "--profiles", str(tmp_path / "profiles")])
@@ -90,6 +93,7 @@ def test_yes_uses_the_proposals_without_saving_or_asking(tmp_path: Path) -> None
 
 
 @pytest.mark.integration
+@pytest.mark.slow
 def test_edits_are_saved_in_the_profile(tmp_path: Path) -> None:
     folder = tmp_path / "in"
     folder.mkdir()
@@ -103,3 +107,56 @@ def test_edits_are_saved_in_the_profile(tmp_path: Path) -> None:
     (profile,) = (tmp_path / "profiles").glob("*.yaml")
     text = profile.read_text(encoding="utf-8")
     assert "header: 'RUCU TAHSILAT '\n  field: null\n  layer: user" in text
+
+
+@pytest.mark.integration
+@pytest.mark.slow
+def test_run_lists_which_modules_ran_and_why_others_did_not(tmp_path: Path) -> None:
+    folder = tmp_path / "in"
+    folder.mkdir()
+    shutil.copyfile(BASELINE / "claim_valuations.xlsx", folder / "claim_valuations.xlsx")
+    result = runner.invoke(app, ["run", str(folder), "--out", str(tmp_path / "out"), "--yes"])
+    assert result.exit_code == 0, result.output
+    assert "Modules" in result.output
+    for module in ("M01 Data understanding", "M02 Portfolio and premium", "M05 Profitability"):
+        assert module in result.output
+    assert "skipped" in result.output and "ran" in result.output
+    assert "premium" in result.output and "loaded" in result.output
+
+
+def test_assumptions_file_without_a_reason_is_rejected_before_the_run(tmp_path: Path) -> None:
+    register = tmp_path / "register.yaml"
+    register.write_text(
+        "entries:\n  - {method: MT02, name: tail_factor, value: 1.1, who: reviewer}\n",
+        encoding="utf-8",
+    )
+    result = runner.invoke(app, ["run", str(tmp_path), "--assumptions", str(register)])
+    assert result.exit_code == 2
+    assert "needs a reason" in result.output
+    absent = tmp_path / "none.yaml"
+    missing = runner.invoke(app, ["run", str(tmp_path), "--assumptions", str(absent)])
+    assert missing.exit_code == 2 and "Settings rejected" in missing.output
+
+
+@pytest.mark.integration
+@pytest.mark.slow
+def test_assumptions_file_reaches_the_run_and_a_wrong_target_stops_it(tmp_path: Path) -> None:
+    register = tmp_path / "register.yaml"
+    register.write_text(
+        "entries:\n"
+        "  - {method: MT02, name: tail_factor, value: 1.1, who: reviewer, when: 2026-01-05,"
+        " why: long tail}\n",
+        encoding="utf-8",
+    )
+    arguments = ["run", str(BASELINE), "--out", str(tmp_path / "out"), "--yes"]
+    result = runner.invoke(app, [*arguments, "--assumptions", str(register)])
+    assert result.exit_code == 0, result.output
+    (assumptions,) = (tmp_path / "out").glob("*/assumptions.csv")
+    assert "reviewer" in assumptions.read_text(encoding="utf-8")
+    register.write_text(
+        "entries:\n"
+        "  - {method: MT02, name: exclusion, target: '2024:99-100', value: true, who: r, why: x}\n",
+        encoding="utf-8",
+    )
+    wrong = runner.invoke(app, [*arguments, "--assumptions", str(register)])
+    assert wrong.exit_code == 1 and "not a link ratio of this triangle" in wrong.output

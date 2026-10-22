@@ -4,7 +4,7 @@ Pure functions on a cumulative triangle given as a 2-D array, origins down and d
 indices across, with NaN in cells that are not observed.
 """
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from enum import StrEnum
 
@@ -40,11 +40,19 @@ class ChainLadder:
     warnings: tuple[str, ...]
     zero_latest: np.ndarray  # bool per origin: ultimate is zero, advise BF (MT02)
     negative: np.ndarray  # bool per origin: negative cumulative values, unreliable
+    # the averages before any selected factor replaced them; equal to `factors` without one
+    averages: np.ndarray
+    overridden: np.ndarray  # bool per column: a selected factor replaced the average
 
     @property
     def reserve(self) -> np.ndarray:
         """Ultimate minus the latest cumulative value of the same triangle."""
         return self.ultimate - self.latest
+
+    @property
+    def cdf_at_latest(self) -> np.ndarray:
+        """CDF(J_i) per origin: the pattern that Bornhuetter–Ferguson and Cape Cod use."""
+        return self.cdf[self.latest_index]
 
 
 def _usable(
@@ -84,9 +92,12 @@ def chain_ladder(
     tail_factor: float = 1.0,
     min_origins: int = 3,
     calendar: np.ndarray | None = None,
+    selected: Mapping[int, float] | None = None,
 ) -> ChainLadder | Skipped:
     """MT02 on `cumulative`. `calendar` gives each cell's valuation point (diagonal); by default
-    i + j, the diagonal of a triangle whose origin and development periods are equal."""
+    i + j, the diagonal of a triangle whose origin and development periods are equal.
+    `selected` replaces the average of single columns (column index to factor); the averages
+    stay in the result as the alternative."""
     cumulative = np.asarray(cumulative, dtype=float)
     n_origins, n_dev = cumulative.shape
     if n_origins < min_origins:
@@ -121,6 +132,14 @@ def chain_ladder(
                 continue
         warnings.append(f"development column {j} has no usable link ratio; factor set to 1")
 
+    averages = factors.copy()
+    overridden = np.zeros(n_dev - 1, dtype=bool)
+    for j, value in (selected or {}).items():
+        if not 0 <= j < n_dev - 1 or not np.isfinite(value) or value <= 0:
+            raise ValueError(f"selected factor {value} for column {j} is not usable")
+        factors[j] = value
+        overridden[j] = True
+
     cdf = np.empty(n_dev)
     cdf[-1] = tail_factor
     for j in range(n_dev - 2, -1, -1):
@@ -148,4 +167,6 @@ def chain_ladder(
         warnings=tuple(warnings),
         zero_latest=latest == 0,
         negative=np.any(np.where(observed, cumulative, 0.0) < 0, axis=1),
+        averages=averages,
+        overridden=overridden,
     )

@@ -1,0 +1,151 @@
+name: clrd_wkcomp
+status: reference_implementation
+checked_by_owner: false
+published_figures: 'UNVERIFIED: no published source was opened for this file'
+source:
+  package: chainladder
+  version: 0.10.1
+  data: CAS Loss Reserving Database (Meyers and Shi 2011), workers compensation, sum over all companies;
+    cumulative paid losses and net earned premium
+  calls:
+  - clrd = chainladder.load_sample('clrd')
+  - t = clrd.groupby('LOB').sum().loc['wkcomp']
+  - X = t['CumPaidLoss']; P = t['EarnedPremNet'].latest_diagonal
+  - dev = chainladder.Development(average='volume', sigma_interpolation='mack').fit_transform(X)
+  - mack = chainladder.MackChainladder().fit(dev)
+  - bf = chainladder.BornhuetterFerguson(apriori=0.65).fit(dev, sample_weight=P)
+  - cc = chainladder.CapeCod(trend=0, decay=1).fit(dev, sample_weight=P)
+  notes:
+  - Volume-weighted age-to-age factors; no tail (tail factor 1.0).
+  - sigma_interpolation='mack' extrapolates the last sigma as in Mack (1993).
+  - 'Cape Cod with no trend and no decay: one expected loss ratio for all origins.'
+origins:
+- 1988
+- 1989
+- 1990
+- 1991
+- 1992
+- 1993
+- 1994
+- 1995
+- 1996
+- 1997
+ages:
+- 12
+- 24
+- 36
+- 48
+- 60
+- 72
+- 84
+- 96
+- 108
+- 120
+ldf:
+- 2.201172614815915
+- 1.3151414180707308
+- 1.1497161365957562
+- 1.0813415103326438
+- 1.046505946182538
+- 1.0321535983240357
+- 1.0251042170174358
+- 1.0198840312502386
+- 1.010178953354328
+tail_factor: 1.0
+cdf:
+- 4.105662229518981
+- 1.865215931673918
+- 1.418262633998805
+- 1.2335763488526825
+- 1.14078331134556
+- 1.0900877491493755
+- 1.0561293889973455
+- 1.0302653832311588
+- 1.010178953354328
+- 1.0
+latest:
+- 1241715.0
+- 1308706.0
+- 1394675.0
+- 1414747.0
+- 1328801.0
+- 1187581.0
+- 1114842.0
+- 962081.0
+- 736040.0
+- 340132.0
+ultimate:
+- 1241715.0
+- 1322027.2573285291
+- 1436885.3733579165
+- 1494155.8846958277
+- 1448509.6911574393
+- 1354772.5856710717
+- 1375242.7239076223
+- 1364483.5331802042
+- 1372873.5343492706
+- 1396467.10545075
+ibnr:
+- 0.0
+- 13321.257328529144
+- 42210.373357916484
+- 79408.88469582773
+- 119708.69115743926
+- 167191.58567107166
+- 260400.72390762228
+- 402402.5331802042
+- 636833.5343492706
+- 1056335.10545075
+mack_std_err:
+- 0.0
+- 13531.719023214346
+- 21573.35796483603
+- 25143.280254147856
+- 26790.575154891
+- 27816.369371714758
+- 30788.31622782056
+- 35162.225213843485
+- 51591.88846282576
+- 99735.83723272005
+total:
+  latest: 11029320.0
+  ultimate: 13807132.689098632
+  ibnr: 2777812.6890986315
+  mack_std_err: 182647.69936290747
+earned_premium:
+- 1691130.0
+- 1797930.0
+- 1880315.0
+- 2064835.0
+- 2189448.0
+- 2482657.0
+- 2594787.0
+- 2616831.0
+- 2420655.0
+- 2207902.0
+bornhuetter_ferguson:
+  prior_loss_ratio: 0.65
+  ultimate:
+  - 1241715.0
+  - 1320481.8141795823
+  - 1430578.8513258416
+  - 1486076.9462069096
+  - 1446413.171616262
+  - 1386729.984252702
+  - 1434200.0747135503
+  - 1463708.6184386325
+  - 1465903.4989592072
+  - 1425717.7963853516
+cape_cod:
+  loss_ratio: 0.6404940442771272
+  ultimate:
+  - 1241715.0
+  - 1320309.598228518
+  - 1430053.7737550968
+  - 1485033.7780371285
+  - 1444693.146853408
+  - 1383817.5205195309
+  - 1429529.6074551367
+  - 1456372.5416228666
+  - 1455229.5757209808
+  - 1409841.5955948613

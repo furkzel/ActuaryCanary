@@ -13,7 +13,7 @@ def test_benchmarks_found():
     assert {"raa", "genins"} <= set(benchmark_names())
 
 
-@pytest.mark.parametrize("name", ["raa", "genins"])
+@pytest.mark.parametrize("name", ["raa", "genins", "clrd_wkcomp"])
 def test_benchmark_has_required_keys(name):
     data = load_benchmark(name)
     exp = data["expected"]
@@ -29,7 +29,7 @@ def test_benchmark_has_required_keys(name):
         assert len(exp[key]) == n
 
 
-@pytest.mark.parametrize("name", ["raa", "genins"])
+@pytest.mark.parametrize("name", ["raa", "genins", "clrd_wkcomp"])
 def test_benchmark_is_internally_consistent(name):
     """Recompute volume-weighted chain ladder from the triangle file alone."""
     data = load_benchmark(name)
@@ -47,6 +47,14 @@ def test_benchmark_is_internally_consistent(name):
             cdf *= f
         assert row[last] * cdf == pytest.approx(exp["ultimate"][i], rel=1e-9)
     assert sum(exp["ibnr"]) == pytest.approx(exp["total"]["ibnr"], rel=1e-9)
+
+
+def test_premium_benchmark_has_premium_and_premium_methods():
+    data = load_benchmark("clrd_wkcomp")
+    exp = data["expected"]
+    assert [data["premium"][o] for o in exp["origins"]] == exp["earned_premium"]
+    assert {"prior_loss_ratio", "ultimate"} <= set(exp["bornhuetter_ferguson"])
+    assert {"loss_ratio", "ultimate"} <= set(exp["cape_cod"])
 
 
 def test_hand_fixture_has_required_keys():
