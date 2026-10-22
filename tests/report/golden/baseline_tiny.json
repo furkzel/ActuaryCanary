@@ -48,7 +48,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "d07b310fce3391ce"
+    "value": "cca185beb2d9dc31"
    },
    {
     "label": "Valuation date",
@@ -129,8 +129,8 @@
      "type": "bar",
      "x": [
       0.0,
-      0.267925,
-      0.058091
+      0.221884,
+      0.055118
      ],
      "y": [
       "LIFE · GROUP_TERM_LIFE",
@@ -2646,7 +2646,7 @@
   },
   {
    "banner": false,
-   "evidence": "MT08 v1.0.0",
+   "evidence": "MT08 v1.1.0",
    "files": [
     "anomalies.csv"
    ],
@@ -2657,7 +2657,7 @@
    "specs": [
     "MT08"
    ],
-   "text": "Lines where the robust z-score flags more than 5.0% of the values: 2 (highest 26.8% in MOTOR_OD). Such a line may mix populations, so its flags are leads to review, not errors.",
+   "text": "Lines where the robust z-score flags more than 5.0% of the values: 2 (highest 22.2% in MOTOR_OD). Such a line may mix populations, so its flags are leads to review, not errors.",
    "title": "Anomaly rate above the limit"
   }
  ],
@@ -2884,12 +2884,12 @@
      "name": "group_by"
     },
     {
-     "default": "['paid_flow', 'reserve_change']",
+     "default": "['paid_flow', 'reserve_change', 'incurred_change_at_payment']",
      "name": "variables"
     }
    ],
-   "plain": "Flags individual payments and case-reserve changes that lie far from the typical values of their segment and line, measured by a z-score built on the median and the median absolute deviation, which outliers cannot distort.",
-   "spec": "MT08 v1.0.0",
+   "plain": "Flags individual payments, case-reserve changes and movements of incurred at a payment that lie far from the typical values of their segment and line, measured by a z-score built on the median and the median absolute deviation, which outliers cannot distort.",
+   "spec": "MT08 v1.1.0",
    "title": "Robust z-score anomaly flags"
   },
   {
@@ -2903,7 +2903,7 @@
      "name": "n_estimators"
     },
     {
-     "default": "256",
+     "default": "all",
      "name": "max_samples"
     },
     {
@@ -2924,7 +2924,7 @@
     }
    ],
    "plain": "Scores whole claims by how easily random splits isolate them on a set of claim-level features, and flags the most isolated ones; complements MT08, which looks at single movements.",
-   "spec": "MT09 v1.0.0",
+   "spec": "MT09 v1.1.0",
    "title": "Isolation forest anomaly flags"
   },
   {
@@ -2970,7 +2970,7 @@
     "why": [
      "MT08: NON_LIFE/MOTOR_OD reserve_change: 40.1% of values flagged, above 5%; the group may mix populations (for example two currencies)",
      "MT08: NON_LIFE/MOTOR_TPL reserve_change: 6.3% of values flagged, above 5%; the group may mix populations (for example two currencies)",
-     "MT08: 2 groups have too few values to score",
+     "MT08: 3 groups have too few values to score",
      "MT09: 1 group has too few claims to score"
     ]
    }
@@ -3445,7 +3445,7 @@
    "anchor": "anomalies",
    "body": {
     "figure": "anomalies-rate",
-    "footnote": "Robust z-score MT08 v1.0.0 on payments and case-reserve movements per line, isolation forest MT09 v1.0.0 on claims per segment; the dashed line is the flag rate above which MT08 warns that a group may mix populations. Flags are leads for a reviewer, not errors; anomalies.csv lists every flag with its rows.",
+    "footnote": "Robust z-score MT08 v1.1.0 on payments and case-reserve movements per line, isolation forest MT09 v1.1.0 on claims per segment; the dashed line is the flag rate above which MT08 warns that a group may mix populations. Flags are leads for a reviewer, not errors; anomalies.csv lists every flag with its rows.",
     "limit": "5.0%",
     "rows": [
      {
@@ -3458,19 +3458,19 @@
      },
      {
       "above": true,
-      "flagged": "71",
+      "flagged": "73",
       "isolation": "0",
       "line": "NON_LIFE · MOTOR_OD",
-      "rate": "26.8%",
-      "scored": "265"
+      "rate": "22.2%",
+      "scored": "329"
      },
      {
       "above": true,
       "flagged": "42",
       "isolation": "2",
       "line": "NON_LIFE · MOTOR_TPL",
-      "rate": "5.8%",
-      "scored": "723"
+      "rate": "5.5%",
+      "scored": "762"
      },
      {
       "above": false,
@@ -3583,14 +3583,14 @@
       "variable": "reserve change"
      }
     ],
-    "total": "115"
+    "total": "117"
    },
    "module": "M06",
    "question": "What looks wrong or unusual?",
    "reasons": [
     "MT08: NON_LIFE/MOTOR_OD reserve_change: 40.1% of values flagged, above 5%; the group may mix populations (for example two currencies)",
     "MT08: NON_LIFE/MOTOR_TPL reserve_change: 6.3% of values flagged, above 5%; the group may mix populations (for example two currencies)",
-    "MT08: 2 groups have too few values to score",
+    "MT08: 3 groups have too few values to score",
     "MT09: 1 group has too few claims to score"
    ],
    "spec": "M06 v1.0.0",
@@ -3714,7 +3714,7 @@
    },
    {
     "name": "modules.json",
-    "sha256": "92eb5ef998d22cea4c448108dbeccb89f86c38c2f389bde56fd4ade5448c3cbc",
+    "sha256": "f575112de599c002b9e51e4ee628f294c489b8c2dd60cccc2521813cbe598a36",
     "size": "18,530"
    },
    {
@@ -3744,8 +3744,8 @@
    },
    {
     "name": "anomalies.csv",
-    "sha256": "1da04eb512efb6c21e7a91e2542dca8277936afc0024ce219aaf32fd8757eb10",
-    "size": "31,022"
+    "sha256": "f14ed23037ec49af263a502380b29f94e381e74dde4ac19ce5c18739e4f91f7d",
+    "size": "31,611"
    }
   ],
   "randomness": [
@@ -3754,7 +3754,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "d07b310fce3391ce",
+  "run_id": "cca185beb2d9dc31",
   "settings": [
    {
     "name": "bases.currency",
@@ -3814,7 +3814,7 @@
    },
    {
     "name": "methods.isolation_forest.max_samples",
-    "value": "256"
+    "value": "all"
    },
    {
     "name": "methods.isolation_forest.min_group_size",
@@ -4196,12 +4196,12 @@
    {
     "id": "MT08",
     "title": "Robust z-score anomaly flags",
-    "version": "1.0.0"
+    "version": "1.1.0"
    },
    {
     "id": "MT09",
     "title": "Isolation forest anomaly flags",
-    "version": "1.0.0"
+    "version": "1.1.0"
    },
    {
     "id": "RP01",
