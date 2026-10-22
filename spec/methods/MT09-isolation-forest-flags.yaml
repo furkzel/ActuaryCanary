@@ -1,5 +1,5 @@
 id: MT09
-version: 1.0.0
+version: 1.1.0
 title_en: Isolation forest anomaly flags
 title_tr: İzolasyon ormanı ile anomali işaretleri
 status: reviewed
@@ -29,8 +29,12 @@ parameters:
     default: 200
     description: Number of trees; 200 gives stable scores at modest cost.
   - name: max_samples
-    default: 256
-    description: Sample size per tree, the value of the original paper; capped at the group size.
+    default: all
+    description: >-
+      Sample size per tree; by default every claim of the group, without subsampling. With
+      the 256 of the original paper, a feature that is non-zero for a handful of claims in
+      thousands (negative paid flows) is constant in most trees and never split on (record
+      0061). An integer caps the sample at that size and at the group size.
   - name: contamination
     default: 0.01
     description: Share of claims flagged per group.
@@ -87,3 +91,8 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-10-22
+    change: >-
+      max_samples defaults to every claim of the group instead of 256, approved by the
+      owner (record 0061).
