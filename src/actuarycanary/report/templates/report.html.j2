@@ -103,13 +103,13 @@ nav ul { padding-left: 20px; }
   <h2>Summary by segment and line</h2>
   <p>Amounts in {{ currency }}; segments are shown separately and never added together.{% if value_date %} Amounts are at the prices of {{ value_date }} ({{ price_index }}); they are turned into nominal amounts only with a stated future inflation assumption ({{ spec("CV02") }}).{% endif %}</p>
   <div class="scroll"><table>
-    <thead><tr><th>Segment · line</th><th>Paid</th><th>Incurred</th><th>Ultimate, paid CL</th><th>Ultimate, incurred CL</th><th>IBNR, incurred CL</th></tr></thead>
+    <thead><tr><th>Segment · line</th><th>Paid</th><th>Incurred</th><th>Ultimate, paid CL</th><th>Ultimate, incurred CL</th><th>IBNR, incurred CL</th><th>Ultimate, selected</th><th>IBNR, selected</th></tr></thead>
     <tbody>
-    {% for g in groups %}<tr><td><a href="#{{ g.anchor }}">{{ g.name }}</a></td><td>{{ g.summary.paid }}</td><td>{{ g.summary.incurred }}</td><td>{{ g.summary.ult_paid }}</td><td>{{ g.summary.ult_incurred }}</td><td>{{ g.summary.ibnr_incurred }}</td></tr>
+    {% for g in groups %}<tr><td><a href="#{{ g.anchor }}">{{ g.name }}</a></td><td>{{ g.summary.paid }}</td><td>{{ g.summary.incurred }}</td><td>{{ g.summary.ult_paid }}</td><td>{{ g.summary.ult_incurred }}</td><td>{{ g.summary.ibnr_incurred }}</td><td>{{ g.summary.ult_selected }}</td><td>{{ g.summary.ibnr_selected }}</td></tr>
     {% endfor %}
     </tbody>
   </table></div>
-  <p class="footnote">Ultimates by chain ladder ({{ spec("MT02") }}) on paid and on incurred triangles ({{ spec("MT01") }}); IBNR = ultimate − incurred at the cut-off ({{ spec("RS02") }}). Paid {{ spec("CL01") }}, incurred {{ spec("CL03") }}. Rounded per {{ spec("CV06") }}; totals from unrounded values.</p>
+  <p class="footnote">Ultimates by chain ladder ({{ spec("MT02") }}) on paid and on incurred triangles ({{ spec("MT01") }}); IBNR = ultimate − incurred at the cut-off ({{ spec("RS02") }}). The selected ultimate is chain ladder where the reported share is at least 0.5 and Bornhuetter–Ferguson below it ({{ spec("MT10") }}). Paid {{ spec("CL01") }}, incurred {{ spec("CL03") }}. Rounded per {{ spec("CV06") }}; totals from unrounded values.</p>
 </section>
 
 {% for g in groups %}
@@ -147,6 +147,56 @@ nav ul { padding-left: 20px; }
   </table></div>
   <p class="footnote">{{ currency }}, {{ basis_label }}. IBNR = ultimate − incurred at the cut-off; a negative IBNR (red) means the method expects case reserves to run off favourably ({{ spec("RS02") }}, {{ spec("MT02") }}).</p>
   {% if g.notes %}<ul class="notes">{% for n in g.notes %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+
+  {% set m = g.methods %}
+  <h3>Ultimates by method</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Origin</th>{% for h in m.ultimates.headers %}<th>{{ h }}</th>{% endfor %}<th>Selected</th><th>Chosen</th><th>Why</th></tr></thead>
+    <tbody>{% for r in m.ultimates.rows %}<tr{% if r.total %} class="total"{% endif %}><td>{{ r.origin }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}<td>{{ r.selected }}</td><td class="text">{{ r.chosen }}</td><td class="text">{{ r.why }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="footnote">{{ currency }}, {{ basis_label }}. Selected ultimate on the {{ m.selection_measure }} triangle ({{ spec("MT10") }}); other methods {{ spec("MT03") }}, {{ spec("MT04") }}, {{ spec("MT05") }}, {{ spec("MT07") }}. The inflation-adjusted figures are at the prices of the value date unless a future inflation is stated.</p>
+  {% if m.not_run %}<ul class="notes">{% for n in m.not_run %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+
+  {% if m.mack %}
+  <h3>Mack standard error</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Origin</th><th>Reserve, paid</th><th>Standard error, paid</th><th>CV, paid</th><th>Reserve, incurred</th><th>Standard error, incurred</th><th>CV, incurred</th></tr></thead>
+    <tbody>{% for r in m.mack.rows %}<tr{% if r.total %} class="total"{% endif %}><td>{{ r.origin }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table></div>
+  <div class="scroll"><table>
+    <thead><tr><th>Total reserve (selected)</th><th>Reserve</th><th>75th percentile</th><th>95th percentile</th><th>99.5th percentile</th><th>VaR 99.5%</th><th>TVaR 99%</th></tr></thead>
+    <tbody>{% for r in m.mack.ranges %}<tr><td>{{ r.measure }}</td><td>{{ r.reserve }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}{% if not r.cells %}<td class="text" colspan="5">not shown: the reserve is not positive or the standard error is zero</td>{% endif %}</tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="footnote">Approximation: Mack standard error with a lognormal assumption ({{ spec("MT06") }}, {{ spec("RS03") }}); where the selected reserve is not the Mack chain-ladder reserve the Mack coefficient of variation is applied to it.</p>
+  {% endif %}
+
+  {% if m.inflation %}
+  <h3>Inflation-adjusted chain ladder</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Origin</th><th>Paid, value-date prices</th><th>Ultimate, value-date prices</th><th>Unpaid, value-date prices</th><th>Paid, nominal</th><th>Ultimate, nominal</th><th>Unpaid, nominal</th></tr></thead>
+    <tbody>{% for r in m.inflation.rows %}<tr><td>{{ r.origin }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="footnote">Paid chain ladder on triangles at the prices of {{ m.inflation.value_date }} ({{ spec("MT07") }}). {% if m.inflation.future_inflation %}Future payments are re-inflated with {{ m.inflation.future_inflation }} a year (assumptions register).{% else %}No future inflation is stated, so the nominal ultimate and unpaid are empty.{% endif %}</p>
+  {% endif %}
+
+  <h3>Diagnostics</h3>
+  {% if m.diagnostics %}
+  <div class="scroll"><table>
+    <thead><tr><th>Triangle</th><th>Method</th><th>Diagnostic</th><th>Where</th><th>What</th></tr></thead>
+    <tbody>{% for d in m.diagnostics %}<tr><td class="text">{{ d.measure }}</td><td class="text">{{ d.method }}</td><td class="text">{{ d.code }}</td><td class="text">{{ d.target }}</td><td class="text">{{ d.message }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}<p>No diagnostic was raised for this group.</p>{% endif %}
+  {% if m.stability %}
+  <details>
+    <summary>Factor stability</summary>
+    {% for t in m.stability %}
+    <div class="scroll"><table>
+      <thead><tr><th>{{ t.measure|capitalize }} column</th><th>Link ratios used</th><th>Lowest</th><th>Highest</th><th>CV</th>{% for n in t.names %}<th>{{ n }}</th>{% endfor %}<th>Selected</th></tr></thead>
+      <tbody>{% for r in t.rows %}<tr><td>{{ r.column }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+    </table></div>
+    {% endfor %}
+  </details>
+  {% endif %}
 </section>
 {% endfor %}
 
@@ -175,7 +225,27 @@ nav ul { padding-left: 20px; }
   <ul>
     <li><strong>{{ spec("MT01") }} triangle construction.</strong> The state of a claim at a valuation point is its latest valuation row on or before that point. Origin {{ settings.origin_period.value }}, development {{ settings.development_period.value }}, origin axis {{ settings.origin_axis.value }}, fiscal year starting in month {{ settings.fiscal_year_start_month }}. {% if value_date %}Each amount is converted at the rate of its own date and restated to the prices of {{ value_date }} with {{ price_index }}; incurred is the accumulated restated paid flows plus the restated case reserve ({{ spec("CV01") }}, {{ spec("CV02") }}).{% else %}Amounts converted with one constant rate per currency ({{ spec("CV01") }}).{% endif %}</li>
     <li><strong>{{ spec("MT02") }} chain ladder.</strong> Average {{ chain_ladder.average.value }}, {% if chain_ladder.n_diagonals %}latest {{ chain_ladder.n_diagonals }} diagonals{% else %}all diagonals{% endif %}, high and low {% if chain_ladder.exclude_high_low %}excluded{% else %}kept{% endif %}, tail factor {{ chain_ladder.tail_factor }}, at least {{ chain_ladder.min_origins }} origins. No link ratio excluded and no factor overridden. Assumes future development follows past factors, comparable origins and no calendar-period shocks.</li>
+      <li><strong>{{ spec("MT03") }}, {{ spec("MT04") }}, {{ spec("MT05") }} premium-based methods.</strong> Earned premium per origin from {{ spec("PR02") }} on the same bases. The prior loss ratio is the register's entry or, without one, the Cape Cod ratio of the same triangle, labelled data-derived.</li>
+    <li><strong>{{ spec("MT06") }} Mack standard error.</strong> Volume-weighted factors over all diagonals, no exclusions; percentiles, value at risk and tail value at risk assume a lognormal reserve and are an approximation.</li>
+    <li><strong>{{ spec("MT07") }} inflation-adjusted chain ladder.</strong> Paid chain ladder on triangles restated to the prices of the value date; future payments stay at those prices unless a future inflation is stated.</li>
+    <li><strong>{{ spec("MT10") }} selection.</strong> Chain ladder for origins with a reported share of at least 0.5, Bornhuetter–Ferguson below it, unless the register overrides.</li>
+    <li><strong>{{ spec("MT08") }} and {{ spec("MT09") }} anomaly flags.</strong> Robust z-score on payments and case-reserve movements, isolation forest on claims; the flags are leads for a reviewer, listed with their source rows in <code>anomalies.csv</code>.</li>
   </ul>
+  <h3>Anomaly flags</h3>
+  {% if anomaly_rows %}
+  <div class="scroll"><table>
+    <thead><tr><th>Method</th><th>Segment · line</th><th>Flags</th></tr></thead>
+    <tbody>{% for r in anomaly_rows %}<tr><td class="text">{{ r.method }}</td><td class="text">{{ r.group }}</td><td>{{ r.flags }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}<p>No claim or payment was flagged.</p>{% endif %}
+  <h3>Assumptions in force</h3>
+  <details>
+    <summary>{{ assumptions|length }} judgements, those by default included</summary>
+    <div class="scroll"><table>
+      <thead><tr><th>Method</th><th>Parameter</th><th>Scope</th><th>Target</th><th>Value</th><th>Default</th><th>Who</th><th>When</th><th>Why</th></tr></thead>
+      <tbody>{% for a in assumptions %}<tr><td class="text">{{ a.method }}</td><td class="text">{{ a.name }}</td><td class="text">{{ a.scope }}</td><td class="text">{{ a.target }}</td><td class="text">{{ a.value }}</td><td class="text">{{ a.default }}</td><td class="text">{{ a.who }}</td><td class="text">{{ a.when }}</td><td class="text">{{ a.why }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </details>
 </section>
 
 <section id="reproducibility">

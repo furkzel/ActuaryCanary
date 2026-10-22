@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+import polars as pl
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 from plotly.offline import get_plotlyjs
 
@@ -20,6 +21,7 @@ from actuarycanary.manifest.run import InputRecord, SpecRecord
 from actuarycanary.methods.chain_ladder import ChainLadder, Skipped
 from actuarycanary.modules.reserving import GroupReserving, ReservingResult
 from actuarycanary.report import numbers
+from actuarycanary.report.methods_section import assumption_rows, group_methods
 from actuarycanary.structures.triangles import THIN_CELL_CLAIMS, Triangle, TriangleSet
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
@@ -40,6 +42,7 @@ class ReportContext:
     settings: dict[str, Any]
     quality_html: str = ""  # the data quality section, shown first
     modules_html: str = ""  # which modules ran and why others did not, shown after it
+    anomaly_counts: pl.DataFrame | None = None  # flags per method, segment and line (M06)
 
 
 @cache
@@ -164,6 +167,15 @@ def _notes(group: GroupReserving) -> list[str]:
     return notes
 
 
+def _anomaly_rows(counts: pl.DataFrame | None) -> list[dict[str, str]]:
+    if counts is None:
+        return []
+    return [
+        {"method": m, "group": f"{s} · {line}", "flags": numbers.count(n)}
+        for m, s, line, n in counts.iter_rows()
+    ]
+
+
 def _basis_label(triangles: TriangleSet) -> str:
     settings = triangles.settings
     return f"{settings.reinsurance_basis.value}, {settings.value_basis.value}"
@@ -179,6 +191,10 @@ def render_report(context: ReportContext) -> str:
         for measure, figure_id in ids.items():
             figures[figure_id] = _heatmap(group.triangles[measure], currency)
         totals = group.totals()
+        selected = group.selected_ultimates()
+        selected_total = (
+            None if None in selected else float(sum(v for v in selected if v is not None))
+        )
         groups.append(
             {
                 "anchor": f"group-{n}",
@@ -189,11 +205,16 @@ def render_report(context: ReportContext) -> str:
                 "triangles": {m: _triangle_table(group.triangles[m]) for m in METHODS},
                 "ages": list(group.triangles["paid"].ages),
                 "notes": _notes(group),
+                "methods": group_methods(group),
                 "summary": {
                     "paid": numbers.amount(totals.paid),
                     "incurred": numbers.amount(totals.incurred),
                     **{f"ult_{m}": numbers.amount(totals.ultimate[m]) for m in METHODS},
                     "ibnr_incurred": numbers.amount(totals.ibnr("incurred")),
+                    "ult_selected": numbers.amount(selected_total),
+                    "ibnr_selected": numbers.amount(
+                        None if selected_total is None else selected_total - totals.incurred
+                    ),
                 },
             }
         )
@@ -224,13 +245,17 @@ def render_report(context: ReportContext) -> str:
         claims_used=numbers.count(triangles.claims_used),
         proxy_claims=numbers.count(triangles.proxy_claims),
         groups=groups,
+        assumptions=assumption_rows(context.reserving.assumptions()),
+        anomaly_rows=_anomaly_rows(context.anomaly_counts),
         not_converted=not_converted,
         findings=context.findings,
         quality_html=context.quality_html,
         modules_html=context.modules_html,
         inputs=context.inputs,
         specs=context.specs,
-        spec=lambda spec_id: f"{spec_id} v{specs[spec_id].version}",
+        spec=lambda spec_id: (
+            f"{spec_id} v{specs[spec_id].version}" if spec_id in specs else spec_id
+        ),
         figures_json=json.dumps(
             figures, ensure_ascii=False, allow_nan=False, sort_keys=True
         ).replace("</", "<\\/"),

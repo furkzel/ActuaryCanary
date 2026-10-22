@@ -88,6 +88,8 @@ def write_manifest(
     findings: list[dict[str, Any]],
     mapping_profiles: list[dict[str, Any]] | None = None,
     tables_not_used: list[dict[str, Any]] | None = None,
+    assumptions: list[dict[str, Any]] | None = None,
+    randomness: list[dict[str, Any]] | None = None,
 ) -> Path:
     """Write manifest.json; no clock time, so a rerun on the same inputs writes the same file."""
     manifest = {
@@ -99,7 +101,8 @@ def write_manifest(
         "tables_not_used": tables_not_used or [],
         "specs": [asdict(s) for s in specs],
         "settings": settings,
-        "randomness": [],  # no stochastic step ran
+        "assumptions": assumptions or [],  # every judgement in force (blueprint 12)
+        "randomness": randomness or [],  # seeds of the stochastic steps
         "data_findings": findings,
         "outputs": [asdict(o) for o in outputs],
     }

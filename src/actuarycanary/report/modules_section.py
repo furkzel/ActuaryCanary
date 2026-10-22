@@ -27,7 +27,7 @@ def _environment() -> Environment:
 def headline(result: MeasureResult) -> str:
     """The value of a measure that has one value for everything it covers; otherwise empty."""
     frame = result.frame
-    if frame is None or frame.height != 1:
+    if frame is None or frame.height != 1 or "value" not in frame.columns:
         return numbers.EMPTY
     value = frame["value"][0]
     if value is None:

@@ -2,10 +2,11 @@
 
 import json
 
+from actuarycanary.modules.reserving import ReservingResult, methods_run
 from actuarycanary.modules.runner import AnalysisResult
 
 
-def analysis_json(analysis: AnalysisResult) -> str:
+def analysis_json(analysis: AnalysisResult, reserving: ReservingResult | None = None) -> str:
     modules = [
         {
             "module": m.module,
@@ -30,4 +31,11 @@ def analysis_json(analysis: AnalysisResult) -> str:
         }
         for m in analysis.modules
     ]
-    return json.dumps({"modules": modules}, indent=2, ensure_ascii=False) + "\n"
+    document: dict[str, object] = {"modules": modules}
+    if reserving is not None:
+        document["methods_run"] = methods_run(reserving)
+        document["diagnostics"] = [
+            {"segment": group[0], "line": group[1], "count": count}
+            for group, count in reserving.diagnostics_by_group().items()
+        ]
+    return json.dumps(document, indent=2, ensure_ascii=False) + "\n"
