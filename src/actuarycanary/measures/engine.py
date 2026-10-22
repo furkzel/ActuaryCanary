@@ -178,7 +178,7 @@ def run_measure(
     """One measure for one request: values, or the reason there are none."""
     spec = catalogue.measures[measure_id]
     if measure_id in METHOD_OUTPUTS:
-        table = inputs.methods.measure(measure_id)
+        table = inputs.methods.measure(measure_id, request.basis.label())
         if isinstance(table, NotAvailable):
             return _unavailable(spec, inputs, request, table.reason)
         return MeasureResult(

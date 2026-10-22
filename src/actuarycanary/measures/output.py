@@ -11,7 +11,7 @@ import polars as pl
 
 from actuarycanary.measures.model import NOTE, REFS_PREFIX, MeasureInputs, MeasureResult
 
-EXTRA_DIMENSIONS = ("count_type", "side", "measure", "currency", "components")
+EXTRA_DIMENSIONS = ("count_type", "side", "measure", "method", "currency", "components")
 VALUES_COLUMNS = (
     "measure",
     "version",

@@ -27,7 +27,7 @@ def _ae_triangles(incurred: list[list[float]]) -> TriangleSet:
             (12, 24),
             cells,
             np.full(cells.shape, 5),
-            np.zeros(cells.shape, int),
+            np.array([[0, 1]]),
             points,
         )
 

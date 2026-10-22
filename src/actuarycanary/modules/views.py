@@ -37,7 +37,7 @@ DEFAULT_VIEWS: dict[str, tuple[tuple[str, ...], ...]] = {
     "RT01": ((*SEGMENT_LINE, "origin_period"),),
     "RT02": ((*SEGMENT_LINE, "origin_period"),),
     "AE01": ((*SEGMENT_LINE, "origin_period"),),
-    "RS01": ((),),
-    "RS02": ((),),
-    "RS03": ((),),
+    "RS01": ((*SEGMENT_LINE, "development_period"),),
+    "RS02": ((*SEGMENT_LINE, "origin_period"),),
+    "RS03": ((*SEGMENT_LINE, "origin_period"),),
 }

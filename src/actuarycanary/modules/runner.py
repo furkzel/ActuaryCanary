@@ -159,6 +159,7 @@ def run_module(
     reinsurance: ReinsuranceBasis,
     value: ValueBasis,
     cache: dict[tuple[str, MeasureRequest], MeasureResult],
+    notes: Sequence[str] = (),
 ) -> ModuleOutcome:
     built, missing = _methods(module, inputs)
     status = _status(quality, module.id)
@@ -201,7 +202,7 @@ def run_module(
                 result = run_measure(catalogue, inputs, measure_id, request)
                 cache[key] = replace(result, notes=(note, *result.notes)) if note else result
             results.append(cache[key])
-    reasons = _reasons(results, missing, status)
+    reasons = [*_reasons(results, missing, status), *notes]
     # the methods of the module that exist (MT01, MT02) have run in the pipeline already
     if not any(r.available for r in results) and not built:
         return ModuleOutcome(
@@ -245,11 +246,26 @@ def run_modules(
     reinsurance: ReinsuranceBasis = ReinsuranceBasis.GROSS,
     value: ValueBasis = ValueBasis.NOMINAL,
     only: Mapping[str, object] | None = None,
+    cache: dict[tuple[str, MeasureRequest], MeasureResult] | None = None,
+    notes: Mapping[str, Sequence[str]] | None = None,
 ) -> AnalysisResult:
-    """Run every module of the catalogue (phase 1) in module order."""
-    cache: dict[tuple[str, MeasureRequest], MeasureResult] = {}
+    """Run every module of the catalogue (phase 1) in module order. `cache` holds measures
+    already computed; `notes` are what a module's methods report, by module ID: a module with
+    a note is limited."""
+    cache = {} if cache is None else cache
+    notes = notes or {}
     outcomes = [
-        run_module(module, catalogue, inputs, quality, period, reinsurance, value, cache)
+        run_module(
+            module,
+            catalogue,
+            inputs,
+            quality,
+            period,
+            reinsurance,
+            value,
+            cache,
+            notes.get(module.id, ()),
+        )
         for module in sorted(catalogue.modules.values(), key=lambda m: m.id)
         if only is None or module.id in only
     ]

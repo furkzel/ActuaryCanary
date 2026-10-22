@@ -21,10 +21,10 @@ class Selected:
     def __init__(self, selection: Selection | NotAvailable) -> None:
         self._selection = selection
 
-    def selection(self, valuation_date: date) -> Selection | NotAvailable:
+    def selection(self, valuation_date: date, basis: str = "") -> Selection | NotAvailable:
         return self._selection
 
-    def measure(self, measure_id: str) -> pl.DataFrame | NotAvailable:
+    def measure(self, measure_id: str, basis: str = "") -> pl.DataFrame | NotAvailable:
         return NotAvailable("not part of the stub")
 
     def built(self) -> frozenset[str]:

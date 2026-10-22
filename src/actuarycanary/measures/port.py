@@ -26,20 +26,26 @@ class Selection:
 
     `ultimates` is the selected ultimate by (segment, line, origin label) and `cdfs` the
     cumulative factors to ultimate by (measure, segment, line), then by development age in
-    months, for the measures "paid" and "incurred".
+    months, for the measures "paid" and "incurred". `expected` is the ultimate AE01 measures
+    development against where it is not the selected one: the prior ultimate of an origin
+    whose selection was Bornhuetter–Ferguson (record 0056).
     """
 
     valuation_date: date
     ultimates: Mapping[tuple[str, str, str], float] = field(default_factory=dict)
     cdfs: Mapping[tuple[str, str, str], Mapping[int, float]] = field(default_factory=dict)
+    expected: Mapping[tuple[str, str, str], float] = field(default_factory=dict)
 
 
 class MethodsPort(Protocol):
-    def selection(self, valuation_date: date) -> Selection | NotAvailable:
+    """`basis` is the label of the basis the measure is asked on; a port whose results are on
+    another basis answers "not available" instead of mixing them. Empty: any."""
+
+    def selection(self, valuation_date: date, basis: str = "") -> Selection | NotAvailable:
         """The selection as of `valuation_date`."""
         ...
 
-    def measure(self, measure_id: str) -> pl.DataFrame | NotAvailable:
+    def measure(self, measure_id: str, basis: str = "") -> pl.DataFrame | NotAvailable:
         """The table of a measure that is a method output (RS01, RS02, RS03)."""
         ...
 
@@ -51,10 +57,10 @@ class MethodsPort(Protocol):
 class NoMethods:
     """The port before the methods exist."""
 
-    def selection(self, valuation_date: date) -> Selection | NotAvailable:
+    def selection(self, valuation_date: date, basis: str = "") -> Selection | NotAvailable:
         return NotAvailable(NO_METHODS)
 
-    def measure(self, measure_id: str) -> pl.DataFrame | NotAvailable:
+    def measure(self, measure_id: str, basis: str = "") -> pl.DataFrame | NotAvailable:
         return NotAvailable(NO_METHODS)
 
     def built(self) -> frozenset[str]:

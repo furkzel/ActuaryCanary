@@ -3,6 +3,7 @@ versus expected (blueprint 8.1, decision 0051). Method outputs come through the 
 
 from collections.abc import Sequence
 
+import numpy as np
 import polars as pl
 
 from actuarycanary.convert.bases import ReinsuranceBasis
@@ -131,7 +132,7 @@ def loss_ratio(
         pl.col("incurred").fill_null(0.0),
         pl.col("earned_premium").fill_null(0.0),
     )
-    joined, ultimate_note = _with_ultimate(joined, inputs, keys, calendar)
+    joined, ultimate_note = _with_ultimate(joined, inputs, keys, calendar, request.basis.label())
     if ultimate_note:
         notes.append(ultimate_note)
     positive = pl.col("earned_premium") > 0
@@ -165,12 +166,12 @@ def loss_ratio(
 
 
 def _with_ultimate(
-    frame: pl.DataFrame, inputs: MeasureInputs, keys: Sequence[str], calendar: bool
+    frame: pl.DataFrame, inputs: MeasureInputs, keys: Sequence[str], calendar: bool, basis: str
 ) -> tuple[pl.DataFrame, str]:
     """Add the selected ultimate (MT10, through the port) to an accident-view frame."""
     if calendar:
         return frame, "the ultimate ratio exists in the accident view only"
-    selection = inputs.methods.selection(inputs.cut_off)
+    selection = inputs.methods.selection(inputs.cut_off, basis)
     if isinstance(selection, NotAvailable):
         return frame, f"ultimate ratio not available: {selection.reason}"
     values = pl.DataFrame(
@@ -265,7 +266,7 @@ def actual_versus_expected(
         return Missing("no triangles were built (MT01)")
     v1 = inputs.cut_off
     v0 = earlier_valuation(inputs, request)
-    selection = inputs.methods.selection(v0)
+    selection = inputs.methods.selection(v0, request.basis.label())
     if isinstance(selection, NotAvailable):
         return Missing(f"the selection at {v0} is not available: {selection.reason}")
     points = triangles.triangles[0].valuation_points
@@ -280,17 +281,20 @@ def actual_versus_expected(
             if curve is None:
                 continue
             for i, origin in enumerate(triangle.origins):
-                if not triangle.observed[i, column] or not triangle.observed[i, -1]:
-                    continue
-                a0, a1 = triangle.ages[column], triangle.ages[-1]
+                at_v0 = np.flatnonzero(triangle.calendar[i] == column)
+                if not len(at_v0):
+                    continue  # the origin had not started at v0
+                j0, j1 = int(at_v0[0]), int(triangle.latest_index[i])
+                a0, a1 = triangle.ages[j0], triangle.ages[j1]
                 if (
                     a0 not in curve
                     or a1 not in curve
                     or (group[0], group[1], origin) not in selection.ultimates
                 ):
                     continue
-                prior = selection.ultimates[(group[0], group[1], origin)]
-                actual = float(triangle.cumulative[i, -1] - triangle.cumulative[i, column])
+                key = (group[0], group[1], origin)
+                prior = selection.expected.get(key, selection.ultimates[key])
+                actual = float(triangle.cumulative[i, j1] - triangle.cumulative[i, j0])
                 expected = prior * (1 / curve[a1] - 1 / curve[a0])
                 rows.append(
                     {
