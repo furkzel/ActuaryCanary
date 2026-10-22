@@ -93,6 +93,31 @@ def test_dv_clv_03_and_04_currency_and_status_classes() -> None:
     assert _rules(feed) == {"DV-CLV-03": 2, "DV-CLV-04": 2}
 
 
+def test_dv_clv_03_a_currency_is_taken_from_the_one_valid_currency_of_the_claim() -> None:
+    feed = _valuations(
+        _valuation("1", date(2024, 1, 31), currency="USD"),
+        _valuation("1", date(2024, 2, 29), currency=None),
+        _valuation("1", date(2024, 3, 31), currency="us"),
+        _valuation("1", date(2024, 4, 30), currency="USD"),
+    )
+    assert feed.frame["currency"].to_list() == ["USD"] * 4
+    taken = [f for f in feed.findings if f.rule == "DV-CLV-03"]
+    assert [(f.count, f.rows, UNKNOWN in f.message) for f in taken] == [(2, (3, 4), False)]
+
+
+def test_dv_clv_03_a_claim_without_exactly_one_valid_currency_stays_unknown() -> None:
+    feed = _valuations(
+        _valuation("1", date(2024, 1, 31), currency="USD"),
+        _valuation("1", date(2024, 2, 29), currency="EUR"),
+        _valuation("1", date(2024, 3, 31), currency=None),
+        _valuation("2", date(2024, 1, 31), currency=None),
+        _valuation("2", date(2024, 2, 29), currency="xx"),
+    )
+    assert feed.frame["currency"].to_list() == ["USD", "EUR", UNKNOWN, UNKNOWN, UNKNOWN]
+    assert _rules(feed)["DV-CLV-03"] == 3
+    assert all(UNKNOWN in f.message for f in feed.findings if f.rule == "DV-CLV-03")
+
+
 def test_dv_clv_02_empty_amounts_are_kept_and_listed() -> None:
     feed = _valuations(_valuation("1", date(2024, 1, 31), case_reserve=None))
     assert feed.frame.height == 1

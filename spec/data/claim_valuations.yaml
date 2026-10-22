@@ -1,5 +1,5 @@
 id: claim_valuations
-version: 1.1.0
+version: 1.2.0
 title_en: Claim valuations
 title_tr: Hasar değerlemeleri
 status: reviewed
@@ -81,8 +81,10 @@ validation:
     fields: [claim_valuations.currency]
     rule: currency is a valid ISO 4217 code.
     action: >-
-      The row is kept in original-currency views under currency UNKNOWN and excluded from
-      converted views (CV01).
+      A row with an empty or invalid currency takes the currency of its claim and is flagged
+      when every other row of that claim that carries a valid currency carries the same single
+      one. Otherwise the row is kept in original-currency views under currency UNKNOWN and
+      excluded from converted views (CV01).
   - id: DV-CLV-04
     dimension: validity
     severity: WARNING
@@ -107,10 +109,7 @@ validation:
     dimension: consistency
     severity: WARNING
     fields: [claim_valuations.paid_to_date]
-    rule: >-
-      paid_to_date never decreases between consecutive valuations of a claim, unless
-      subrogation_to_date plus salvage_to_date rose by at least the decrease at that valuation
-      (a recorded recovery).
+    rule: paid_to_date never decreases between consecutive valuations of a claim.
     action: Values are kept as given, so the increment is negative; the decrease is listed.
   - id: DV-CLV-08
     dimension: reasonableness
@@ -197,3 +196,10 @@ change_log:
     change: >-
       DV-CLV-07 allows a decrease that a recorded recovery explains; new rule DV-CLV-15 for
       payments far above the claim's earlier incurred amount.
+  - version: 1.2.0
+    date: 2026-10-22
+    change: >-
+      Owner-approved amendment after P06 and P07. DV-CLV-07 is back to its original wording:
+      there is no exemption for recoveries, because paid_to_date excludes recoveries by
+      definition. DV-CLV-03: an empty or invalid currency takes the single valid currency of
+      the other rows of its claim and is flagged.

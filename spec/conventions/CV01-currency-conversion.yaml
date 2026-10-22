@@ -1,5 +1,5 @@
 id: CV01
-version: 1.0.0
+version: 1.1.0
 title_en: Currency conversion
 title_tr: Kur çevrimi
 status: reviewed
@@ -17,7 +17,9 @@ rules:
     Flows (premium transactions, expenses, and increments of paid, recoveries, allocated
     expense and ceded paid) are converted at the FX_SPOT rate of their booking date. A flow
     derived from two claim valuations (CV04) has only a booking month and uses the
-    FX_PERIOD_AVERAGE rate of that month.
+    FX_PERIOD_AVERAGE rate of that month. When that rate is missing, the FX_PERIOD_END rate
+    of the same month is used and flagged; when that is missing too, the amount is not
+    converted and is listed.
   - >-
     When the FX_SPOT rate of the booking date is missing, the nearest earlier FX_SPOT rate
     within max_lookback_days is used and flagged; otherwise the FX_PERIOD_AVERAGE rate of the
@@ -70,3 +72,9 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-10-22
+    change: >-
+      Owner-approved amendment after P06 and P07. A flow derived from two claim valuations
+      falls back to the FX_PERIOD_END rate of its booking month when the FX_PERIOD_AVERAGE
+      rate is missing, and is flagged; without that rate too it is not converted and is listed.

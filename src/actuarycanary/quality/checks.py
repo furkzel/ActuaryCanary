@@ -202,14 +202,7 @@ def paid_never_decreases(ctx: Context) -> Outcome | None:  # DV-CLV-07
     steps = _claim_steps(frame).filter(
         pl.col("paid_to_date").is_not_null() & pl.col("_previous_paid_to_date").is_not_null()
     )
-    recoveries = [
-        pl.col(n).fill_null(0.0) - pl.col(f"_previous_{n}").fill_null(0.0)
-        for n in ("subrogation_to_date", "salvage_to_date")
-        if n in frame.columns
-    ]
-    recovered = pl.sum_horizontal(recoveries) if recoveries else pl.lit(0.0)
-    decrease = pl.col("_previous_paid_to_date") - pl.col("paid_to_date")
-    bad = steps.filter((decrease > 0) & (recovered < decrease))
+    bad = steps.filter(pl.col("paid_to_date") < pl.col("_previous_paid_to_date"))
     return _outcome("DV-CLV-07", "claim_valuations", steps.height, bad)
 
 

@@ -167,19 +167,44 @@ def _claim_valuation_rules(
         pl.when(unmapped).then(pl.lit(UNMAPPED)).otherwise(pl.col("status")).alias("status")
     )
 
-    invalid = pl.col("currency").is_null() | ~pl.col("currency").str.contains(CURRENCY_CODE.pattern)
+    # DV-CLV-03: an empty or invalid currency takes the one valid currency the other rows of
+    # its claim carry; without exactly one, it becomes UNKNOWN
+    invalid = _invalid_currency()
+    valid_currencies = (
+        frame.filter(~invalid)
+        .group_by("claim_id")
+        .agg(pl.col("currency").unique().alias("_claim_currencies"))
+        .filter(pl.col("_claim_currencies").list.len() == 1)
+        .select("claim_id", pl.col("_claim_currencies").list.first().alias("_claim_currency"))
+    )
+    frame = frame.join(valid_currencies, on="claim_id", how="left", maintain_order="left")
+    taken = invalid & pl.col("_claim_currency").is_not_null()
+    found.append(
+        finding(
+            "claim_valuations",
+            "DV-CLV-03",
+            "WARNING",
+            "empty or invalid currency taken from the other rows of the claim",
+            frame.filter(taken),
+        )
+    )
     found.append(
         finding(
             "claim_valuations",
             "DV-CLV-03",
             "WARNING",
             f"empty or invalid currency becomes {UNKNOWN}",
-            frame.filter(invalid),
+            frame.filter(invalid & ~taken),
         )
     )
     frame = frame.with_columns(
-        pl.when(invalid).then(pl.lit(UNKNOWN)).otherwise(pl.col("currency")).alias("currency")
-    )
+        pl.when(taken)
+        .then(pl.col("_claim_currency"))
+        .when(invalid)
+        .then(pl.lit(UNKNOWN))
+        .otherwise(pl.col("currency"))
+        .alias("currency")
+    ).drop("_claim_currency")
 
     # DV-CLV-06: identical duplicates kept once; conflicting ones keep the later given date,
     # then the later source row

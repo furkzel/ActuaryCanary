@@ -2,7 +2,8 @@
 
 Each amount is converted with the rate type that matches its nature: flows at the FX_SPOT
 rate of their booking date, flows derived from two claim valuations at the FX_PERIOD_AVERAGE
-rate of their booking month, stocks at the FX_PERIOD_END rate of the valuation month, and
+rate of their booking month (the FX_PERIOD_END rate of that month when the average is
+missing), stocks at the FX_PERIOD_END rate of the valuation month, and
 development analysis at one constant rate. A rate that had to be replaced by a fallback is
 flagged; an amount without any rate is not converted and is reported apart.
 """
@@ -26,6 +27,7 @@ MAX_LOOKBACK_DAYS = 7  # CV01 max_lookback_days
 FLAG_EARLIER_SPOT = "earlier FX_SPOT rate"
 FLAG_AVERAGE = "FX_PERIOD_AVERAGE instead of FX_SPOT"
 FLAG_SPOT_FOR_END = "FX_SPOT instead of FX_PERIOD_END"
+FLAG_END_FOR_AVERAGE = "FX_PERIOD_END instead of FX_PERIOD_AVERAGE"
 
 
 class Rule(StrEnum):
@@ -85,7 +87,7 @@ def lookup_rates(
         end = market.pair(FX_PERIOD_END, str(currency), target)
         steps: list[tuple[pl.DataFrame | None, str, str]] = {
             Rule.FLOW: [(spot, "asof", FLAG_EARLIER_SPOT), (average, "month", FLAG_AVERAGE)],
-            Rule.DERIVED_FLOW: [(average, "month", "")],
+            Rule.DERIVED_FLOW: [(average, "month", ""), (end, "month", FLAG_END_FOR_AVERAGE)],
             Rule.STOCK: [(end, "month", ""), (spot, "asof", FLAG_SPOT_FOR_END)],
         }[rule]
         for table, by, flag in steps:

@@ -219,7 +219,9 @@ def restate_rows(
     keys = rows.select("currency", pl.col("valuation_date").alias("day"))
     flow_rates = lookup_rates(
         basis.market, basis.reporting_currency, keys, Rule.DERIVED_FLOW, basis.max_lookback_days
-    ).select("currency", "day", pl.col("rate").alias("flow_rate"))
+    ).select(
+        "currency", "day", pl.col("rate").alias("flow_rate"), pl.col("flag").alias("flow_flag")
+    )
     stock_rates = lookup_rates(
         basis.market, basis.reporting_currency, keys, Rule.STOCK, basis.max_lookback_days
     ).select(
@@ -280,8 +282,16 @@ def restate_rows(
             pl.col("flow_rate").is_null(),
             "CV01",
             "WARNING",
-            "no FX_PERIOD_AVERAGE rate for the booking month: flows not converted, claim left "
-            "out of the inflation-adjusted triangles from this row on",
+            "no FX_PERIOD_AVERAGE or FX_PERIOD_END rate for the booking month: flows not "
+            "converted, claim left out of the inflation-adjusted triangles from this row on",
+        ),
+        _note(
+            data,
+            pl.col("flow_flag") != "",
+            "CV01",
+            "INFO",
+            "FX_PERIOD_END rate used because the FX_PERIOD_AVERAGE rate of the booking month "
+            "is missing",
         ),
         _note(
             data,

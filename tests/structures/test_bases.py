@@ -221,6 +221,34 @@ def test_cv02_a_flow_that_cannot_be_converted_keeps_the_claim_out_from_that_row_
     assert result.not_converted["currency"].to_list() == ["USD"]
 
 
+def test_cv01_a_missing_average_rate_is_replaced_by_the_period_end_rate_and_flagged() -> None:
+    """Without the USD average of January, B's first flow takes the January period-end rate
+    (31 instead of 30), so B stays in the adjusted triangles; the note says so."""
+    rows = [
+        r
+        for r in MARKET_ROWS
+        if not (r[0] == "USD/TRY" and r[1] == "FX_PERIOD_AVERAGE" and r[2] == date(2024, 1, 31))
+    ]
+    result = build_triangles(
+        valuations(),
+        None,
+        TriangleSettings(value_basis=ValueBasis.INFLATION_ADJUSTED, **MONTHLY),
+        RATES,
+        "TRY",
+        market=market(rows),
+        price_index="CPI_TR",
+    )
+    complete = _build(value="INFLATION_ADJUSTED")
+    assert result.not_converted.height == 0
+    # B's January flow of 10 USD: 31 instead of 30 TRY, restated by 1.32
+    assert result.get("paid", GROUP).latest[0] == pytest.approx(
+        complete.get("paid", GROUP).latest[0] + 10.0 * 1.0 * 1.32
+    )
+    assert result.get("paid", GROUP).latest[1] == complete.get("paid", GROUP).latest[1]
+    assert [(f.rule, f.severity, f.count) for f in result.findings] == [("CV01", "INFO", 1)]
+    assert "FX_PERIOD_END" in result.findings[0].message
+
+
 def test_cv02_the_value_date_chooses_the_prices() -> None:
     february = _build(value="INFLATION_ADJUSTED", value_date=date(2024, 2, 29))
     march = _build(value="INFLATION_ADJUSTED")

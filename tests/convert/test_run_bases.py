@@ -84,10 +84,15 @@ def test_bases_change_the_run_id_and_the_numbers(tmp_path: Path) -> None:
 def test_currency_conversion_brings_foreign_claims_into_the_triangles(tmp_path: Path) -> None:
     apart = _run(tmp_path, "apart")
     converted = _run(tmp_path, "converted", True)
-    assert apart.reserving.triangles.not_converted["currency"].to_list() == ["UNKNOWN", "USD"]
-    assert converted.reserving.triangles.not_converted["currency"].to_list() == ["UNKNOWN"]
+    # DV-CLV-03 (1.2.0): the four empty currencies of the fixture take the currency of their claim
+    assert apart.reserving.triangles.not_converted["currency"].to_list() == ["USD"]
+    assert converted.reserving.triangles.not_converted["currency"].to_list() == []
+    # market is read for the quality checks in every run (P06), so its spec is listed in both;
+    # only the conversion differs
     assert "market" in {s["id"] for s in _manifest(converted)["specs"]}
-    assert "market" not in {s["id"] for s in _manifest(apart)["specs"]}
+    assert "market" in {s["id"] for s in _manifest(apart)["specs"]}
+    assert _manifest(converted)["settings"]["bases"]["currency_conversion"] == "market"
+    assert _manifest(apart)["settings"]["bases"]["currency_conversion"] == "none"
 
 
 @pytest.mark.slow
