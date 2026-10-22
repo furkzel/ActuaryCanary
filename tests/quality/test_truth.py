@@ -42,9 +42,9 @@ def messy(tmp_path_factory: pytest.TempPathFactory) -> QualityReport:
     return _quality("messy_headers", tmp_path_factory.mktemp("messy"))
 
 
-@pytest.fixture(scope="module")
-def baseline(tmp_path_factory: pytest.TempPathFactory) -> QualityReport:
-    return _quality("baseline", tmp_path_factory.mktemp("baseline"))
+@pytest.fixture
+def baseline(default_run: RunResult) -> QualityReport:
+    return default_run.quality
 
 
 def _found(report: QualityReport, concept: str, rule: str) -> tuple[int, set[tuple[str, int]]]:
@@ -52,6 +52,7 @@ def _found(report: QualityReport, concept: str, rule: str) -> tuple[int, set[tup
     return sum(f.count for f in hits), {(r.file, r.row) for f in hits for r in f.refs}
 
 
+@pytest.mark.slow
 def test_messy_headers_tiny_every_injected_fault_is_found(messy: QualityReport) -> None:
     faults = _faults("messy_headers")
     assert set(faults) == set(RULE_OF_FAULT)

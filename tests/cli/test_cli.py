@@ -27,16 +27,14 @@ BASELINE = Path(__file__).parents[1] / "fixtures" / "synthetic" / "baseline"
 
 
 @pytest.mark.integration
-def test_run_writes_report_and_manifest(tmp_path: Path) -> None:
-    result = runner.invoke(app, ["run", str(BASELINE), "--out", str(tmp_path)])
-    assert result.exit_code == 0, result.output
-    assert "Run id" in result.output
+def test_run_writes_report_and_manifest(cli_run: tuple[Path, str]) -> None:
+    folder, output = cli_run
+    assert "Run id" in output
     # one line counts the method diagnostics per line of business, wrapped for 80 columns
-    start = result.output.index("Method diagnostics:")
-    block = result.output[start : result.output.index("data rules touched")].splitlines()
+    start = output.index("Method diagnostics:")
+    block = output[start : output.index("data rules touched")].splitlines()
     assert "MOTOR_TPL" in " ".join(block) and all(len(line) <= 80 for line in block)
-    assert len(list(tmp_path.glob("*/report.html"))) == 1
-    assert len(list(tmp_path.glob("*/manifest.json"))) == 1
+    assert (folder / "report.html").exists() and (folder / "manifest.json").exists()
 
 
 def test_run_without_claim_valuations_fails_with_a_message(tmp_path: Path) -> None:
@@ -84,6 +82,7 @@ def test_new_layouts_without_answers_or_yes_stop_with_a_message(tmp_path: Path) 
 
 
 @pytest.mark.integration
+@pytest.mark.slow
 def test_yes_uses_the_proposals_without_saving_or_asking(tmp_path: Path) -> None:
     arguments = ["run", str(MESSY), "--out", str(tmp_path / "out"), "--yes"]
     result = runner.invoke(app, [*arguments, "--profiles", str(tmp_path / "profiles")])
@@ -94,6 +93,7 @@ def test_yes_uses_the_proposals_without_saving_or_asking(tmp_path: Path) -> None
 
 
 @pytest.mark.integration
+@pytest.mark.slow
 def test_edits_are_saved_in_the_profile(tmp_path: Path) -> None:
     folder = tmp_path / "in"
     folder.mkdir()
@@ -110,6 +110,7 @@ def test_edits_are_saved_in_the_profile(tmp_path: Path) -> None:
 
 
 @pytest.mark.integration
+@pytest.mark.slow
 def test_run_lists_which_modules_ran_and_why_others_did_not(tmp_path: Path) -> None:
     folder = tmp_path / "in"
     folder.mkdir()

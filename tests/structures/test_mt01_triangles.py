@@ -11,7 +11,7 @@ from typing import Any
 import numpy as np
 import polars as pl
 import pytest
-from hypothesis import given
+from hypothesis import given, settings
 from hypothesis import strategies as st
 from pydantic import ValidationError
 
@@ -209,6 +209,7 @@ def _as_of_total(valuations: pl.DataFrame, column: str) -> float:
 _DEVELOPMENT = st.sampled_from([Period.MONTH, Period.QUARTER, Period.YEAR])
 
 
+@settings(max_examples=8)  # fewer than the profile: an example builds triangles, 0.05 s
 @given(_histories(), _DEVELOPMENT)
 def test_property_latest_diagonal_and_counts(valuations: pl.DataFrame, development: Period) -> None:
     result = _build(valuations=valuations, development=development, with_claims=False)
@@ -220,6 +221,7 @@ def test_property_latest_diagonal_and_counts(valuations: pl.DataFrame, developme
         assert (np.diff(counts, axis=1) >= 0).all()  # reported counts never decrease
 
 
+@settings(max_examples=8)  # fewer than the profile: an example builds triangles, 0.05 s
 @given(_histories(), _DEVELOPMENT, st.randoms())
 def test_property_row_order_does_not_matter(
     valuations: pl.DataFrame, development: Period, random: Any

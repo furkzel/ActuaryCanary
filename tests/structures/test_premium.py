@@ -10,7 +10,7 @@ from datetime import date, timedelta
 
 import polars as pl
 import pytest
-from hypothesis import given
+from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from actuarycanary.convert.bases import BasisUnavailableError, ReinsuranceBasis, ValueBasis
@@ -313,6 +313,7 @@ def _books(draw: st.DrawFn) -> tuple[pl.DataFrame, pl.DataFrame]:
     return _premiums(rows), policies
 
 
+@settings(max_examples=10)  # fewer than the profile: an example earns premium by day
 @given(book=_books(), period=st.sampled_from(list(Period)))
 def test_pr02_property_earned_over_all_periods_equals_written_for_expired_policies(
     book: tuple[pl.DataFrame, pl.DataFrame], period: Period

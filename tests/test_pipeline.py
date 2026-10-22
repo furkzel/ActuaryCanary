@@ -21,24 +21,12 @@ BASELINE = Path(__file__).parent / "fixtures" / "synthetic" / "baseline"
 pytestmark = pytest.mark.integration
 
 
-@pytest.fixture(scope="module")
-def cache(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    return tmp_path_factory.mktemp("cache")
-
-
-@pytest.fixture(scope="module")
-def default_run(tmp_path_factory: pytest.TempPathFactory, cache: Path) -> RunResult:
-    """The default run of the tiny baseline, made once for the tests that compare against it."""
-    return run(BASELINE, tmp_path_factory.mktemp("default"), cache_dir=cache)
-
-
 def _manifest(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def test_baseline_tiny_runs_and_reproduces(
-    tmp_path: Path, cache: Path, default_run: RunResult
-) -> None:
+@pytest.mark.slow
+def test_baseline_tiny_reproduces(tmp_path: Path, cache: Path, default_run: RunResult) -> None:
     first = default_run
     second = run(BASELINE, tmp_path / "b", cache_dir=cache)
     assert first.run_id == second.run_id
@@ -47,6 +35,12 @@ def test_baseline_tiny_runs_and_reproduces(
     one, two = _manifest(first.manifest), _manifest(second.manifest)
     assert one["outputs"] == two["outputs"]
     assert first.manifest.read_bytes() == second.manifest.read_bytes()
+
+
+def test_baseline_tiny_outputs_inputs_and_groups(default_run: RunResult) -> None:
+    first = default_run
+    assert first.folder.name == first.run_id
+    one = _manifest(first.manifest)
     assert [o["name"] for o in one["outputs"]] == [
         "report.html",
         "quality.json",
@@ -84,6 +78,7 @@ def test_baseline_tiny_runs_and_reproduces(
     }
 
 
+@pytest.mark.slow
 def test_settings_change_the_run_id(tmp_path: Path, cache: Path, default_run: RunResult) -> None:
     yearly = default_run
     quarterly = run(
@@ -96,6 +91,7 @@ def test_settings_change_the_run_id(tmp_path: Path, cache: Path, default_run: Ru
     assert quarterly.reserving.groups[0].triangles["paid"].ages[:2] == (3, 6)
 
 
+@pytest.mark.slow
 def test_claim_valuations_alone_use_proxy_origins(tmp_path: Path, cache: Path) -> None:
     folder = tmp_path / "in"
     folder.mkdir()
@@ -151,12 +147,14 @@ def test_messy_layout_gives_the_baseline_results(tmp_path: Path, cache: Path) ->
     assert manifest["tables_not_used"] == []  # every sheet is read now
 
 
-def test_manifest_records_the_cut_off_used_next_to_the_setting(
-    tmp_path: Path, cache: Path, default_run: RunResult
-) -> None:
+def test_manifest_records_the_cut_off_used_next_to_the_setting(default_run: RunResult) -> None:
     latest = _manifest(default_run.manifest)
     assert latest["settings"]["triangles"]["cut_off"] is None
     assert latest["settings"]["triangles"]["cut_off_used"] == "2025-12-31"
+
+
+@pytest.mark.slow
+def test_a_given_cut_off_is_recorded_as_given_and_as_used(tmp_path: Path, cache: Path) -> None:
     chosen = RunSettings(triangles=TriangleSettings(cut_off=date(2024, 12, 15)))
     given = _manifest(run(BASELINE, tmp_path / "b", chosen, cache_dir=cache).manifest)
     assert given["settings"]["triangles"]["cut_off"] == "2024-12-15"
@@ -201,17 +199,25 @@ def test_profiles_are_saved_reused_and_an_edit_changes_the_run_id(
 
 
 def test_default_run_converts_foreign_currencies_when_the_folder_has_market_data(
-    tmp_path: Path, cache: Path, default_run: RunResult
+    default_run: RunResult,
 ) -> None:
-    """Decision 0052: conversion is on by default; `use_market=False` brings back the apart view."""
+    """Decision 0052: conversion is on by default."""
     assert _manifest(default_run.manifest)["settings"]["bases"]["currency_conversion"] == "market"
     assert default_run.reserving.triangles.not_converted.height == 0
+
+
+@pytest.mark.slow
+def test_without_conversion_foreign_currencies_are_reported_apart(
+    tmp_path: Path, cache: Path, default_run: RunResult
+) -> None:
+    """`use_market=False` brings back the apart view."""
     apart = run(BASELINE, tmp_path / "a", RunSettings(use_market=False), cache_dir=cache)
     assert apart.reserving.triangles.not_converted.height > 0
     assert _manifest(apart.manifest)["settings"]["bases"]["currency_conversion"] == "none"
     assert apart.run_id != default_run.run_id
 
 
+@pytest.mark.slow
 def test_without_a_market_sheet_nothing_is_converted_and_says_so(
     tmp_path: Path, cache: Path
 ) -> None:
@@ -222,9 +228,7 @@ def test_without_a_market_sheet_nothing_is_converted_and_says_so(
     assert _manifest(result.manifest)["settings"]["bases"]["currency_conversion"] == "none"
 
 
-def test_run_says_which_modules_ran_and_why_others_did_not(
-    tmp_path: Path, cache: Path, default_run: RunResult
-) -> None:
+def test_run_says_which_modules_ran_and_why_others_did_not(default_run: RunResult) -> None:
     states = {m.module: m.state.value for m in default_run.analysis.modules}
     assert states == {
         "M01": "ran",
@@ -241,8 +245,12 @@ def test_run_says_which_modules_ran_and_why_others_did_not(
     assert default_run.analysis.get("M04").methods_missing == ()
     listed = json.loads((default_run.folder / "modules.json").read_text(encoding="utf-8"))
     assert [m["module"] for m in listed["modules"]] == ["M01", "M02", "M03", "M04", "M05", "M06"]
-    assert 'id="modules"' in default_run.report.read_text(encoding="utf-8")
 
+
+@pytest.mark.slow
+def test_modules_without_their_files_are_skipped_with_the_reason(
+    tmp_path: Path, cache: Path
+) -> None:
     folder = tmp_path / "in"
     folder.mkdir()
     shutil.copyfile(BASELINE / "claim_valuations.xlsx", folder / "claim_valuations.xlsx")
@@ -326,9 +334,6 @@ def test_assumptions_diagnostics_and_anomalies_are_written_and_listed_in_the_man
     assert anomalies.height == default_run.anomalies.flags.height > 0
     assert anomalies.filter(pl.col("rows").is_null()).height == 0  # every flag names its rows
     assert {"MT08", "MT09"} == set(anomalies["method"])
-    html = default_run.report.read_text(encoding="utf-8")
-    for heading in ("Ultimates by method", "Diagnostics", "Assumptions in force", "Anomaly flags"):
-        assert heading in html
 
 
 @pytest.mark.slow
@@ -357,3 +362,12 @@ def test_a_different_assumption_gives_a_different_run_id(
     assert _csv(changed, "assumptions.csv").filter(pl.col("who") == "reviewer").height == 8
     ultimate = lambda r: r.reserving.groups[0].chain_ladder["paid"].ultimate  # noqa: E731
     assert ultimate(changed)[0] == pytest.approx(ultimate(default_run)[0] * 1.05)
+
+
+@pytest.mark.slow
+def test_the_report_shows_the_modules_and_the_method_tables(default_run: RunResult) -> None:
+    """Reading the 5 MB page (plotly is inlined) takes over a second on a scanned disk."""
+    html = default_run.report.read_text(encoding="utf-8")
+    assert 'id="modules"' in html
+    for heading in ("Ultimates by method", "Diagnostics", "Assumptions in force", "Anomaly flags"):
+        assert heading in html
