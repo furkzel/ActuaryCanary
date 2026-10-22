@@ -9,8 +9,8 @@ from hypothesis import strategies as st
 
 from actuarycanary.convert.currency import (
     FLAG_AVERAGE,
-    FLAG_END_FOR_AVERAGE,
     FLAG_EARLIER_SPOT,
+    FLAG_END_FOR_AVERAGE,
     FLAG_SPOT_FOR_END,
     Rule,
     convert,
@@ -61,7 +61,7 @@ def test_cv01_flow_derived_from_valuations_uses_the_period_average_of_its_month(
     assert _rates(Rule.DERIVED_FLOW, "USD", date(2024, 2, 29)) == (None, "")  # no February
 
 
-def test_cv01_derived_flow_without_an_average_takes_the_period_end_of_the_month_and_flags_it() -> None:
+def test_cv01_derived_flow_without_an_average_takes_the_period_end_and_flags_it() -> None:
     assert _rates(Rule.DERIVED_FLOW, "EUR", JAN) == (pytest.approx(40.0), FLAG_END_FOR_AVERAGE)
     assert _rates(Rule.DERIVED_FLOW, "EUR", MAR) == (pytest.approx(100.0), FLAG_END_FOR_AVERAGE)
 

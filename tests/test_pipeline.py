@@ -66,9 +66,7 @@ def test_baseline_tiny_runs_and_reproduces(
     }
 
 
-def test_settings_change_the_run_id(
-    tmp_path: Path, cache: Path, default_run: RunResult
-) -> None:
+def test_settings_change_the_run_id(tmp_path: Path, cache: Path, default_run: RunResult) -> None:
     yearly = default_run
     quarterly = run(
         BASELINE,

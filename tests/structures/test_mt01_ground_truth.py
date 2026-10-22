@@ -4,8 +4,9 @@ The truth file `ibnr_by_valuation.csv` holds paid and incurred per line, acciden
 quarter end from the true transactions. The spreadsheets carry injected faults on top, so
 the expected cell is the truth plus each fault's known effect: an extreme payment adds its
 amount from its row on. A row with an empty currency has no effect: it takes the one currency
-of its claim (DV-CLV-03, claim_valuations 1.2.0). A paid_to_date lowered by an unknown amount cannot be restated,
-so the cells where such a row is the as-of row are not compared and are counted.
+of its claim (DV-CLV-03, claim_valuations 1.2.0). A paid_to_date lowered by an unknown amount
+cannot be restated, so the cells where such a row is the as-of row are not compared and are
+counted.
 """
 
 from pathlib import Path
