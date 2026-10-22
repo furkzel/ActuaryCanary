@@ -3,6 +3,10 @@
 Flows follow CV04: consecutive rows of a claim, in date order, differenced; the first row's
 flow is its full value. Amounts are converted with the constant development rate of the
 row's currency (CV01); a value whose currency has no rate is not scored and is counted.
+
+The incurred change at a payment is the movement of paid plus case reserve on a row with a
+payment, when the reserve did not absorb it: a payment the case reserve did not foresee
+(MT08 1.1.0, record 0060).
 """
 
 from collections.abc import Mapping, Sequence
@@ -18,7 +22,7 @@ MAX_FLAG_RATE = 0.05  # above it the group may mix populations (MT08)
 MAD_SCALE = 0.6745
 MEAN_AD_SCALE = 1.253314
 GROUP_BY = ("segment", "line")
-VARIABLES = ("paid_flow", "reserve_change")
+VARIABLES = ("paid_flow", "reserve_change", "incurred_change_at_payment")
 UNKNOWN = "UNKNOWN"
 
 
@@ -97,6 +101,35 @@ def _reserve_changes(rows: pl.DataFrame, group_by: Sequence[str]) -> pl.DataFram
     )
 
 
+def _incurred_changes(rows: pl.DataFrame, group_by: Sequence[str]) -> pl.DataFrame:
+    """ln((I+ + 1) / (I+ before + 1)) on rows with a positive paid flow whose incurred moved;
+    rows with paid and reserve only, each converted at its own rate."""
+    both = rows.filter(pl.col("paid_to_date").is_not_null() & pl.col("case_reserve").is_not_null())
+    incurred = (pl.col("paid_to_date") + pl.col("case_reserve")).alias("incurred")
+    previous = pl.col("incurred").shift(1).over("claim_id")
+    flow = pl.col("paid_to_date") - pl.col("paid_to_date").shift(1).over("claim_id")
+    return (
+        both.with_columns(incurred)
+        .with_columns(
+            flow.alias("flow"),
+            previous.alias("previous"),
+            pl.col("rate").shift(1).over("claim_id").alias("previous_rate"),
+        )
+        .filter((pl.col("flow") > 0) & (pl.col("incurred") != pl.col("previous")))
+        .with_columns(
+            pl.lit("incurred_change_at_payment").alias("variable"),
+            (pl.col("previous") * pl.col("previous_rate")).clip(lower_bound=0).alias("before"),
+            (pl.col("incurred") * pl.col("rate")).clip(lower_bound=0).alias("amount"),
+            pl.when(pl.col("previous_rate").is_null())
+            .then(None)
+            .otherwise(pl.col("rate"))
+            .alias("rate"),
+        )
+        .with_columns(((pl.col("amount") + 1) / (pl.col("before") + 1)).log().alias("y"))
+        .select(_columns(rows, group_by))
+    )
+
+
 def _columns(rows: pl.DataFrame, group_by: Sequence[str]) -> list[str]:
     source = [SOURCE_ROW] if SOURCE_ROW in rows.columns else []
     return [
@@ -133,7 +166,23 @@ def _reason() -> pl.Expr:
         z,
         pl.col("threshold"),
     )
-    return pl.when(pl.col("variable") == "paid_flow").then(paid).otherwise(reserve)
+    incurred = pl.format(
+        "incurred moved from {} to {} with a payment, log change {} against the group median {} "
+        "(robust z {}, threshold {})",
+        pl.col("before").round(2),
+        pl.col("amount").round(2),
+        pl.col("y").round(3),
+        pl.col("median").round(3),
+        z,
+        pl.col("threshold"),
+    )
+    return (
+        pl.when(pl.col("variable") == "paid_flow")
+        .then(paid)
+        .when(pl.col("variable") == "reserve_change")
+        .then(reserve)
+        .otherwise(incurred)
+    )
 
 
 def robust_z_flags(
@@ -155,7 +204,11 @@ def robust_z_flags(
         )
     group_by = list(group_by)
     rows = _rows(valuations, claims, rates, group_by)
-    parts = {"paid_flow": _paid_flows, "reserve_change": _reserve_changes}
+    parts = {
+        "paid_flow": _paid_flows,
+        "reserve_change": _reserve_changes,
+        "incurred_change_at_payment": _incurred_changes,
+    }
     values = pl.concat([parts[v](rows, group_by) for v in variables])
     not_converted = values.filter(pl.col("rate").is_null()).height
     values = values.filter(pl.col("rate").is_not_null())
