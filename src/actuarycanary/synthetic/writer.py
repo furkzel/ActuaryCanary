@@ -15,8 +15,26 @@ EXCEL_MAX_ROWS = 1_048_576
 FIXED_TIMESTAMP = datetime(2026, 1, 1)  # workbook properties would otherwise carry the clock
 
 
-def fits_in_worksheet(sheet: SheetPlan) -> bool:
-    return len(sheet.title_rows) + 1 + sheet.n_rows <= EXCEL_MAX_ROWS
+def _rows_per_part(sheet: SheetPlan) -> int:
+    return EXCEL_MAX_ROWS - len(sheet.title_rows) - 1
+
+
+def split_workbooks(feed: str, sheets: list[SheetPlan]) -> list[tuple[str, list[SheetPlan]]]:
+    """The workbooks of one feed: `<feed>.xlsx` when every sheet fits in a worksheet, otherwise
+    `<feed>_part1.xlsx`, `<feed>_part2.xlsx`, ... of nearly equal size, each with the same
+    sheet names, title rows and header row, and consecutive rows of the table (record 0081)."""
+    parts = max(-(-s.n_rows // _rows_per_part(s)) for s in sheets)
+    if parts <= 1:
+        return [(f"{feed}.xlsx", sheets)]
+    workbooks: list[tuple[str, list[SheetPlan]]] = []
+    for k in range(parts):
+        chunks: list[SheetPlan] = []
+        for s in sheets:
+            size = -(-s.n_rows // parts)
+            chunk = [column[k * size : (k + 1) * size] for column in s.columns]
+            chunks.append(SheetPlan(s.name, s.title_rows, s.headers, chunk))
+        workbooks.append((f"{feed}_part{k + 1}.xlsx", chunks))
+    return workbooks
 
 
 def write_workbook(path: Path, sheets: list[SheetPlan]) -> None:

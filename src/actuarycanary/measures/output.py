@@ -99,22 +99,24 @@ def values_table(results: Sequence[MeasureResult]) -> pl.DataFrame:
 def _ranges(frame: pl.DataFrame, keys: list[str]) -> pl.DataFrame:
     """Sorted row numbers as "2-40;45" per key, and their count."""
     ordered = frame.sort([*keys, "source_row"])
-    broken = (
-        ((pl.col("source_row") - pl.col("source_row").shift(1).over(keys)).fill_null(2) != 1)
-        .cum_sum()
-        .over(keys)
+    # a run starts where the key changes or the row number is not the previous one plus one,
+    # and ends where the next row starts one; both are read off the sorted frame in one pass
+    changed = pl.any_horizontal([pl.col(k).ne_missing(pl.col(k).shift(1)) for k in keys])
+    consecutive = (pl.col("source_row") - pl.col("source_row").shift(1) == 1).fill_null(False)
+    starts = ordered.select(
+        pl.col("source_row").alias("low"), (changed | ~consecutive).alias("_start"), *keys
     )
-    runs = (
-        ordered.with_columns(broken.alias("_run"))
-        .group_by([*keys, "_run"], maintain_order=True)
-        .agg(pl.col("source_row").min().alias("low"), pl.col("source_row").max().alias("high"))
-        .with_columns(
-            pl.when(pl.col("low") == pl.col("high"))
-            .then(pl.col("low").cast(pl.String))
-            .otherwise(pl.concat_str(pl.col("low"), pl.lit("-"), pl.col("high")))
-            .alias("span"),
-            (pl.col("high") - pl.col("low") + 1).alias("n"),
-        )
+    first = starts.filter(pl.col("_start")).drop("_start")
+    last = pl.Series("high", ordered["source_row"]).filter(
+        starts["_start"].shift(-1, fill_value=True)
+    )
+    runs = first.with_columns(
+        last,
+        pl.when(pl.col("low") == last)
+        .then(pl.col("low").cast(pl.String))
+        .otherwise(pl.concat_str(pl.col("low"), pl.lit("-"), last.cast(pl.String)))
+        .alias("span"),
+        (last - pl.col("low") + 1).alias("n"),
     )
     return runs.group_by(keys, maintain_order=True).agg(
         pl.col("span").str.join(";").alias("rows"), pl.col("n").sum().alias("count")

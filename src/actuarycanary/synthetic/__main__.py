@@ -25,10 +25,6 @@ def _write(scenario: str, size: str, target: Path) -> None:
         f"{scenario}/{size}: {manifest['claims_simulated']} claims -> {target} ({seconds:.1f} s)"
     )
     typer.echo(f"  rows: {manifest['rows']}")
-    skipped = manifest["spreadsheets_skipped"]
-    if isinstance(skipped, dict):
-        for name, reason in skipped.items():
-            typer.echo(f"  not written as a spreadsheet, {name}: {reason}")
 
 
 @app.command()

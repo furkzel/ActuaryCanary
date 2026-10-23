@@ -5,7 +5,7 @@ import polars as pl
 
 from actuarycanary.convert.bases import ReinsuranceBasis
 from actuarycanary.measures.engine import IMPLEMENTATIONS, METHOD_OUTPUTS
-from actuarycanary.measures.output import lineage_table, values_table
+from actuarycanary.measures.output import _ranges, lineage_table, values_table
 from actuarycanary.measures.port import NO_METHODS, NotAvailable
 from actuarycanary.structures.periods import Period
 from tests.measures.helpers import CATALOGUE, make_inputs, measure, one
@@ -105,6 +105,22 @@ def test_lineage_compresses_runs_of_rows_into_ranges() -> None:
     inputs = make_inputs({"claim_valuations": rows})
     lineage = lineage_table([measure(inputs, "CL01")], inputs)
     assert lineage["rows"].to_list() == ["2-6"] and lineage["count"].to_list() == [5]
+
+
+def test_ranges_start_a_new_run_at_a_gap_a_repeat_and_a_new_key() -> None:
+    frame = pl.DataFrame(
+        {
+            "row": [0, 0, 0, 0, 0, 1, 1, 1],
+            "file": ["a", "a", "a", "a", "a", "a", "b", "b"],
+            "sheet": ["s"] * 8,
+            "source_row": [9, 2, 3, 4, 4, 7, 6, 5],
+        }
+    )
+    ranges = _ranges(frame, ["row", "file", "sheet"])
+    assert ranges["row"].to_list() == [0, 1, 1]
+    assert ranges["file"].to_list() == ["a", "a", "b"]
+    assert ranges["rows"].to_list() == ["2-4;4;9", "7", "5-6"]
+    assert ranges["count"].to_list() == [5, 1, 2]
 
 
 def test_premium_values_point_to_premium_and_policy_rows() -> None:
