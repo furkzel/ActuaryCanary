@@ -1,0 +1,104 @@
+id: CV10
+version: 0.1.0
+title_en: Discounting
+title_tr: İskonto
+status: draft
+implemented: false
+definition: >-
+  On the DISCOUNTED value basis, projected future cash flows are discounted to the discount
+  date with a chosen yield curve: how the curve is read, turned into zero rates and
+  interpolated, when within a period each cash flow is assumed to fall, and which flows are
+  discounted.
+rules:
+  - >-
+    Only projected future cash flows are discounted: unpaid claims (RS04) and the cash flows
+    of projections (MT07, MT11, MT21). Amounts already paid, earned or booked are never
+    discounted, and no measure of the past has a DISCOUNTED basis.
+  - >-
+    The discount date is the cut-off c (CV04) unless the user sets another month end; a
+    cash flow at or before the discount date has factor 1.
+  - >-
+    The curve is the curve_id the user names in the assumptions register; there is no
+    default curve. It must be in the reporting currency, because cash flows are first
+    converted at the constant development rate (CV01). Without a named curve, or with a
+    curve in another currency, the DISCOUNTED basis is unavailable and says so.
+  - >-
+    The curve date is the latest date of the curve on or before the discount date; when it
+    is more than max_curve_age_days earlier the curve is still used and flagged (DV-IRT-08).
+  - >-
+    Every point is turned into a continuously compounded zero rate z(t), with t the tenor in
+    years (tenor_months / 12): ANNUAL spot by ln(1 + r), SIMPLE spot by ln(1 + r t) / t,
+    CONTINUOUS spot as given; PAR rates are bootstrapped at whole-year tenors with annual
+    coupons; FORWARD rates are one-year forwards accumulated from the first year.
+  - >-
+    Interpolation is linear in z(t) t, the negative log discount factor, which means a
+    constant forward rate between two tenors and keeps every discount factor positive.
+    Before the first tenor z is flat at the first point; beyond the last tenor the last
+    forward rate is held flat.
+  - >-
+    Timing: a projected incremental amount of origin i and development period k falls in a
+    calendar period (CV04); it is placed at the middle of that period (mid_period, the
+    default and the MT07 convention), or at its start or end when the user says so. Time in
+    years is days from the discount date divided by 365.25.
+  - >-
+    Cash flows of a tail factor (MT14) are spread over the extra development periods in the
+    shape of the fitted curve; a tail given as a number without a curve is spread evenly
+    over tail_payment_years.
+  - >-
+    Inflation: nominal cash flows are discounted with the nominal curve. Projections at
+    value-date prices (MT07 without a future inflation assumption) are not discounted,
+    because no real curve is read; the DISCOUNTED and INFLATION_ADJUSTED bases are not
+    combined.
+  - >-
+    The report shows the curve id, curve date, source and the discount effect (nominal minus
+    discounted) next to every discounted figure.
+formulas:
+  - name: zero rate from annual compounding
+    expression: 'z(t) = \ln(1 + r)'
+  - name: zero rate from simple compounding
+    expression: 'z(t) = \frac{\ln(1 + r\,t)}{t}'
+  - name: bootstrap of par rates (annual coupons)
+    expression: 'D(n) = \frac{1 - c_n \sum_{m=1}^{n-1} D(m)}{1 + c_n}, \qquad z(n) = -\frac{\ln D(n)}{n}'
+    where: c_n is the par rate of the n-year tenor; missing whole years are filled by interpolating c first.
+  - name: zero rate from one-year forwards
+    expression: 'z(n)\, n = \sum_{m=1}^{n} \ln(1 + f_m)'
+  - name: interpolation
+    expression: 'z(t)\,t = z(t_a)\,t_a + \frac{t - t_a}{t_b - t_a}\big(z(t_b)\,t_b - z(t_a)\,t_a\big), \quad t_a \le t \le t_b'
+  - name: discount factor and present value
+    expression: 'D(t) = e^{-z(t)\,t}, \qquad PV = \sum_{i,k} \hat X_{i,k}\, D(t_{i,k})'
+    where: t(i,k) is the time in years from the discount date to the cash flow of origin i and period k.
+defaults:
+  - name: curve_id
+    default: null
+    description: Curve to discount with; no default, the user names it in the assumptions register.
+  - name: discount_date
+    default: cut-off
+    description: Date the present values refer to.
+  - name: timing
+    default: mid_period
+    description: Where in its calendar period a projected cash flow is placed.
+    allowed: [mid_period, start_of_period, end_of_period]
+  - name: max_curve_age_days
+    default: 31
+    description: A curve older than this before the discount date is flagged; one month covers a month-end curve.
+  - name: tail_payment_years
+    default: 5
+    description: Years over which a tail given without a curve is paid, evenly.
+requires:
+  - interest_rates.curve_id
+  - interest_rates.date
+  - interest_rates.tenor_months
+  - interest_rates.rate
+  - interest_rates.rate_type
+  - interest_rates.currency
+optional: [interest_rates.compounding, interest_rates.source]
+uses: [CV01, CV02, CV04]
+notes: >-
+  Extrapolation to an ultimate forward rate (Smith–Wilson, as in Solvency II) is not
+  specified; it would be a new option with its own record. The bootstrap assumes annual
+  coupons, the common convention of government par curves; other coupon frequencies need
+  spot rates instead.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint sections 5.3 and 7.2 (P20).

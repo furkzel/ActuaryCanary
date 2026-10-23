@@ -1,0 +1,137 @@
+id: CV09
+version: 0.1.0
+title_en: Treaty-level ceded allocation
+title_tr: Anlaşma düzeyindeki devredilen tutarların dağıtımı
+status: draft
+implemented: false
+definition: >-
+  When ceded amounts arrive per treaty rather than per claim or policy, they are allocated
+  to claims, policies or line and origin cells by the treaty's own terms, so that net equals
+  gross minus ceded at the finest grain available (blueprint 7.3). The planned amendment of
+  CV03, written apart so that CV03 1.0.0 and the run id stay unchanged until it is built.
+rules:
+  - >-
+    Precedence: a ceded amount given per claim (ceded_paid_to_date and ceded_reserve of
+    claim_valuations, or a reinsurance transaction with a claim_id) is taken as given and
+    never re-allocated. Allocation applies only to movements without claim_id (claim types)
+    or without policy_id (premium types). When claim_valuations and reinsurance_transactions
+    both give a claim's ceded amount, claim_valuations is used for claim views and the
+    differences are listed (DV-RTR-09).
+  - >-
+    Scope of a treaty row: the claims of its entity, segment and line (empty means all) that
+    fall in its contract period on its attachment basis: LOSSES_OCCURRING by
+    claims.occurrence_date, RISKS_ATTACHING by the start_date of the claim's policy. A claim
+    without the date the basis needs is out of scope and listed. Premium scope: the policies
+    of the same entity, segment and line whose start_date (RISKS_ATTACHING) or whose earning
+    (LOSSES_OCCURRING) falls in the period.
+  - >-
+    Proportional treaties (QUOTA_SHARE, SURPLUS, FACULTATIVE): the treaty's claim movements
+    of a booking month are allocated to the claims in scope in proportion to their gross
+    movement of the same kind in that month (paid flows for CEDED_CLAIM_PAID, case reserve
+    changes for CEDED_CASE_RESERVE), weighted by the claim's cession share. QUOTA_SHARE
+    share is cession_share; SURPLUS share is the formula below, from the policy's
+    sum_insured; FACULTATIVE share comes from the treaty's policy-level movements.
+  - >-
+    Excess of loss with claim-level data: the layer terms are applied to each claim (RISK) or
+    each event (EVENT, claims with the same event_code) cumulatively at every valuation, on
+    paid and on incurred, giving the expected ceded paid and ceded incurred per claim. The
+    treaty's booked amounts of a month are allocated in proportion to the month's change of
+    the expected ceded amounts. An event's ceded amount is shared among its claims in
+    proportion to their gross amounts.
+  - >-
+    Without claim-level data, or when the expected ceded amounts in scope are zero while the
+    treaty booked a ceded amount, the amount is allocated to line and origin cells in
+    proportion to gross incurred of the cells in scope, labelled "aggregate allocation, an
+    approximation" in every view it reaches.
+  - >-
+    Aggregate terms of a layer (aggregate_deductible, aggregate_limit, reinstatements) are
+    applied per contract period in claim order of booking date; the claim that exhausts or
+    crosses a term gets the part that fits.
+  - >-
+    Index clause: when index_series is set, retention and limit of a claim are scaled by
+    the index of the claim's payment month over the index of the inception month, using the
+    paid-weighted average month of the claim's payments to the cut-off (an approximation
+    of a payment-by-payment clause, stated in the report).
+  - >-
+    Inuring order: SURPLUS first, then QUOTA_SHARE on the retained part, then risk
+    EXCESS_OF_LOSS, then event EXCESS_OF_LOSS, then STOP_LOSS, each on what the previous
+    ones leave; FACULTATIVE comes before all of them on its own policies.
+  - >-
+    Premium: treaty-level CEDED_PREMIUM is allocated to policies in scope in proportion to
+    gross written premium (PR01) for proportional treaties and to gross earned premium
+    (PR02) for non-proportional treaties; RI_COMMISSION follows its ceded premium.
+    REINSTATEMENT_PREMIUM is allocated to the origin periods of the claims whose ceded
+    amounts triggered it, in proportion to those amounts.
+  - >-
+    Treaty amounts in a currency other than the claim's are converted per CV01 (flows at
+    the booking rate, stocks at the period-end rate) before allocation; allocated amounts
+    keep the claim's original currency through the same rate.
+  - >-
+    The allocated amounts of a treaty and month always add up to the booked amount; any
+    rounding remainder goes to the largest allocation.
+formulas:
+  - name: proportional allocation
+    expression: 'a_{k}(Q) = A_t(Q) \cdot \frac{s_k \, g_k(Q)}{\sum_{l \in K_t} s_l \, g_l(Q)}'
+    where: >-
+      A_t(Q) is the booked treaty movement of month Q, K_t the claims in scope, g_k(Q) the
+      gross movement of claim k of the same kind and s_k its cession share.
+  - name: surplus share
+    expression: 's_k = \min\Big( \max\Big(0, \frac{SI_k - r}{SI_k}\Big),\ \frac{n \, r}{SI_k} \Big)'
+    where: SI is the policy's sum_insured, r the retention line and n the number_of_lines.
+  - name: excess of loss per claim or event
+    expression: 'c_k(v) = \pi \cdot \min\big(L,\ \max(0,\ X_k(v) - R)\big)'
+    where: >-
+      X_k(v) is the gross paid or incurred of claim (or event) k at valuation v after the
+      inuring treaties, R the retention, L the limit and pi the placed_share.
+  - name: aggregate terms
+    expression: 'C_t = \min\Big(AAL,\ \max\big(0,\ \textstyle\sum_k c_k - AAD\big)\Big)'
+  - name: reinstatement premium
+    expression: 'RP_t = \rho \cdot P_t \cdot \frac{\min\big(m L,\ C_t\big)}{L}'
+    where: >-
+      rho is the reinstatement_rate, P_t the layer's deposit premium, m the number of
+      reinstatements and C_t the ceded loss of the layer.
+defaults:
+  - name: allocation_fallback
+    default: aggregate
+    description: What happens when claim-level allocation is not possible.
+    allowed: [aggregate, unallocated]
+requires:
+  - reinsurance_treaties.treaty_id
+  - reinsurance_treaties.treaty_type
+  - reinsurance_treaties.inception_date
+  - reinsurance_treaties.expiry_date
+  - reinsurance_transactions.treaty_id
+  - reinsurance_transactions.booking_date
+  - reinsurance_transactions.amount
+  - reinsurance_transactions.type
+optional:
+  - reinsurance_treaties.attachment_basis
+  - reinsurance_treaties.loss_basis
+  - reinsurance_treaties.cession_share
+  - reinsurance_treaties.retention
+  - reinsurance_treaties.limit
+  - reinsurance_treaties.number_of_lines
+  - reinsurance_treaties.aggregate_deductible
+  - reinsurance_treaties.aggregate_limit
+  - reinsurance_treaties.reinstatements
+  - reinsurance_treaties.reinstatement_rate
+  - reinsurance_treaties.placed_share
+  - reinsurance_treaties.index_series
+  - reinsurance_transactions.claim_id
+  - reinsurance_transactions.policy_id
+  - claim_valuations.ceded_paid_to_date
+  - claim_valuations.ceded_reserve
+  - claims.occurrence_date
+  - claims.event_code
+  - policies.start_date
+  - policies.sum_insured
+uses: [CV01, CV02, CV03, CV04, CV05]
+notes: >-
+  P31 builds this convention and folds it into CV03 as version 1.1.0, whose second rule then
+  reads "ceded amounts given per claim are taken as given; treaty-level amounts are
+  allocated by these rules". Until then CV03 1.0.0 is in force and allocates nothing
+  (decision 0200).
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 7.3 (P20).
