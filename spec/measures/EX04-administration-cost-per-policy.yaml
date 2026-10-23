@@ -1,0 +1,51 @@
+id: EX04
+version: 0.1.0
+title_en: Administration cost per policy
+title_tr: Poliçe başına yönetim gideri
+status: draft
+implemented: false
+definition: >-
+  Administration expenses of a period divided by the average number of policies in force
+  in that period: the unit cost of keeping the book.
+unit: amount
+formula: 'UC(Q) = \frac{X^{\mathrm{ADMINISTRATION}}(Q)}{\bar N^{\mathrm{inforce}}(Q)}, \qquad \bar N^{\mathrm{inforce}}(Q) = \frac{\sum_{p} |\mathrm{cover}_p \cap Q|}{|Q|}'
+numerator: Expenses of type ADMINISTRATION with period in Q.
+denominator: Average number of policies in force in Q - the policy days of cover in Q (CV04) divided by the days of Q.
+grain: calendar period
+breakdowns: [segment, line, entity, calendar_period]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL, INFLATION_ADJUSTED]
+requires:
+  - expenses.period
+  - expenses.amount
+  - expenses.type
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+optional: [expenses.segment, expenses.line, policies.cancellation_date, policies.segment, policies.line]
+uses: [CV01, CV02, CV04]
+edge_cases:
+  - case: No policies in force in Q
+    handling: Not computed.
+  - case: Expenses not allocated to lines
+    handling: Shown at the level that is filled (entity or segment), as EX02.
+  - case: High inflation
+    handling: The INFLATION_ADJUSTED view is the one to compare across years.
+  - case: Month without expense rows
+    handling: Not computed for that month and listed, never set to zero, because a missing booking is not a zero cost.
+interpretation: >-
+  A rising real unit cost means administration grows faster than the book; compare by line
+  only where expenses are allocated to lines.
+typical_range:
+  low: null
+  high: null
+  note: Depends on currency, product and market; compare a company with itself over time.
+test:
+  path: tests/measures/test_ex04_administration_cost_per_policy.py
+  proves: Two policies in force for half of a month each and an expense of 100 give 100 per policy.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft for module M09 (P20).

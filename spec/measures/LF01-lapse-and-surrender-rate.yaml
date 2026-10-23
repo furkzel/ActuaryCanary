@@ -1,0 +1,50 @@
+id: LF01
+version: 0.1.0
+title_en: Lapse and surrender rate
+title_tr: İptal ve iştira oranı
+status: draft
+implemented: false
+definition: >-
+  Lapses and surrenders per year of central exposure, by policy year and product: the
+  annual rate at which contracts leave before term.
+unit: ratio
+formula: 'w_c = \frac{D^{\mathrm{LAPSE}}_c + D^{\mathrm{SURRENDER}}_c}{E^{c}_c}'
+numerator: Lapse and surrender decrements in cell c (CV11), shown apart and together.
+denominator: Central exposure of cell c in years (CV11).
+grain: policy year by product, per calendar year
+breakdowns: [segment, line, product, channel, policy_year, age_band, calendar_period]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL]
+  value: [NOMINAL]
+requires:
+  - life_in_force.contract_id
+  - life_in_force.valuation_date
+  - life_in_force.entry_date
+  - life_in_force.age_band
+  - life_in_force.status
+optional: [life_events.event_date, life_events.event_type, life_in_force.product, life_in_force.channel, life_in_force.fund_value]
+uses: [CV11, MT20]
+edge_cases:
+  - case: Exposure zero in a cell
+    handling: Not computed.
+  - case: No life_events
+    handling: Exits from status changes, dated mid-interval (CV11), labelled.
+  - case: Amounts-based view
+    handling: Weighted by fund_value at the start of the cell (surrender) when present.
+  - case: Calendar year not fully observed
+    handling: Only the observed part enters exposure and decrements; the year is marked partial.
+interpretation: >-
+  Lapse rates are highest in the first policy years and fall after; a rise in a calendar
+  year across all durations points at an outside cause (economy, competing offers).
+typical_range:
+  low: 0.0
+  high: 0.3
+  note: First-year lapse of regular-premium products often 10 to 25 per cent; later years lower.
+test:
+  path: tests/measures/test_lf01_lapse_and_surrender_rate.py
+  proves: Two contracts with hand exposures, one lapse and one surrender, give the hand-computed rates.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 8.1 (P20).
