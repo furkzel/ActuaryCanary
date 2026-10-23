@@ -17,6 +17,7 @@ def reference_problems(catalogue: SpecCatalogue) -> list[str]:
         *_column_alias_problems(catalogue),
         *_value_alias_problems(catalogue),
         *_finding_rule_problems(catalogue),
+        *_champion_problems(catalogue),
     ]
 
 
@@ -71,7 +72,13 @@ def _usage_problems(catalogue: SpecCatalogue) -> list[str]:
 
 def _module_problems(catalogue: SpecCatalogue) -> list[str]:
     problems: list[str] = []
+    rule_ids = {rule.id for concept in catalogue.data.values() for rule in concept.validation}
     for module in catalogue.modules.values():
+        problems += [
+            f"{module.id}: blocking rule {r} is not defined in spec/data"
+            for r in module.blocking_rules
+            if r not in rule_ids
+        ]
         if not module.required_all and not module.required_any:
             problems.append(f"{module.id}: needs required_all or required_any")
         concepts = [*module.required_all, *module.required_any, *module.optional]
@@ -134,29 +141,37 @@ def _conflicts(owner: str, targets_by_token: dict[str, set[str]]) -> list[str]:
 
 
 def _column_alias_problems(catalogue: SpecCatalogue) -> list[str]:
-    aliases = catalogue.column_aliases
+    """AL01, and AL03 when planned specs are loaded, are checked as one dictionary."""
+    specs = catalogue.column_alias_specs
+    owner = "+".join(spec.id for spec in specs)
     problems: list[str] = []
     covered: Counter[str] = Counter()
     tokens_by_concept: dict[str, dict[str, set[str]]] = defaultdict(lambda: defaultdict(set))
-    for entry in aliases.columns:
-        for concept in entry.concepts:
-            ref = f"{concept}.{entry.field}"
-            if not field_exists(catalogue, ref):
-                problems.append(f"{aliases.id}: {ref} is not defined in spec/data")
-            covered[ref] += 1
-            for label in [entry.field, *entry.aliases]:
-                tokens_by_concept[concept][normalise_label(label)].add(entry.field)
+    for aliases in specs:
+        for entry in aliases.columns:
+            for concept in entry.concepts:
+                ref = f"{concept}.{entry.field}"
+                if not field_exists(catalogue, ref):
+                    problems.append(f"{aliases.id}: {ref} is not defined in spec/data")
+                covered[ref] += 1
+                for label in [entry.field, *entry.aliases]:
+                    tokens_by_concept[concept][normalise_label(label)].add(entry.field)
     for concept in catalogue.data.values():
         for field in concept.fields:
             ref = f"{concept.id}.{field.name}"
             if covered[ref] != 1:
-                problems.append(f"{aliases.id}: {ref} has {covered[ref]} alias entries, needs 1")
+                problems.append(f"{owner}: {ref} has {covered[ref]} alias entries, needs 1")
     for concept, tokens in tokens_by_concept.items():
-        problems += _conflicts(f"{aliases.id} {concept}", tokens)
-    personal = {normalise_label(a) for entry in aliases.personal_data for a in entry.aliases}
+        problems += _conflicts(f"{owner} {concept}", tokens)
+    personal = {
+        normalise_label(a)
+        for aliases in specs
+        for entry in aliases.personal_data
+        for a in entry.aliases
+    }
     for concept, tokens in tokens_by_concept.items():
         problems += [
-            f"{aliases.id}: '{token}' is both a {concept} field alias and personal data"
+            f"{owner}: '{token}' is both a {concept} field alias and personal data"
             for token in tokens
             if token in personal
         ]
@@ -164,10 +179,12 @@ def _column_alias_problems(catalogue: SpecCatalogue) -> list[str]:
 
 
 def _value_alias_problems(catalogue: SpecCatalogue) -> list[str]:
-    aliases = catalogue.value_aliases
+    """AL02, and AL04 when planned specs are loaded, are checked as one dictionary."""
+    specs = catalogue.value_alias_specs
+    owner = "+".join(spec.id for spec in specs)
     problems: list[str] = []
     covered: Counter[str] = Counter()
-    for entry in aliases.values:
+    for aliases, entry in ((a, e) for a in specs for e in a.values):
         tokens: dict[str, set[str]] = defaultdict(set)
         for label_class, labels in entry.classes.items():
             for label in [label_class, *labels]:
@@ -187,7 +204,20 @@ def _value_alias_problems(catalogue: SpecCatalogue) -> list[str]:
         for field in concept.fields:
             ref = f"{concept.id}.{field.name}"
             if field.classes and covered[ref] != 1:
-                problems.append(f"{aliases.id}: {ref} has {covered[ref]} value entries, needs 1")
+                problems.append(f"{owner}: {ref} has {covered[ref]} value entries, needs 1")
+    return problems
+
+
+def _champion_problems(catalogue: SpecCatalogue) -> list[str]:
+    problems: list[str] = []
+    for method in catalogue.methods.values():
+        champion = method.champion
+        if method.tier == "C" and champion is None:
+            problems.append(f"{method.id}: a tier C method names its champion")
+        elif champion is not None and (champion not in catalogue.methods or champion == method.id):
+            problems.append(f"{method.id}: champion {champion} is not another defined method")
+        elif champion is not None and catalogue.methods[champion].tier == "C":
+            problems.append(f"{method.id}: champion {champion} is a tier C method")
     return problems
 
 

@@ -1,4 +1,6 @@
-"""Print the specification index: every spec ID, its titles and status, read from spec/."""
+"""Print the specification index: every spec ID, its titles and status, read from spec/.
+
+Planned specs (not built yet) are listed too, marked as planned."""
 
 import sys
 
@@ -9,9 +11,9 @@ from actuarycanary.spec.loader import index_rows, load_specs
 
 
 def main() -> None:
-    rows = index_rows(load_specs())
+    rows = index_rows(load_specs(planned=True))
     table = Table(title=f"Specifications ({len(rows)})")
-    for column in ("Kind", "ID", "Version", "Status"):
+    for column in ("Kind", "ID", "Version", "Status", "Built"):
         table.add_column(column, no_wrap=True)
     for column in ("Title", "Başlık"):
         table.add_column(column)
