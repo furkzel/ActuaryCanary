@@ -15,6 +15,13 @@ MEASURES_V1 = {
 }  # fmt: skip
 CONCEPTS_V1 = {"claim_valuations", "claims", "policies", "premiums", "expenses", "market"}
 MODULES_V1 = {f"M0{n}" for n in range(1, 7)}
+# Planned for phase 2 by work item P20 (decision 0200): drafts, left out of every run.
+CONCEPTS_PLANNED = {
+    "reinsurance_treaties", "reinsurance_transactions", "recoveries", "ledger",
+    "interest_rates", "life_in_force", "life_events", "fund_flows",
+}  # fmt: skip
+MODULES_PLANNED = {f"M{n:02d}" for n in range(7, 14)}
+METHODS_PLANNED = {f"MT{n}" for n in range(11, 30)}
 
 
 @pytest.fixture(scope="module")
@@ -90,3 +97,12 @@ def test_planned_specs_are_drafts(planned: SpecCatalogue) -> None:
 
 def test_every_reference_of_the_planned_specs_resolves(planned: SpecCatalogue) -> None:
     assert reference_problems(planned) == []
+
+
+def test_phase_2_scope_is_planned(planned: SpecCatalogue) -> None:
+    not_built = {f.spec.id for f in planned.files if not f.spec.implemented}
+    assert not_built >= CONCEPTS_PLANNED | MODULES_PLANNED | METHODS_PLANNED
+    assert {"CV09", "CV10", "CV11", "CV12", "AL03", "AL04"} <= not_built
+    assert {m for m in METHODS_PLANNED if planned.methods[m].tier == "C"} == {
+        f"MT{n}" for n in range(23, 30)
+    }

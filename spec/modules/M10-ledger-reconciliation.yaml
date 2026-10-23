@@ -1,0 +1,39 @@
+id: M10
+version: 0.1.0
+title_en: Ledger reconciliation
+title_tr: Mizan mutabakatı
+status: draft
+implemented: false
+definition: >-
+  Whether the actuarial figures agree with the books: each mapped account class of the
+  trial balance against the platform's matching measure, per entity and month, with
+  material gaps and their likely causes.
+phase: 2
+question: Do actuarial figures agree with the books?
+required_all: [ledger]
+required_any: [premiums, claim_valuations, expenses, reinsurance_transactions]
+optional: [policies, claims, market]
+measures: [FN01, FN02]
+methods: []
+skip_reason: >-
+  Ledger reconciliation did not run: no trial balance was loaded, or no feed to compare it
+  with. Load ledger.xlsx and at least one of premiums.xlsx, claim_valuations.xlsx,
+  expenses.xlsx or reinsurance_transactions.xlsx, and confirm the account-mapping profile.
+blocking_rules: [DV-LDG-01]
+outputs:
+  - reconciliation.csv (FN01 per entity, class and month, with materiality)
+  - unmapped_accounts.csv (accounts without a class and their balances)
+  - account_mapping_profile (the confirmed CV12 profile, saved beside the mapping profiles)
+report_page:
+  - Headline - number of material gaps and the largest one, unmapped share (FN02).
+  - Reconciliation table by account class and month, gaps coloured by materiality (FN01).
+  - Gap trend per class over the months.
+  - Unmapped accounts with balances.
+  - Profile in use (fingerprint), sign conventions and balance kind.
+notes: >-
+  A class whose matching feed is not loaded is listed as not reconciled, never as a gap.
+  Built by P32.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 10 (P20).

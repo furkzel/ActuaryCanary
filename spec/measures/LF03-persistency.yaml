@@ -9,7 +9,10 @@ definition: >-
   Kaplan–Meier curve so that contracts not yet n years old count as censored.
 unit: ratio
 formula: 'P_g(n) = \hat S_g(n) = \prod_{t_m \le n} \Big(1 - \frac{d_m}{r_m}\Big)'
-numerator: Kaplan–Meier survival of cohort g at n years (MT19 with subject life contracts; lapse, surrender and transfer out as the event, other exits censored).
+numerator: >-
+  Product-limit (Kaplan–Meier) survival of cohort g at n years, the estimator of MT19 on
+  contracts - time from entry_date, event LAPSE, SURRENDER or TRANSFER_OUT, censored at
+  other exits and at the cut-off; d(m) events among r(m) at risk at t(m).
 denominator: null
 grain: entry cohort (entry year) at 1, 2, 3 and 5 years
 breakdowns: [segment, line, product, channel, calendar_period]
@@ -23,7 +26,7 @@ requires:
   - life_in_force.entry_date
   - life_in_force.status
 optional: [life_events.event_date, life_events.event_type, life_in_force.product, life_in_force.channel]
-uses: [MT19, CV11]
+uses: [CV11]
 parameters:
   - name: years
     default: [1, 2, 3, 5]

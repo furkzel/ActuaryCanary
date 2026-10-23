@@ -1,0 +1,40 @@
+id: M12
+version: 0.1.0
+title_en: Uncertainty and risk
+title_tr: Belirsizlik ve risk
+status: draft
+implemented: false
+definition: >-
+  How wide the reserve range is: the Mack lognormal range and the bootstrap distribution
+  side by side, value at risk and tail value at risk, the effect of a fitted tail, and
+  the discounted reserve with its discount effect.
+phase: 2
+question: How wide is the reserve range; what are VaR and TVaR?
+required_all: [claim_valuations]
+required_any: []
+optional: [claims, premiums, policies, market, interest_rates]
+measures: [RS03, RS04, RS05]
+methods: [MT01, MT02, MT03, MT04, MT06, MT10, MT11, MT14]
+skip_reason: >-
+  Uncertainty and risk did not run: no claim valuations were loaded. Load
+  claim_valuations.xlsx to enable it; add interest_rates.xlsx and name a curve for the
+  discounted reserve.
+blocking_rules: [DV-CLV-01]
+outputs:
+  - reserve_distribution.parquet (MT11 simulations per origin and in total)
+  - reserve_range.csv (RS03 and RS05 per origin and in total)
+  - cash_flows.csv (expected and percentile cash flows by calendar period, nominal and discounted)
+report_page:
+  - Headline - selected reserve with the bootstrap 5 to 95 per cent range and its coefficient of variation.
+  - Ranges side by side - Mack lognormal (RS03) and bootstrap (RS05), per line, labelled as approximations.
+  - Distribution of the total reserve (histogram) with VaR and TVaR marked.
+  - Tail factor - fitted curves and their effect on the ultimate (MT14).
+  - Expected cash flows by calendar year, nominal and discounted, with the curve used (RS04, CV10).
+  - Calibration notes - the coverage evidence of MT06 and MT11 and the lines where the ranges are known to be narrow.
+notes: >-
+  Indicative ranges, never capital requirements. Without a named curve the discounted view
+  is left out with its reason. Built by P26.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 10 (P20).

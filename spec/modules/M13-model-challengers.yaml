@@ -1,0 +1,62 @@
+id: M13
+version: 0.1.0
+title_en: Model challengers
+title_tr: Rakip modeller
+status: draft
+implemented: false
+definition: >-
+  Data science challengers beside their classical champions on the same data, each with its
+  back-test error, explanations and the champion's error next to it; a challenger never
+  replaces a champion (blueprint 9.3).
+phase: 2
+question: Would a data science model do better?
+required_all: [claim_valuations, claims]
+required_any: []
+optional: [policies, premiums, market]
+measures: [AE02]
+methods:
+  - MT01
+  - MT02
+  - MT03
+  - MT04
+  - MT05
+  - MT06
+  - MT10
+  - MT11
+  - MT12
+  - MT13
+  - MT14
+  - MT16
+  - MT17
+  - MT18
+  - MT19
+  - MT22
+  - MT23
+  - MT24
+  - MT25
+  - MT26
+  - MT27
+  - MT28
+  - MT29
+skip_reason: >-
+  Model challengers did not run: they need claim-level data with claim headers. Load
+  claim_valuations.xlsx with claims.xlsx to enable it; add policies.xlsx for the pricing
+  and segmentation challengers.
+blocking_rules: [DV-CLV-01, DV-CLM-01]
+outputs:
+  - back_test.csv (AE02 per method, origin and horizon)
+  - challengers.csv (each challenger's result beside its champion's)
+  - explanations.csv (MT29 importances and partial dependence)
+report_page:
+  - Headline - for each challenger, its back-test error against its champion's, and which is lower.
+  - Back-testing of past selections by method and horizon (MT22, AE02).
+  - One block per challenger - result beside the champion, error, main explanations (MT29).
+  - Thin-evidence and failure notes per challenger (training size, holdout length).
+notes: >-
+  The champions are named in each challenger's spec (champion field). Challengers run only
+  when their minimum data sizes are met, and the page says which did not and why. Built by
+  P35 and P36.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 10 (P20).

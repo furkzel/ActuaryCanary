@@ -5,9 +5,9 @@ title_tr: Sağkalım analizi (Kaplan–Meier ve Cox)
 status: draft
 implemented: false
 definition: >-
-  Time-to-event curves with censoring: the Kaplan–Meier estimate of the share still open
-  (claims, report to close) or still in force (life contracts, entry to lapse or surrender)
-  by duration, and a Cox proportional-hazards model of how rating factors change the speed.
+  Time-to-event curves of claims with censoring: the Kaplan–Meier estimate of the share of
+  claims still open by time since report, and a Cox proportional-hazards model of how line,
+  cause and size change the speed of settlement.
 tier: B
 requires:
   - claim_valuations.claim_id
@@ -19,34 +19,22 @@ optional:
   - claims.segment
   - claims.line
   - claims.cause
-  - life_in_force.contract_id
-  - life_in_force.entry_date
-  - life_in_force.status
-  - life_in_force.product
-  - life_in_force.age_band
-  - life_events.event_date
-  - life_events.event_type
-uses: [CL08, CV04, CV11]
+uses: [CL08, CV04, CV08]
 assumptions:
-  - statement: Censoring is independent of the event (open claims at the cut-off, or contracts leaving by another decrement).
-    check: Compare cohorts with different censoring shares; competing exits are treated as censoring and labelled.
+  - statement: Censoring at the cut-off is independent of the time to close.
+    check: Compare report cohorts with different censoring shares.
   - statement: Cox - hazards of the groups are proportional over time.
     check: Scaled Schoenfeld residuals against time, Grambsch–Therneau test per covariate.
   - statement: Cohorts are comparable (no change of handling speed across report years).
-    check: Kaplan–Meier curves by report year (claims) or entry year (contracts).
+    check: Kaplan–Meier curves by report year.
 parameters:
-  - name: subject
-    default: claims
-    description: Claims (report to close) or life contracts (entry to the studied decrement).
-    allowed: [claims, life_contracts]
   - name: event
-    default: CLOSED
-    description: >-
-      Claims - closing in any closed status (CLOSED or CLOSED_NIL). Life - LAPSE, SURRENDER or
-      both; other exits are censored.
+    default: closed
+    description: The event is the first closing in any closed status (CLOSED or CLOSED_NIL), or only CLOSED (paid closings).
+    allowed: [closed, closed_with_payment]
   - name: covariates
     default: [line]
-    description: Covariates of the Cox model (claims - line, cause, size class; life - product, age band, channel).
+    description: Covariates of the Cox model (line, cause, size class of CV08).
   - name: ties
     default: efron
     description: Handling of tied event times in the Cox partial likelihood.
@@ -56,14 +44,13 @@ parameters:
     description: Level of the intervals (Greenwood with log-log transform for Kaplan–Meier).
   - name: time_unit
     default: days
-    description: Time scale; days for claims, years for contracts.
+    description: Time scale of the curves and percentiles.
     allowed: [days, months, years]
 algorithm:
   - step: >-
-      Durations and event flags: claims from report_date to close_date (or to the cut-off,
-      censored; CL08 dates); contracts from entry_date (left-truncated at the study start,
-      CV11) to the decrement, censored at other exits and at the study end. A reopened
-      claim's first closing is the event.
+      Durations and event flags: from report_date to close_date, or to the cut-off when the
+      claim is open (censored), with the dates of CL08. A reopened claim's first closing is
+      the event.
   - step: Kaplan–Meier estimate with Greenwood variance, at the distinct event times t(m) with d(m) events among n(m) at risk.
     formula: '\hat S(t) = \prod_{t_m \le t} \Big(1 - \frac{d_m}{n_m}\Big), \qquad \widehat{\mathrm{Var}}\big(\hat S(t)\big) = \hat S(t)^2 \sum_{t_m \le t} \frac{d_m}{n_m (n_m - d_m)}'
   - step: Median and percentiles of time to event with log-log confidence intervals.
@@ -83,7 +70,7 @@ outputs:
   - name: proportional_hazards_test
     description: Grambsch–Therneau statistic per covariate and globally.
 diagnostics:
-  - Survival curves by report or entry year.
+  - Survival curves by report year.
   - Scaled Schoenfeld residual plots.
   - Share censored per group.
 failure_modes:
@@ -120,6 +107,9 @@ references:
   - Kaplan, E. L. and Meier, P. (1958). Nonparametric estimation from incomplete observations. Journal of the American Statistical Association.
   - Cox, D. R. (1972). Regression models and life-tables. Journal of the Royal Statistical Society B.
   - Grambsch, P. M. and Therneau, T. M. (1994). Proportional hazards tests and diagnostics based on weighted residuals. Biometrika.
+notes: >-
+  Life contracts use the same product-limit estimator through LF03 (persistency) and their
+  rates through MT20; a Cox model of lapse is not specified in this round.
 requires_decision:
   - >-
     statsmodels (SurvfuncRight, PHReg) for Kaplan–Meier and Cox, or an implementation on

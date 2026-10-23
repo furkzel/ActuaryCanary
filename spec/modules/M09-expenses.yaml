@@ -1,0 +1,37 @@
+id: M09
+version: 0.1.0
+title_en: Expenses
+title_tr: Giderler
+status: draft
+implemented: false
+definition: >-
+  What it costs to write and handle business: commission, acquisition, administration and
+  claims-handling costs as ratios and unit costs, by line and over time, at value-date
+  prices where inflation is high.
+phase: 2
+question: What does it cost to write and handle business?
+required_all: [expenses]
+required_any: []
+optional: [premiums, policies, claim_valuations, claims, market]
+measures: [EX01, EX02, EX03, EX04, EX05]
+methods: []
+skip_reason: >-
+  Expenses did not run: no expenses were loaded. Load expenses.xlsx to enable it; add
+  premiums.xlsx with policies.xlsx for expense ratios and unit costs, and
+  claim_valuations.xlsx for claims-handling costs.
+blocking_rules: [DV-EXP-01]
+outputs:
+  - expenses_by_period.csv (expenses by type, line and month, nominal and at value-date prices)
+report_page:
+  - Headline - expense ratio and commission ratio of the last 12 months against the year before.
+  - Expense and commission ratios by line and month (EX01, EX02).
+  - Unit costs - administration cost per policy and claims-handling cost per claim, at value-date prices (EX04, EX05).
+  - Claims-handling ratio (EX03).
+  - Unallocated expenses shown at the level they were booked, never spread over lines.
+notes: >-
+  M05 keeps the expense and commission ratios it uses for the combined ratio; this module
+  adds depth (unit costs, trends) and runs on expenses alone. Built by P29.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 10 (P20).
