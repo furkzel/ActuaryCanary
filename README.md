@@ -12,6 +12,19 @@ All outputs are indicative analyses, never official reserves or prices.
 
 ## Quick start
 
+### The Windows program
+
+Unzip the release archive and open the `canary` folder. The program is run from **PowerShell**, not by double-clicking: in Explorer, click the address bar of the `canary` folder, type `powershell` and press Enter. Then type:
+
+```
+.\canary.exe demo                      # the bundled synthetic example; opens the report
+.\canary.exe run C:\path\to\yourfolder   # your own files
+```
+
+(Double-clicking `canary.exe` only shows a short message and waits for a key.) What to expect on the first run: a few seconds to start, and up to about half a minute the very first time while Windows scans the new files. The program is not signed, so Windows SmartScreen may say it protected your PC: click **More info**, then **Run anyway**. An antivirus program may also ask or warn; allow the program if you trust where you got it. Nothing is sent anywhere.
+
+### From source
+
 You need [uv](https://docs.astral.sh/uv/); it fetches Python 3.12 and the libraries.
 
 ```

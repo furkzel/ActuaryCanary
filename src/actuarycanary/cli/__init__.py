@@ -18,6 +18,7 @@ from actuarycanary import __version__
 from actuarycanary.canonical.feeds import CanonicalError
 from actuarycanary.cli.confirm import confirm_tables
 from actuarycanary.cli.demo import find_demo_folder
+from actuarycanary.cli.welcome import demo_closing_lines, show_welcome
 from actuarycanary.convert.bases import ReinsuranceBasis, ValueBasis
 from actuarycanary.convert.market import ConversionError
 from actuarycanary.io.excel import RawTable
@@ -45,7 +46,7 @@ class ValueOption(StrEnum):
     INFLATION_ADJUSTED = "inflation-adjusted"
 
 
-app = typer.Typer(help="Auditable, early-warning actuarial reporting.", no_args_is_help=True)
+app = typer.Typer(help="Auditable, early-warning actuarial reporting.")
 
 
 def _show_version(show: bool) -> None:
@@ -62,8 +63,9 @@ def use_utf8_streams() -> None:
             reconfigure(encoding="utf-8")
 
 
-@app.callback()
+@app.callback(invoke_without_command=True)
 def main(
+    ctx: typer.Context,
     version: Annotated[
         bool,
         typer.Option("--version", callback=_show_version, is_eager=True, help="Show version."),
@@ -71,6 +73,8 @@ def main(
 ) -> None:
     """Auditable, early-warning actuarial reporting."""
     use_utf8_streams()
+    if ctx.invoked_subcommand is None:
+        show_welcome(Console(width=80))
 
 
 @app.command()
@@ -328,5 +332,7 @@ def demo_command(
     console.print(f"Example data {folder}", soft_wrap=True)
     result = _run_with_progress(console, folder, out, RunSettings(), True, Path("profiles"))
     _summary(console, result)
+    for line in demo_closing_lines(result.report.resolve(), result.report.resolve().parent):
+        console.print(line, highlight=False, markup=False, soft_wrap=True)
     if open_report:
         webbrowser.open(result.report.resolve().as_uri())
