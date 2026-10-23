@@ -1,0 +1,92 @@
+id: MT15
+version: 0.1.0
+title_en: Separation method
+title_tr: Ayrıştırma yöntemi (separation)
+status: draft
+implemented: false
+definition: >-
+  Splits average paid per claim into a development pattern and a calendar-period index
+  (Taylor 1977), so that calendar-year effects such as claims inflation are measured
+  instead of being folded into development factors, then projects with an explicit future
+  index.
+tier: B
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+optional: [claims.occurrence_date, claims.segment, claims.line, market.series_id, market.value]
+uses: [MT01, MT02, MT16, CV02]
+assumptions:
+  - statement: >-
+      Expected incremental paid of origin i in development j is n(i) r(j) lambda(i + j): a
+      claim-count measure, a development pattern summing to 1 and a calendar index.
+    check: Residuals of the fit by origin and development show no pattern.
+  - statement: The ultimate claim count n(i) of each origin is known or well estimated.
+    check: Count development of MT16; immature origins carry its error.
+  - statement: The future calendar index follows the chosen trend or assumption.
+    check: Compare the fitted past index with CPI (CV02) and with the line's own trend.
+parameters:
+  - name: claim_counts
+    default: ultimate
+    description: n(i) is the ultimate count of MT16, or the reported count at the cut-off.
+    allowed: [ultimate, reported]
+  - name: future_index
+    default: trend
+    description: >-
+      Future lambda: a log-linear trend fitted on the last trend_periods diagonals, or a
+      constant annual rate from the assumptions register.
+    allowed: [trend, assumption]
+  - name: trend_periods
+    default: 5
+    description: Diagonals used to fit the future trend.
+algorithm:
+  - step: Average incremental paid per claim; diagonal sums d(k) and column sums v(j) of the observed triangle (I origins, square).
+    formula: 's_{i,j} = X_{i,j} / n_i, \qquad d_k = \sum_{i+j=k} s_{i,j}, \qquad v_j = \sum_{i} s_{i,j}'
+  - step: Recursion from the latest diagonal down (with the pattern summing to 1 over observed columns).
+    formula: '\hat\lambda_{I-1} = d_{I-1}, \qquad \hat r_j = \frac{v_j}{\sum_{k=j}^{I-1} \hat\lambda_k}, \qquad \hat\lambda_k = \frac{d_k}{1 - \sum_{j=k+1}^{I-1} \hat r_j}'
+  - step: Future index for diagonals k >= I, by trend (ordinary least squares on ln lambda) or by the assumed rate pi per period.
+    formula: '\hat\lambda_k = \hat\lambda_{I-1}\, (1 + \hat g)^{k - I + 1}'
+  - step: Projected future increments, ultimates and reserves.
+    formula: '\hat X_{i,j} = n_i\, \hat r_j\, \hat\lambda_{i+j}, \quad i + j \ge I, \qquad \hat U_i = C_{i,J_i} + \sum_{j > J_i} \hat X_{i,j}'
+outputs:
+  - name: calendar_index
+    description: lambda(k) for past diagonals and the projected future, with implied annual rates.
+  - name: development_pattern
+    description: r(j).
+  - name: ultimate
+    description: Ultimate per origin.
+  - name: inflation_comparison
+    description: Implied calendar inflation against CPI (CV02) by calendar year, when the index is loaded.
+diagnostics:
+  - Implied calendar inflation against CPI and against the superimposed rate of the line.
+  - Residuals by origin, development and diagonal.
+  - Ultimates against the chain ladder and the inflation-adjusted chain ladder (MT07).
+failure_modes:
+  - condition: Claim counts unavailable for an origin, or a count of zero.
+    action: Not run for that group; reason "separation needs claim counts per origin".
+  - condition: Triangle not square on the chosen grid (origin and development periods differ).
+    action: Not run; reason "separation needs equal origin and development periods".
+  - condition: A denominator 1 - sum of r reaches zero or below.
+    action: Not run; reason names the diagonal.
+validation:
+  - kind: fixture
+    description: A triangle generated exactly from known n, r and lambda gives them back, and the projection with the known future index.
+    tolerance: 1e-12 relative
+  - kind: property
+    description: Scaling the triangle scales lambda and keeps r; with a constant lambda the projection equals the chain ladder on per-claim amounts.
+    tolerance: 1e-9 relative
+  - kind: ground_truth
+    description: >-
+      On the synthetic high_inflation scenario (medium, annual origins), the geometric mean
+      of the fitted calendar index growth over the observed calendar years, per line, against
+      the true claims inflation of those years (CPI plus the line's superimposed rate, from
+      the scenario file).
+    tolerance: within 3 percentage points a year, 5 for MOTOR_TPL
+references:
+  - Taylor, G. C. (1977). Separation of inflation and other effects from the distribution of non-life insurance claim delays. ASTIN Bulletin.
+  - 'Taylor, G. (2000). Loss Reserving: An Actuarial Perspective. Kluwer.'
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.2 (P20).

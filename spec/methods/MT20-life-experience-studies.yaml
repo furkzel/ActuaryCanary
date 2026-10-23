@@ -1,0 +1,128 @@
+id: MT20
+version: 0.1.0
+title_en: Life experience studies with credibility
+title_tr: Güvenilirlik ağırlıklı hayat deneyim çalışmaları
+status: draft
+implemented: false
+definition: >-
+  Actual against expected mortality, morbidity, lapse and surrender by age, policy year,
+  product and calendar year: exposure from the in-force (CV11), expected decrements from a
+  reference table, exact Poisson intervals, and a credibility-weighted ratio that pulls thin
+  cells towards the table or the portfolio.
+tier: B
+requires:
+  - life_in_force.contract_id
+  - life_in_force.valuation_date
+  - life_in_force.entry_date
+  - life_in_force.age_band
+  - life_in_force.status
+optional:
+  - life_in_force.product
+  - life_in_force.sum_assured
+  - life_in_force.fund_value
+  - life_in_force.channel
+  - life_in_force.sex
+  - life_events.event_date
+  - life_events.event_type
+  - life_events.report_date
+uses: [CV11]
+assumptions:
+  - statement: Decrements in a cell are Poisson with mean (true rate) times exposure, independent across lives.
+    check: Over-dispersion of counts across sub-cells (Pearson chi-square over degrees of freedom); group contracts may cluster.
+  - statement: The reference table has the right shape by age; the study measures its level.
+    check: A/E by age band without trend; a trend means the table's shape does not fit.
+  - statement: The study period is complete (late-reported deaths left out, CV11).
+    check: A/E by calendar month near the study end.
+parameters:
+  - name: decrement
+    default: DEATH
+    description: Decrement studied.
+    allowed: [DEATH, DISABILITY, LAPSE, SURRENDER, LAPSE_AND_SURRENDER]
+  - name: reference_table
+    default: null
+    description: >-
+      Table file for expected decrements; no default until the owner chooses an open table
+      (blueprint 18.2). Without one, crude rates and their intervals are shown, no A/E.
+  - name: basis
+    default: lives
+    description: Lives-based or amounts-based counting (CV11).
+    allowed: [lives, amounts]
+  - name: credibility
+    default: limited_fluctuation
+    description: >-
+      Limited fluctuation (full credibility at a number of decrements) or Bühlmann–Straub
+      across cells (needs at least 5 cells with exposure).
+    allowed: [limited_fluctuation, buhlmann_straub, none]
+  - name: full_credibility_probability
+    default: 0.90
+    description: Probability p of the limited fluctuation standard.
+  - name: full_credibility_tolerance
+    default: 0.05
+    description: Relative error k of the limited fluctuation standard; p 0.90 and k 0.05 give about 1,082 decrements.
+  - name: confidence
+    default: 0.95
+    description: Level of the exact Poisson interval of A/E.
+algorithm:
+  - step: Exposure E(c) per cell c (age, policy year, calendar or policy year, and the chosen groups) and actual decrements A(c), per CV11.
+  - step: Expected decrements from the table (CV11 central or initial); amounts-based weights by sum assured or fund value.
+    formula: 'E_c = \sum_{x} \mu^{\mathrm{ref}}_x\, E^{c}_{x,c} \quad \text{or} \quad \sum_x q^{\mathrm{ref}}_x\, E^{0}_{x,c}'
+  - step: Ratio and exact Poisson interval (Garwood), from chi-square quantiles.
+    formula: '\widehat{AE}_c = \frac{A_c}{E_c}, \qquad \Big[\frac{\chi^2_{2A_c,\ \alpha/2}}{2E_c},\ \frac{\chi^2_{2A_c+2,\ 1-\alpha/2}}{2E_c}\Big]'
+  - step: Limited fluctuation credibility towards the table (A/E of 1).
+    formula: 'n_F = \Big(\frac{z_{(1+p)/2}}{k}\Big)^2, \qquad Z_c = \min\Big(1, \sqrt{A_c / n_F}\Big), \qquad \widetilde{AE}_c = Z_c\,\widehat{AE}_c + (1 - Z_c)'
+  - step: Bühlmann–Straub across cells with exposures as weights (structural parameters estimated from the cells, non-negative).
+    formula: 'Z_c = \frac{E_c}{E_c + \hat\kappa}, \qquad \widetilde{AE}_c = Z_c\,\widehat{AE}_c + (1 - Z_c)\,\overline{AE}, \qquad \hat\kappa = \hat s^2 / \hat a'
+  - step: Without a reference table, crude rates replace A/E.
+    formula: '\hat\mu_c = A_c / E^{c}_c \ \ (\text{with the same Garwood interval divided by exposure})'
+outputs:
+  - name: exposure
+    description: Central and initial exposure by cell.
+  - name: actual_expected
+    description: A, E, A/E with interval and credibility-weighted A/E by cell and in total.
+  - name: crude_rates
+    description: Crude rates with intervals, by age band and policy year.
+  - name: credibility
+    description: Z per cell and the standard used (n_F, or kappa with its estimates).
+diagnostics:
+  - A/E by age band, policy year and calendar year with intervals.
+  - Over-dispersion statistic of the cells.
+  - A/E by month near the study end (late reporting).
+failure_modes:
+  - condition: No reference table.
+    action: Crude rates only; reason "no reference table chosen" (open decision).
+  - condition: A cell with zero expected decrements but actual ones.
+    action: The cell is shown without a ratio and listed.
+  - condition: Fewer than 5 cells with exposure for Bühlmann–Straub, or a negative between-cell variance estimate.
+    action: Falls back to limited fluctuation, with the reason.
+validation:
+  - kind: fixture
+    description: >-
+      Three contracts with dates, a death and a lapse; central and initial exposure, A, E with
+      a small table, Garwood interval and Z hand-computed.
+    tolerance: 1e-12 relative
+  - kind: property
+    description: Splitting a cell into sub-cells does not change total exposure, actuals or expected.
+    tolerance: 1e-12 relative
+  - kind: ground_truth
+    description: >-
+      Calibration on books simulated from the model itself: deaths drawn from the reference
+      table times a known multiplier (0.8, 1.0, 1.2), 1,000 books, fixed seed; the 95 per cent
+      Garwood interval of total A/E covers the multiplier (slow test, behind
+      ACTUARYCANARY_MONTE_CARLO=1).
+    tolerance: coverage within 90 to 99 per cent
+  - kind: ground_truth
+    description: >-
+      On the synthetic baseline life book (P33 generator), total A/E per product against the
+      generator's multiplier, and lapse rates by policy year against the scenario's lapse
+      table, reported as information.
+    tolerance: none; information only
+references:
+  - Bühlmann, H. and Gisler, A. (2005). A Course in Credibility Theory and its Applications. Springer.
+  - Garwood, F. (1936). Fiducial limits for the Poisson distribution. Biometrika.
+  - Society of Actuaries. Experience study calculations (exposure methods). Society of Actuaries.
+requires_decision:
+  - Default reference mortality, morbidity and lapse tables that may be redistributed openly (blueprint 18.2).
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.2 (P20).

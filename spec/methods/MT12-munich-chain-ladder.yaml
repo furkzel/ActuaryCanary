@@ -1,0 +1,98 @@
+id: MT12
+version: 0.1.0
+title_en: Munich chain ladder
+title_tr: Münih zincir merdiven
+status: draft
+implemented: false
+definition: >-
+  Projects the paid and the incurred triangle together (Quarg and Mack 2004): each
+  development factor is corrected by how far the origin's paid-to-incurred ratio lies from
+  its average, so that paid and incurred ultimates move towards each other.
+tier: B
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+optional: [claims.occurrence_date, claims.segment, claims.line]
+uses: [MT01, MT02, MT06]
+assumptions:
+  - statement: Paid and incurred each follow Mack's chain-ladder assumptions (MT06).
+    check: As for MT06, on each triangle.
+  - statement: >-
+      An origin with a paid-to-incurred ratio below average develops faster on paid and
+      slower on incurred, linearly in the standardised deviation (correlation lambda).
+    check: >-
+      Scatter of the residuals of paid link ratios against the residuals of Q^-1 (and of
+      incurred against Q); a straight line through the origin with slope lambda.
+  - statement: Case reserving practice is stable across origins.
+    check: CL11 run-off and CL10 paid-to-incurred along diagonals; a change of practice shows as a diagonal shift.
+parameters:
+  - name: sigma_extrapolation
+    default: mack
+    description: Extrapolation of the last variance parameters, as in MT06.
+    allowed: [mack]
+  - name: min_origins
+    default: 5
+    description: Fewest origin periods; lambda rests on the residuals of all columns.
+algorithm:
+  - step: >-
+      Paid P and incurred I cumulative triangles on the same grid (MT01). Volume-weighted
+      factors f^P(j), f^I(j) and Mack variance parameters sigma^P(j), sigma^I(j) (MT06).
+  - step: Paid-to-incurred ratio, its average per column and its variance parameters.
+    formula: 'Q_{i,j} = \frac{P_{i,j}}{I_{i,j}}, \quad q_j = \frac{\sum_i P_{i,j}}{\sum_i I_{i,j}}, \quad (\rho^I_j)^2 = \frac{1}{n_j - 1} \sum_i I_{i,j} (Q_{i,j} - q_j)^2, \quad (\rho^P_j)^2 = \frac{1}{n_j - 1} \sum_i P_{i,j} (Q^{-1}_{i,j} - q^{-1}_j)^2'
+  - step: Standardised residuals of link ratios and of the ratios.
+    formula: '\tilde r^P_{i,j} = \frac{P_{i,j+1}/P_{i,j} - f^P_j}{\sigma^P_j} \sqrt{P_{i,j}}, \quad \tilde q^P_{i,j} = \frac{Q^{-1}_{i,j} - q^{-1}_j}{\rho^P_j} \sqrt{P_{i,j}}, \quad \text{and likewise } \tilde r^I, \tilde q^I \text{ with } I, Q, \rho^I'
+  - step: Correlation parameters as slopes through the origin over all cells with both residuals.
+    formula: '\lambda^P = \frac{\sum \tilde q^P \tilde r^P}{\sum (\tilde q^P)^2}, \qquad \lambda^I = \frac{\sum \tilde q^I \tilde r^I}{\sum (\tilde q^I)^2}'
+  - step: Joint projection, column by column from each origin's latest diagonal.
+    formula: '\hat P_{i,j+1} = \hat P_{i,j}\Big(f^P_j + \lambda^P \frac{\sigma^P_j}{\rho^P_j}\big(\hat I_{i,j}/\hat P_{i,j} - q^{-1}_j\big)\Big), \quad \hat I_{i,j+1} = \hat I_{i,j}\Big(f^I_j + \lambda^I \frac{\sigma^I_j}{\rho^I_j}\big(\hat P_{i,j}/\hat I_{i,j} - q_j\big)\Big)'
+  - step: Ultimates and reserves from the last projected column; tail 1 as in the Mack model.
+outputs:
+  - name: lambda
+    description: lambda^P and lambda^I with the number of residual pairs.
+  - name: paid_ultimate
+    description: Munich paid ultimate per origin.
+  - name: incurred_ultimate
+    description: Munich incurred ultimate per origin.
+  - name: paid_incurred_gap
+    description: Gap between paid and incurred ultimates per origin, Munich against separate chain ladders.
+  - name: projected_ratios
+    description: Projected paid-to-incurred ratios per origin and column.
+diagnostics:
+  - Residual scatter plots with the fitted lambda lines.
+  - Gap between paid and incurred ultimates, separate chain ladders against Munich.
+  - Projected paid-to-incurred ratios at ultimate (close to 1 is the expected sign).
+failure_modes:
+  - condition: Paid or incurred chain ladder not available, or fewer than min_origins origin periods.
+    action: Not run, with the MT02 reason or "Munich chain ladder needs at least 5 origin periods".
+  - condition: A ratio variance rho is zero in a column (all origins with the same ratio).
+    action: The correction of that column is set to zero, with a WARNING naming the column.
+  - condition: Incurred is zero in a cell with paid above zero.
+    action: The cell is left out of the residuals, with a WARNING.
+validation:
+  - kind: fixture
+    description: A 4 x 4 paid and incurred pair with lambda, the corrected factors and the ultimates hand-computed.
+    tolerance: 1e-9 relative
+  - kind: benchmark
+    description: >-
+      Ultimates and lambda on the Quarg–Mack example triangles (MCLpaid, MCLincurred) match
+      the chainladder package's MunichAdjustment, frozen as in decision 0007.
+    tolerance: 1e-6 relative
+  - kind: property
+    description: With lambda forced to zero the projections equal the separate paid and incurred chain ladders.
+    tolerance: 1e-12 relative
+  - kind: ground_truth
+    description: >-
+      On the synthetic baseline and reserve_bias_change scenarios (medium), the Munich
+      incurred ultimate, summed per line over the accident years with at least three years of
+      development, is within tolerance of the true ultimate; the gap between paid and
+      incurred ultimates is reported as information beside the separate chain ladders'.
+    tolerance: 5 per cent per line, 10 per cent for MOTOR_TPL
+references:
+  - Quarg, G. and Mack, T. (2004). Munich Chain Ladder. Blätter der DGVFM.
+  - Wüthrich, M. V. and Merz, M. (2008). Stochastic Claims Reserving Methods in Insurance. Wiley.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.2 (P20).

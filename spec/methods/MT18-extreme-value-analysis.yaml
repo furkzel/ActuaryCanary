@@ -1,0 +1,126 @@
+id: MT18
+version: 0.1.0
+title_en: Extreme value analysis (peaks over threshold)
+title_tr: Uç değer analizi (eşik aşımları)
+status: draft
+implemented: false
+definition: >-
+  Models the largest claims with a generalised Pareto distribution above a threshold
+  chosen by an automatic, reproducible rule, and gives tail quantiles, return levels and
+  expected shortfall. Proposes the extreme-value large-loss threshold that CV08 may adopt.
+tier: B
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claim_valuations.status
+optional: [claims.segment, claims.line, claims.event_code, market.series_id, market.value]
+uses: [MT17, CV01, CV02, CV08]
+assumptions:
+  - statement: >-
+      Above a high enough threshold u, excesses X - u are generalised Pareto (Pickands–
+      Balkema–de Haan).
+    check: >-
+      Mean excess plot linear above u; stability of the shape xi and of the modified scale
+      sigma - xi u across thresholds; Anderson–Darling test of the excesses.
+  - statement: Large claims are independent and identically distributed over the years pooled.
+    check: Exceedances per year (roughly Poisson) and exceedance sizes by year at value-date prices without trend.
+parameters:
+  - name: candidate_quantiles
+    default: [0.80, 0.825, 0.85, 0.875, 0.90, 0.925, 0.95, 0.96, 0.97, 0.975, 0.98, 0.99]
+    description: Empirical quantiles of the sizes tried as thresholds, lowest first.
+  - name: min_exceedances
+    default: 50
+    description: Fewest excesses for a fit at a threshold; candidates with fewer are not tried.
+  - name: fdr_level
+    default: 0.10
+    description: False discovery rate of the ForwardStop rule (Bader, Yan and Zhang 2018).
+  - name: gof_bootstrap
+    default: 500
+    description: Parametric bootstrap samples for the Anderson–Darling p-value at each candidate.
+  - name: return_periods
+    default: [10, 50, 100, 200]
+    description: Years for which return levels are given (the size exceeded on average once in T years).
+  - name: claims_used
+    default: all_non_nil
+    description: Sizes as in MT17 (closed or all non-nil); all non-nil by default, so the largest open claims count.
+    allowed: [closed, all_non_nil]
+algorithm:
+  - step: Sizes per group as in MT17 (value-date prices, catastrophe events as one size per event when event_code is present).
+  - step: For each candidate threshold u(m), fit the generalised Pareto to the excesses by maximum likelihood.
+    formula: 'G_{\xi,\sigma}(y) = 1 - \Big(1 + \frac{\xi y}{\sigma}\Big)^{-1/\xi} \ (\xi \neq 0), \qquad 1 - e^{-y/\sigma} \ (\xi = 0)'
+  - step: Anderson–Darling p-value p(m) of each fit by parametric bootstrap (refit on each sample).
+  - step: >-
+      ForwardStop: the fits at the lowest k-hat candidates are rejected, where k-hat is the
+      largest k whose running mean of -ln(1 - p) is at most the false discovery rate; the
+      threshold is the next candidate, and the lowest one when nothing is rejected.
+    formula: '\hat k = \max\Big\{ k : -\frac{1}{k}\sum_{m=1}^{k} \ln(1 - p_m) \le \alpha \Big\}, \qquad \hat u = u_{\hat k + 1}'
+  - step: Tail quantile and return level, with n claims in total, N_u above u and h years of data.
+    formula: 'x_p = \hat u + \frac{\hat\sigma}{\hat\xi}\Big[\Big(\frac{n}{N_u}(1-p)\Big)^{-\hat\xi} - 1\Big], \qquad z_T = \hat u + \frac{\hat\sigma}{\hat\xi}\Big[\Big(\frac{N_u}{h}\,T\Big)^{\hat\xi} - 1\Big]'
+  - step: Expected shortfall above a quantile (xi below 1).
+    formula: 'ES_p = \frac{x_p}{1 - \hat\xi} + \frac{\hat\sigma - \hat\xi \hat u}{1 - \hat\xi}'
+  - step: >-
+      Proposed large-loss threshold (for CV08, only after the owner's decision): the
+      selected u of the segment and line; when the group has fewer than 100 non-nil claims
+      or no candidate with min_exceedances, CV08's percentile rule applies unchanged.
+outputs:
+  - name: threshold
+    description: Selected u per group, the candidate table (u, N_u, xi, sigma, p-value) and the ForwardStop path.
+  - name: gpd_fit
+    description: xi and sigma with standard errors and a profile-likelihood 95 per cent interval for xi.
+  - name: tail_quantiles
+    description: x_p for 0.99, 0.995 and 0.999, and expected shortfall.
+  - name: return_levels
+    description: z_T for the return periods.
+  - name: proposed_large_loss_threshold
+    description: The threshold CV08 would use under the extreme-value rule, beside the 99th percentile in force.
+diagnostics:
+  - Mean excess plot with the selected threshold.
+  - Parameter stability plots of xi and the modified scale across candidates.
+  - Quantile plot of the excesses against the fitted generalised Pareto.
+  - Share of claims and of incurred above the proposed threshold against the CV08 percentile.
+failure_modes:
+  - condition: No candidate threshold with at least min_exceedances excesses.
+    action: Not run for that group; reason gives the number of claims.
+  - condition: xi estimate at or above 1 (infinite mean).
+    action: Quantiles shown, expected shortfall not; WARNING "infinite mean tail".
+  - condition: Maximum likelihood fails (xi below -0.5, where it is not regular).
+    action: That candidate is skipped and marked.
+validation:
+  - kind: fixture
+    description: >-
+      With xi fixed at 0 the scale equals the mean excess; x_p, z_T and ES hand-computed for
+      given parameters; the ForwardStop index for a given list of p-values.
+    tolerance: 1e-12 relative
+  - kind: benchmark
+    description: Generalised Pareto maximum likelihood on fixed samples against scipy.stats.genpareto fit with location fixed at u.
+    tolerance: 1e-4 relative
+  - kind: ground_truth
+    description: >-
+      Calibration on samples from the model itself: a lognormal body with a generalised
+      Pareto tail above a known u0 (xi 0.3 and 0.5), 1,000 samples of 5,000 sizes, fixed seed.
+      At the true threshold the 95 per cent profile interval covers the true xi; with the
+      automatic rule the estimated 99.5th percentile is close to the truth (slow test,
+      behind ACTUARYCANARY_MONTE_CARLO=1).
+    tolerance: coverage within 90 to 99 per cent; 99.5th percentile within 25 per cent of the truth in at least 80 per cent of samples
+  - kind: ground_truth
+    description: >-
+      On the synthetic baseline and large_loss scenarios (medium), the fitted xi per line
+      against the reciprocal of the scenario's Pareto tail index, and the proposed threshold
+      against the scenario's tail start, reported as information.
+    tolerance: none; information only
+references:
+  - Pickands, J. (1975). Statistical inference using extreme order statistics. Annals of Statistics.
+  - Embrechts, P., Klüppelberg, C. and Mikosch, T. (1997). Modelling Extremal Events for Insurance and Finance. Springer.
+  - Bader, B., Yan, J. and Zhang, X. (2018). Automated threshold selection for extreme value analysis via ordered goodness-of-fit tests with adjustment for false discovery rate. Annals of Applied Statistics.
+  - McNeil, A. J. (1997). Estimating the tails of loss severity distributions using extreme value theory. ASTIN Bulletin.
+requires_decision:
+  - >-
+    Default large-loss threshold rule (blueprint 18.2, record 0010): keep the 99th
+    percentile of CV08, or adopt this extreme-value threshold; CV08 changes only after the
+    owner decides (record 0210).
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.2 (P20).
