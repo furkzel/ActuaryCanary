@@ -1,4 +1,5 @@
 import io
+import sys
 
 import pytest
 from rich.console import Console
@@ -74,3 +75,23 @@ def test_the_demo_closing_lines_fit_80_columns_and_name_both_places(tmp_path) ->
     assert str(report) in lines[2] + lines[3] and str(report.parent) in lines[3]
     assert "canary run <folder>" in "\n".join(lines)
     assert all(len(line) <= 80 for line in lines if str(tmp_path) not in line)
+
+
+def test_waiting_for_a_key_returns_at_once_where_the_windows_console_is_absent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(welcome.sys, "platform", "linux")
+    monkeypatch.setitem(sys.modules, "msvcrt", None)  # an import would now fail
+    welcome.wait_for_key()
+
+
+def test_the_welcome_without_a_command_runs_where_the_windows_console_is_absent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(welcome.sys, "platform", "linux")
+    monkeypatch.setitem(sys.modules, "msvcrt", None)
+    buffer = io.StringIO()
+    show_welcome(Console(file=buffer, width=80), interactive=True)
+    assert "canary demo" in buffer.getvalue()
+    assert "Press any key" not in buffer.getvalue()
+    assert runner.invoke(cli.app, []).exit_code == 0

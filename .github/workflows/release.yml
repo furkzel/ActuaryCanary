@@ -1,4 +1,4 @@
-# UNVERIFIED: written without a run; the first run happens when the owner pushes a tag.
+# Ran green on the hosted runner for the tags v0.1.0-rc1 and v0.1.0-rc2.
 # A tag vX.Y.Z[-suffix] must equal the version in project.yaml (v0.1.0-rc1 is checked against 0.1.0); a suffix makes it a pre-release.
 name: release
 on:

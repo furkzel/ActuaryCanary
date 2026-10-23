@@ -26,10 +26,11 @@ def console_is_only_ours() -> bool:
 
 
 def wait_for_key() -> None:
-    """Block until a key is pressed (Windows console)."""
-    import msvcrt
+    """Block until a key is pressed (Windows console); returns at once elsewhere."""
+    if sys.platform == "win32":
+        import msvcrt
 
-    msvcrt.getch()
+        msvcrt.getch()
 
 
 def welcome_lines() -> list[str]:
