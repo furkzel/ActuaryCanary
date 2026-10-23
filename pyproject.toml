@@ -41,7 +41,7 @@ requires = ["uv_build>=0.9.5,<0.10"]
 build-backend = "uv_build"
 
 [tool.pytest.ini_options]
-addopts = "-n auto"
+addopts = "-n auto --maxprocesses=6"
 testpaths = ["tests"]
 markers = [
     "slow: test takes 0.5 s or more; excluded from the fast suite",

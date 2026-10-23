@@ -1,12 +1,12 @@
 id: MT08
-version: 1.0.0
+version: 1.1.0
 title_en: Robust z-score anomaly flags
 title_tr: Sağlam z-skoru ile anomali işaretleri
 status: reviewed
 definition: >-
-  Flags individual payments and case-reserve changes that lie far from the typical values
-  of their segment and line, measured by a z-score built on the median and the median
-  absolute deviation, which outliers cannot distort.
+  Flags individual payments, case-reserve changes and movements of incurred at a payment
+  that lie far from the typical values of their segment and line, measured by a z-score
+  built on the median and the median absolute deviation, which outliers cannot distort.
 tier: A
 requires:
   - claim_valuations.claim_id
@@ -31,15 +31,18 @@ parameters:
     default: [segment, line]
     description: Groups within which median and MAD are computed.
   - name: variables
-    default: [paid_flow, reserve_change]
+    default: [paid_flow, reserve_change, incurred_change_at_payment]
     description: Variables scored.
-    allowed: [paid_flow, reserve_change]
+    allowed: [paid_flow, reserve_change, incurred_change_at_payment]
 algorithm:
   - step: >-
       Variables per claim and month, in reporting currency with the constant development
       rate (CV01): paid_flow is ln of each positive paid flow (CV04); reserve_change is
-      ln((R(v_n) + 1) / (R(v_(n-1)) + 1)) for consecutive rows with any reserve.
-    formula: 'y = \ln(\Delta P), \quad y = \ln\frac{R(v_n) + 1}{R(v_{n-1}) + 1}'
+      ln((R(v_n) + 1) / (R(v_(n-1)) + 1)) for consecutive rows with any reserve;
+      incurred_change_at_payment is ln((I+(v_n) + 1) / (I+(v_(n-1)) + 1)), I = P + R, on
+      consecutive rows with paid and reserve where the paid flow is positive and incurred
+      moved, that is a payment the case reserve did not absorb (x+ means max(x, 0)).
+    formula: 'y = \ln(\Delta P), \quad y = \ln\frac{R(v_n) + 1}{R(v_{n-1}) + 1}, \quad y = \ln\frac{I^+(v_n) + 1}{I^+(v_{n-1}) + 1}'
   - step: Robust z-score within each group.
     formula: 'z = \frac{0.6745\,(y - \tilde y)}{\mathrm{MAD}}, \qquad \mathrm{MAD} = \mathrm{median}\,|y - \tilde y|'
   - step: When MAD is zero, the mean absolute deviation is used instead.
@@ -63,8 +66,9 @@ validation:
     tolerance: 1e-12 relative
   - kind: ground_truth
     description: >-
-      On the synthetic baseline, the injected extreme payment outliers are recalled; report
-      recall and the number of other flags per thousand payments.
+      On the synthetic baseline, the injected extreme payment outliers are recalled (a
+      payment is recalled when its row is flagged on paid_flow or incurred_change_at_payment);
+      report recall and the number of other flagged payment rows per thousand payments.
     tolerance: recall of at least 0.75 of injected outliers
 references:
   - Iglewicz, B. and Hoaglin, D. C. (1993). How to Detect and Handle Outliers. ASQC Quality Press.
@@ -75,3 +79,9 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-10-22
+    change: >-
+      Third variable incurred_change_at_payment, approved by the owner (record 0060). The
+      injected payments are 20 to 50 times the median payment, inside the spread of log
+      payments, so paid_flow alone recalled none of them.

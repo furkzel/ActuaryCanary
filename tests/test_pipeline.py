@@ -368,6 +368,6 @@ def test_a_different_assumption_gives_a_different_run_id(
 def test_the_report_shows_the_modules_and_the_method_tables(default_run: RunResult) -> None:
     """Reading the 5 MB page (plotly is inlined) takes over a second on a scanned disk."""
     html = default_run.report.read_text(encoding="utf-8")
-    assert 'id="modules"' in html
-    for heading in ("Ultimates by method", "Diagnostics", "Assumptions in force", "Anomaly flags"):
+    assert 'id="measure-views"' in html and 'id="anomalies"' in html
+    for heading in ("Ultimates by method", "Diagnostics", "Assumptions register", "Key findings"):
         assert heading in html

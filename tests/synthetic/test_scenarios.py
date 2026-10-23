@@ -140,6 +140,7 @@ def test_large_events_follow_the_rate_per_exposure_and_grow_with_the_portfolio()
     assert 1.5 < _large_events(big) / _large_events(small) < 2.7
 
 
+@pytest.mark.slow
 def test_large_events_are_listed_in_the_truth_and_touch_no_other_line():
     sim, plain = (
         _with_large_events(0.02),

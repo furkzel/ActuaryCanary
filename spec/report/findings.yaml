@@ -1,0 +1,313 @@
+id: RP01
+version: 1.0.0
+title_en: Key finding rules
+title_tr: Temel bulgu kuralları
+status: draft
+definition: >-
+  The fixed rules that write the sentences of the report (blueprint 11, key findings and the
+  findings of each page). A rule has a condition on named facts of the run, a sentence
+  template whose placeholders are facts, and the evidence it links to. A sentence appears
+  when its condition holds and never otherwise; no other text is generated.
+notes: >-
+  Scope `run` gives one sentence for the run, `segment` one per segment (segments are never
+  added together), `line` one per segment and line, shown on the reserving page of that line.
+  Conditions are clauses `fact op value` joined by `and`, where op is one of < <= > >= == !=
+  and value is a number or another fact; a rule whose facts are not all known does not fire.
+  Facts are computed from the run's results; thresholds come from the methods that own them
+  (for example the thin-evidence limit of decision 0039 and the flag-rate limit of MT08), so
+  a rule repeats no threshold of a method. Placeholders are formatted by the kind of their
+  fact (amount, ratio, factor, count, score, text) with the rounding of CV06. Key findings
+  show the run and segment sentences with the lowest priority numbers first, at most eight;
+  the rest follow under "further findings". A rule with `banner` is also shown at the top of
+  the cover and of every analytic page.
+rules:
+  - id: KF01
+    title: Thin evidence
+    scope: run
+    priority: 0
+    banner: true
+    condition: thin_lines > 0
+    template: >-
+      Only {origin_periods} origin periods ({first_origin} to {last_origin}) are loaded for
+      {thin_lines} of {lines} lines, fewer than the {thin_threshold} the methods need for
+      solid evidence: every factor, ratio and range rests on few observations, and the
+      differences between methods show how much the answer depends on the method, not how
+      precise it is.
+    evidence:
+      section: reserving
+      files: [diagnostics.csv]
+      specs: [MT02, MT10]
+  - id: KF02
+    title: Blocking data findings
+    scope: run
+    priority: 1
+    condition: blocking_findings > 0
+    template: >-
+      Blocking data quality findings: {blocking_findings}, on {blocking_rows} rows in all;
+      the modules they touch are marked unable and their results should not be read.
+    evidence:
+      section: quality
+      files: [quality.json]
+      specs: [DQ01]
+  - id: KF03
+    title: Reserve estimate per segment
+    scope: segment
+    priority: 2
+    condition: selected_ultimate > 0
+    template: >-
+      {segment}: selected ultimate claims {selected_ultimate} {currency}, of which
+      {selected_ibnr} {currency} ({ibnr_share} of the ultimate) lies above the incurred to
+      date (IBNR); the largest part is {largest_line} with {largest_line_ibnr} {currency}.
+    evidence:
+      section: reserving
+      files: [ultimates.csv]
+      specs: [RS02, MT10]
+  - id: KF04
+    title: Loss ratio rose
+    scope: segment
+    priority: 3
+    condition: loss_ratio_change >= 0.05
+    template: >-
+      {segment}: the ultimate loss ratio rose from {loss_ratio_previous} for origin
+      {loss_ratio_previous_origin} to {loss_ratio_latest} for origin {loss_ratio_origin}.
+    evidence:
+      section: profitability
+      files: [measures.csv, lineage.csv]
+      specs: [RT01]
+  - id: KF05
+    title: Loss ratio fell
+    scope: segment
+    priority: 3
+    condition: loss_ratio_change <= -0.05
+    template: >-
+      {segment}: the ultimate loss ratio fell from {loss_ratio_previous} for origin
+      {loss_ratio_previous_origin} to {loss_ratio_latest} for origin {loss_ratio_origin}.
+    evidence:
+      section: profitability
+      files: [measures.csv, lineage.csv]
+      specs: [RT01]
+  - id: KF06
+    title: Written premium grew
+    scope: segment
+    priority: 4
+    condition: premium_change >= 0.1
+    template: >-
+      {segment}: written premium grew by {premium_change} to {written_premium} {currency} in
+      {premium_period} against {premium_previous_period}.
+    evidence:
+      section: portfolio
+      files: [measures.csv, lineage.csv]
+      specs: [PR01]
+  - id: KF07
+    title: Written premium shrank
+    scope: segment
+    priority: 4
+    condition: premium_change <= -0.1
+    template: >-
+      {segment}: written premium shrank by {premium_decline} to {written_premium} {currency}
+      in {premium_period} against {premium_previous_period}.
+    evidence:
+      section: portfolio
+      files: [measures.csv, lineage.csv]
+      specs: [PR01]
+  - id: KF08
+    title: Paid ultimate below incurred to date
+    scope: run
+    priority: 5
+    condition: negative_paid_origins > 0
+    template: >-
+      Origins where the paid chain ladder gives an ultimate below what is already incurred:
+      {negative_paid_origins} ({negative_paid_lines}). The paid pattern is too short or case
+      reserves are high, so the paid estimates of these origins are not used on their own.
+    evidence:
+      section: reserving
+      files: [diagnostics.csv, ultimates.csv]
+      specs: [MT02, RS02]
+  - id: KF09
+    title: High last development with tail 1.0
+    scope: run
+    priority: 6
+    condition: late_development_count > 0
+    template: >-
+      Development is still above {late_development_limit} in the last observed period
+      ({late_development_list}) while the tail factor is 1.0, so ultimates of these lines may
+      be understated; a tail factor can be set in the assumptions register.
+    evidence:
+      section: reserving
+      files: [diagnostics.csv, assumptions.csv]
+      specs: [MT02, RS01]
+  - id: KF10
+    title: Anomaly rate above the limit
+    scope: run
+    priority: 7
+    condition: anomaly_lines_above > 0
+    template: >-
+      Lines where the robust z-score flags more than {anomaly_rate_limit} of the values:
+      {anomaly_lines_above} (highest {anomaly_rate_max} in {anomaly_rate_max_line}). Such a
+      line may mix populations, so its flags are leads to review, not errors.
+    evidence:
+      section: anomalies
+      files: [anomalies.csv]
+      specs: [MT08]
+  - id: KF11
+    title: Factor on a zero denominator
+    scope: run
+    priority: 8
+    condition: zero_denominator_cells > 0
+    template: >-
+      Development factors that take a cell growing from zero: {zero_denominator_cells}
+      ({zero_denominator_list}). Such a cell adds to the numerator only and raises the
+      factor; it is kept by default and can be excluded in the assumptions register.
+    evidence:
+      section: reserving
+      files: [diagnostics.csv, factors.csv]
+      specs: [MT02, RS01]
+  - id: KF12
+    title: Factors on few origins
+    scope: run
+    priority: 9
+    condition: few_link_ratio_factors > 0
+    template: >-
+      Development factors resting on fewer than {few_link_ratio_minimum} origins:
+      {few_link_ratio_factors}, in {few_link_ratio_lines} of {lines} lines. Each is an average
+      of one or two link ratios.
+    evidence:
+      section: reserving
+      files: [diagnostics.csv, factors.csv]
+      specs: [MT02, RS01]
+  - id: KF13
+    title: Reserve range not available
+    scope: run
+    priority: 10
+    condition: mack_not_run > 0
+    template: >-
+      Triangles without a reserve range: {mack_not_run} of {mack_triangles}. The Mack
+      standard error needs more link ratios than they have.
+    evidence:
+      section: reserving
+      files: [reserve_range.csv]
+      specs: [MT06, RS03]
+  - id: KF14
+    title: Data quality warnings
+    scope: run
+    priority: 11
+    condition: warning_findings > 0
+    template: >-
+      Data quality score {dq_score} out of 100. Warnings: {warning_findings}, on
+      {warning_rows} rows in all; the largest is "{top_warning}".
+    evidence:
+      section: quality
+      files: [quality.json]
+      specs: [DQ01]
+  - id: KF15
+    title: Modules not run
+    scope: run
+    priority: 12
+    condition: modules_skipped > 0
+    template: >-
+      Modules that did not run because their data was not loaded: {modules_skipped} of
+      {modules_total} ({skipped_list}).
+    evidence:
+      section: not-run
+      files: [modules.json]
+      specs: []
+  - id: KF16
+    title: Modules limited
+    scope: run
+    priority: 13
+    condition: modules_limited > 0
+    template: >-
+      Modules that ran with some measures or methods missing: {modules_limited}
+      ({limited_list}).
+    evidence:
+      section: not-run
+      files: [modules.json]
+      specs: []
+  - id: KF20
+    title: Thin evidence in the line
+    scope: line
+    priority: 0
+    condition: thin_evidence > 0
+    template: >-
+      Origin periods: {origin_periods}, fewer than {thin_threshold}. The methods below agree
+      or differ on little evidence.
+    evidence:
+      section: line
+      files: [diagnostics.csv]
+      specs: [MT02]
+  - id: KF21
+    title: Methods differ
+    scope: line
+    priority: 1
+    condition: method_spread >= 0.1
+    template: >-
+      The total ultimates of the methods on the incurred triangle lie between {method_low} and
+      {method_high} {currency}, {method_spread} of the selected ultimate apart; this spread
+      shows how much the answer depends on the method, not a confidence interval.
+    evidence:
+      section: line
+      files: [ultimates.csv]
+      specs: [MT02, MT03, MT04, MT05, MT10]
+  - id: KF22
+    title: Paid ultimate below incurred in the line
+    scope: line
+    priority: 2
+    condition: negative_paid_origins > 0
+    template: >-
+      Origins whose paid chain ladder ultimate is below the incurred to date:
+      {negative_paid_list}.
+    evidence:
+      section: line
+      files: [diagnostics.csv]
+      specs: [MT02]
+  - id: KF23
+    title: High last development in the line
+    scope: line
+    priority: 3
+    condition: late_development_count > 0
+    template: >-
+      Last observed development {late_development_list} is above {late_development_limit}
+      with tail factor 1.0: the ultimate may be understated.
+    evidence:
+      section: line
+      files: [diagnostics.csv]
+      specs: [MT02]
+  - id: KF24
+    title: Zero denominator in the line
+    scope: line
+    priority: 4
+    condition: zero_denominator_cells > 0
+    template: >-
+      Factors resting on a cell that grows from zero: {zero_denominator_list}.
+    evidence:
+      section: line
+      files: [diagnostics.csv]
+      specs: [MT02]
+  - id: KF25
+    title: Few link ratios in the line
+    scope: line
+    priority: 5
+    condition: few_link_ratio_factors > 0
+    template: >-
+      Factors resting on fewer than {few_link_ratio_minimum} origins:
+      {few_link_ratio_factors} ({few_link_ratio_list}).
+    evidence:
+      section: line
+      files: [diagnostics.csv]
+      specs: [MT02]
+  - id: KF26
+    title: Anomaly rate of the line
+    scope: line
+    priority: 6
+    condition: anomaly_rate > anomaly_rate_limit
+    template: >-
+      Payments and case-reserve movements flagged: {anomaly_flagged} of {anomaly_values}
+      ({anomaly_rate}, above {anomaly_rate_limit}); the line may mix populations.
+    evidence:
+      section: anomalies
+      files: [anomalies.csv]
+      specs: [MT08]
+change_log:
+  - version: 1.0.0
+    date: 2026-10-22
+    change: First rules for the executive report (work item P10).

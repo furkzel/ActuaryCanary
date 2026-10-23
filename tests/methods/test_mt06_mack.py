@@ -1,5 +1,6 @@
 """MT06 Mack standard error and the lognormal range: benchmarks, the hand-computed lognormal
-step, failure modes and the coverage of the 95th percentile on repeated simulations."""
+step, failure modes, and the coverage of the 95th percentile: a calibration on triangles from
+Mack's own model (with a tolerance) and on the synthetic baseline (information only)."""
 
 import math
 import os
@@ -109,25 +110,99 @@ def test_residuals_are_standardised_link_ratio_deviations() -> None:
     assert np.isnan(result.residuals[9]).all()  # the newest origin has no link ratio
 
 
-# Coverage: 200 simulations of the baseline at 2 per cent of its portfolio (about 0.5 s each).
-# Run with ACTUARYCANARY_MONTE_CARLO=1; record 0045 gives the reasons and the measured values.
-COVERAGE_RUNS = 200
-COVERAGE_SCALE = 0.02
+# Calibration (spec MT06 1.1.0, record 0062): triangles drawn from Mack's own model with the
+# GenIns parameters. Link ratios are gamma with mean f(j) C(i,j) for C(i,j+1) and variance
+# sigma^2(j) C(i,j); the first column is the one of GenIns. Run with ACTUARYCANARY_MONTE_CARLO=1.
+CALIBRATION_RUNS = 2000
+CALIBRATION_SEED = 20261022
 COVERAGE_RANGE = (0.90, 0.99)  # MT06 tolerance
+MONTE_CARLO = pytest.mark.skipif(
+    os.environ.get("ACTUARYCANARY_MONTE_CARLO") != "1",
+    reason="Monte Carlo coverage test; set ACTUARYCANARY_MONTE_CARLO=1",
+)
 
 
-def _coverage() -> dict[str, float]:
+def _genins_model() -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """First column, f(j) and sigma^2(j) of GenIns under Mack's estimators."""
+    triangle = array(load_benchmark("genins")["triangle"])
+    fit = _run(triangle)
+    return triangle[:, 0], fit.chain.factors, fit.sigma_squared
+
+
+def _draw_triangle(
+    rng: np.random.Generator, first: np.ndarray, f: np.ndarray, sigma2: np.ndarray
+) -> np.ndarray:
+    """One complete cumulative triangle of Mack's model (origins x development columns)."""
+    n = len(first)
+    full = np.empty((n, n))
+    full[:, 0] = first
+    for j in range(n - 1):
+        mean = f[j] * full[:, j]
+        full[:, j + 1] = rng.gamma(mean * f[j] / sigma2[j], sigma2[j] / f[j])
+    return full
+
+
+def _observed(full: np.ndarray) -> np.ndarray:
+    """The upper triangle of a complete one: origin i is seen up to column n - 1 - i."""
+    n = len(full)
+    return np.where(np.arange(n)[None, :] <= (n - 1 - np.arange(n))[:, None], full, np.nan)
+
+
+def test_drawn_triangles_follow_the_model_in_mean_and_variance() -> None:
+    first, f, sigma2 = _genins_model()
+    rng = np.random.default_rng(CALIBRATION_SEED)
+    draws = np.array([_draw_triangle(rng, first, f, sigma2) for _ in range(500)])
+    assert (draws[:, :, 0] == first).all()
+    ratio_mean = (draws[:, 3, 4] / draws[:, 3, 3]).mean()
+    assert ratio_mean == pytest.approx(f[3], rel=0.02)
+    scaled_var = ((draws[:, 3, 4] - f[3] * draws[:, 3, 3]) ** 2 / draws[:, 3, 3]).mean()
+    assert scaled_var == pytest.approx(sigma2[3], rel=0.25)
+    seen = _observed(draws[0])
+    assert np.isnan(seen).sum() == 45 and np.isnan(seen[9, 1]) and not np.isnan(seen[9, 0])
+
+
+@pytest.mark.slow
+@MONTE_CARLO
+def test_ground_truth_calibration_on_triangles_from_mack_model() -> None:
+    first, f, sigma2 = _genins_model()
+    rng = np.random.default_rng(CALIBRATION_SEED)
+    hits = []
+    for _ in range(CALIBRATION_RUNS):
+        full = _draw_triangle(rng, first, f, sigma2)
+        seen = _observed(full)
+        result = _run(seen)
+        _, total = result.ranges()
+        assert total is not None
+        true_reserve = float(full[:, -1].sum() - np.nanmax(seen, axis=1).sum())
+        hits.append(true_reserve <= total.percentiles[0.95])
+    coverage = float(np.mean(hits))
+    print(
+        f"coverage of the 95th percentile over {CALIBRATION_RUNS} Mack-model runs: {coverage:.3f}"
+    )
+    low, high = COVERAGE_RANGE
+    assert low <= coverage <= high, coverage
+
+
+# Information, no tolerance (records 0045, 0062): 200 simulations of the baseline at 2 per cent of
+# its portfolio (about 0.5 s each). Calendar-year inflation, development after ten years and the
+# 2023 earthquake break the independence of origins, so the coverage is below the nominal 95 per
+# cent on most lines.
+SYNTHETIC_RUNS = 200
+SYNTHETIC_SCALE = 0.02
+
+
+def _synthetic_coverage() -> dict[str, float]:
     from actuarycanary.structures.triangles import TriangleSettings, build_triangles
     from actuarycanary.synthetic.build import simulate
     from actuarycanary.synthetic.scenario import SizeSpec, load_scenario
 
     base = load_scenario("baseline")
     hits: dict[str, list[bool]] = {}
-    for k in range(COVERAGE_RUNS):
+    for k in range(SYNTHETIC_RUNS):
         scenario = base.model_copy(
             update={"meta": base.meta.model_copy(update={"seed": base.meta.seed + k + 1})}
         )
-        sim = simulate(scenario, SizeSpec(portfolio_scale=COVERAGE_SCALE))
+        sim = simulate(scenario, SizeSpec(portfolio_scale=SYNTHETIC_SCALE))
         truth = sim.truth["ultimates"]
         rates = dict(truth.select("currency", "fx_cutoff_rate").unique().iter_rows())
         valuations = sim.clean["claim_valuations"].with_row_index(SOURCE_ROW)
@@ -152,16 +227,8 @@ def _coverage() -> dict[str, float]:
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(
-    os.environ.get("ACTUARYCANARY_MONTE_CARLO") != "1",
-    reason="200 simulations (about 2 minutes); set ACTUARYCANARY_MONTE_CARLO=1",
-)
-@pytest.mark.xfail(
-    strict=True,
-    reason="measured on 2026-10-22 below the MT06 range for every line (record 0045)",
-)
-def test_ground_truth_95th_percentile_coverage() -> None:
-    coverage = _coverage()
-    print(coverage)
-    low, high = COVERAGE_RANGE
-    assert all(low <= c <= high for c in coverage.values()), coverage
+@MONTE_CARLO
+def test_synthetic_baseline_coverage_is_reported_as_information() -> None:
+    coverage = _synthetic_coverage()
+    print(f"coverage of the 95th percentile on the synthetic baseline, per line: {coverage}")
+    assert coverage and all(0.0 <= c <= 1.0 for c in coverage.values())

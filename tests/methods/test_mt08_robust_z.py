@@ -100,7 +100,63 @@ def test_flows_follow_consecutive_rows_and_reserve_changes_are_scored() -> None:
     assert paid["amount"].to_list() == [3000.0, 9000.0]
     reserve = result.scores.filter(pl.col("variable") == "reserve_change")
     assert reserve["y"].to_list() == [pytest.approx(math.log(1 / 1501))]
+    # the payment of 300 in March moves incurred from 100 to 400 (USD), 3000 to 12000 TRY
+    incurred = result.scores.filter(pl.col("variable") == "incurred_change_at_payment")
+    assert incurred.select("valuation_date", "before", "amount").rows() == [
+        (date(2024, 3, 31), 3000.0, 12000.0)
+    ]
+    assert incurred["y"][0] == pytest.approx(math.log(12001 / 3001))
     assert result.not_converted == 1
+
+
+def test_incurred_change_needs_a_payment_and_a_movement() -> None:
+    rows = [
+        ("A", date(2024, 1, 31), 0.0, 500.0, "TRY"),
+        ("A", date(2024, 2, 29), 200.0, 300.0, "TRY"),  # paid from the reserve: incurred stays
+        ("A", date(2024, 3, 31), 200.0, 900.0, "TRY"),  # reserve raised without a payment
+        ("A", date(2024, 4, 30), 1700.0, 0.0, "TRY"),  # payment above the reserve: scored
+        ("B", date(2024, 1, 31), 0.0, 100.0, "TRY"),
+        ("B", date(2024, 2, 29), 50.0, 100.0, "EUR"),  # no rate on this row: counted
+    ]
+    result = robust_z_flags(
+        _valuations(rows),
+        None,
+        {"TRY": 1.0},
+        min_group_size=1,
+        variables=("incurred_change_at_payment",),
+    )
+    assert result.scores.select("claim_id", "valuation_date", "y").rows() == [
+        ("A", date(2024, 4, 30), pytest.approx(math.log(1701 / 1101)))
+    ]
+    assert result.not_converted == 1
+
+
+def test_an_unforeseen_payment_is_flagged_where_its_size_alone_is_not() -> None:
+    # 40 claims pay about 370 to 2600 out of a reserve up to 6 per cent above the payment;
+    # one pays 3000 on a reserve of 100. Its payment sits inside the spread of payments, its
+    # jump of incurred does not.
+    rows = []
+    for k in range(40):
+        size = round(1000.0 * math.exp(0.05 * (k - 20)), 2)
+        rows += [
+            (f"C{k:02d}", date(2024, 1, 31), 0.0, size * (1 + 0.01 * (k % 7)), "TRY"),
+            (f"C{k:02d}", date(2024, 2, 29), size, 0.0, "TRY"),
+        ]
+    rows += [
+        ("X", date(2024, 1, 31), 0.0, 100.0, "TRY"),
+        ("X", date(2024, 2, 29), 3000.0, 0.0, "TRY"),
+    ]
+    result = robust_z_flags(
+        _valuations(rows),
+        None,
+        {"TRY": 1.0},
+        variables=("paid_flow", "incurred_change_at_payment"),
+    )
+    flagged = result.flags.select("claim_id", "variable").rows()
+    assert flagged == [("X", "incurred_change_at_payment")]
+    assert result.flags["reason"][0].startswith(
+        "incurred moved from 100.0 to 3000.0 with a payment"
+    )
 
 
 def test_groups_come_from_claims() -> None:
@@ -121,22 +177,33 @@ def test_unknown_variable_is_rejected() -> None:
         robust_z_flags(_payments([1.0]), None, {}, variables=("paid",))
 
 
-# Ground truth (record 0043): recall of the injected extreme payments, at least 0.75 in MT08.
-# Measured 2026-10-22: 0 of 8 (their z is 1.2 to 2.5); the owner chose to keep MT08 as specified.
+# Ground truth (records 0043, 0060): recall of the injected extreme payments, at least 0.75 in
+# MT08; a payment is recalled when its row is flagged on paid_flow or on the incurred change at
+# the payment. Measured 2026-10-22 with MT08 1.1.0: 8 of 8 on baseline and on high_inflation
+# (paid_flow alone 0 of 8), other flagged payment rows 15.1 and 14.1 per 1000 payments.
+PAYMENT_VARIABLES = ("paid_flow", "incurred_change_at_payment")
+
+
 @pytest.mark.slow
 @pytest.mark.integration
-@pytest.mark.skipif(not medium("baseline").is_dir(), reason="run `just synth baseline medium`")
-@pytest.mark.xfail(strict=True, reason="recall 0 of 8 against at least 0.75 (record 0043)")
-def test_ground_truth_recall_of_injected_payment_outliers() -> None:
-    data = load_medium("baseline")
+@pytest.mark.parametrize("scenario", ["baseline", "high_inflation"])
+def test_ground_truth_recall_of_injected_payment_outliers(scenario: str) -> None:
+    if not medium(scenario).is_dir():
+        pytest.skip(f"run `just synth {scenario} medium`")
+    data = load_medium(scenario)
     result = robust_z_flags(data.valuations, data.claims, data.rates.rates)
     injected = data.faults.filter(pl.col("fault_type") == "extreme_payment_outliers").select(
         "claim_id", pl.col("date").alias("valuation_date")
     )
+    keys = ["claim_id", "valuation_date"]
     paid = result.scores.filter(pl.col("variable") == "paid_flow")
-    found = injected.join(paid, on=["claim_id", "valuation_date"], how="inner")
-    assert found.height == injected.height  # every injected payment is scored
-    recall = found["flagged"].sum() / injected.height
-    others = paid.filter(pl.col("flagged")).height - found["flagged"].sum()
-    print(f"recall {recall:.2f}; other flags per 1000 payments {1000 * others / paid.height:.2f}")
+    assert injected.join(paid, on=keys, how="semi").height == injected.height  # all scored
+    flagged = (
+        result.scores.filter(pl.col("variable").is_in(PAYMENT_VARIABLES) & pl.col("flagged"))
+        .select(keys)
+        .unique()
+    )
+    recall = injected.join(flagged, on=keys, how="semi").height / injected.height
+    others = flagged.join(injected, on=keys, how="anti").height
+    print(f"recall {recall:.2f}; other flagged payments per 1000 {1000 * others / paid.height:.2f}")
     assert recall >= 0.75

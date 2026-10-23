@@ -3,6 +3,7 @@ sizes, and the ranking of claims with injected faults on the synthetic baseline.
 
 import math
 from datetime import date
+from pathlib import Path
 
 import numpy as np
 import polars as pl
@@ -14,7 +15,7 @@ from actuarycanary.methods.isolation_forest import (
     claim_features,
     isolation_forest_flags,
 )
-from tests.methods.medium import AMOUNT_FAULTS, load_medium, medium
+from tests.methods.medium import AMOUNT_FAULTS, load_folder, medium
 
 CUT_OFF = date(2024, 12, 31)
 
@@ -96,9 +97,14 @@ def test_small_groups_are_not_scored() -> None:
     }
 
 
-# Ground truth (record 0043): claims with injected faults should rank higher; AUC at least 0.7.
-# Measured 2026-10-22 on the claims whose amounts the faults changed: AUC 0.63 (all faulted
-# claims 0.55); the owner chose to keep MT09 as specified.
+# Ground truth (records 0043, 0061): claims with injected faults should rank higher; AUC at least
+# 0.7 on the claims whose amounts the faults changed (owner's choice of positives). Measured
+# 2026-10-22: with 256 claims per tree AUC 0.63 (baseline) and 0.63 (high_inflation); with every
+# claim of the group (MT09 1.1.0) 0.90 and 0.89. The tiny fixture's groups are smaller than 256,
+# so the change does not touch it (0.89 before and after).
+TINY = Path(__file__).parents[1] / "fixtures" / "synthetic" / "baseline"
+
+
 def _auc(scores: np.ndarray, positive: np.ndarray) -> float:
     """Mann–Whitney form of the area under the ROC curve, ties counted half."""
     ranks = pl.Series(scores).rank("average").to_numpy()
@@ -108,10 +114,15 @@ def _auc(scores: np.ndarray, positive: np.ndarray) -> float:
 
 @pytest.mark.slow
 @pytest.mark.integration
-@pytest.mark.skipif(not medium("baseline").is_dir(), reason="run `just synth baseline medium`")
-@pytest.mark.xfail(strict=True, reason="AUC 0.63 against at least 0.7 (record 0043)")
-def test_ground_truth_claims_with_amount_faults_rank_higher() -> None:
-    data = load_medium("baseline")
+@pytest.mark.parametrize(
+    "folder",
+    [medium("baseline"), medium("high_inflation"), TINY],
+    ids=["baseline", "high_inflation", "tiny"],
+)
+def test_ground_truth_claims_with_amount_faults_rank_higher(folder: Path) -> None:
+    if not folder.is_dir():
+        pytest.skip(f"run `just synth {folder.parent.name} medium`")
+    data = load_folder(folder)
     cut_off = data.valuations["valuation_date"].max()
     assert isinstance(cut_off, date)
     features = claim_features(data.valuations, data.claims, data.rates.rates, cut_off)
@@ -124,3 +135,13 @@ def test_ground_truth_claims_with_amount_faults_rank_higher() -> None:
     print(f"AUC amount faults {_auc(scores, positive):.3f}, all faults {_auc(scores, every):.3f}")
     assert positive.sum() == amount.n_unique()
     assert _auc(scores, positive) >= 0.7
+
+
+def test_every_claim_of_the_group_by_default_and_an_integer_caps_the_sample() -> None:
+    features = _synthetic(300)
+    whole = isolation_forest_flags(features, n_estimators=20)
+    capped = isolation_forest_flags(features, n_estimators=20, max_samples=300)
+    sampled = isolation_forest_flags(features, n_estimators=20, max_samples=64)
+    assert whole.scores.equals(capped.scores)
+    assert not whole.scores.equals(sampled.scores)
+    assert whole.flags["claim_id"][0] == "C0000"

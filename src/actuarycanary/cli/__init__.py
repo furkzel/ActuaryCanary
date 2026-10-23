@@ -1,5 +1,6 @@
 """Command line entry point (typer and rich)."""
 
+import sys
 import textwrap
 from datetime import date
 from enum import StrEnum
@@ -51,6 +52,14 @@ def _show_version(show: bool) -> None:
         raise typer.Exit()
 
 
+def use_utf8_streams() -> None:
+    """Write UTF-8 to the console and to redirected output whatever the code page (Windows)."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8")
+
+
 @app.callback()
 def main(
     version: Annotated[
@@ -59,6 +68,7 @@ def main(
     ] = False,
 ) -> None:
     """Auditable, early-warning actuarial reporting."""
+    use_utf8_streams()
 
 
 @app.command()

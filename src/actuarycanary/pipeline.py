@@ -47,6 +47,7 @@ from actuarycanary.modules.reserving import (
     ChainLadderSettings,
     MethodInputs,
     ReservingResult,
+    earlier_result,
     methods_run,
     not_run_notes,
     run_reserving,
@@ -84,9 +85,10 @@ from actuarycanary.recognition.tables import (
     with_profile,
 )
 from actuarycanary.recognition.values import ValueMapping
+from actuarycanary.report.model import ReportInputs, build_model, earlier_valuation
 from actuarycanary.report.modules_section import render_modules_section
 from actuarycanary.report.quality_section import render_quality_section
-from actuarycanary.report.render import REPORT_NAME, ReportContext, render_report
+from actuarycanary.report.render import REPORT_NAME, render_report
 from actuarycanary.spec.loader import load_specs
 from actuarycanary.structures.triangles import (
     GROUP_FIELDS,
@@ -175,6 +177,7 @@ class RunResult:
     quality: QualityReport
     analysis: AnalysisResult
     anomalies: AnomalyResult
+    report_data: dict[str, Any]  # every number and text of the report page (golden test)
 
 
 def recognise_folder(
@@ -665,7 +668,7 @@ def run(
         for s in (*SPECS_USED, *extra, *concepts, *checked_only, *ran, *ran_methods)
         if s != "claims" or "claims" in feeds
     ]
-    used = list(dict.fromkeys(used))
+    used = list(dict.fromkeys([*used, specs.finding_rules.id]))
     catalogue = {f.spec.id: f.spec for f in specs.files}
     spec_records = [SpecRecord(s, catalogue[s].version, catalogue[s].title_en) for s in used]
     settings_record = _settings_record(settings, currency, price_index, market_read)
@@ -680,23 +683,8 @@ def run(
     # settings already in the run id, so it is not an input to the id (record 0023)
     settings_used = _with_cut_off_used(settings_record, triangles.cut_off)
 
-    step("Writing the report")
-    context = ReportContext(
-        title=metadata.name,
-        disclaimer=metadata.report.disclaimer,
-        package_version=__version__,
-        run_id=run,
-        reserving=reserving,
-        findings=findings,
-        inputs=tuple(inputs),
-        specs=tuple(spec_records),
-        settings=settings_used,
-        quality_html=render_quality_section(quality, catalogue["DQ01"].version),
-        modules_html=render_modules_section(analysis),
-        anomaly_counts=anomalies.counts(),
-    )
-    outputs = [write_output(out, REPORT_NAME, render_report(context))]
-    outputs.append(write_output(out, QUALITY_NAME, quality_json(quality)))
+    step("Writing the tables")
+    outputs = [write_output(out, QUALITY_NAME, quality_json(quality))]
     outputs += _write_tables(out, reserving)
     results = analysis.results()
     assert analysis.inputs is not None
@@ -715,6 +703,36 @@ def run(
         (ANOMALIES_NAME, anomalies_csv(anomalies)),
     ):
         outputs.append(write_output(out, name, content))
+    randomness = [{"method": "MT09", "seed": isolation_forest.SEED, "purpose": "isolation forest"}]
+
+    step("Writing the report")
+    previous = earlier_valuation(reserving)
+    report_data = build_model(
+        ReportInputs(
+            metadata=metadata,
+            run_id=run,
+            package_version=__version__,
+            catalogue=specs,
+            reserving=reserving,
+            earlier=None if previous is None else earlier_result(reserving, previous),
+            analysis=analysis,
+            quality=quality,
+            anomalies=anomalies,
+            data_findings=findings,
+            inputs=tuple(inputs),
+            specs=tuple(spec_records),
+            settings=settings_used,
+            outputs=tuple(outputs),
+            randomness=tuple(randomness),
+            mappings=tuple(mappings),
+        )
+    )
+    page = render_report(
+        report_data,
+        quality_html=render_quality_section(quality, catalogue["DQ01"].version),
+        modules_html=render_modules_section(analysis),
+    )
+    outputs.insert(0, write_output(out, REPORT_NAME, page))
 
     step("Writing the manifest")
     manifest = write_manifest(
@@ -729,9 +747,7 @@ def run(
         outputs=outputs,
         findings=[asdict(f) for f in findings],
         assumptions=records(in_force),
-        randomness=[
-            {"method": "MT09", "seed": isolation_forest.SEED, "purpose": "isolation forest"}
-        ],
+        randomness=randomness,
     )
     tables = tuple(t.recognition for t in loaded)
     return RunResult(
@@ -745,4 +761,5 @@ def run(
         quality,
         analysis,
         anomalies,
+        report_data,
     )
