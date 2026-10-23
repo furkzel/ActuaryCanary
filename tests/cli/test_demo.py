@@ -60,6 +60,8 @@ def test_demo_runs_on_the_example_and_opens_the_report_only_when_asked(
     assert result.exit_code == 0, result.output
     report = next((tmp_path / "out").glob("*/report.html"))
     assert opened == ([report.resolve().as_uri()] if opens else [])
+    assert "canary run <folder>" in result.output
+    assert report.parent.name in result.output
 
 
 @pytest.mark.slow

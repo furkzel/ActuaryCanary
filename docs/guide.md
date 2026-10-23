@@ -38,6 +38,8 @@ A good first test of your files is to give the platform a copy and read the data
 
 ## 3. Running it
 
+With the Windows program, run it from PowerShell: open the `canary` folder in Explorer, click the address bar, type `powershell` and press Enter, then use `.\canary.exe` in place of `canary` below (double-clicking the program only shows a short message). On the first run expect a few seconds before anything appears, and a possible SmartScreen notice because the program is not signed: click **More info**, then **Run anyway**; an antivirus program may ask too. When `canary demo` ends it prints where the report page and the run folder are.
+
 ```
 canary run <folder>                 # the six files in <folder>
 canary demo                         # the example data that ships with the program

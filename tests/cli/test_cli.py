@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from typer.testing import CliRunner
@@ -37,7 +38,7 @@ def test_the_command_group_switches_the_console_streams_to_utf8(
     out, err = _cp1252_stream(), _cp1252_stream()
     monkeypatch.setattr(sys, "stdout", out)
     monkeypatch.setattr(sys, "stderr", err)
-    main(version=False)
+    main(SimpleNamespace(invoked_subcommand="info"), version=False)  # type: ignore[arg-type]
     for stream in (out, err):
         assert stream.encoding == "utf-8"
         stream.write("ultimate ÷ truth → ≥ 0.75")  # not in cp1252: would raise before
@@ -47,7 +48,11 @@ def test_the_command_group_switches_the_console_streams_to_utf8(
 @pytest.mark.slow  # starts a Python process that imports the whole package
 def test_output_redirected_to_a_file_is_utf8_under_a_legacy_code_page(tmp_path: Path) -> None:
     target = tmp_path / "out.txt"
-    code = "from actuarycanary.cli import main; main(version=False); print('ultimate ÷ truth → ≥')"
+    code = (
+        "from types import SimpleNamespace; from actuarycanary.cli import main; "
+        "main(SimpleNamespace(invoked_subcommand='info'), version=False); "
+        "print('ultimate ÷ truth → ≥')"
+    )
     env = {**os.environ, "PYTHONIOENCODING": "cp1252", "PYTHONUTF8": "0"}
     with target.open("wb") as handle:
         done = subprocess.run(
