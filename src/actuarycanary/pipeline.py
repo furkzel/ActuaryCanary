@@ -20,7 +20,7 @@ from actuarycanary.canonical.feeds import CanonicalError, CanonicalFeed, Finding
 from actuarycanary.convert.bases import ValueBasis
 from actuarycanary.convert.market import ConversionError, MarketData
 from actuarycanary.convert.rates import DevelopmentRates, development_rates
-from actuarycanary.io.excel import RawTable, Workbook, read_workbook, spreadsheets
+from actuarycanary.io.excel import RawTable, Workbook, read_workbooks, spreadsheets
 from actuarycanary.manifest.metadata import load_metadata
 from actuarycanary.manifest.run import (
     InputRecord,
@@ -187,8 +187,7 @@ def recognise_folder(
     if not folder.is_dir():
         raise InputError(f"{folder} is not a folder")
     loaded: list[LoadedTable] = []
-    for path in spreadsheets(folder):
-        workbook = read_workbook(path, cache_dir)
+    for workbook in read_workbooks(spreadsheets(folder), cache_dir):
         for table in workbook.tables:
             if not table.headers:
                 continue

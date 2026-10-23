@@ -9,8 +9,10 @@ and spreadsheet row number.
 
 import hashlib
 import json
+import os
 import shutil
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -27,6 +29,7 @@ SOURCE_SHEET = "_source_sheet"
 SOURCE_ROW = "_source_row"
 SOURCE_COLUMNS = (SOURCE_FILE, SOURCE_SHEET, SOURCE_ROW)
 
+READ_WORKERS = 6  # files read at once; every one holds its sheet in memory while it is parsed
 PROBE_ROWS = 50  # rows read as text to find the header
 SPREADSHEET_SUFFIXES = (".xlsx", ".xlsm", ".xls", ".ods")
 
@@ -190,6 +193,16 @@ def read_workbook(path: Path, cache_dir: Path | None) -> Workbook:
         for name, (frame, header) in sheets.items()
     )
     return Workbook(path, sha256, path.stat().st_size, tables)
+
+
+def read_workbooks(paths: list[Path], cache_dir: Path | None) -> list[Workbook]:
+    """`read_workbook` for each of `paths`, several at a time (the parser releases the GIL);
+    the result is in the order of `paths`, and the first failure in that order is raised."""
+    workers = min(READ_WORKERS, os.cpu_count() or 1, len(paths))
+    if workers <= 1:
+        return [read_workbook(path, cache_dir) for path in paths]
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        return list(pool.map(lambda path: read_workbook(path, cache_dir), paths))
 
 
 def spreadsheets(folder: Path) -> list[Path]:

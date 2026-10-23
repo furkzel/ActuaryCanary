@@ -25,8 +25,8 @@ from actuarycanary.synthetic.portfolio import Policies, PremiumRows, build_polic
 from actuarycanary.synthetic.reinsurance import Reinsurance
 from actuarycanary.synthetic.scenario import Scenario, SizeSpec, load_scenario, sized
 from actuarycanary.synthetic.writer import (
-    fits_in_worksheet,
     sha256,
+    split_workbooks,
     write_csv,
     write_parquet,
     write_workbook,
@@ -202,6 +202,17 @@ def anomalies(sim: Simulation, fault_rows: pl.DataFrame) -> pl.DataFrame:
     )
 
 
+def locate(workbooks: list[tuple[str, list[SheetPlan]]], row: int) -> tuple[str, int]:
+    """The workbook holding 0-based data row `row` of a feed's first sheet, and the worksheet
+    row it sits on there."""
+    for file, parts in workbooks:
+        first = parts[0]
+        if row < first.n_rows:
+            return file, first.header_row + 1 + row
+        row -= first.n_rows
+    raise IndexError("row is past the last workbook")
+
+
 def write_outputs(sim: Simulation, out: Path) -> dict[str, object]:
     """Write spreadsheets, canonical parquet and truth under `out`; return the manifest."""
     scenario = sim.scenario
@@ -211,7 +222,7 @@ def write_outputs(sim: Simulation, out: Path) -> dict[str, object]:
     dictionaries = Dictionaries()
     log = MessLog()
     plans: dict[str, list[SheetPlan]] = {}
-    skipped: dict[str, str] = {}
+    workbooks: dict[str, list[tuple[str, list[SheetPlan]]]] = {}
     for feed, sheets in sim.frames.items():
         plans[feed] = []
         for key, frame in sheets.items():
@@ -219,42 +230,39 @@ def write_outputs(sim: Simulation, out: Path) -> dict[str, object]:
             plans[feed].append(
                 layout_sheet(scenario, dictionaries, streams, feed, key, frame, log, name)
             )
-        if all(fits_in_worksheet(s) for s in plans[feed]):
-            write_workbook(out / f"{feed}.xlsx", plans[feed])
-        else:
-            rows = max(s.n_rows for s in plans[feed])
-            skipped[f"{feed}.xlsx"] = f"{rows} data rows exceed the worksheet limit; parquet only"
+        workbooks[feed] = split_workbooks(feed, plans[feed])
+        for file, parts in workbooks[feed]:
+            write_workbook(out / file, parts)
         write_parquet(out / "canonical" / f"{feed}.parquet", pl.concat(sheets.values()))
 
     layout = pl.DataFrame(
         [
             {
-                "file": f"{feed}.xlsx",
+                "file": file,
                 "sheet": s.name,
                 "title_rows": len(s.title_rows),
                 "header_row": s.header_row,
                 "first_data_row": s.header_row + 1,
                 "data_rows": s.n_rows,
-                "written": f"{feed}.xlsx" not in skipped,
+                "written": True,
             }
-            for feed, sheets in plans.items()
-            for s in sheets
+            for feed in plans
+            for file, parts in workbooks[feed]
+            for s in parts
         ]
     )
-    first_data = {
-        (f"{feed}"): s.header_row + 1 for feed, sheets in plans.items() for s in sheets[:1]
-    }
     fault_table = pl.DataFrame(
         [
             {
                 "fault_type": f.fault_type,
-                "file": f"{f.file}.xlsx",
+                "file": file,
                 "key": f.key,
                 "row": f.row,
-                "sheet_row": first_data[f.file] + f.row,
+                "sheet_row": sheet_row,
                 "detail": f.detail,
             }
             for f in sim.faults
+            for file, sheet_row in [locate(workbooks[f.file], f.row)]
         ],
         schema={
             "fault_type": pl.String,
@@ -341,7 +349,7 @@ def write_outputs(sim: Simulation, out: Path) -> dict[str, object]:
             feed: sum(f.height for f in sheets.values()) for feed, sheets in sim.frames.items()
         },
         "claims_simulated": len(sim.world),
-        "spreadsheets_skipped": skipped,
+        "spreadsheets_skipped": {},
         "sha256": {p.relative_to(out).as_posix(): sha256(p) for p in files},
     }
     (out / "manifest.yaml").write_text(

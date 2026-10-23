@@ -474,7 +474,7 @@ The specifications stay the source of truth. An Excel or C++ implementation woul
 
 ### 14.3 Performance budget
 
-On an ordinary laptop, the largest scenario (ten years, about one million claim transactions) loads, maps and reports in under two minutes; changing a basis or a segment in the report takes under five seconds. Budgets are measured by the performance tests, never assumed.
+On an ordinary laptop, the largest scenario (ten years, about one million claim transactions) loads, maps and reports in under two minutes; changing a basis or a segment in the report takes under five seconds (this second criterion applies from version 1.1: the report of version 1.0 is static and a changed basis is a new run, record 0084). Budgets are measured by the performance tests, never assumed.
 
 ## 15. Clean code and repository culture
 

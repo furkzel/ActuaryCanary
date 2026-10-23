@@ -67,22 +67,27 @@ class _Reader:
             self.columns = pl.read_csv(self.truth / "column_map.csv")
 
     def read(self, feed: str) -> dict[str, pl.DataFrame] | None:
-        path = self.folder / f"{feed}.xlsx"
-        if not path.exists():
+        paths = [self.folder / f"{feed}.xlsx"]
+        if not paths[0].exists():
+            paths = sorted(self.folder.glob(f"{feed}_part*.xlsx"))  # a feed split over workbooks
+        if not paths:
             return None
-        header_rows = {}
-        if self.truth is not None:
-            rows = self.layout.filter(pl.col("file") == f"{feed}.xlsx")
-            header_rows = dict(zip(rows["sheet"], rows["header_row"], strict=True))
-        sheets = (
-            list(header_rows) if header_rows else (["fx", "cpi"] if feed == "market" else [None])
-        )
-        out: dict[str, pl.DataFrame] = {}
         keys = ["fx", "cpi"] if feed == "market" else [feed]
-        for position, sheet in enumerate(sheets):
-            frame = read_sheet(path, sheet, header_rows.get(sheet, 1))
-            out[keys[position]] = self._canonical(feed, str(sheet), frame)
-        return out
+        parts: dict[str, list[pl.DataFrame]] = {}
+        for path in paths:
+            header_rows = {}
+            if self.truth is not None:
+                rows = self.layout.filter(pl.col("file") == path.name)
+                header_rows = dict(zip(rows["sheet"], rows["header_row"], strict=True))
+            sheets = (
+                list(header_rows) if header_rows else ["fx", "cpi"] if feed == "market" else [None]
+            )
+            for position, sheet in enumerate(sheets):
+                frame = read_sheet(path, sheet, header_rows.get(sheet, 1))
+                parts.setdefault(keys[position], []).append(
+                    self._canonical(feed, str(sheet), frame)
+                )
+        return {key: pl.concat(frames) for key, frames in parts.items()}
 
     def _canonical(self, feed: str, sheet: str, frame: pl.DataFrame) -> pl.DataFrame:
         if self.truth is not None:

@@ -42,6 +42,10 @@ synth scenario="baseline" size="tiny":
 synth-fixtures:
     uv run python -m actuarycanary.synthetic fixtures
 
+# time the pipeline on a folder, cold (empty reader cache) and warm, with the time of each step
+bench folder="data/synthetic/baseline/medium":
+    uv run python -m actuarycanary.bench {{folder}}
+
 # rewrite the golden copy of the report numbers after an intended change, then review its diff
 golden $ACTUARYCANARY_UPDATE_GOLDEN="1":
     uv run pytest tests/report/test_golden.py -q
