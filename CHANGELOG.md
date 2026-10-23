@@ -2,7 +2,7 @@
 
 Written for users. Versions follow semantic versioning; each specification file also carries its own version and change log.
 
-## 1.0.0 (not yet released: the version number in `project.yaml` and `pyproject.toml` is set at release)
+## 1.0.0 (2026-10-23, the preparation date: the release date is the date the owner pushes the tag `v1.0.0`)
 
 First release.
 

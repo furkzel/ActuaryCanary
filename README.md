@@ -14,7 +14,7 @@ All outputs are indicative analyses, never official reserves or prices.
 
 ### The Windows program
 
-Unzip the release archive and open the `canary` folder. The program is run from **PowerShell**, not by double-clicking: in Explorer, click the address bar of the `canary` folder, type `powershell` and press Enter. Then type:
+Download the release archive from the [releases page](https://github.com/furkzel/ActuaryCanary/releases), unzip it and open the `canary` folder. The program is run from **PowerShell**, not by double-clicking: in Explorer, click the address bar of the `canary` folder, type `powershell` and press Enter. Then type:
 
 ```
 .\canary.exe demo                      # the bundled synthetic example; opens the report
@@ -28,8 +28,8 @@ Unzip the release archive and open the `canary` folder. The program is run from 
 You need [uv](https://docs.astral.sh/uv/); it fetches Python 3.12 and the libraries.
 
 ```
-git clone <REPOSITORY URL: the owner fills this in before publishing>
-cd <the cloned folder>
+git clone https://github.com/furkzel/ActuaryCanary.git
+cd ActuaryCanary
 uv sync
 uv run canary demo                           # the bundled synthetic example; opens the report
 uv run canary run path/to/your/folder        # your own files
@@ -65,4 +65,4 @@ just test-all     # everything, including the slow tests
 
 ## Licence
 
-[MIT](LICENSE). The copyright holder line in `LICENSE` is a placeholder the owner fills in before publishing.
+[MIT](LICENSE), copyright ActuaryCanary contributors.
