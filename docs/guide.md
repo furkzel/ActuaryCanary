@@ -40,9 +40,12 @@ A good first test of your files is to give the platform a copy and read the data
 
 ```
 canary run <folder>                 # the six files in <folder>
+canary demo                         # the example data that ships with the program
 ```
 
-The command reads and recognises the sheets, asks you to confirm any new layout, checks quality, builds the triangles, runs the methods and writes the report and its manifest to `out/<run id>/`. The options that change what is computed:
+`canary demo` is a command of its own, for a first look: it runs on [examples/demo](../examples/demo/) without asking, writes the report to `out/<run id>/` and opens it in the browser (`--no-open` does not open it, `--out` changes the output folder). It gives the same run id and outputs as `canary run examples/demo --yes`; it does not take your files, so for those use `canary run`.
+
+`canary run` reads and recognises the sheets, asks you to confirm any new layout, checks quality, builds the triangles, runs the methods and writes the report and its manifest to `out/<run id>/`. The options that change what is computed:
 
 | Option | Meaning | Default |
 | --- | --- | --- |

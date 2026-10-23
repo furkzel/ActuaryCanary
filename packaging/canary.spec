@@ -12,10 +12,12 @@ datas = [
     (str(root / "project.yaml"), "."),
     (str(root / "spec"), "spec"),
     (str(root / "synthetic" / "scenarios"), "synthetic/scenarios"),
-    (str(root / "examples" / "baseline"), "examples/baseline"),
 ]
-if (root / "examples" / "demo").is_dir():  # created by the documentation item
-    datas.append((str(root / "examples" / "demo"), "examples/demo"))
+# `canary demo` runs on examples/demo: the six workbooks, not the example report beside them
+demo_workbooks = sorted((root / "examples" / "demo").glob("*.xlsx"))
+if not demo_workbooks:
+    raise SystemExit("examples/demo has no workbooks: the program would have no demo data")
+datas += [(str(workbook), "examples/demo") for workbook in demo_workbooks]
 datas += collect_data_files("actuarycanary")  # report templates
 datas += [(str(Path(__import__("plotly").__file__).parent / "package_data" / "plotly.min.js"),
            "plotly/package_data")]

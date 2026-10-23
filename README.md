@@ -18,11 +18,11 @@ You need [uv](https://docs.astral.sh/uv/); it fetches Python 3.12 and the librar
 git clone <REPOSITORY URL: the owner fills this in before publishing>
 cd <the cloned folder>
 uv sync
-uv run canary demo                           # the bundled synthetic example, about half a minute
+uv run canary demo                           # the bundled synthetic example; opens the report
 uv run canary run path/to/your/folder        # your own files
 ```
 
-`canary demo` runs the example in [examples/demo/](examples/demo/) (the same as `uv run canary run examples/demo`); the report is written to `out/<run id>/report.html`. For your own data, put the spreadsheets in one folder (only `claim_valuations.xlsx` is required; see the [guide](docs/guide.md#2-preparing-the-six-input-files)), run `canary run <folder>` and confirm the column mappings when asked. The terminal prints a summary and the path of the report.
+`canary demo` is a command of its own: it runs on the example data that ships with the program ([examples/demo/](examples/demo/); it never asks, since the layouts are the platform's own), writes the report to `out/<run id>/report.html` and opens it in your browser (`--no-open` leaves the browser alone, `--out` changes the output folder). It takes a few seconds to about ten seconds. The run id and every output are the same as those of `canary run examples/demo --yes`, which is how the tests compare them. For your own data, put the spreadsheets in one folder (only `claim_valuations.xlsx` is required; see the [guide](docs/guide.md#2-preparing-the-six-input-files)), run `canary run <folder>` and confirm the column mappings when asked. The terminal prints a summary and the path of the report.
 
 ## What you get
 

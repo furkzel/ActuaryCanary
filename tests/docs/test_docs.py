@@ -153,3 +153,67 @@ def test_the_guide_names_the_run_id_of_each_example(example: str) -> None:
     )
     guide = (ROOT / "docs" / "guide.md").read_text(encoding="utf-8")
     assert f"`{manifest['run_id']}`" in guide, f"update the run id of {example} in the guide"
+
+
+CODE_SPAN = re.compile(r"`([^`\n]+)`")
+OPTION = re.compile(r"(?<![\w-])--[a-z][a-z-]*")
+CANARY_COMMAND = re.compile(r"(?<![\w/.-])canary\s+([a-z][\w-]*)")
+CLI_DOCUMENTS = [ROOT / "README.md", ROOT / "docs" / "guide.md"]
+
+
+@functools.cache
+def cli_options() -> dict[str, set[str]]:
+    """The commands of the CLI and the long options of each, from the program itself."""
+    from typer.main import get_command
+
+    from actuarycanary.cli import app
+
+    group = get_command(app)
+    commands = getattr(group, "commands", {})
+    return {
+        name: {
+            opt
+            for param in command.params
+            for opt in (*param.opts, *getattr(param, "secondary_opts", []))
+            if opt.startswith("--")
+        }
+        for name, command in commands.items()
+    }
+
+
+def code_lines(path: Path) -> list[str]:
+    """The lines of fenced code and the inline code spans: where a command is shown."""
+    text = path.read_text(encoding="utf-8")
+    fenced = [line for match in FENCE.finditer(text) for line in match.group(0).splitlines()]
+    return fenced + CODE_SPAN.findall(FENCE.sub("", text))
+
+
+def test_the_cli_collection_finds_the_known_commands_and_options() -> None:
+    found = cli_options()
+    assert {"run", "demo", "info"} <= set(found)
+    assert {"--basis", "--yes", "--assumptions"} <= found["run"]
+    assert {"--open", "--no-open", "--out"} <= found["demo"]
+
+
+@pytest.mark.parametrize("document", CLI_DOCUMENTS, ids=relative)
+def test_every_canary_command_the_documents_show_exists(document: Path) -> None:
+    commands = cli_options()
+    problems: list[str] = []
+    for line in code_lines(document):
+        for command in CANARY_COMMAND.findall(line):
+            if command not in commands:
+                problems.append(f"`{line.strip()}`: canary has no command {command}")
+                continue
+            unknown = [o for o in OPTION.findall(line) if o not in commands[command]]
+            if unknown:
+                problems.append(f"`{line.strip()}`: {command} has no option {unknown}")
+    assert not problems, f"{relative(document)}: " + "; ".join(problems)
+
+
+@pytest.mark.parametrize("document", CLI_DOCUMENTS, ids=relative)
+def test_every_option_the_documents_mention_exists_in_the_cli(document: Path) -> None:
+    known = {opt for options in cli_options().values() for opt in options} | {"--version", "--help"}
+    mentioned = set(OPTION.findall(document.read_text(encoding="utf-8")))
+    # options of other tools named in the text (for example `uv sync --group build`) go here
+    other_tools = {"--group"}
+    assert not (mentioned - known - other_tools), sorted(mentioned - known - other_tools)

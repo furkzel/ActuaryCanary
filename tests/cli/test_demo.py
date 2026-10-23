@@ -26,7 +26,7 @@ def test_the_demo_folder_is_found_next_to_the_program() -> None:
 
 
 def test_the_demo_folder_is_found_from_a_bundle_without_the_repository(tmp_path: Path) -> None:
-    example = tmp_path / "examples" / "baseline"
+    example = tmp_path / "examples" / "demo"
     example.mkdir(parents=True)
     (example / "claim_valuations.xlsx").touch()
     inside = tmp_path / "_internal" / "actuarycanary" / "cli"
