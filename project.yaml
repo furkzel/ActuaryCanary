@@ -4,11 +4,11 @@ name: "ActuaryCanary"                  # working name; may change later
 package: "actuarycanary"               # Python import name
 command: "canary"                      # terminal command, e.g. `canary run data/`
 tagline: "Turns insurance data in any layout into an auditable, early-warning actuarial report on your own computer."
-version: "0.1.0"
+version: "1.0.0"
 author: ""
 contact: ""
 repository: ""
-licence: "MIT"                         # see LICENSE; the copyright holder line is for the owner to fill
+licence: "MIT"                         # see LICENSE
 report:
   languages: ["en"]                    # Turkish labels planned after 1.0
   default_reporting_currency: "TRY"
