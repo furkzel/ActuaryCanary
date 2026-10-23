@@ -1,5 +1,5 @@
 id: CV09
-version: 0.1.0
+version: 0.2.0
 title_en: Treaty-level ceded allocation
 title_tr: Anlaşma düzeyindeki devredilen tutarların dağıtımı
 status: draft
@@ -130,8 +130,13 @@ notes: >-
   The reinsurance item builds this convention and folds it into CV03 as version 1.1.0, whose second rule then
   reads "ceded amounts given per claim are taken as given; treaty-level amounts are
   allocated by these rules". Until then CV03 1.0.0 is in force and allocates nothing
-  (decision 0200).
+  (decision 0200). The inuring order rule is accepted by the owner as written
+  (record 0604); the index-clause approximation is not decided there.
 change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 7.3 (P20).
+  - version: 0.2.0
+    date: 2026-10-24
+    change: >-
+      Owner decision (record 0604): the inuring order is accepted as written.

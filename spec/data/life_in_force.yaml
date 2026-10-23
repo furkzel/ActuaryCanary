@@ -1,5 +1,5 @@
 id: life_in_force
-version: 0.1.0
+version: 0.2.0
 title_en: Life and pension in-force
 title_tr: Hayat ve emeklilik yürürlükteki sözleşmeler
 status: draft
@@ -192,11 +192,15 @@ validation:
 notes: >-
   Draft for a later version (the life-feeds item). Names, identity numbers, birth dates and addresses are
   dropped on load as everywhere (AL01 personal data); age arrives as a whole-year age or band.
-  Health contracts are not covered until the owner decides where the health segment belongs
-  (blueprint 18.2).
-requires_decision:
-  - Health segment (blueprint 18.2) is in this concept, in the non-life concepts, or in its own.
+  Health contracts are not covered here: the health segment is handled on the non-life side
+  with claims-based feeds, short-term and without life-style exposure (record 0602); revisit
+  only if the life feed work shows a need.
 change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 4.4 (P20).
+  - version: 0.2.0
+    date: 2026-10-24
+    change: >-
+      Owner decision (record 0602): the health segment is handled on the non-life side; the
+      requires_decision entry is closed.

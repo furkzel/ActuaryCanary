@@ -48,7 +48,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "39543952e852b2a6"
+    "value": "235831147adff89b"
    },
    {
     "label": "Valuation date",
@@ -3549,7 +3549,7 @@
     "MT08: 6 groups have too few values to score",
     "MT09: 1 group has too few claims to score"
    ],
-   "spec": "M06 v1.0.0",
+   "spec": "M06 v1.1.0",
    "state": "limited",
    "title": "Anomalies and large losses"
   }
@@ -3715,7 +3715,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "39543952e852b2a6",
+  "run_id": "235831147adff89b",
   "settings": [
    {
     "name": "bases.currency",
@@ -4139,7 +4139,7 @@
    {
     "id": "M06",
     "title": "Anomalies and large losses",
-    "version": "1.0.0"
+    "version": "1.1.0"
    },
    {
     "id": "MT03",

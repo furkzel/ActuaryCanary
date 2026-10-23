@@ -21,6 +21,7 @@ def test_method_outputs_name_the_valuation_rows_behind_them(default_run: RunResu
     assert 0 < int(first["count"][0]) < int(line["count"][0])
 
 
+@pytest.mark.slow  # the first read of the 5 MB page takes over a second on a scanned disk
 def test_the_appendix_says_which_lineage_format_the_run_wrote(default_run: RunResult) -> None:
     page = default_run.report.read_text(encoding="utf-8")
     assert "Lineage format 2" in page and "lineage_atoms.csv" in page

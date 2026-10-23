@@ -1,5 +1,5 @@
 id: M11
-version: 0.1.0
+version: 0.2.0
 title_en: Life and pension experience
 title_tr: Hayat ve emeklilik deneyimi
 status: draft
@@ -35,11 +35,17 @@ report_page:
   - Conventions in force (age definition, exposure, study period, reference table) and the half-interval approximation when events were derived.
 notes: >-
   Never consolidated with non-life (blueprint 10). Without a reference table the module
-  shows crude rates and names the open decision. Built by the life-module item.
+  shows crude rates and names the open decision. Built by the life-module item. Health
+  contracts are not studied here: the health segment is handled on the non-life side
+  (record 0602).
 requires_decision:
   - Default reference mortality, morbidity and lapse tables that may be redistributed openly (blueprint 18.2).
-  - Health segment (blueprint 18.2) - whether health contracts are studied here or with non-life.
 change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 10 (P20).
+  - version: 0.2.0
+    date: 2026-10-24
+    change: >-
+      Owner decision (record 0602): the health segment is handled on the non-life side; that
+      requires_decision entry is closed. The reference tables entry stays open.

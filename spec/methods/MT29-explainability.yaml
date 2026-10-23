@@ -1,5 +1,5 @@
 id: MT29
-version: 0.1.0
+version: 0.2.0
 title_en: Explainability (feature attributions and partial dependence)
 title_tr: Açıklanabilirlik (özellik katkıları ve kısmi bağımlılık)
 status: draft
@@ -62,7 +62,14 @@ references:
 notes: >-
   SHAP values are not specified: they need the shap library, outside the toolchain, and
   permutation importance with partial dependence answers the same question here.
+  Like every tier C method, MT29 names a champion (MT16, with the relativities of MT23 as
+  the reference) and its output is shown beside the champion's; the loader requires it
+  (record 0605).
 change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 9.3 (P20).
+  - version: 0.2.0
+    date: 2026-10-24
+    change: >-
+      Owner decision (record 0605): MT29 requires a champion like the other tier C methods.

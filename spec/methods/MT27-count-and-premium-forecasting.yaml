@@ -1,5 +1,5 @@
 id: MT27
-version: 0.1.0
+version: 0.2.0
 title_en: Count and premium forecasting
 title_tr: Hasar adedi ve prim tahmini
 status: draft
@@ -68,11 +68,16 @@ validation:
 references:
   - 'Hyndman, R. J., Koehler, A. B., Ord, J. K. and Snyder, R. D. (2008). Forecasting with Exponential Smoothing: The State Space Approach. Springer.'
   - Hyndman, R. J. and Koehler, A. B. (2006). Another look at measures of forecast accuracy. International Journal of Forecasting.
-requires_decision:
-  - >-
-    statsmodels (ETSModel) for exponential smoothing in state-space form, or an
-    implementation on numpy and scipy within the toolchain (record 0211).
+notes: >-
+  Implemented with numpy and scipy; statsmodels is not added (record 0600). Reference values
+  for the tests may be computed once with an external tool and stored in the fixture file
+  together with the tool name and version.
 change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 9.3 (P20).
+  - version: 0.2.0
+    date: 2026-10-24
+    change: >-
+      Library decision of the owner (record 0600): implemented with numpy and scipy, no
+      statsmodels; the requires_decision entry is closed. Exponential smoothing by maximum likelihood with scipy.optimize; intervals by simulation.

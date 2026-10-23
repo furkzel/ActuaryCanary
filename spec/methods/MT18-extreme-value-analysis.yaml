@@ -1,5 +1,5 @@
 id: MT18
-version: 0.1.0
+version: 0.2.0
 title_en: Extreme value analysis (peaks over threshold)
 title_tr: Uç değer analizi (eşik aşımları)
 status: draft
@@ -7,7 +7,9 @@ implemented: false
 definition: >-
   Models the largest claims with a generalised Pareto distribution above a threshold
   chosen by an automatic, reproducible rule, and gives tail quantiles, return levels and
-  expected shortfall. Proposes the extreme-value large-loss threshold that CV08 may adopt.
+  expected shortfall. The threshold it selects is used only inside this extreme-value fit
+  and is reported next to the large-loss threshold of CV08; it does not decide which claims
+  are LARGE (record 0601).
 tier: B
 requires:
   - claim_valuations.claim_id
@@ -61,9 +63,10 @@ algorithm:
   - step: Expected shortfall above a quantile (xi below 1).
     formula: 'ES_p = \frac{x_p}{1 - \hat\xi} + \frac{\hat\sigma - \hat\xi \hat u}{1 - \hat\xi}'
   - step: >-
-      Proposed large-loss threshold (for CV08, only after the owner's decision): the
-      selected u of the segment and line; when the group has fewer than 100 non-nil claims
-      or no candidate with min_exceedances, CV08's percentile rule applies unchanged.
+      Report the selected u of the segment and line beside the CV08 threshold in force
+      (default: the 99th percentile, overridable in project.yaml), with the share of claims
+      and of incurred above each. u is not used outside this fit: CV08, M06 and every other
+      large-loss view keep the CV08 threshold.
 outputs:
   - name: threshold
     description: Selected u per group, the candidate table (u, N_u, xi, sigma, p-value) and the ForwardStop path.
@@ -73,13 +76,13 @@ outputs:
     description: x_p for 0.99, 0.995 and 0.999, and expected shortfall.
   - name: return_levels
     description: z_T for the return periods.
-  - name: proposed_large_loss_threshold
-    description: The threshold CV08 would use under the extreme-value rule, beside the 99th percentile in force.
+  - name: threshold_comparison
+    description: The selected u beside the CV08 large-loss threshold in force, with the share of claims and of incurred above each.
 diagnostics:
   - Mean excess plot with the selected threshold.
   - Parameter stability plots of xi and the modified scale across candidates.
   - Quantile plot of the excesses against the fitted generalised Pareto.
-  - Share of claims and of incurred above the proposed threshold against the CV08 percentile.
+  - Share of claims and of incurred above the selected threshold against the CV08 threshold.
 failure_modes:
   - condition: No candidate threshold with at least min_exceedances excesses.
     action: Not run for that group; reason gives the number of claims.
@@ -107,7 +110,7 @@ validation:
   - kind: ground_truth
     description: >-
       On the synthetic baseline and large_loss scenarios (medium), the fitted xi per line
-      against the reciprocal of the scenario's Pareto tail index, and the proposed threshold
+      against the reciprocal of the scenario's Pareto tail index, and the selected threshold
       against the scenario's tail start, reported as information.
     tolerance: none; information only
 references:
@@ -115,12 +118,13 @@ references:
   - Embrechts, P., Klüppelberg, C. and Mikosch, T. (1997). Modelling Extremal Events for Insurance and Finance. Springer.
   - Bader, B., Yan, J. and Zhang, X. (2018). Automated threshold selection for extreme value analysis via ordered goodness-of-fit tests with adjustment for false discovery rate. Annals of Applied Statistics.
   - McNeil, A. J. (1997). Estimating the tails of loss severity distributions using extreme value theory. ASTIN Bulletin.
-requires_decision:
-  - >-
-    Default large-loss threshold rule (blueprint 18.2, record 0010): keep the 99th
-    percentile of CV08, or adopt this extreme-value threshold; CV08 changes only after the
-    owner decides (record 0210).
 change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 9.2 (P20).
+  - version: 0.2.0
+    date: 2026-10-24
+    change: >-
+      Owner decision (record 0601): the selected threshold is used only inside the
+      extreme-value fit and reported next to CV08's threshold; it no longer proposes a
+      replacement for CV08, and the requires_decision entry is closed.

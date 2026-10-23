@@ -1,5 +1,5 @@
 id: MT19
-version: 0.1.0
+version: 0.2.0
 title_en: Survival analysis (Kaplan–Meier and Cox)
 title_tr: Sağkalım analizi (Kaplan–Meier ve Cox)
 status: draft
@@ -110,11 +110,15 @@ references:
 notes: >-
   Life contracts use the same product-limit estimator through LF03 (persistency) and their
   rates through MT20; a Cox model of lapse is not specified in this round.
-requires_decision:
-  - >-
-    statsmodels (SurvfuncRight, PHReg) for Kaplan–Meier and Cox, or an implementation on
-    numpy and scipy within the toolchain (record 0211).
+  Implemented with numpy and scipy; statsmodels is not added (record 0600). Reference values
+  for the tests may be computed once with an external tool and stored in the fixture file
+  together with the tool name and version.
 change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 9.2 (P20).
+  - version: 0.2.0
+    date: 2026-10-24
+    change: >-
+      Library decision of the owner (record 0600): implemented with numpy and scipy, no
+      statsmodels; the requires_decision entry is closed. Kaplan-Meier with Greenwood variance on numpy; Cox by partial likelihood with scipy.optimize.

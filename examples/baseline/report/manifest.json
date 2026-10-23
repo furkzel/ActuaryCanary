@@ -981,7 +981,7 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "e9134e2acf21cb66c157f1f2c6c84e0ddf2de8f777cded1641f6d45c23d265ae",
+      "sha256": "c57ff2fa7b41350194021cecf36898d94374d9b8604d187056d8028b6e9d2079",
       "size": 4972359
     },
     {
@@ -1062,7 +1062,7 @@
       "seed": 1
     }
   ],
-  "run_id": "39543952e852b2a6",
+  "run_id": "235831147adff89b",
   "settings": {
     "assumptions": {
       "entries": []
@@ -1391,7 +1391,7 @@
     {
       "id": "M06",
       "title": "Anomalies and large losses",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "MT03",

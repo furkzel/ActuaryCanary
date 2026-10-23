@@ -91,7 +91,8 @@ Fields marked \* are the minimum for a concept to be built, from whatever source
 | Feed | Grain | Key | Core fields | Classes |
 | --- | --- | --- | --- | --- |
 | Trial balance (ledger) | one account per entity per period | entity\*, account\*, period\* | opening, debit, credit, closing balance\*, currency | account class mapped to a measure: PREMIUM, CLAIMS\_PAID, OUTSTANDING, UPR, COMMISSION, EXPENSE, RI, INVESTMENT, OTHER |
-| Market series | one value per series per date | series\_id\*, date\* | value\*, unit, source | FX\_RATE (pair, type: SPOT, PERIOD\_AVERAGE, PERIOD\_END), PRICE\_INDEX (CPI, PPI, wage, sector-specific), INTEREST\_RATE (tenor), YIELD\_CURVE |
+| Market series | one value per series per date | series\_id\*, date\* | value\*, unit, source | FX\_RATE (pair, type: SPOT, PERIOD\_AVERAGE, PERIOD\_END), PRICE\_INDEX (CPI, PPI, wage, sector-specific) |
+| Interest rates | one rate per curve, date and tenor | curve\_id\*, date\*, tenor\_months\* | rate\*, rate\_type\*, currency\*, compounding, source | rate\_type: SPOT, PAR, FORWARD; compounding: ANNUAL, CONTINUOUS, SIMPLE; a single rate series is a curve with one tenor |
 
 ### 4.4 Life and pension data
 

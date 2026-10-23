@@ -1,5 +1,5 @@
 id: CV12
-version: 0.1.0
+version: 0.2.0
 title_en: Ledger account-mapping profile
 title_tr: Mizan hesap eşleme profili
 status: draft
@@ -65,7 +65,7 @@ defaults:
     allowed: [PERIOD, YEAR_TO_DATE]
   - name: materiality_ratio
     default: 0.005
-    description: Gaps up to half a per cent of the ledger amount are not material; a common audit-style tolerance, to be confirmed by the owner.
+    description: Gaps up to half a per cent of the ledger amount are not material; a common audit-style tolerance, accepted by the owner (record 0603) and configurable.
   - name: materiality_amount
     default: 0
     description: Absolute gap below which nothing is material, in the ledger currency; zero means only the ratio applies.
@@ -87,3 +87,8 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint sections 4.3 and 10 (P20).
+  - version: 0.2.0
+    date: 2026-10-24
+    change: >-
+      Owner decision (record 0603): the materiality threshold of 0.5 per cent is accepted and
+      stays configurable.

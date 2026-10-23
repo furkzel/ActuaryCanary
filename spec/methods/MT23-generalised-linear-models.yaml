@@ -1,5 +1,5 @@
 id: MT23
-version: 0.1.0
+version: 0.2.0
 title_en: Generalised linear models (Poisson, gamma, Tweedie)
 title_tr: Genelleştirilmiş doğrusal modeller (Poisson, gama, Tweedie)
 status: draft
@@ -86,11 +86,16 @@ validation:
 references:
   - Ohlsson, E. and Johansson, B. (2010). Non-Life Insurance Pricing with Generalized Linear Models. Springer.
   - Wüthrich, M. V. and Merz, M. (2023). Statistical Foundations of Actuarial Learning and its Applications. Springer.
-requires_decision:
-  - >-
-    statsmodels for GLM inference (standard errors, analysis of deviance), or the
-    covariance computed with numpy from the scikit-learn fit (record 0211).
+notes: >-
+  Implemented with numpy and scipy; statsmodels is not added (record 0600). Reference values
+  for the tests may be computed once with an external tool and stored in the fixture file
+  together with the tool name and version.
 change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 9.3 (P20).
+  - version: 0.2.0
+    date: 2026-10-24
+    change: >-
+      Library decision of the owner (record 0600): implemented with numpy and scipy, no
+      statsmodels; the requires_decision entry is closed. Standard errors from (X'WX)^-1 phi on numpy; analysis of deviance from the fitted deviances.
