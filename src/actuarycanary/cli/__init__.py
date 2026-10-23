@@ -2,6 +2,7 @@
 
 import sys
 import textwrap
+import webbrowser
 from datetime import date
 from enum import StrEnum
 from pathlib import Path
@@ -16,6 +17,7 @@ from rich.table import Table
 from actuarycanary import __version__
 from actuarycanary.canonical.feeds import CanonicalError
 from actuarycanary.cli.confirm import confirm_tables
+from actuarycanary.cli.demo import find_demo_folder
 from actuarycanary.convert.bases import ReinsuranceBasis, ValueBasis
 from actuarycanary.convert.market import ConversionError
 from actuarycanary.io.excel import RawTable
@@ -163,6 +165,58 @@ def _summary(console: Console, result: RunResult) -> None:
     console.print(f"Manifest {result.manifest}", soft_wrap=True)
 
 
+def _run_with_progress(
+    console: Console, folder: Path, out: Path, settings: RunSettings, yes: bool, profiles: Path
+) -> RunResult:
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("{task.description}"),
+        TimeElapsedColumn(),
+        console=console,
+        transient=True,
+    ) as progress:
+        task = progress.add_task("Starting", total=None)
+
+        def step(description: str) -> None:
+            progress.update(task, description=description)
+            progress.console.print(f"  {description}")
+
+        def confirm(
+            pending: list[tuple[TableRecognition, RawTable]], dictionary: Dictionary
+        ) -> list[TableRecognition]:
+            progress.stop()
+            try:
+                return confirm_tables(console, pending, dictionary)
+            finally:
+                progress.start()
+
+        try:
+            return run(
+                folder,
+                out,
+                settings,
+                progress=step,
+                profiles_dir=profiles,
+                confirm=None if yes else confirm,
+            )
+        except (
+            InputError,
+            CanonicalError,
+            TriangleError,
+            ConversionError,
+            ProfileError,
+            AssumptionError,
+        ) as error:
+            console.print(f"[red]Cannot run:[/red] {escape(str(error))}")
+            raise typer.Exit(1) from error
+        except EOFError as error:
+            console.print(
+                "[red]Cannot run:[/red] new layouts need confirming on the terminal; "
+                "rerun with --yes to use the proposals without saving them."
+            )
+            raise typer.Exit(1) from error
+
+
 @app.command("run")
 def run_command(
     folder: Annotated[Path, typer.Argument(help="Folder with claim_valuations.xlsx.")],
@@ -253,51 +307,26 @@ def run_command(
     except (ValueError, OSError) as error:
         console.print(f"[red]Settings rejected:[/red] {error}")
         raise typer.Exit(2) from error
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("{task.description}"),
-        TimeElapsedColumn(),
-        console=console,
-        transient=True,
-    ) as progress:
-        task = progress.add_task("Starting", total=None)
-
-        def step(description: str) -> None:
-            progress.update(task, description=description)
-            progress.console.print(f"  {description}")
-
-        def confirm(
-            pending: list[tuple[TableRecognition, RawTable]], dictionary: Dictionary
-        ) -> list[TableRecognition]:
-            progress.stop()
-            try:
-                return confirm_tables(console, pending, dictionary)
-            finally:
-                progress.start()
-
-        try:
-            result = run(
-                folder,
-                out,
-                settings,
-                progress=step,
-                profiles_dir=profiles,
-                confirm=None if yes else confirm,
-            )
-        except (
-            InputError,
-            CanonicalError,
-            TriangleError,
-            ConversionError,
-            ProfileError,
-            AssumptionError,
-        ) as error:
-            console.print(f"[red]Cannot run:[/red] {escape(str(error))}")
-            raise typer.Exit(1) from error
-        except EOFError as error:
-            console.print(
-                "[red]Cannot run:[/red] new layouts need confirming on the terminal; "
-                "rerun with --yes to use the proposals without saving them."
-            )
-            raise typer.Exit(1) from error
+    result = _run_with_progress(console, folder, out, settings, yes, profiles)
     _summary(console, result)
+
+
+@app.command("demo")
+def demo_command(
+    out: Annotated[Path, typer.Option("--out", help="Output root folder.")] = Path("out"),
+    open_report: Annotated[
+        bool, typer.Option("--open/--no-open", help="Open the report in the browser.")
+    ] = True,
+) -> None:
+    """Run on the example data that ships with the program and open the report."""
+    console = Console(width=100)
+    try:
+        folder = find_demo_folder()
+    except FileNotFoundError as error:
+        console.print(f"[red]Cannot run:[/red] {escape(str(error))}")
+        raise typer.Exit(1) from error
+    console.print(f"Example data {folder}", soft_wrap=True)
+    result = _run_with_progress(console, folder, out, RunSettings(), True, Path("profiles"))
+    _summary(console, result)
+    if open_report:
+        webbrowser.open(result.report.resolve().as_uri())

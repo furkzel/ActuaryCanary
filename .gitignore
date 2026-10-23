@@ -9,6 +9,7 @@ __pycache__/
 .ruff_cache/
 .hypothesis/
 dist/
+build/
 *.egg-info/
 
 # spreadsheets only under tests/fixtures/ and examples/

@@ -49,3 +49,7 @@ bench folder="data/synthetic/baseline/medium":
 # rewrite the golden copy of the report numbers after an intended change, then review its diff
 golden $ACTUARYCANARY_UPDATE_GOLDEN="1":
     uv run pytest tests/report/test_golden.py -q
+
+# build the Windows program folder in build/dist/canary (needs `uv sync --group build`)
+package:
+    uv run pyinstaller packaging/canary.spec --noconfirm --distpath build/dist --workpath build/work
