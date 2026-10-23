@@ -1,0 +1,59 @@
+# UNVERIFIED: written without a run; the first run happens when the owner pushes a tag.
+# A tag vX.Y.Z[-suffix] must equal the version in project.yaml (v0.1.0-rc1 is checked against 0.1.0); a suffix makes it a pre-release.
+name: release
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+jobs:
+  windows-executable:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --group build
+      - name: The tag matches the version in project.yaml
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          version=$(grep -m1 '^version:' project.yaml | sed -E 's/version: *"([^"]+)".*/\1/')
+          tag="${GITHUB_REF_NAME#v}"
+          [ "${tag%%-*}" = "$version" ] || { echo "tag $tag does not match version $version"; exit 1; }
+      - name: Build
+        run: uv run pyinstaller packaging/canary.spec --noconfirm --distpath build/dist --workpath build/work
+      - name: Smoke test in a folder with no repository around it
+        shell: bash
+        run: |
+          mkdir smoke && cp -r build/dist/canary smoke/canary && cd smoke
+          ./canary/canary.exe --version
+          ./canary/canary.exe demo --no-open --out exe_out
+          cd .. && uv run canary run examples/demo --yes --out smoke/src_out
+          python packaging/compare_manifests.py smoke/exe_out/*/manifest.json smoke/src_out/*/manifest.json
+      - name: Version matches the tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          [ "$(build/dist/canary/canary.exe --version | tr -d '\r')" = "${tag%%-*}" ]
+      - name: Archive
+        shell: pwsh
+        run: |
+          $name = if ($env:GITHUB_REF -like 'refs/tags/v*') { $env:GITHUB_REF_NAME } else { "snapshot" }
+          Compress-Archive -Path build/dist/canary -DestinationPath "actuarycanary-$name-windows-x64.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-archive
+          path: actuarycanary-*.zip
+      - name: Attach to the release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          flags=""
+          case "$GITHUB_REF_NAME" in *-*) flags="--prerelease" ;; esac
+          gh release create "$GITHUB_REF_NAME" actuarycanary-*.zip $flags --title "$GITHUB_REF_NAME" --notes "Windows archive: unzip, then run canary\canary.exe demo."
