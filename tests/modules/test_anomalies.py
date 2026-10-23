@@ -9,6 +9,9 @@ import pytest
 from actuarycanary.convert.rates import DevelopmentRates
 from actuarycanary.io.excel import SOURCE_FILE, SOURCE_ROW, SOURCE_SHEET
 from actuarycanary.modules.anomalies import ANOMALY_COLUMNS, run_anomalies, spans
+from actuarycanary.pipeline import RunResult
+from tests.methods.helpers import reserve_flag_shares
+from tests.methods.test_mt08_robust_z import MAX_RESERVE_SHARE
 
 DAY = date(2024, 1, 31)
 RATES = DevelopmentRates({"TRY": 1.0}, DAY)
@@ -65,3 +68,9 @@ def test_a_currency_without_a_rate_is_left_out_and_said() -> None:
     result = run_anomalies(_valuations([*range(1, 31), 60], currency="USD"), None, RATES, DAY)
     assert result.flags.height == 0
     assert any(r.startswith("MT08: 31 values left out") for r in result.reasons)
+
+
+def test_reserve_movements_of_the_baseline_are_not_mostly_flagged(default_run: RunResult) -> None:
+    shares = reserve_flag_shares(default_run.anomalies.robust)
+    assert {"MOTOR_OD", "MOTOR_TPL"} <= set(shares)
+    assert max(shares.values()) <= MAX_RESERVE_SHARE

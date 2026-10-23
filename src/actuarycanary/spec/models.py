@@ -299,6 +299,8 @@ class FindingRule(_Strict):
     priority: int = Field(ge=0)  # lower first
     condition: str = Field(min_length=1)  # clauses `fact op fact-or-number` joined by `and`
     template: str = Field(min_length=1)  # `{fact}` placeholders, formatted by the fact's kind
+    title_tr: str = Field(min_length=1)  # the title and sentence for the Turkish report
+    template_tr: str = Field(min_length=1)  # the same placeholders as `template`
     evidence: FindingEvidence
     banner: bool = False  # also shown at the top of the cover and the analytic pages
 

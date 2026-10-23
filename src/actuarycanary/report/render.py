@@ -14,18 +14,22 @@ from typing import Any
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 from plotly.offline import get_plotlyjs
 
+from actuarycanary.report import language
+
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 REPORT_NAME = "report.html"
 
 
 @cache
 def _environment() -> Environment:
-    return Environment(
+    environment = Environment(
         loader=FileSystemLoader(TEMPLATE_DIR),
         autoescape=select_autoescape(["html", "j2"]),
         undefined=StrictUndefined,
         keep_trailing_newline=True,
     )
+    environment.globals.update(tr=language.t, trh=language.th)
+    return environment
 
 
 def figures_json(figures: dict[str, Any]) -> str:

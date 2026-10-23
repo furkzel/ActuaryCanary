@@ -1,5 +1,5 @@
 id: CV01
-version: 1.1.0
+version: 1.2.0
 title_en: Currency conversion
 title_tr: Kur çevrimi
 status: reviewed
@@ -13,6 +13,14 @@ rules:
   - >-
     In version 1.0 the functional currency equals the reporting currency, because no entity
     feed is read; FUNCTIONAL and REPORTING views are therefore identical.
+  - >-
+    A run selects one currency view. REPORTING (the default) converts every amount into the
+    reporting currency by the rules below. ORIGINAL converts nothing: the claims and policies
+    of each line are kept apart per currency (a line MOTOR_OD with claims in TRY and USD
+    becomes MOTOR_OD [TRY] and MOTOR_OD [USD]), triangles, methods and measures are computed
+    per such line with the rate 1, all-business measures give one row per currency, and a
+    segment with lines of several currencies is not totalled. The inflation-adjusted value
+    basis (CV02) needs REPORTING.
   - >-
     Flows (premium transactions, expenses, and increments of paid, recoveries, allocated
     expense and ceded paid) are converted at the FX_SPOT rate of their booking date. A flow
@@ -78,3 +86,9 @@ change_log:
       Owner-approved amendment after P06 and P07. A flow derived from two claim valuations
       falls back to the FX_PERIOD_END rate of its booking month when the FX_PERIOD_AVERAGE
       rate is missing, and is flagged; without that rate too it is not converted and is listed.
+  - version: 1.2.0
+    date: 2026-10-23
+    change: >-
+      The ORIGINAL view as a view of a whole run (record 0225): lines per currency, rate 1,
+      no totals across currencies. FUNCTIONAL stays equal to REPORTING, as the owner decided,
+      because no entity feed names a functional currency.

@@ -1,6 +1,6 @@
 # MT08 Robust z-score anomaly flags
 
-Specification: [MT08](../../spec/methods/MT08-robust-z-score-flags.yaml) · Decisions: [0043](../decisions/0043-anomaly-methods.md), [0057](../decisions/0057-anomaly-flags-in-the-run.md), [0060](../decisions/0060-robust-z-incurred-change-at-payment.md)
+Specification: [MT08](../../spec/methods/MT08-robust-z-score-flags.yaml) · Decisions: [0043](../decisions/0043-anomaly-methods.md), [0057](../decisions/0057-anomaly-flags-in-the-run.md), [0060](../decisions/0060-robust-z-incurred-change-at-payment.md), [0221](../decisions/0221-mt08-reserve-movements-by-kind.md)
 
 ## Purpose
 
@@ -8,10 +8,10 @@ Find individual payments and reserve movements that lie far from what is normal 
 
 ## Theory
 
-Three variables are scored, each on the log scale, in the reporting currency at a constant rate, within each segment and line:
+Five variables are scored, each on the log scale, in the reporting currency at a constant rate, within each segment and line:
 
 - `paid_flow`: $y = \ln(\Delta P)$ for each positive paid flow;
-- `reserve_change`: $y = \ln\frac{R(v_n) + 1}{R(v_{n-1}) + 1}$ for consecutive rows with a reserve;
+- `reserve_change`, `reserve_opening`, `reserve_release`: $y = \ln\frac{R(v_n) + 1}{R(v_{n-1}) + 1}$ for consecutive rows whose reserve differs, as `reserve_opening` when the earlier reserve is zero, `reserve_release` when the new one is zero and `reserve_change` when both are positive. A reserve that did not move is not a movement. Each kind has its own median and MAD, because opening or releasing a reserve is a change of status and not a revision of the same size;
 - `incurred_change_at_payment`: $y = \ln\frac{I^+(v_n) + 1}{I^+(v_{n-1}) + 1}$ with $I = P + R$, on rows where a positive payment was made and incurred moved, that is a payment the case reserve did not absorb.
 
 With $\tilde y$ the median of the group and $\mathrm{MAD} = \mathrm{median}\,|y - \tilde y|$, the robust z-score and the flag rule are
@@ -31,7 +31,7 @@ Groups with fewer than 30 values are not scored.
 
 ## What a flag is
 
-A flag is a lead to review, never a verdict. Each carries the claim, the date, the source row of the input file, the value, $z$ and the threshold, in words. On the synthetic data the injected extreme payments are 20 to 50 times the median payment, inside the spread of the log payments, so `paid_flow` alone found none of them; `incurred_change_at_payment` was added for that reason and recalls them (decision 0060). The variable `reserve_change` flags a large share of the case-reserve movements of motor own-damage on the synthetic data, because the MAD is zero on unchanged months; the warning says so.
+A flag is a lead to review, never a verdict. Each carries the claim, the date, the source row of the input file, the value, $z$ and the threshold, in words. On the synthetic data the injected extreme payments are 20 to 50 times the median payment, inside the spread of the log payments, so `paid_flow` alone found none of them; `incurred_change_at_payment` was added for that reason and recalls them (decision 0060). Until version 1.1.0 one scale for all reserve movements flagged 40 to 45 per cent of those of motor own-damage on the synthetic data, because every opening and release lay far from the typical small revision (decision 0221); with a scale per kind no line has more than 2 per cent of its reserve movements flagged.
 
 ## Worked example
 

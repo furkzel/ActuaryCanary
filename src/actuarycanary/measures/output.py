@@ -123,9 +123,15 @@ def _ranges(frame: pl.DataFrame, keys: list[str]) -> pl.DataFrame:
     )
 
 
-def lineage_table(results: Sequence[MeasureResult], inputs: MeasureInputs) -> pl.DataFrame:
-    """The source rows behind each value, by reference: file, sheet and spreadsheet row ranges."""
+UNIT = "unit"  # position of a (result, concept) pair in the lineage of a run
+
+
+def lineage_units(results: Sequence[MeasureResult], inputs: MeasureInputs) -> pl.DataFrame:
+    """The source rows behind each value, by reference: file, sheet and spreadsheet row ranges
+    (lineage format 1), with `unit` numbering the (result, concept) pair of each line, which
+    tells apart results of one measure and view that differ only in their basis."""
     parts: list[pl.DataFrame] = []
+    unit = 0
     for result in results:
         if result.frame is None or result.frame.height == 0:
             continue
@@ -152,8 +158,15 @@ def lineage_table(results: Sequence[MeasureResult], inputs: MeasureInputs) -> pl
                     pl.lit(result.version).alias("version"),
                     pl.lit(view(result)).alias("view"),
                     pl.lit(concept).alias("concept"),
-                ).select(*LINEAGE_COLUMNS)
+                    pl.lit(unit, dtype=pl.Int32).alias(UNIT),
+                ).select(UNIT, *LINEAGE_COLUMNS)
             )
+            unit += 1
     if not parts:
-        return pl.DataFrame(schema={c: pl.String for c in LINEAGE_COLUMNS})
+        return pl.DataFrame(schema={UNIT: pl.Int32, **{c: pl.String for c in LINEAGE_COLUMNS}})
     return pl.concat(parts)
+
+
+def lineage_table(results: Sequence[MeasureResult], inputs: MeasureInputs) -> pl.DataFrame:
+    """Lineage format 1: one line per value, file and sheet with the row ranges behind it."""
+    return lineage_units(results, inputs).drop(UNIT)

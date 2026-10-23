@@ -12,7 +12,7 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from typing import Literal
 
-from actuarycanary.report import numbers
+from actuarycanary.report import language, numbers
 from actuarycanary.spec.models import FindingRule
 
 Kind = Literal["amount", "ratio", "factor", "count", "score", "text"]
@@ -77,7 +77,11 @@ def facts_named(rule: FindingRule) -> set[str]:
     """Every fact a rule reads: in its condition and in its template."""
     named = {c.fact for c in parse_condition(rule.condition)}
     named |= {c.other for c in parse_condition(rule.condition) if not _NUMBER.match(c.other)}
-    return named | set(_PLACEHOLDER.findall(rule.template))
+    return (
+        named
+        | set(_PLACEHOLDER.findall(rule.template))
+        | set(_PLACEHOLDER.findall(rule.template_tr))
+    )
 
 
 def _number(facts: Facts, name: str) -> float | None:
@@ -99,13 +103,16 @@ def holds(rule: FindingRule, facts: Facts) -> bool:
 
 
 def sentence(rule: FindingRule, facts: Facts) -> str:
+    """The rule's sentence in the language of the report, each fact formatted by its kind."""
+    template = rule.template_tr if language.current() == language.TURKISH else rule.template
+
     def fill(found: re.Match[str]) -> str:
         name = found[1]
         if name not in facts:
             raise RuleError(f"{rule.id}: the template names {name}, which is not a fact here")
         return facts[name].show()
 
-    return " ".join(_PLACEHOLDER.sub(fill, rule.template).split())
+    return " ".join(_PLACEHOLDER.sub(fill, template).split())
 
 
 @dataclass(frozen=True)
@@ -150,7 +157,7 @@ def evaluate(
             fired.append(
                 KeyFinding(
                     rule.id,
-                    rule.title,
+                    rule.title_tr if language.current() == language.TURKISH else rule.title,
                     rule.scope,
                     key,
                     rule.priority,

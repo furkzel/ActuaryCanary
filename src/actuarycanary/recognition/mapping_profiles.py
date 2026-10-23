@@ -10,6 +10,7 @@ profile: change a column's ``field``, leave it empty to ignore the column, or se
 import hashlib
 from datetime import date
 from pathlib import Path
+from typing import Literal
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
@@ -54,6 +55,9 @@ class MappingProfile(BaseModel):
     confirmed_on: date
     headers: list[str] = Field(min_length=1)
     columns: list[ProfileColumn]
+    # claim_valuations: whether the amounts are cumulative to date or per period; empty means
+    # not decided, so the values are looked at again on each run (record 0223)
+    amounts: Literal["to_date", "incremental"] | None = None
 
     @model_validator(mode="after")
     def _fits_headers(self) -> "MappingProfile":
@@ -76,9 +80,10 @@ def profile_path(folder: Path, key: str) -> Path:
 
 
 def dump_profile(profile: MappingProfile) -> str:
-    body = yaml.safe_dump(
-        profile.model_dump(mode="json"), allow_unicode=True, sort_keys=False, width=100
-    )
+    data = profile.model_dump(mode="json")
+    if data["amounts"] is None:
+        del data["amounts"]
+    body = yaml.safe_dump(data, allow_unicode=True, sort_keys=False, width=100)
     return _HEADER_COMMENT + body
 
 

@@ -4,8 +4,8 @@ on the canonical valuations, written as one table of flags (record 0057).
 Each flag says which method raised it, on which claim and value, its score, the reason in
 words and the spreadsheet rows behind it. The flags are leads for a reviewer, not findings of
 error. After records 0060 and 0061 MT08 finds all injected payment faults of baseline and
-high_inflation medium (8 of 8) and MT09 has an AUC of 0.90 and 0.89; the `reserve_change`
-variable of MT08 still flags about 45 % of the case-reserve movements of MOTOR_OD (HANDOVER).
+high_inflation medium (8 of 8) and MT09 has an AUC of 0.90 and 0.89. Since MT08 1.2.0 (record
+0221) case-reserve movements are scored by kind and no line has more than 2 % of them flagged.
 """
 
 from dataclasses import dataclass

@@ -12,6 +12,8 @@ from dataclasses import dataclass
 
 import polars as pl
 
+from actuarycanary.canonical.amounts import INCREMENTAL, TO_DATE, accumulate
+from actuarycanary.canonical.amounts import RULE as ACCUMULATED_RULE
 from actuarycanary.canonical.dates import parse_dates
 from actuarycanary.io.excel import SOURCE_COLUMNS, SOURCE_ROW, RawTable
 from actuarycanary.spec.models import DataConceptSpec
@@ -660,12 +662,25 @@ _RULES: dict[
 }
 
 
-def canonicalise(table: RawTable, spec: DataConceptSpec) -> CanonicalFeed:
-    """Typed canonical feed of `spec.id` from a raw table whose columns use canonical names."""
+def canonicalise(table: RawTable, spec: DataConceptSpec, amounts: str = TO_DATE) -> CanonicalFeed:
+    """Typed canonical feed of `spec.id` from a raw table whose columns use canonical names.
+    `amounts` says whether claim valuations hold amounts cumulative to date or per period."""
     frame, findings = _typed(table.frame, spec)
     rules = _RULES.get(spec.id)
     if rules is not None:
         frame, found = rules(frame, spec)
         findings += [f for f in found if f is not None]
+    if spec.id == "claim_valuations" and amounts == INCREMENTAL:
+        # after the duplicates are gone, so that a repeated row is not added twice
+        frame = accumulate(frame)
+        added = finding(
+            spec.id,
+            ACCUMULATED_RULE,
+            "INFO",
+            "amounts given per period were added up per claim into amounts to date",
+            frame,
+        )
+        if added:
+            findings.append(added)
     fields = tuple(f.name for f in spec.fields if f.name in frame.columns)
     return CanonicalFeed(spec.id, spec.version, frame, fields, tuple(findings))

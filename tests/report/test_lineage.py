@@ -19,3 +19,11 @@ def test_method_outputs_name_the_valuation_rows_behind_them(default_run: RunResu
     first = lineage.filter((pl.col("measure") == "RS02") & (pl.col("row") == "0"))
     line = lineage.filter((pl.col("measure") == "RS01") & (pl.col("row") == "0"))
     assert 0 < int(first["count"][0]) < int(line["count"][0])
+
+
+def test_the_appendix_says_which_lineage_format_the_run_wrote(default_run: RunResult) -> None:
+    page = default_run.report.read_text(encoding="utf-8")
+    assert "Lineage format 2" in page and "lineage_atoms.csv" in page
+    assert "built-in method" not in page  # a summary key must not shadow a dict method
+    summary = default_run.report_data["lineage"]
+    assert f"{summary['traced_values']} values cite {summary['rows_cited']} source rows" in page

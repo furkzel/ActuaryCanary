@@ -1,15 +1,35 @@
 """Every check of spec/data: one frame that passes and one that fails, built in code."""
 
+from calendar import monthrange
 from datetime import date
 from typing import Any
 
 import pytest
 
 from actuarycanary.canonical.feeds import Finding
-from actuarycanary.quality.checks import CHECKS, Context, from_canonical
+from actuarycanary.quality.checks import CANONICAL_RULES, CHECKS, Context, from_canonical
 from tests.quality.builders import SPECS, Rows, claim, cv, expense, frames, policy, premium, series
 
+
 # rule -> (frames that pass, frames that fail, rows checked in the failing frames, rows failing)
+def _monthly(
+    values: list[float | None], series_id: str = "USD/TRY", kind: str = "FX_PERIOD_END"
+) -> list[dict[str, Any]]:
+    """One series row per month from January 2024; None leaves the month out."""
+    rows = []
+    for month, value in enumerate(values, start=1):
+        if value is not None:
+            day = date(2024, month, monthrange(2024, month)[1])
+            rows.append(series(series_id=series_id, kind=kind, date=day, value=value))
+    return rows
+
+
+def _dollar_claims() -> Rows:
+    return {
+        "claim_valuations": [cv(1, currency="USD"), cv(2, currency="USD"), cv(3, currency="USD")]
+    }
+
+
 CASES: dict[str, tuple[Rows, Rows, int, int]] = {
     "DV-CLV-07": (
         {"claim_valuations": [cv(1, paid_to_date=100.0), cv(2, paid_to_date=200.0)]},
@@ -164,6 +184,18 @@ CASES: dict[str, tuple[Rows, Rows, int, int]] = {
         1,
         1,
     ),
+    "DV-PRM-07": (
+        {
+            "premiums": [premium(), premium(effective_date=date(2024, 12, 31))],
+            "policies": [policy()],
+        },
+        {
+            "premiums": [premium(effective_date=date(2025, 1, 1)), premium()],
+            "policies": [policy()],
+        },
+        2,
+        1,
+    ),
     "DV-PRM-09": (
         {"premiums": [premium()], "policies": [policy()]},
         {"premiums": [premium(currency="USD")], "policies": [policy()]},
@@ -195,12 +227,30 @@ CASES: dict[str, tuple[Rows, Rows, int, int]] = {
     ),
     "DV-MKT-03": ({"market": [series()]}, {"market": [series(value=0.0)]}, 1, 1),
     "DV-MKT-05": ({"market": [series()]}, {"market": [series(kind="spot")]}, 1, 1),
+    "DV-MKT-06": (
+        {"market": _monthly([30.0, 31.0, 32.0])},
+        {"market": _monthly([30.0, None, 32.0])},
+        3,
+        1,
+    ),
+    "DV-MKT-07": (
+        {**_dollar_claims(), "market": _monthly([30.0, 31.0, 32.0])},
+        {**_dollar_claims(), "market": _monthly([30.0, None, 32.0])},
+        3,
+        1,
+    ),
+    "DV-MKT-08": (
+        {"market": _monthly([100.0, 101.0, 102.0, 103.0, 104.0])},
+        {"market": _monthly([100.0, 101.0, 102.0, 103.0, 104.0, 150.0])},
+        5,
+        1,
+    ),
 }
 CUT_OFF = date(2024, 3, 31)
 
 
 def _run(rule: str, rows: Rows) -> Any:
-    return CHECKS[rule](Context(frames(rows), SPECS, CUT_OFF))
+    return CHECKS[rule](Context(frames(rows), SPECS, CUT_OFF, reporting_currency="TRY"))
 
 
 def test_every_check_has_a_case() -> None:
@@ -264,3 +314,90 @@ def test_canonical_findings_become_outcomes_with_references() -> None:
     assert [r.row for r in hit.refs] == [3]
     clean = [o for o in outcomes if o.rule != "DV-CLV-03"]
     assert clean and all(o.failed == 0 and o.checked == 3 for o in clean)
+
+
+def test_every_rule_has_a_check_or_is_applied_by_the_canonical_step() -> None:
+    rules = {r.id for spec in SPECS.values() for r in spec.validation}
+    canonical = {r for rules_of in CANONICAL_RULES.values() for r in rules_of}
+    assert rules - canonical <= set(CHECKS)  # none is left "not implemented"
+
+
+def test_dv_mkt_06_leaves_daily_rates_alone_and_checks_each_series_on_its_own() -> None:
+    rows = {
+        "market": [
+            series(date=date(2024, 1, 5)),
+            series(date=date(2024, 6, 5)),  # FX_SPOT is daily: no month is expected
+            *_monthly([1.0, 2.0], "A/B"),
+            *_monthly([None, 2.0, None, 3.0], "C/D"),  # starts late, one month missing inside
+        ]
+    }
+    outcome = _run("DV-MKT-06", rows)
+    assert (outcome.checked, outcome.failed) == (2 + 3, 1)  # type: ignore[union-attr]
+    assert "C/D FX_PERIOD_END 2024-03" in outcome.message  # type: ignore[union-attr]
+
+
+def test_dv_mkt_07_needs_a_rate_up_to_the_cut_off() -> None:
+    claims = _dollar_claims()
+    short = _run("DV-MKT-07", {**claims, "market": _monthly([30.0, 31.0])})
+    assert (short.checked, short.failed) == (3, 1)  # type: ignore[union-attr]
+    assert "2024-03" in short.message  # type: ignore[union-attr]
+    late = _run("DV-MKT-07", {**claims, "market": _monthly([None, None, 32.0])})
+    assert (late.checked, late.failed) == (3, 2)  # type: ignore[union-attr]
+
+
+def test_dv_mkt_07_accepts_the_inverse_pair_and_any_fx_kind() -> None:
+    market = [*_monthly([None, 0.03], "TRY/USD"), *_monthly([30.0, None, 32.0], kind="FX_SPOT")]
+    outcome = _run("DV-MKT-07", {**_dollar_claims(), "market": market})
+    assert (outcome.checked, outcome.failed) == (3, 0)  # type: ignore[union-attr]
+
+
+def test_dv_mkt_07_reports_a_currency_without_any_series_and_skips_the_reporting_one() -> None:
+    rows = {**_dollar_claims(), "market": _monthly([1.0, 2.0, 3.0], "EUR/TRY")}
+    outcome = _run("DV-MKT-07", rows)
+    assert (outcome.checked, outcome.failed, outcome.refs) == (3, 3, ())  # type: ignore[union-attr]
+    local = {"claim_valuations": [cv(1), cv(2)], "market": _monthly([1.0, 2.0, 3.0], "EUR/TRY")}
+    assert _run("DV-MKT-07", local).checked == 0  # type: ignore[union-attr]
+
+
+def test_dv_mkt_07_checks_the_price_index_when_the_run_restates_with_it() -> None:
+    local = [cv(1), cv(2), cv(3)]
+    with_index = frames(
+        {"claim_valuations": local, "market": _monthly([100.0, 101.0], "CPI", "PRICE_INDEX")}
+    )
+    without = frames({"claim_valuations": local, "market": _monthly([1.0], "EUR/TRY")})
+
+    def counts(found: dict[str, Any], adjusted: bool) -> tuple[int, int]:
+        outcome = CHECKS["DV-MKT-07"](Context(found, SPECS, CUT_OFF, "TRY", "CPI", adjusted))
+        assert outcome is not None
+        return outcome.checked, outcome.failed
+
+    assert counts(with_index, adjusted=True) == (3, 1)
+    assert counts(with_index, adjusted=False) == (3, 1)  # an index in the data is used by MT07
+    assert counts(without, adjusted=False) == (0, 0)  # no index and no restatement: not needed
+    assert counts(without, adjusted=True) == (3, 3)  # the run restates but has no index at all
+
+
+def test_dv_mkt_07_is_not_evaluated_without_the_reporting_currency() -> None:
+    rows = {**_dollar_claims(), "market": _monthly([30.0])}
+    assert CHECKS["DV-MKT-07"](Context(frames(rows), SPECS, CUT_OFF)) is None
+
+
+def test_dv_mkt_08_scores_each_series_within_itself() -> None:
+    steady = _monthly([100.0 + i for i in range(6)], "A/B")
+    jumpy = _monthly([1.0, 1.0, 1.0, 1.0, 5.0, 5.0], "C/D")  # 1 jump among 5 changes
+    outcome = _run("DV-MKT-08", {"market": [*steady, *jumpy]})
+    assert (outcome.checked, outcome.failed) == (10, 1)  # type: ignore[union-attr]
+
+
+def test_dv_prm_07_falls_back_to_the_booking_date_and_ignores_unknown_policies() -> None:
+    rows = {
+        "premiums": [
+            premium(
+                booking_date=date(2025, 3, 1), effective_date=None
+            ),  # no effective date: booking date counts
+            premium(transaction_id="T2", policy_id="P9"),  # DV-PRM-06 reports this one
+        ],
+        "policies": [policy()],
+    }
+    outcome = _run("DV-PRM-07", rows)
+    assert (outcome.checked, outcome.failed) == (1, 1)  # type: ignore[union-attr]

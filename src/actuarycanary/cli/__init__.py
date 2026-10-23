@@ -23,6 +23,7 @@ from actuarycanary.convert.bases import ReinsuranceBasis, ValueBasis
 from actuarycanary.convert.market import ConversionError
 from actuarycanary.io.excel import RawTable
 from actuarycanary.manifest.metadata import load_metadata
+from actuarycanary.measures.lineage import DEFAULT_FORMAT as DEFAULT_LINEAGE_FORMAT
 from actuarycanary.methods.assumptions import AssumptionError, AssumptionsRegister
 from actuarycanary.modules.runner import ModuleState
 from actuarycanary.pipeline import InputError, RunResult, RunSettings, run
@@ -39,6 +40,16 @@ class BasisOption(StrEnum):
     GROSS = "gross"
     CEDED = "ceded"
     NET = "net"
+
+
+class LanguageOption(StrEnum):
+    EN = "en"
+    TR = "tr"
+
+
+class CurrencyViewOption(StrEnum):
+    REPORTING = "reporting"
+    ORIGINAL = "original"
 
 
 class ValueOption(StrEnum):
@@ -280,6 +291,31 @@ def run_command(
     profiles: Annotated[
         Path, typer.Option("--profiles", help="Folder of mapping profiles.")
     ] = Path("profiles"),
+    currency_view: Annotated[
+        CurrencyViewOption,
+        typer.Option(
+            "--currency-view",
+            case_sensitive=False,
+            help="reporting (default): everything in one currency (CV01); original: nothing "
+            "converted, each line kept apart per currency. FUNCTIONAL equals reporting.",
+        ),
+    ] = CurrencyViewOption.REPORTING,
+    lang: Annotated[
+        LanguageOption,
+        typer.Option(
+            "--lang",
+            case_sensitive=False,
+            help="Language of report.html: en (default) or tr. The terminal stays English.",
+        ),
+    ] = LanguageOption.EN,
+    lineage_format: Annotated[
+        int,
+        typer.Option(
+            "--lineage-format",
+            help="1: lineage.csv with row ranges per value; 2 (default): rows listed once in "
+            "lineage_atoms.csv, much smaller on large inputs.",
+        ),
+    ] = DEFAULT_LINEAGE_FORMAT,
     assumptions: Annotated[
         Path | None,
         typer.Option(
@@ -295,6 +331,9 @@ def run_command(
     try:
         settings = RunSettings(
             reporting_currency=currency.upper() if currency else None,
+            lineage_format=lineage_format,
+            language=lang.value,
+            currency_view=currency_view.value.upper(),
             triangles=TriangleSettings(
                 origin_period=origin_period,
                 development_period=development_period,

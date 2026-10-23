@@ -13,13 +13,22 @@ from pathlib import Path
 from typing import Any
 
 import polars as pl
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from actuarycanary import __version__
+from actuarycanary.canonical.amounts import INCREMENTAL, TO_DATE
 from actuarycanary.canonical.feeds import CanonicalError, CanonicalFeed, Finding, canonicalise
 from actuarycanary.convert.bases import ValueBasis
 from actuarycanary.convert.market import ConversionError, MarketData
 from actuarycanary.convert.rates import DevelopmentRates, development_rates
+from actuarycanary.convert.views import (
+    ORIGINAL,
+    UNIT_LABEL,
+    VIEWS,
+    identity_rates,
+    split_claims,
+    split_policies,
+)
 from actuarycanary.io.excel import RawTable, Workbook, read_workbooks, spreadsheets
 from actuarycanary.manifest.metadata import load_metadata
 from actuarycanary.manifest.run import (
@@ -31,8 +40,9 @@ from actuarycanary.manifest.run import (
     write_manifest,
     write_output,
 )
+from actuarycanary.measures.lineage import DEFAULT_FORMAT, FORMATS, build_lineage
 from actuarycanary.measures.model import Basis, CurrencyView, MeasureInputs, with_refs
-from actuarycanary.measures.output import lineage_table, values_table
+from actuarycanary.measures.output import values_table
 from actuarycanary.methods import diagnostics as diagnostic_limits
 from actuarycanary.methods import isolation_forest, robust_z
 from actuarycanary.methods.assumptions import AssumptionsRegister, records
@@ -70,6 +80,7 @@ from actuarycanary.modules.runner import AnalysisResult, run_modules
 from actuarycanary.quality.engine import evaluate
 from actuarycanary.quality.model import QualityReport
 from actuarycanary.quality.output import QUALITY_NAME, quality_json
+from actuarycanary.recognition.amounts import detect_amounts
 from actuarycanary.recognition.dictionary import Dictionary, build_dictionary
 from actuarycanary.recognition.mapping_profiles import (
     load_profile,
@@ -85,6 +96,7 @@ from actuarycanary.recognition.tables import (
     with_profile,
 )
 from actuarycanary.recognition.values import ValueMapping
+from actuarycanary.report import language
 from actuarycanary.report.model import ReportInputs, build_model, earlier_valuation
 from actuarycanary.report.modules_section import render_modules_section
 from actuarycanary.report.quality_section import render_quality_section
@@ -130,7 +142,6 @@ TRIANGLES_NAME = "triangles.csv"
 ESTIMATES_NAME = "chain_ladder.csv"
 FACTORS_NAME = "factors.csv"
 MEASURES_NAME = "measures.csv"
-LINEAGE_NAME = "lineage.csv"
 MODULES_NAME = "modules.json"
 
 Progress = Callable[[str], None]
@@ -151,11 +162,45 @@ class RunSettings(BaseModel):
     # already in the reporting currency are used, the rest is reported apart; the
     # inflation-adjusted basis always reads market data.
     use_market: bool = True
+    # How `lineage.csv` is written (decision 0222): 1, one line per value, file and sheet with
+    # row ranges; 2, atoms of rows listed once in `lineage_atoms.csv`. The files differ, so the
+    # format is part of the run id.
+    lineage_format: int = DEFAULT_FORMAT
+    # The language of report.html: "en" (default) or "tr" (record 0224). The other outputs and
+    # the terminal stay English. The report differs, so the language enters the run id.
+    language: str = "en"
+    # REPORTING (default) converts every amount into the reporting currency (CV01); ORIGINAL
+    # converts nothing and keeps each line apart per currency (record 0225). Part of the run id.
+    currency_view: str = "REPORTING"
     triangles: TriangleSettings = Field(default_factory=TriangleSettings)
     chain_ladder: ChainLadderSettings = Field(default_factory=ChainLadderSettings)
     # the judgements of the user: selected factors, exclusions, priors, future inflation,
     # overrides (record 0037); part of the settings, so of the run id
     assumptions: AssumptionsRegister = Field(default_factory=AssumptionsRegister)
+
+    @field_validator("currency_view")
+    @classmethod
+    def _known_currency_view(cls, value: str) -> str:
+        if value not in VIEWS:
+            raise ValueError(
+                f"currency view {value!r} is unknown; known: reporting and original "
+                "(FUNCTIONAL equals REPORTING in version 1.0, CV01)"
+            )
+        return value
+
+    @field_validator("language")
+    @classmethod
+    def _known_language(cls, value: str) -> str:
+        if value not in language.LANGUAGES:
+            raise ValueError(f"report language {value!r} is unknown; known: en and tr")
+        return value
+
+    @field_validator("lineage_format")
+    @classmethod
+    def _known_lineage_format(cls, value: int) -> int:
+        if value not in FORMATS:
+            raise ValueError(f"lineage format {value} is unknown; known: 1 and 2")
+        return value
 
 
 @dataclass(frozen=True)
@@ -199,6 +244,7 @@ def recognise_folder(
             )
             if saved is not None:
                 rec = with_profile(rec, saved[0], saved[1], dictionary)
+            rec = detect_amounts(rec, table)
             loaded.append(LoadedTable(workbook, table, rec))
     return loaded
 
@@ -225,6 +271,18 @@ def _confirm(
             rec = replace(rec, profile_sha256=profile_sha256(profile))
         result[i] = replace(loaded[i], recognition=rec)
     return result
+
+
+def _amounts(items: list[LoadedTable]) -> str:
+    """Whether the sheets of a concept hold amounts to date or per period; they must agree."""
+    kinds = {i.recognition.amounts for i in items}
+    if len(kinds) > 1:
+        raise InputError(
+            "the claim_valuations sheets disagree about their amounts (cumulative to date or "
+            "per period): "
+            + "; ".join(f"{i.recognition.label}: {i.recognition.amounts}" for i in items)
+        )
+    return next(iter(kinds), TO_DATE)
 
 
 def _combined(parts: list[RawTable]) -> RawTable:
@@ -264,6 +322,11 @@ def _mapping_record(rec: TableRecognition, values: list[ValueMapping]) -> dict[s
         "fingerprint": rec.fingerprint,
         "source": str(rec.source),
         "profile_sha256": rec.profile_sha256,
+        **(
+            {"amounts": rec.amounts, "amounts_note": rec.amounts_note}
+            if rec.concept == "claim_valuations"
+            else {}
+        ),
         "columns": [[m.source, m.field] for m in rec.mappings if m.used],
         "layers": [str(m.layer) for m in rec.mappings if m.used],
         "columns_not_used": [m.source for m in rec.mappings if not m.used and not m.personal],
@@ -285,8 +348,10 @@ def _settings_record(
     record["methods"] = _methods_record()
     record["bases"] = {
         "reinsurance": settings.triangles.reinsurance_basis.value,
-        "currency": "REPORTING",
-        "currency_conversion": "market" if market_read else "none",
+        "currency": settings.currency_view,
+        "currency_conversion": "market"
+        if market_read and settings.currency_view != ORIGINAL
+        else "none",
         "value": settings.triangles.value_basis.value,
     }
     return record
@@ -332,7 +397,11 @@ def _rate_findings(rates: DevelopmentRates) -> list[Finding]:
 
 
 def _earned_premium(
-    specs: Any, inputs: MeasureInputs, axis: OriginAxis, cache: dict[Any, Any]
+    specs: Any,
+    inputs: MeasureInputs,
+    axis: OriginAxis,
+    cache: dict[Any, Any],
+    view: CurrencyView = CurrencyView.REPORTING,
 ) -> tuple[pl.DataFrame | None, str]:
     """Earned premium per segment, line and origin period for the premium-based methods, from
     PR02 on the basis of the run; the measure is kept in `cache` for the module runner."""
@@ -348,6 +417,7 @@ def _earned_premium(
         settings.origin_period,
         settings.reinsurance_basis,
         settings.value_basis,
+        view,
     )
     if measure is not None:
         request, result = measure
@@ -551,7 +621,7 @@ def run(
             mappings.append(_mapping_record(item.recognition, values))
         combined = _combined(parts)
         raw_tables[concept] = combined.frame
-        feeds[concept] = canonicalise(combined, specs.data[concept])
+        feeds[concept] = canonicalise(combined, specs.data[concept], _amounts(by_concept[concept]))
     checked = dict(feeds)
     unreadable: dict[str, str] = {}
     for concept in CHECKED_CONCEPTS:
@@ -573,16 +643,39 @@ def run(
     ]
 
     step("Building triangles")
+    original = settings.currency_view == ORIGINAL
+    if original and adjusted:
+        raise InputError(
+            "the inflation-adjusted basis restates amounts in the reporting currency and cannot "
+            "be combined with the ORIGINAL currency view"
+        )
     valuations = feeds[REQUIRED_CONCEPT].frame
     claims = feeds["claims"].frame if "claims" in feeds else None
     policies = feeds[POLICIES].frame if POLICIES in feeds else None
+    measure_frames = {c: f.frame for c, f in checked.items()}
+    currencies = valuations["currency"].drop_nulls().unique().to_list()
+    if original:
+        # nothing is converted and no line adds currencies: a line per currency (record 0225)
+        if claims is not None:
+            claims = split_claims(claims, valuations)
+            measure_frames["claims"] = claims
+        if policies is not None:
+            policies = split_policies(policies)
+        if POLICIES in measure_frames:
+            measure_frames[POLICIES] = split_policies(measure_frames[POLICIES])
+        currency = UNIT_LABEL
     market = MarketData.from_frame(feeds[MARKET].frame) if MARKET in feeds else None
     price_index = settings.triangles.price_index or metadata.report.default_price_index
-    rates = development_rates(
-        currency,
-        valuations["currency"].drop_nulls().unique().to_list(),
-        market,
-        settings.triangles.development_rate_date or resolve_cut_off(valuations, settings.triangles),
+    rates = (
+        identity_rates(currencies)
+        if original
+        else development_rates(
+            currency,
+            currencies,
+            market,
+            settings.triangles.development_rate_date
+            or resolve_cut_off(valuations, settings.triangles),
+        )
     )
     triangles = build_triangles(
         valuations,
@@ -596,13 +689,23 @@ def run(
     )
 
     sources = {c: tuple(i.recognition.label for i in by_concept[c]) for c in checked}
-    quality = evaluate(specs, checked, raw_tables, sources, triangles.cut_off, unreadable)
+    quality = evaluate(
+        specs,
+        checked,
+        raw_tables,
+        sources,
+        triangles.cut_off,
+        unreadable,
+        reporting_currency=None if original else currency,
+        price_index=price_index,
+        adjusted=adjusted,
+    )
     rate_notes = tuple(_rate_findings(rates)) if market is not None and not adjusted else ()
     findings = (
         tuple(f for feed in feeds.values() for f in feed.findings) + rate_notes + triangles.findings
     )
     measure_inputs = MeasureInputs(
-        feeds=with_refs({c: f.frame for c, f in checked.items()}),
+        feeds=with_refs(measure_frames),
         cut_off=triangles.cut_off,
         reporting_currency=currency,
         rates=rates,
@@ -618,12 +721,20 @@ def run(
     cache: dict[Any, Any] = {}
 
     step("Running the reserving methods")
+    view = CurrencyView.ORIGINAL if original else CurrencyView.REPORTING
     premium, premium_reason = _earned_premium(
-        specs, measure_inputs, settings.triangles.origin_axis, cache
+        specs, measure_inputs, settings.triangles.origin_axis, cache, view
     )
-    other_value, other_reason = _other_value_basis(
-        valuations, claims, policies, market, settings, rates, currency, price_index, triangles
-    )
+    if original:
+        other_value, other_reason = (
+            None,
+            "the other value basis is restated in the reporting currency: not built in the "
+            "ORIGINAL currency view",
+        )
+    else:
+        other_value, other_reason = _other_value_basis(
+            valuations, claims, policies, market, settings, rates, currency, price_index, triangles
+        )
     method_inputs = MethodInputs(
         register=settings.assumptions,
         premium=premium,
@@ -650,6 +761,7 @@ def run(
         value_basis,
         cache=cache,
         notes={"M04": not_run_notes(reserving), "M06": anomalies.reasons},
+        view=view,
     )
     checked_only = [c for c in CHECKED_CONCEPTS if c in checked]
     inputs = _input_records(
@@ -672,7 +784,14 @@ def run(
     spec_records = [SpecRecord(s, catalogue[s].version, catalogue[s].title_en) for s in used]
     settings_record = _settings_record(settings, currency, price_index, market_read)
     applied = [
-        {"file": m["file"], "sheet": m["sheet"], "concept": m["concept"], "columns": m["columns"]}
+        {
+            "file": m["file"],
+            "sheet": m["sheet"],
+            "concept": m["concept"],
+            "columns": m["columns"],
+            # only per-period amounts are named, so cumulative ones keep the id they had
+            **({"amounts": INCREMENTAL} if m.get("amounts") == INCREMENTAL else {}),
+        }
         for m in mappings
     ]
     run = run_id(inputs, spec_records, settings_record, __version__, applied)
@@ -688,9 +807,9 @@ def run(
     results = analysis.results()
     assert analysis.inputs is not None
     outputs.append(write_output(out, MEASURES_NAME, values_table(results).write_csv()))
-    outputs.append(
-        write_output(out, LINEAGE_NAME, lineage_table(results, analysis.inputs).write_csv())
-    )
+    lineage = build_lineage(results, analysis.inputs, settings.lineage_format)
+    for name, text in lineage.files().items():
+        outputs.append(write_output(out, name, text))
     outputs.append(write_output(out, MODULES_NAME, analysis_json(analysis, reserving)))
     in_force = reserving.assumptions()
     for name, content in (
@@ -706,31 +825,34 @@ def run(
 
     step("Writing the report")
     previous = earlier_valuation(reserving)
-    report_data = build_model(
-        ReportInputs(
-            metadata=metadata,
-            run_id=run,
-            package_version=__version__,
-            catalogue=specs,
-            reserving=reserving,
-            earlier=None if previous is None else earlier_result(reserving, previous),
-            analysis=analysis,
-            quality=quality,
-            anomalies=anomalies,
-            data_findings=findings,
-            inputs=tuple(inputs),
-            specs=tuple(spec_records),
-            settings=settings_used,
-            outputs=tuple(outputs),
-            randomness=tuple(randomness),
-            mappings=tuple(mappings),
+    with language.using(settings.language):
+        report_data = build_model(
+            ReportInputs(
+                metadata=metadata,
+                run_id=run,
+                package_version=__version__,
+                catalogue=specs,
+                reserving=reserving,
+                earlier=None if previous is None else earlier_result(reserving, previous),
+                analysis=analysis,
+                quality=quality,
+                anomalies=anomalies,
+                data_findings=findings,
+                inputs=tuple(inputs),
+                specs=tuple(spec_records),
+                settings=settings_used,
+                outputs=tuple(outputs),
+                lineage=lineage.summary(),
+                randomness=tuple(randomness),
+                mappings=tuple(mappings),
+            )
         )
-    )
-    page = render_report(
-        report_data,
-        quality_html=render_quality_section(quality, catalogue["DQ01"].version),
-        modules_html=render_modules_section(analysis),
-    )
+    with language.using(settings.language):
+        page = render_report(
+            report_data,
+            quality_html=render_quality_section(quality, catalogue["DQ01"].version, specs),
+            modules_html=render_modules_section(analysis, specs),
+        )
     outputs.insert(0, write_output(out, REPORT_NAME, page))
 
     step("Writing the manifest")
@@ -744,6 +866,7 @@ def run(
         specs=spec_records,
         settings=settings_used,
         outputs=outputs,
+        lineage_format=lineage.format,
         findings=[asdict(f) for f in findings],
         assumptions=records(in_force),
         randomness=randomness,

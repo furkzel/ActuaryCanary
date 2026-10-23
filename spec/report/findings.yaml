@@ -1,5 +1,5 @@
 id: RP01
-version: 1.0.0
+version: 1.1.0
 title_en: Key finding rules
 title_tr: Temel bulgu kuralları
 status: draft
@@ -33,6 +33,13 @@ rules:
       solid evidence: every factor, ratio and range rests on few observations, and the
       differences between methods show how much the answer depends on the method, not how
       precise it is.
+    title_tr: Yetersiz kanıt
+    template_tr: >-
+      {lines} branşın {thin_lines} tanesi için yalnızca {origin_periods} kaynak dönem
+      ({first_origin} – {last_origin}) yüklendi; bu sayı, yöntemlerin sağlam kanıt için
+      gereksindiği {thin_threshold} değerinin altındadır: her faktör, oran ve aralık az
+      gözleme dayanır ve yöntemler arasındaki farklar, sonucun kesinliğini değil, sonucun
+      yönteme ne kadar bağlı olduğunu gösterir.
     evidence:
       section: reserving
       files: [diagnostics.csv]
@@ -45,6 +52,11 @@ rules:
     template: >-
       Blocking data quality findings: {blocking_findings}, on {blocking_rows} rows in all;
       the modules they touch are marked unable and their results should not be read.
+    title_tr: Engelleyici veri bulguları
+    template_tr: >-
+      Engelleyici veri kalitesi bulguları: {blocking_findings}, toplam {blocking_rows}
+      satırda; etkiledikleri modüller çalıştırılamaz olarak işaretlendi ve sonuçları
+      okunmamalıdır.
     evidence:
       section: quality
       files: [quality.json]
@@ -58,6 +70,12 @@ rules:
       {segment}: selected ultimate claims {selected_ultimate} {currency}, of which
       {selected_ibnr} {currency} ({ibnr_share} of the ultimate) lies above the incurred to
       date (IBNR); the largest part is {largest_line} with {largest_line_ibnr} {currency}.
+    title_tr: Segment başına rezerv tahmini
+    template_tr: >-
+      {segment}: seçilen nihai hasar {selected_ultimate} {currency}; bunun {selected_ibnr}
+      {currency} tutarı ({ibnr_share} nihai hasarın) bugüne kadar gerçekleşen hasarın
+      üzerindedir (IBNR); en büyük pay {largest_line} branşındadır: {largest_line_ibnr}
+      {currency}.
     evidence:
       section: reserving
       files: [ultimates.csv]
@@ -70,6 +88,11 @@ rules:
     template: >-
       {segment}: the ultimate loss ratio rose from {loss_ratio_previous} for origin
       {loss_ratio_previous_origin} to {loss_ratio_latest} for origin {loss_ratio_origin}.
+    title_tr: Hasar prim oranı yükseldi
+    template_tr: >-
+      {segment}: nihai hasar prim oranı {loss_ratio_previous_origin} kaynak yılı için
+      {loss_ratio_previous} iken {loss_ratio_origin} kaynak yılı için {loss_ratio_latest}
+      değerine yükseldi.
     evidence:
       section: profitability
       files: [measures.csv, lineage.csv]
@@ -82,6 +105,11 @@ rules:
     template: >-
       {segment}: the ultimate loss ratio fell from {loss_ratio_previous} for origin
       {loss_ratio_previous_origin} to {loss_ratio_latest} for origin {loss_ratio_origin}.
+    title_tr: Hasar prim oranı düştü
+    template_tr: >-
+      {segment}: nihai hasar prim oranı {loss_ratio_previous_origin} kaynak yılı için
+      {loss_ratio_previous} iken {loss_ratio_origin} kaynak yılı için {loss_ratio_latest}
+      değerine düştü.
     evidence:
       section: profitability
       files: [measures.csv, lineage.csv]
@@ -94,6 +122,10 @@ rules:
     template: >-
       {segment}: written premium grew by {premium_change} to {written_premium} {currency} in
       {premium_period} against {premium_previous_period}.
+    title_tr: Yazılan prim arttı
+    template_tr: >-
+      {segment}: yazılan prim {premium_previous_period} dönemine göre {premium_change}
+      artarak {premium_period} döneminde {written_premium} {currency} oldu.
     evidence:
       section: portfolio
       files: [measures.csv, lineage.csv]
@@ -106,6 +138,10 @@ rules:
     template: >-
       {segment}: written premium shrank by {premium_decline} to {written_premium} {currency}
       in {premium_period} against {premium_previous_period}.
+    title_tr: Yazılan prim azaldı
+    template_tr: >-
+      {segment}: yazılan prim {premium_previous_period} dönemine göre {premium_decline}
+      azalarak {premium_period} döneminde {written_premium} {currency} oldu.
     evidence:
       section: portfolio
       files: [measures.csv, lineage.csv]
@@ -119,6 +155,12 @@ rules:
       Origins where the paid chain ladder gives an ultimate below what is already incurred:
       {negative_paid_origins} ({negative_paid_lines}). The paid pattern is too short or case
       reserves are high, so the paid estimates of these origins are not used on their own.
+    title_tr: Ödenen bazlı nihai hasar gerçekleşenin altında
+    template_tr: >-
+      Ödenen hasar zincir merdiven yönteminin, şimdiden gerçekleşmiş tutarın altında nihai
+      hasar verdiği kaynak dönemler: {negative_paid_origins} ({negative_paid_lines}).
+      Ödeme paterni çok kısa veya muallak hasar karşılıkları yüksek; bu nedenle bu
+      dönemlerin ödenen bazlı tahminleri tek başlarına kullanılmaz.
     evidence:
       section: reserving
       files: [diagnostics.csv, ultimates.csv]
@@ -132,6 +174,11 @@ rules:
       Development is still above {late_development_limit} in the last observed period
       ({late_development_list}) while the tail factor is 1.0, so ultimates of these lines may
       be understated; a tail factor can be set in the assumptions register.
+    title_tr: Kuyruk faktörü 1,0 iken son gelişim yüksek
+    template_tr: >-
+      Kuyruk faktörü 1,0 iken son gözlenen dönemde gelişim hâlâ {late_development_limit}
+      değerinin üzerinde ({late_development_list}); bu branşların nihai hasarı eksik
+      tahmin edilmiş olabilir; kuyruk faktörü varsayım kaydında belirlenebilir.
     evidence:
       section: reserving
       files: [diagnostics.csv, assumptions.csv]
@@ -145,6 +192,12 @@ rules:
       Lines where the robust z-score flags more than {anomaly_rate_limit} of the values:
       {anomaly_lines_above} (highest {anomaly_rate_max} in {anomaly_rate_max_line}). Such a
       line may mix populations, so its flags are leads to review, not errors.
+    title_tr: Anomali oranı sınırın üzerinde
+    template_tr: >-
+      Sağlam z-skorunun değerlerin {anomaly_rate_limit} oranından fazlasını işaretlediği
+      branşlar: {anomaly_lines_above} (en yüksek {anomaly_rate_max},
+      {anomaly_rate_max_line}). Böyle bir branş farklı yapıları karıştırıyor olabilir;
+      işaretleri hata değil, incelenecek ipuçlarıdır.
     evidence:
       section: anomalies
       files: [anomalies.csv]
@@ -158,6 +211,11 @@ rules:
       Development factors that take a cell growing from zero: {zero_denominator_cells}
       ({zero_denominator_list}). Such a cell adds to the numerator only and raises the
       factor; it is kept by default and can be excluded in the assumptions register.
+    title_tr: Sıfır paydalı faktör
+    template_tr: >-
+      Sıfırdan büyüyen bir hücreyi alan gelişim faktörleri: {zero_denominator_cells}
+      ({zero_denominator_list}). Böyle bir hücre yalnızca paya eklenir ve faktörü
+      yükseltir; varsayılan olarak tutulur ve varsayım kaydında dışlanabilir.
     evidence:
       section: reserving
       files: [diagnostics.csv, factors.csv]
@@ -171,6 +229,11 @@ rules:
       Development factors resting on fewer than {few_link_ratio_minimum} origins:
       {few_link_ratio_factors}, in {few_link_ratio_lines} of {lines} lines. Each is an average
       of one or two link ratios.
+    title_tr: Az kaynak dönemli faktörler
+    template_tr: >-
+      {few_link_ratio_minimum} kaynak dönemden azına dayanan gelişim faktörleri:
+      {few_link_ratio_factors}; {lines} branşın {few_link_ratio_lines} tanesinde. Her biri
+      bir veya iki bağlantı oranının ortalamasıdır.
     evidence:
       section: reserving
       files: [diagnostics.csv, factors.csv]
@@ -183,6 +246,10 @@ rules:
     template: >-
       Triangles without a reserve range: {mack_not_run} of {mack_triangles}. The Mack
       standard error needs more link ratios than they have.
+    title_tr: Rezerv aralığı yok
+    template_tr: >-
+      Rezerv aralığı bulunmayan üçgenler: {mack_triangles} üçgenin {mack_not_run} tanesi.
+      Mack standart hatası, bu üçgenlerde bulunandan daha fazla bağlantı oranı gerektirir.
     evidence:
       section: reserving
       files: [reserve_range.csv]
@@ -195,6 +262,10 @@ rules:
     template: >-
       Data quality score {dq_score} out of 100. Warnings: {warning_findings}, on
       {warning_rows} rows in all; the largest is "{top_warning}".
+    title_tr: Veri kalitesi uyarıları
+    template_tr: >-
+      Veri kalitesi puanı 100 üzerinden {dq_score}. Uyarılar: {warning_findings}, toplam
+      {warning_rows} satırda; en büyüğü "{top_warning}".
     evidence:
       section: quality
       files: [quality.json]
@@ -207,6 +278,10 @@ rules:
     template: >-
       Modules that did not run because their data was not loaded: {modules_skipped} of
       {modules_total} ({skipped_list}).
+    title_tr: Çalışmayan modüller
+    template_tr: >-
+      Verileri yüklenmediği için çalışmayan modüller: {modules_total} modülün
+      {modules_skipped} tanesi ({skipped_list}).
     evidence:
       section: not-run
       files: [modules.json]
@@ -218,6 +293,10 @@ rules:
     condition: modules_limited > 0
     template: >-
       Modules that ran with some measures or methods missing: {modules_limited}
+      ({limited_list}).
+    title_tr: Sınırlı çalışan modüller
+    template_tr: >-
+      Bazı ölçü veya yöntemleri eksik olarak çalışan modüller: {modules_limited}
       ({limited_list}).
     evidence:
       section: not-run
@@ -231,6 +310,10 @@ rules:
     template: >-
       Origin periods: {origin_periods}, fewer than {thin_threshold}. The methods below agree
       or differ on little evidence.
+    title_tr: Branşta yetersiz kanıt
+    template_tr: >-
+      Kaynak dönem sayısı: {origin_periods}; {thin_threshold} değerinin altında. Aşağıdaki
+      yöntemler az kanıta dayanarak birbirine yakın veya uzak sonuç verir.
     evidence:
       section: line
       files: [diagnostics.csv]
@@ -244,6 +327,12 @@ rules:
       The total ultimates of the methods on the incurred triangle lie between {method_low} and
       {method_high} {currency}, {method_spread} of the selected ultimate apart; this spread
       shows how much the answer depends on the method, not a confidence interval.
+    title_tr: Yöntemler birbirinden farklı
+    template_tr: >-
+      Gerçekleşen hasar üçgeninde yöntemlerin toplam nihai hasarları {method_low} ile
+      {method_high} {currency} arasındadır; seçilen nihai hasarın {method_spread} kadar
+      uzağında. Bu fark, sonucun yönteme ne kadar bağlı olduğunu gösterir, bir güven
+      aralığı değildir.
     evidence:
       section: line
       files: [ultimates.csv]
@@ -256,6 +345,10 @@ rules:
     template: >-
       Origins whose paid chain ladder ultimate is below the incurred to date:
       {negative_paid_list}.
+    title_tr: Branşta ödenen bazlı nihai hasar gerçekleşenin altında
+    template_tr: >-
+      Ödenen hasar zincir merdiven nihai hasarının bugüne kadar gerçekleşenin altında
+      kaldığı kaynak dönemler: {negative_paid_list}.
     evidence:
       section: line
       files: [diagnostics.csv]
@@ -268,6 +361,10 @@ rules:
     template: >-
       Last observed development {late_development_list} is above {late_development_limit}
       with tail factor 1.0: the ultimate may be understated.
+    title_tr: Branşta son gelişim yüksek
+    template_tr: >-
+      Son gözlenen gelişim {late_development_list}, {late_development_limit} değerinin
+      üzerinde ve kuyruk faktörü 1,0: nihai hasar eksik tahmin edilmiş olabilir.
     evidence:
       section: line
       files: [diagnostics.csv]
@@ -279,6 +376,9 @@ rules:
     condition: zero_denominator_cells > 0
     template: >-
       Factors resting on a cell that grows from zero: {zero_denominator_list}.
+    title_tr: Branşta sıfır payda
+    template_tr: >-
+      Sıfırdan büyüyen bir hücreye dayanan faktörler: {zero_denominator_list}.
     evidence:
       section: line
       files: [diagnostics.csv]
@@ -290,6 +390,10 @@ rules:
     condition: few_link_ratio_factors > 0
     template: >-
       Factors resting on fewer than {few_link_ratio_minimum} origins:
+      {few_link_ratio_factors} ({few_link_ratio_list}).
+    title_tr: Branşta az bağlantı oranı
+    template_tr: >-
+      {few_link_ratio_minimum} kaynak dönemden azına dayanan faktörler:
       {few_link_ratio_factors} ({few_link_ratio_list}).
     evidence:
       section: line
@@ -303,6 +407,11 @@ rules:
     template: >-
       Payments and case-reserve movements flagged: {anomaly_flagged} of {anomaly_values}
       ({anomaly_rate}, above {anomaly_rate_limit}); the line may mix populations.
+    title_tr: Branşın anomali oranı
+    template_tr: >-
+      İşaretlenen ödeme ve muallak hasar hareketleri: {anomaly_values} değerin
+      {anomaly_flagged} tanesi ({anomaly_rate}, sınır {anomaly_rate_limit} üzerinde);
+      branş farklı yapıları karıştırıyor olabilir.
     evidence:
       section: anomalies
       files: [anomalies.csv]
@@ -311,3 +420,9 @@ change_log:
   - version: 1.0.0
     date: 2026-10-22
     change: First rules for the executive report (work item P10).
+  - version: 1.1.0
+    date: 2026-10-23
+    change: >-
+      Every rule has a Turkish title and sentence template (title_tr, template_tr) beside
+      the English ones, with the same conditions and placeholders; the report is written
+      in Turkish with --lang tr (record 0224). No condition or English sentence changes.

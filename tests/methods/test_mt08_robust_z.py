@@ -9,6 +9,7 @@ import pytest
 
 from actuarycanary.io.excel import SOURCE_ROW
 from actuarycanary.methods.robust_z import RobustZ, robust_z_flags
+from tests.methods.helpers import reserve_flag_shares
 from tests.methods.medium import load_medium, medium
 
 DAY = date(2024, 1, 31)
@@ -98,7 +99,7 @@ def test_flows_follow_consecutive_rows_and_reserve_changes_are_scored() -> None:
     result = robust_z_flags(_valuations(rows), None, {"USD": 30.0}, min_group_size=1)
     paid = result.scores.filter(pl.col("variable") == "paid_flow").sort("valuation_date")
     assert paid["amount"].to_list() == [3000.0, 9000.0]
-    reserve = result.scores.filter(pl.col("variable") == "reserve_change")
+    reserve = result.scores.filter(pl.col("variable") == "reserve_release")
     assert reserve["y"].to_list() == [pytest.approx(math.log(1 / 1501))]
     # the payment of 300 in March moves incurred from 100 to 400 (USD), 3000 to 12000 TRY
     incurred = result.scores.filter(pl.col("variable") == "incurred_change_at_payment")
@@ -107,6 +108,62 @@ def test_flows_follow_consecutive_rows_and_reserve_changes_are_scored() -> None:
     ]
     assert incurred["y"][0] == pytest.approx(math.log(12001 / 3001))
     assert result.not_converted == 1
+
+
+def _reserves(kinds: dict[str, list[float]]) -> pl.DataFrame:
+    """One claim per entry, valued monthly with the given case reserves (nothing paid)."""
+    rows = [
+        (claim, date(2024, month + 1, 28), 0.0, reserve, "TRY")
+        for claim, reserves in kinds.items()
+        for month, reserve in enumerate(reserves)
+    ]
+    return _valuations(rows)
+
+
+def test_reserve_movements_are_split_into_moved_opened_and_released() -> None:
+    result = robust_z_flags(
+        _reserves(
+            {
+                "moved": [100.0, 150.0, 150.0],  # moves, then stays: the stay is no movement
+                "opened": [0.0, 400.0],
+                "released": [900.0, 0.0],
+                "idle": [0.0, 0.0, 0.0],  # no reserve either side: nothing
+            }
+        ),
+        None,
+        {"TRY": 1.0},
+        min_group_size=1,
+        variables=("reserve_change", "reserve_opening", "reserve_release"),
+    )
+    got = {r["claim_id"]: (r["variable"], r["y"]) for r in result.scores.iter_rows(named=True)}
+    assert got == {
+        "moved": ("reserve_change", pytest.approx(math.log(151 / 101))),
+        "opened": ("reserve_opening", pytest.approx(math.log(401))),
+        "released": ("reserve_release", pytest.approx(math.log(1 / 901))),
+    }
+
+
+def test_each_kind_of_reserve_movement_has_its_own_scale() -> None:
+    # 40 claims open a reserve of about 1000 and release it later: under one scale the
+    # releases (about -7) sit far from the small moves (about 0.05) and are all flagged; under
+    # one scale per kind the typical opening, release and move are normal and only the odd
+    # claim (a reserve of 90 000 where 1000 is usual, opened and released) is flagged, and
+    # not on its move, which is a normal 5 per cent.
+    sizes = {f"C{k:02d}": 1000.0 * math.exp(0.02 * (k - 20)) for k in range(40)}
+    reserves = {c: [0.0, size, size * 1.05, 0.0] for c, size in sizes.items()}
+    reserves["BIG"] = [0.0, 90_000.0, 90_000.0 * 1.05, 0.0]
+    result = robust_z_flags(_reserves(reserves), None, {"TRY": 1.0})
+    flagged = result.flags.select("claim_id", "variable").rows()
+    assert sorted(flagged) == [("BIG", "reserve_opening"), ("BIG", "reserve_release")]
+    reasons = result.flags.sort("variable")["reason"].to_list()
+    assert reasons[0].startswith("case reserve opened at 90000.0")
+    assert reasons[1].startswith("case reserve of 94500.0 released")
+    rates = result.flag_rates.filter(pl.col("variable").str.starts_with("reserve"))
+    assert rates.select("variable", "values").sort("variable").rows() == [
+        ("reserve_change", 41),
+        ("reserve_opening", 41),
+        ("reserve_release", 41),
+    ]
 
 
 def test_incurred_change_needs_a_payment_and_a_movement() -> None:
@@ -207,3 +264,24 @@ def test_ground_truth_recall_of_injected_payment_outliers(scenario: str) -> None
     others = flagged.join(injected, on=keys, how="anti").height
     print(f"recall {recall:.2f}; other flagged payments per 1000 {1000 * others / paid.height:.2f}")
     assert recall >= 0.75
+
+
+# Ground truth (record 0221): after MT08 1.2.0 no line has more than 10 per cent of its reserve
+# movements flagged. Measured 2026-10-23: baseline and high_inflation medium 1.5 to 1.8 per
+# cent per line (1.1.0: MOTOR_OD 45 per cent, PROPERTY 12 per cent).
+MAX_RESERVE_SHARE = 0.10
+
+
+@pytest.mark.slow
+@pytest.mark.integration
+@pytest.mark.parametrize("scenario", ["baseline", "high_inflation"])
+def test_ground_truth_reserve_movements_are_not_mostly_flagged(scenario: str) -> None:
+    if not medium(scenario).is_dir():
+        pytest.skip(f"run `just synth {scenario} medium`")
+    data = load_medium(scenario)
+    result = robust_z_flags(data.valuations, data.claims, data.rates.rates)
+    shares = reserve_flag_shares(result)
+    print({line: round(share, 4) for line, share in shares.items()})
+    assert set(shares) >= {"MOTOR_OD", "MOTOR_TPL", "PROPERTY"}
+    assert max(shares.values()) <= MAX_RESERVE_SHARE
+    assert result.warnings == ()  # no group above the 5 per cent that suggests mixed populations

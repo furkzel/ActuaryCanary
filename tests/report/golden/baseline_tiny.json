@@ -48,7 +48,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "89c02421c06262dd"
+    "value": "39543952e852b2a6"
    },
    {
     "label": "Valuation date",
@@ -129,8 +129,8 @@
      "type": "bar",
      "x": [
       0.0,
-      0.221884,
-      0.055118
+      0.012048,
+      0.008734
      ],
      "y": [
       "LIFE · GROUP_TERM_LIFE",
@@ -2435,26 +2435,8 @@
    }
   }
  },
- "findings_spec": "RP01 v1.0.0",
+ "findings_spec": "RP01 v1.1.0",
  "further_findings": [
-  {
-   "banner": false,
-   "evidence": "MT02 v1.0.0, RS01 v1.0.0",
-   "files": [
-    "diagnostics.csv",
-    "factors.csv"
-   ],
-   "key": "",
-   "rule": "KF11",
-   "scope": "run",
-   "section": "reserving",
-   "specs": [
-    "MT02",
-    "RS01"
-   ],
-   "text": "Development factors that take a cell growing from zero: 1 (PROPERTY paid 2024:12-24). Such a cell adds to the numerator only and raises the factor; it is kept by default and can be excluded in the assumptions register.",
-   "title": "Factor on a zero denominator"
-  },
   {
    "banner": false,
    "evidence": "MT02 v1.0.0, RS01 v1.0.0",
@@ -2646,24 +2628,30 @@
   },
   {
    "banner": false,
-   "evidence": "MT08 v1.1.0",
+   "evidence": "MT02 v1.0.0, RS01 v1.0.0",
    "files": [
-    "anomalies.csv"
+    "diagnostics.csv",
+    "factors.csv"
    ],
    "key": "",
-   "rule": "KF10",
+   "rule": "KF11",
    "scope": "run",
-   "section": "anomalies",
+   "section": "reserving",
    "specs": [
-    "MT08"
+    "MT02",
+    "RS01"
    ],
-   "text": "Lines where the robust z-score flags more than 5.0% of the values: 2 (highest 22.2% in MOTOR_OD). Such a line may mix populations, so its flags are leads to review, not errors.",
-   "title": "Anomaly rate above the limit"
+   "text": "Development factors that take a cell growing from zero: 1 (PROPERTY paid 2024:12-24). Such a cell adds to the numerator only and raises the factor; it is kept by default and can be excluded in the assumptions register.",
+   "title": "Factor on a zero denominator"
   }
  ],
  "label": "Indicative — not an official reserve or price",
+ "language": "en",
  "lineage": {
+  "format": 2,
+  "lines": 679,
   "measures": 32,
+  "rows_cited": 123471,
   "traced": [
    "AE01",
    "CL01",
@@ -2697,6 +2685,7 @@
    "RT01",
    "RT02"
   ],
+  "traced_values": 547,
   "untraced": [
    "DQ01"
   ]
@@ -2867,6 +2856,7 @@
   {
    "assumptions": [
     "Anomalies are rare, so the median and MAD describe normal behaviour.",
+    "A reserve that opens or is released is a change of status, not a movement of the same kind as a revision of a running reserve; each kind has its own typical size.",
     "On the log scale the variables are roughly symmetric."
    ],
    "id": "MT08",
@@ -2884,12 +2874,12 @@
      "name": "group_by"
     },
     {
-     "default": "['paid_flow', 'reserve_change', 'incurred_change_at_payment']",
+     "default": "['paid_flow', 'reserve_change', 'reserve_opening', 'reserve_release', 'incurred_change_at_payment']",
      "name": "variables"
     }
    ],
-   "plain": "Flags individual payments, case-reserve changes and movements of incurred at a payment that lie far from the typical values of their segment and line, measured by a z-score built on the median and the median absolute deviation, which outliers cannot distort.",
-   "spec": "MT08 v1.1.0",
+   "plain": "Flags individual payments, case-reserve movements and movements of incurred at a payment that lie far from the typical values of their kind in their segment and line, measured by a z-score built on the median and the median absolute deviation, which outliers cannot distort.",
+   "spec": "MT08 v1.2.0",
    "title": "Robust z-score anomaly flags"
   },
   {
@@ -2968,9 +2958,7 @@
     "module": "M06 Anomalies and large losses",
     "state": "limited",
     "why": [
-     "MT08: NON_LIFE/MOTOR_OD reserve_change: 40.1% of values flagged, above 5%; the group may mix populations (for example two currencies)",
-     "MT08: NON_LIFE/MOTOR_TPL reserve_change: 6.3% of values flagged, above 5%; the group may mix populations (for example two currencies)",
-     "MT08: 3 groups have too few values to score",
+     "MT08: 6 groups have too few values to score",
      "MT09: 1 group has too few claims to score"
     ]
    }
@@ -3445,7 +3433,7 @@
    "anchor": "anomalies",
    "body": {
     "figure": "anomalies-rate",
-    "footnote": "Robust z-score MT08 v1.1.0 on payments and case-reserve movements per line, isolation forest MT09 v1.1.0 on claims per segment; the dashed line is the flag rate above which MT08 warns that a group may mix populations. Flags are leads for a reviewer, not errors; anomalies.csv lists every flag with its rows.",
+    "footnote": "Robust z-score MT08 v1.2.0 on payments and case-reserve movements per line, isolation forest MT09 v1.1.0 on claims per segment; the dashed line is the flag rate above which MT08 warns that a group may mix populations. Flags are leads for a reviewer, not errors; anomalies.csv lists every flag with its rows.",
     "limit": "5.0%",
     "rows": [
      {
@@ -3454,23 +3442,23 @@
       "isolation": "0",
       "line": "LIFE · GROUP_TERM_LIFE",
       "rate": "0.0%",
-      "scored": "96"
+      "scored": "65"
      },
      {
-      "above": true,
-      "flagged": "73",
+      "above": false,
+      "flagged": "3",
       "isolation": "0",
       "line": "NON_LIFE · MOTOR_OD",
-      "rate": "22.2%",
-      "scored": "329"
+      "rate": "1.2%",
+      "scored": "249"
      },
      {
-      "above": true,
-      "flagged": "42",
+      "above": false,
+      "flagged": "2",
       "isolation": "2",
       "line": "NON_LIFE · MOTOR_TPL",
-      "rate": "5.5%",
-      "scored": "762"
+      "rate": "0.9%",
+      "scored": "229"
      },
      {
       "above": false,
@@ -3483,114 +3471,82 @@
     ],
     "top": [
      {
-      "claim": "00000168",
-      "date": "2025-12-31",
+      "claim": "00000020",
+      "date": "2022-07-31",
       "line": "NON_LIFE · MOTOR_OD",
       "method": "MT08",
-      "reason": "case reserve moved from 954549.03 to 0.0, log change -13.769 against the group median 0.0 (robust z 42.12, threshold 3.5)",
-      "score": "-42.115",
-      "source": "claim_valuations.xlsx [claim_valuations] rows 1236",
+      "reason": "incurred moved from 94765.79 to 3996162.32 with a payment, log change 3.742 against the group median 0.041 (robust z 16.02, threshold 3.5)",
+      "score": "16.017",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 65",
+      "variable": "incurred change at payment"
+     },
+     {
+      "claim": "00000101",
+      "date": "2024-07-31",
+      "line": "NON_LIFE · MOTOR_OD",
+      "method": "MT08",
+      "reason": "incurred moved from 100710.73 to 2189400.86 with a payment, log change 3.079 against the group median 0.041 (robust z 13.15, threshold 3.5)",
+      "score": "13.149",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 684",
+      "variable": "incurred change at payment"
+     },
+     {
+      "claim": "00000003",
+      "date": "2022-04-30",
+      "line": "NON_LIFE · MOTOR_OD",
+      "method": "MT08",
+      "reason": "case reserve moved from 32631.51 to 1096.47, log change -3.392 against the group median -0.112 (robust z 6.24, threshold 3.5)",
+      "score": "-6.239",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 11",
       "variable": "reserve change"
      },
      {
-      "claim": "00000138",
-      "date": "2025-03-31",
-      "line": "NON_LIFE · MOTOR_OD",
+      "claim": "00000025",
+      "date": "2023-02-28",
+      "line": "NON_LIFE · MOTOR_TPL",
       "method": "MT08",
-      "reason": "case reserve moved from 561820.11 to 0.0, log change -13.239 against the group median 0.0 (robust z 40.49, threshold 3.5)",
-      "score": "-40.494",
-      "source": "claim_valuations.xlsx [claim_valuations] rows 959",
+      "reason": "case reserve of 304.93 released, log change -5.723 against the group median -11.917 of reserves released (robust z 4.16, threshold 3.5)",
+      "score": "4.158",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 186",
+      "variable": "reserve release"
+     },
+     {
+      "claim": "00000025",
+      "date": "2022-11-30",
+      "line": "NON_LIFE · MOTOR_TPL",
+      "method": "MT08",
+      "reason": "case reserve moved from 3585.76 to 304.93, log change -2.462 against the group median 0.004 (robust z 3.64, threshold 3.5)",
+      "score": "-3.644",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 132",
       "variable": "reserve change"
      },
      {
-      "claim": "00000106",
-      "date": "2024-08-31",
-      "line": "NON_LIFE · MOTOR_OD",
-      "method": "MT08",
-      "reason": "case reserve moved from 457779.57 to 0.0, log change -13.034 against the group median 0.0 (robust z 39.87, threshold 3.5)",
-      "score": "-39.868",
-      "source": "claim_valuations.xlsx [claim_valuations] rows 717",
-      "variable": "reserve change"
+      "claim": "00000005",
+      "date": "",
+      "line": "NON_LIFE · MOTOR_TPL",
+      "method": "MT09",
+      "reason": "isolation score 0.6612 (rank 1 in its group); months_since_first_valuation 45.0 (group median 23.0); log_largest_payment 14.999 (group median 10.468); negative_payments 1.0 (group median 0.0)",
+      "score": "0.661",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 9;13;22;37;54",
+      "variable": "claim"
      },
      {
-      "claim": "00000114",
-      "date": "2025-07-31",
-      "line": "NON_LIFE · MOTOR_OD",
-      "method": "MT08",
-      "reason": "case reserve moved from 451531.39 to 0.0, log change -13.02 against the group median 0.0 (robust z 39.83, threshold 3.5)",
-      "score": "-39.826",
-      "source": "claim_valuations.xlsx [claim_valuations] rows 1064",
-      "variable": "reserve change"
-     },
-     {
-      "claim": "00000089",
-      "date": "2024-02-29",
-      "line": "NON_LIFE · MOTOR_OD",
-      "method": "MT08",
-      "reason": "case reserve moved from 424958.12 to 0.0, log change -12.96 against the group median 0.0 (robust z 39.64, threshold 3.5)",
-      "score": "-39.640",
-      "source": "claim_valuations.xlsx [claim_valuations] rows 537",
-      "variable": "reserve change"
-     },
-     {
-      "claim": "00000140",
-      "date": "2025-04-30",
-      "line": "NON_LIFE · MOTOR_OD",
-      "method": "MT08",
-      "reason": "case reserve moved from 350143.93 to 0.0, log change -12.766 against the group median 0.0 (robust z 39.05, threshold 3.5)",
-      "score": "-39.048",
-      "source": "claim_valuations.xlsx [claim_valuations] rows 988",
-      "variable": "reserve change"
-     },
-     {
-      "claim": "00000045",
-      "date": "2023-09-30",
-      "line": "NON_LIFE · MOTOR_OD",
-      "method": "MT08",
-      "reason": "case reserve moved from 337986.07 to 0.0, log change -12.731 against the group median 0.0 (robust z 38.94, threshold 3.5)",
-      "score": "-38.940",
-      "source": "claim_valuations.xlsx [claim_valuations] rows 360",
-      "variable": "reserve change"
-     },
-     {
-      "claim": "00000008",
-      "date": "2022-09-30",
-      "line": "NON_LIFE · MOTOR_OD",
-      "method": "MT08",
-      "reason": "case reserve moved from 290845.26 to 0.0, log change -12.581 against the group median 0.0 (robust z 38.48, threshold 3.5)",
-      "score": "-38.480",
-      "source": "claim_valuations.xlsx [claim_valuations] rows 91",
-      "variable": "reserve change"
-     },
-     {
-      "claim": "00000102",
-      "date": "2024-09-30",
-      "line": "NON_LIFE · MOTOR_OD",
-      "method": "MT08",
-      "reason": "case reserve moved from 264847.23 to 0.0, log change -12.487 against the group median 0.0 (robust z 38.19, threshold 3.5)",
-      "score": "-38.194",
-      "source": "claim_valuations.xlsx [claim_valuations] rows 742",
-      "variable": "reserve change"
-     },
-     {
-      "claim": "00000048",
-      "date": "2023-06-30",
-      "line": "NON_LIFE · MOTOR_OD",
-      "method": "MT08",
-      "reason": "case reserve moved from 258326.54 to 0.0, log change -12.462 against the group median 0.0 (robust z 38.12, threshold 3.5)",
-      "score": "-38.118",
-      "source": "claim_valuations.xlsx [claim_valuations] rows 278",
-      "variable": "reserve change"
+      "claim": "00000033",
+      "date": "",
+      "line": "NON_LIFE · MOTOR_TPL",
+      "method": "MT09",
+      "reason": "isolation score 0.6507 (rank 2 in its group); log_paid 15.555 (group median 10.795); months_since_first_valuation 37.0 (group median 23.0); negative_payments 1.0 (group median 0.0)",
+      "score": "0.651",
+      "source": "claim_valuations.xlsx [claim_valuations] rows 138;155;173;190;207;226;247;272;298;325;357;392;425;456;486;517;547;574;604;636;667;697;726;755;787;821;853",
+      "variable": "claim"
      }
     ],
-    "total": "117"
+    "total": "7"
    },
    "module": "M06",
    "question": "What looks wrong or unusual?",
    "reasons": [
-    "MT08: NON_LIFE/MOTOR_OD reserve_change: 40.1% of values flagged, above 5%; the group may mix populations (for example two currencies)",
-    "MT08: NON_LIFE/MOTOR_TPL reserve_change: 6.3% of values flagged, above 5%; the group may mix populations (for example two currencies)",
-    "MT08: 3 groups have too few values to score",
+    "MT08: 6 groups have too few values to score",
     "MT09: 1 group has too few claims to score"
    ],
    "spec": "M06 v1.0.0",
@@ -3603,7 +3559,7 @@
   "change": "–",
   "label": "Data quality score",
   "note": "0 blocking, 6 warning findings",
-  "source": "DQ01 v1.0.0 · 59 rules",
+  "source": "DQ01 v1.0.0 · 63 rules",
   "value": "99.9 / 100"
  },
  "reproducibility": {
@@ -3684,8 +3640,8 @@
   "outputs": [
    {
     "name": "quality.json",
-    "sha256": "00a8551a65d222b5c72e4ecda40affbf98686204a2fde124dbd07f5c60a5905d",
-    "size": "29,731"
+    "sha256": "e735faf47b83b66216f63b85f85a7f26f5907fb39c94499a515a3190e68df018",
+    "size": "31,685"
    },
    {
     "name": "triangles.csv",
@@ -3704,18 +3660,23 @@
    },
    {
     "name": "measures.csv",
-    "sha256": "d102da7e358d4bf653c130a13592fee1baff2449d0b7779867dc95798d789519",
-    "size": "422,139"
+    "sha256": "e8da8d8204af31440d8db0f7f8516c3fedf3fcce3976eddedb5927cb324e40eb",
+    "size": "422,140"
    },
    {
     "name": "lineage.csv",
-    "sha256": "7438a33cdd411242627263562ee9154fccab3e800906e3e1efd4eb9c59d6bf4a",
-    "size": "493,215"
+    "sha256": "9bf1e1c7428c22311e966ea204ac9a8843be87e621ed39018e48f22cf1caa318",
+    "size": "51,042"
+   },
+   {
+    "name": "lineage_atoms.csv",
+    "sha256": "0ac45100d6fc14a03a003f5c94c642b80836a3d191368b705c686665ffdc4c39",
+    "size": "62,240"
    },
    {
     "name": "modules.json",
-    "sha256": "f575112de599c002b9e51e4ee628f294c489b8c2dd60cccc2521813cbe598a36",
-    "size": "18,530"
+    "sha256": "d66ded5ad1322d60f88515da13dca307804253d55e9eee977435e75fcab31362",
+    "size": "18,240"
    },
    {
     "name": "assumptions.csv",
@@ -3744,8 +3705,8 @@
    },
    {
     "name": "anomalies.csv",
-    "sha256": "f14ed23037ec49af263a502380b29f94e381e74dde4ac19ce5c18739e4f91f7d",
-    "size": "31,611"
+    "sha256": "a7c94ad8222c3b043afb0e4cefdf465ba490066c102dc43d0799171eaedbbc72",
+    "size": "2,205"
    }
   ],
   "randomness": [
@@ -3754,7 +3715,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "89c02421c06262dd",
+  "run_id": "39543952e852b2a6",
   "settings": [
    {
     "name": "bases.currency",
@@ -3791,6 +3752,18 @@
    {
     "name": "chain_ladder.tail_factor",
     "value": "1.0"
+   },
+   {
+    "name": "currency_view",
+    "value": "REPORTING"
+   },
+   {
+    "name": "language",
+    "value": "en"
+   },
+   {
+    "name": "lineage_format",
+    "value": "2"
    },
    {
     "name": "methods.bf_below_maturity",
@@ -3926,7 +3899,7 @@
    {
     "id": "CV01",
     "title": "Currency conversion",
-    "version": "1.1.0"
+    "version": "1.2.0"
    },
    {
     "id": "CV03",
@@ -3986,7 +3959,7 @@
    {
     "id": "market",
     "title": "Market series",
-    "version": "1.0.0"
+    "version": "1.1.0"
    },
    {
     "id": "policies",
@@ -3996,7 +3969,7 @@
    {
     "id": "premiums",
     "title": "Premium transactions",
-    "version": "1.0.0"
+    "version": "1.1.0"
    },
    {
     "id": "expenses",
@@ -4196,7 +4169,7 @@
    {
     "id": "MT08",
     "title": "Robust z-score anomaly flags",
-    "version": "1.1.0"
+    "version": "1.2.0"
    },
    {
     "id": "MT09",
@@ -4206,7 +4179,7 @@
    {
     "id": "RP01",
     "title": "Key finding rules",
-    "version": "1.0.0"
+    "version": "1.1.0"
    }
   ]
  },

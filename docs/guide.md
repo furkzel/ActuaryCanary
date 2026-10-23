@@ -57,6 +57,9 @@ canary demo                         # the example data that ships with the progr
 | `--value-date YYYY-MM-DD`, `--price-index SERIES` | Prices of this date, from this index series | cut-off, series of `project.yaml` |
 | `--origin-axis accident\|report\|underwriting\|first_valuation` | What defines the origin period of a claim | accident |
 | `--origin-period`, `--development-period` | Length of origin and development periods (month, quarter, half, year) | year, year |
+| `--currency-view reporting\|original` | `reporting`: everything converted into one currency (CV01). `original`: nothing converted; each line is kept apart per currency (`MOTOR_OD [TRY]`, `MOTOR_OD [USD]`), triangles and methods per such line, premium and expense ratios per currency, no totals across currencies ([decision 0225](decisions/0225-original-currency-view.md)). FUNCTIONAL equals reporting in this version | reporting |
+| `--lang en\|tr` | Language of `report.html`: every label and every key finding sentence ([RP01](../spec/report/findings.yaml)) in English or Turkish; the terminal and the other files stay English ([decision 0224](decisions/0224-report-language.md)) | en |
+| `--lineage-format 1\|2` | How the source rows behind each value are written: 2 lists each group of rows once in `lineage_atoms.csv` (about a tenth of the size on a million claim rows), 1 is the earlier single `lineage.csv` ([decision 0222](decisions/0222-lineage-format-2.md)) | 2 |
 | `--assumptions file.yaml` | Your judgements as a register: selected factors, exclusions, priors, future inflation, overrides | none |
 | `--yes` | Do not ask; use saved profiles and, for new layouts, the proposals (not saved) | ask |
 | `--out`, `--profiles` | Output folder, folder of mapping profiles | `out`, `profiles` |
@@ -81,8 +84,10 @@ The first time the platform sees a layout it cannot match to a saved profile, it
 For each sheet you answer:
 
 - **a** (accept, the default): the proposal is used and **saved as a mapping profile** in `profiles/`; the next run with the same layout does not ask.
-- **e** (edit): `3=claim_id` maps column 3 to a field, `3=-` leaves column 3 unused, `concept=claims` reads the sheet as another kind of data, `concept=-` skips it; an empty line ends editing and shows the table again.
+- **e** (edit): `3=claim_id` maps column 3 to a field, `3=-` leaves column 3 unused, `concept=claims` reads the sheet as another kind of data, `concept=-` skips it, `amounts=incremental` or `amounts=to_date` says whether claim amounts are per period or cumulative; an empty line ends editing and shows the table again.
 - **s** (skip): the sheet is not used.
+
+**Cumulative or per period.** The claim valuations are read as amounts cumulative to the valuation date. When the values show amounts per period instead (the payment of a month followed by a smaller or no payment: at least a fifth of the amounts that follow a positive amount are lower, which cumulative amounts never are), the confirmation says so in yellow and the platform adds the amounts up per claim before anything else is computed ([decision 0223](decisions/0223-cumulative-or-incremental-amounts.md)). The choice is saved in the mapping profile (`amounts:`) and a note in the report's data rules says that the amounts were added up. Even a sheet in the canonical layout is shown for confirmation when its amounts are per period.
 
 With `--yes` nothing is asked and nothing is saved: saved profiles are used, new layouts take the proposals. The run id includes the mappings, so the same data under another mapping is a different run. Confirmation needs an interactive terminal; in a script, use `--yes` or confirm once by hand first.
 
@@ -122,7 +127,7 @@ The Mack standard error assumes independent origins and stable development. On l
 | `triangles.csv`, `factors.csv`, `chain_ladder.csv` | Triangles of every group and basis; link ratios and selected factors; projected triangles |
 | `ultimates.csv`, `reserve_range.csv` | Ultimate and IBNR by method and the selection (RS02); the Mack range (RS03) |
 | `cash_flows.csv` | Expected future payments of the inflation-adjusted method |
-| `measures.csv`, `lineage.csv` | Every measure value; for each, the source rows it came from (can be large: hundreds of megabytes for a million claim rows) |
+| `measures.csv`, `lineage.csv`, `lineage_atoms.csv` | Every measure value; for each, the source rows it came from. In format 2 `lineage.csv` names, per value, the groups of rows (atoms) and `lineage_atoms.csv` lists each atom once (35 MB for a million claim rows and four million premium rows; format 1, one file, 352 MB) |
 | `modules.json`, `quality.json` | What each module ran and why; the data quality findings |
 | `assumptions.csv`, `diagnostics.csv`, `anomalies.csv` | The register in force; the method diagnostics; every anomaly flag |
 
@@ -132,9 +137,9 @@ The same inputs, settings and software always give the same run id and byte-iden
 
 | Folder | What it is | Run id |
 | --- | --- | --- |
-| [examples/demo](../examples/demo/) | A synthetic insurer, ten accident years 2016–2025 and about 2,600 claims in four lines; no thin-evidence warning. The one to try first. | `2481897e4fbe650d` |
-| [examples/baseline](../examples/baseline/) | The same insurer at tiny size, four accident years 2022–2025, with a few faults injected on purpose | `89c02421c06262dd` |
-| [examples/messy_headers](../examples/messy_headers/) | The baseline as real files arrive: headers renamed, misspelt or in Turkish, title rows above the header, dates as text, labels in Turkish, repeated rows and personal-data columns | `e0be6f6bc9f99767` |
+| [examples/demo](../examples/demo/) | A synthetic insurer, ten accident years 2016–2025 and about 2,600 claims in four lines; no thin-evidence warning. The one to try first. | `e7d7ea33910ab9e8` |
+| [examples/baseline](../examples/baseline/) | The same insurer at tiny size, four accident years 2022–2025, with a few faults injected on purpose | `39543952e852b2a6` |
+| [examples/messy_headers](../examples/messy_headers/) | The baseline as real files arrive: headers renamed, misspelt or in Turkish, title rows above the header, dates as text, labels in Turkish, repeated rows and personal-data columns | `9e6042f2694cced4` |
 
 Each example folder has the six input files and a `report/` folder with the report and manifest of its run (the report as the platform wrote it, the manifest with its fingerprints). The messy example is the one to use for the mapping confirmation: `canary run examples/messy_headers` asks about every sheet. The data are synthetic, generated from a fixed seed by [synthetic/scenarios/](../synthetic/scenarios/); no personal or company data is anywhere in the repository.
 

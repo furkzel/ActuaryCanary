@@ -738,9 +738,12 @@
       "size": 31308
     }
   ],
+  "lineage_format": 2,
   "manifest_version": 1,
   "mapping_profiles": [
     {
+      "amounts": "to_date",
+      "amounts_note": "3 of 335 amounts that follow a positive amount are lower: cumulative",
       "columns": [
         [
           "claim_id",
@@ -978,13 +981,13 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "7550a663c2e523b4344de307f1a5ee548980a7084b841c489f5027be115ec563",
-      "size": 4973079
+      "sha256": "e9134e2acf21cb66c157f1f2c6c84e0ddf2de8f777cded1641f6d45c23d265ae",
+      "size": 4972359
     },
     {
       "name": "quality.json",
-      "sha256": "00a8551a65d222b5c72e4ecda40affbf98686204a2fde124dbd07f5c60a5905d",
-      "size": 29731
+      "sha256": "e735faf47b83b66216f63b85f85a7f26f5907fb39c94499a515a3190e68df018",
+      "size": 31685
     },
     {
       "name": "triangles.csv",
@@ -1003,18 +1006,23 @@
     },
     {
       "name": "measures.csv",
-      "sha256": "d102da7e358d4bf653c130a13592fee1baff2449d0b7779867dc95798d789519",
-      "size": 422139
+      "sha256": "e8da8d8204af31440d8db0f7f8516c3fedf3fcce3976eddedb5927cb324e40eb",
+      "size": 422140
     },
     {
       "name": "lineage.csv",
-      "sha256": "7438a33cdd411242627263562ee9154fccab3e800906e3e1efd4eb9c59d6bf4a",
-      "size": 493215
+      "sha256": "9bf1e1c7428c22311e966ea204ac9a8843be87e621ed39018e48f22cf1caa318",
+      "size": 51042
+    },
+    {
+      "name": "lineage_atoms.csv",
+      "sha256": "0ac45100d6fc14a03a003f5c94c642b80836a3d191368b705c686665ffdc4c39",
+      "size": 62240
     },
     {
       "name": "modules.json",
-      "sha256": "f575112de599c002b9e51e4ee628f294c489b8c2dd60cccc2521813cbe598a36",
-      "size": 18530
+      "sha256": "d66ded5ad1322d60f88515da13dca307804253d55e9eee977435e75fcab31362",
+      "size": 18240
     },
     {
       "name": "assumptions.csv",
@@ -1043,8 +1051,8 @@
     },
     {
       "name": "anomalies.csv",
-      "sha256": "f14ed23037ec49af263a502380b29f94e381e74dde4ac19ce5c18739e4f91f7d",
-      "size": 31611
+      "sha256": "a7c94ad8222c3b043afb0e4cefdf465ba490066c102dc43d0799171eaedbbc72",
+      "size": 2205
     }
   ],
   "randomness": [
@@ -1054,7 +1062,7 @@
       "seed": 1
     }
   ],
-  "run_id": "89c02421c06262dd",
+  "run_id": "39543952e852b2a6",
   "settings": {
     "assumptions": {
       "entries": []
@@ -1072,6 +1080,9 @@
       "n_diagonals": null,
       "tail_factor": 1.0
     },
+    "currency_view": "REPORTING",
+    "language": "en",
+    "lineage_format": 2,
     "methods": {
       "bf_below_maturity": 0.5,
       "diagnostics": {
@@ -1140,7 +1151,7 @@
     {
       "id": "CV01",
       "title": "Currency conversion",
-      "version": "1.1.0"
+      "version": "1.2.0"
     },
     {
       "id": "CV03",
@@ -1200,7 +1211,7 @@
     {
       "id": "market",
       "title": "Market series",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "policies",
@@ -1210,7 +1221,7 @@
     {
       "id": "premiums",
       "title": "Premium transactions",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "expenses",
@@ -1410,7 +1421,7 @@
     {
       "id": "MT08",
       "title": "Robust z-score anomaly flags",
-      "version": "1.1.0"
+      "version": "1.2.0"
     },
     {
       "id": "MT09",
@@ -1420,7 +1431,7 @@
     {
       "id": "RP01",
       "title": "Key finding rules",
-      "version": "1.0.0"
+      "version": "1.1.0"
     }
   ],
   "tables_not_used": []
