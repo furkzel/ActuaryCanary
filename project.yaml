@@ -8,7 +8,7 @@ version: "0.1.0"
 author: ""
 contact: ""
 repository: ""
-licence: ""                            # not decided yet; no LICENSE file until it is
+licence: "MIT"                         # see LICENSE; the copyright holder line is for the owner to fill
 report:
   languages: ["en"]                    # Turkish labels planned after 1.0
   default_reporting_currency: "TRY"

@@ -1,0 +1,14 @@
+# The scenario behind examples/demo: the baseline insurer at a size small enough to ship, with
+# the full ten accident years 2016-2025 and a few thousand claims, so that no line shows thin
+# evidence (decision 0039) and the Mack range runs. Fixed seed: the files are reproduced
+# exactly with `just synth-demo`. The four-year tiny data stays for tests only.
+extends: baseline
+
+meta:
+  seed: 20261023
+
+sizes:
+  demo:
+    portfolio_scale: 0.012
+    exposure_multiplier: {GROUP_TERM_LIFE: 4}      # more persons per group policy, so that deaths occur
+    fault_scale: 0.5

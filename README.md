@@ -2,17 +2,54 @@
 
 Turns insurance data in any layout into an auditable, early-warning actuarial report on your own computer.
 
-Status: early development. Licence: not yet chosen.
+Give it your claim, policy, premium, expense and market spreadsheets, whatever the column names. It recognises what each sheet contains, asks you to confirm the mapping once, checks the data quality, builds the development triangles, runs the reserving and anomaly methods and writes one self-contained report page. Every number in the report traces back to the input rows, the mapping, the parameters and the method version that produced it. Nothing leaves your machine.
+
+![The cover, key findings and headline tiles of the report of the demo example](docs/images/report-demo.png)
+
+*The first page of the report of the demo example (synthetic data). The full report is [examples/demo/report/report.html](examples/demo/report/report.html): download it and open it in a browser.*
+
+All outputs are indicative analyses, never official reserves or prices.
 
 ## Quick start
+
+You need [uv](https://docs.astral.sh/uv/); it fetches Python 3.12 and the libraries.
+
 ```
-uv tool install rust-just   # once, if `just` is missing
-just setup
-just check
-just run info
+git clone <REPOSITORY URL: the owner fills this in before publishing>
+cd <the cloned folder>
+uv sync
+uv run canary demo                           # the bundled synthetic example, about half a minute
+uv run canary run path/to/your/folder        # your own files
 ```
 
-## More
-- [HANDOVER.md](HANDOVER.md): current state and next steps
-- [docs/blueprint.md](docs/blueprint.md): what the platform is and how it is built
-- [CONTRIBUTING.md](CONTRIBUTING.md): how to work here
+`canary demo` runs the example in [examples/demo/](examples/demo/) (the same as `uv run canary run examples/demo`); the report is written to `out/<run id>/report.html`. For your own data, put the spreadsheets in one folder (only `claim_valuations.xlsx` is required; see the [guide](docs/guide.md#2-preparing-the-six-input-files)), run `canary run <folder>` and confirm the column mappings when asked. The terminal prints a summary and the path of the report.
+
+## What you get
+
+- A **data quality score** and every rule that was touched, with example rows by file, sheet and row number.
+- **Triangles** of paid, incurred and claim counts, **chain ladder**, Bornhuetter–Ferguson, Cape Cod and expected loss ratio, a **Mack range**, an **inflation-adjusted** chain ladder and one selected ultimate per origin, all by segment and line, on gross, ceded or net basis.
+- **Loss, expense and combined ratios**, portfolio and claims experience, and **anomaly flags** (robust z-score and isolation forest).
+- **Key findings** in fixed, deterministic wording, each with its evidence.
+- A **run manifest** and a **lineage table**: rerun the same inputs and every output is byte-identical.
+
+The methods are checked against hand-worked fixtures, benchmark triangles and synthetic data whose true answer is known. The [method notes](docs/methods/MT02-chain-ladder.md) give the theory, the assumptions and a worked example of each.
+
+## Documentation
+
+- [docs/guide.md](docs/guide.md): preparing the input files, the mapping confirmation, reading each report page, the run folder, common problems.
+- [docs/methods/](docs/methods/): one note per method, with formulas, assumptions and a worked example computed by the platform's own code.
+- [examples/](examples/): the demo (ten accident years), the tiny baseline and the same data with messy headers, each with its report.
+- [docs/blueprint.md](docs/blueprint.md): what the platform is and how it is built. [spec/](spec/): every rule, measure, method and module as one specification file. [docs/decisions/](docs/decisions/): why each choice was made.
+- [CONTRIBUTING.md](CONTRIBUTING.md), [CHANGELOG.md](CHANGELOG.md), [HANDOVER.md](HANDOVER.md): how to work here, what changed, current state and next steps.
+
+## Development
+
+```
+just setup        # uv sync and the pre-commit hook (install just with `uv tool install rust-just`)
+just check        # format, lint, types, fast tests (under 30 seconds), including the docs check
+just test-all     # everything, including the slow tests
+```
+
+## Licence
+
+[MIT](LICENSE). The copyright holder line in `LICENSE` is a placeholder the owner fills in before publishing.

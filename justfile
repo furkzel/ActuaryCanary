@@ -53,3 +53,15 @@ golden $ACTUARYCANARY_UPDATE_GOLDEN="1":
 # build the Windows program folder in build/dist/canary (needs `uv sync --group build`)
 package:
     uv run pyinstaller packaging/canary.spec --noconfirm --distpath build/dist --workpath build/work
+
+# documentation: links resolve offline, spec IDs exist, worked examples match the code
+docs-check:
+    uv run pytest tests/docs -q -n0
+
+# rewrite the worked examples of docs/methods/ from the code, then read the diff
+notes:
+    uv run python -m docs.tools.worked_examples --write
+
+# regenerate examples/demo from synthetic/scenarios/demo.yaml and the report of every example
+examples:
+    uv run python -m docs.tools.refresh_examples

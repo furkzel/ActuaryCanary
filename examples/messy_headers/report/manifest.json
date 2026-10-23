@@ -1,0 +1,1443 @@
+{
+  "assumptions": [
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "tail_factor",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: no development after the last age (tail fitting is tier B)"
+    },
+    {
+      "default": 1.4464501449477407,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "12-24",
+      "value": 1.4464501449477407,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "24-36",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "36-48",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": "cape_cod",
+      "method": "MT03",
+      "name": "prior_loss_ratio",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": 0.702563444875305,
+      "when": null,
+      "who": "default",
+      "why": "MT03 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
+    },
+    {
+      "default": "cape_cod",
+      "method": "MT05",
+      "name": "expected_loss_ratio",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": 0.702563444875305,
+      "when": null,
+      "who": "default",
+      "why": "MT05 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "tail_factor",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: no development after the last age (tail fitting is tier B)"
+    },
+    {
+      "default": 1.3046997729439946,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "12-24",
+      "value": 1.3046997729439946,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "24-36",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "36-48",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": "cape_cod",
+      "method": "MT03",
+      "name": "prior_loss_ratio",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": 0.7872633228729239,
+      "when": null,
+      "who": "default",
+      "why": "MT03 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
+    },
+    {
+      "default": "cape_cod",
+      "method": "MT05",
+      "name": "expected_loss_ratio",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": 0.7872633228729239,
+      "when": null,
+      "who": "default",
+      "why": "MT05 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
+    },
+    {
+      "default": 0.5,
+      "method": "MT10",
+      "name": "bf_below_maturity",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": 0.5,
+      "when": null,
+      "who": "default",
+      "why": "MT10 default, owner decision (record 0011)"
+    },
+    {
+      "default": null,
+      "method": "MT07",
+      "name": "future_inflation",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "MT07 default: no assumption, results at value-date prices only (record 0012)"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "tail_factor",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: no development after the last age (tail fitting is tier B)"
+    },
+    {
+      "default": 1.1299205381444013,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "12-24",
+      "value": 1.1299205381444013,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "24-36",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "36-48",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": "cape_cod",
+      "method": "MT03",
+      "name": "prior_loss_ratio",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": 0.8386922740153072,
+      "when": null,
+      "who": "default",
+      "why": "MT03 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
+    },
+    {
+      "default": "cape_cod",
+      "method": "MT05",
+      "name": "expected_loss_ratio",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": 0.8386922740153072,
+      "when": null,
+      "who": "default",
+      "why": "MT05 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "tail_factor",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: no development after the last age (tail fitting is tier B)"
+    },
+    {
+      "default": 0.9873621708750375,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "12-24",
+      "value": 0.9873621708750375,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "24-36",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "36-48",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": "cape_cod",
+      "method": "MT03",
+      "name": "prior_loss_ratio",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": 0.9319087062911207,
+      "when": null,
+      "who": "default",
+      "why": "MT03 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
+    },
+    {
+      "default": "cape_cod",
+      "method": "MT05",
+      "name": "expected_loss_ratio",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": 0.9319087062911207,
+      "when": null,
+      "who": "default",
+      "why": "MT05 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
+    },
+    {
+      "default": 0.5,
+      "method": "MT10",
+      "name": "bf_below_maturity",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": 0.5,
+      "when": null,
+      "who": "default",
+      "why": "MT10 default, owner decision (record 0011)"
+    },
+    {
+      "default": null,
+      "method": "MT07",
+      "name": "future_inflation",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "MT07 default: no assumption, results at value-date prices only (record 0012)"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "tail_factor",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: no development after the last age (tail fitting is tier B)"
+    },
+    {
+      "default": 1.600672102098381,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "12-24",
+      "value": 1.600672102098381,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": 1.4168472842182407,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "24-36",
+      "value": 1.4168472842182407,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": 1.3818393976853904,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "36-48",
+      "value": 1.3818393976853904,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": "cape_cod",
+      "method": "MT03",
+      "name": "prior_loss_ratio",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": 0.41640769813873146,
+      "when": null,
+      "who": "default",
+      "why": "MT03 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
+    },
+    {
+      "default": "cape_cod",
+      "method": "MT05",
+      "name": "expected_loss_ratio",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": 0.41640769813873146,
+      "when": null,
+      "who": "default",
+      "why": "MT05 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "tail_factor",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: no development after the last age (tail fitting is tier B)"
+    },
+    {
+      "default": 1.1396994617236327,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "12-24",
+      "value": 1.1396994617236327,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": 1.343005754704606,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "24-36",
+      "value": 1.343005754704606,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": 0.9507138250525071,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "36-48",
+      "value": 0.9507138250525071,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": "cape_cod",
+      "method": "MT03",
+      "name": "prior_loss_ratio",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": 0.37418363246681546,
+      "when": null,
+      "who": "default",
+      "why": "MT03 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
+    },
+    {
+      "default": "cape_cod",
+      "method": "MT05",
+      "name": "expected_loss_ratio",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": 0.37418363246681546,
+      "when": null,
+      "who": "default",
+      "why": "MT05 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
+    },
+    {
+      "default": 0.5,
+      "method": "MT10",
+      "name": "bf_below_maturity",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": 0.5,
+      "when": null,
+      "who": "default",
+      "why": "MT10 default, owner decision (record 0011)"
+    },
+    {
+      "default": null,
+      "method": "MT07",
+      "name": "future_inflation",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "MT07 default: no assumption, results at value-date prices only (record 0012)"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "tail_factor",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: no development after the last age (tail fitting is tier B)"
+    },
+    {
+      "default": 4.459374964752224,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "12-24",
+      "value": 4.459374964752224,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "24-36",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "36-48",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": "cape_cod",
+      "method": "MT03",
+      "name": "prior_loss_ratio",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": 0.23873476478769703,
+      "when": null,
+      "who": "default",
+      "why": "MT03 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
+    },
+    {
+      "default": "cape_cod",
+      "method": "MT05",
+      "name": "expected_loss_ratio",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": 0.23873476478769703,
+      "when": null,
+      "who": "default",
+      "why": "MT05 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "tail_factor",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: no development after the last age (tail fitting is tier B)"
+    },
+    {
+      "default": 1.081707475633125,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "12-24",
+      "value": 1.081707475633125,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "24-36",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": 1.0,
+      "method": "MT02",
+      "name": "selected_factor",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "36-48",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": "cape_cod",
+      "method": "MT03",
+      "name": "prior_loss_ratio",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": 0.16060341643779288,
+      "when": null,
+      "who": "default",
+      "why": "MT03 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
+    },
+    {
+      "default": "cape_cod",
+      "method": "MT05",
+      "name": "expected_loss_ratio",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": 0.16060341643779288,
+      "when": null,
+      "who": "default",
+      "why": "MT05 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
+    },
+    {
+      "default": 0.5,
+      "method": "MT10",
+      "name": "bf_below_maturity",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": 0.5,
+      "when": null,
+      "who": "default",
+      "why": "MT10 default, owner decision (record 0011)"
+    },
+    {
+      "default": null,
+      "method": "MT07",
+      "name": "future_inflation",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "MT07 default: no assumption, results at value-date prices only (record 0012)"
+    }
+  ],
+  "data_findings": [
+    {
+      "concept": "claim_valuations",
+      "count": 2,
+      "message": "status labels outside the classes become UNMAPPED",
+      "rows": [
+        525,
+        867
+      ],
+      "rule": "DV-CLV-04",
+      "severity": "WARNING"
+    },
+    {
+      "concept": "claim_valuations",
+      "count": 4,
+      "message": "empty or invalid currency taken from the other rows of the claim",
+      "rows": [
+        167,
+        383,
+        634,
+        797
+      ],
+      "rule": "DV-CLV-03",
+      "severity": "WARNING"
+    },
+    {
+      "concept": "claim_valuations",
+      "count": 20,
+      "message": "identical duplicate rows kept once",
+      "rows": [
+        85,
+        240,
+        317,
+        349,
+        379,
+        389,
+        439,
+        545,
+        573,
+        604,
+        623,
+        756,
+        793,
+        897,
+        900,
+        934,
+        969,
+        1018,
+        1096,
+        1148
+      ],
+      "rule": "DV-CLV-06",
+      "severity": "WARNING"
+    }
+  ],
+  "inputs": [
+    {
+      "concept": "claim_valuations",
+      "name": "claim_valuations.xlsx",
+      "sha256": "1254278ae494c938a19c28b1d50560c7a5140db1fad51abe4963a67fa17364d1",
+      "sheets": [
+        {
+          "name": "Hasar",
+          "rows": 1254
+        }
+      ],
+      "size": 60692
+    },
+    {
+      "concept": "claims",
+      "name": "claims.xlsx",
+      "sha256": "d21ed48e8f4d6950beb85ce6862af84ee027922576c6782521ae1d580062b48e",
+      "sheets": [
+        {
+          "name": "Hasar Listesi",
+          "rows": 175
+        }
+      ],
+      "size": 20784
+    },
+    {
+      "concept": "market",
+      "name": "market.xlsx",
+      "sha256": "0968213b7d1fe3cc668dcc230985005a8b37396362afe6423f852f7fa37b9862",
+      "sheets": [
+        {
+          "name": "Döviz",
+          "rows": 5698
+        },
+        {
+          "name": "TÜFE",
+          "rows": 120
+        }
+      ],
+      "size": 152095
+    },
+    {
+      "concept": "policies",
+      "name": "policies.xlsx",
+      "sha256": "ee9ab4085c1c90d717a77ab46c9f399ef0b41546fd0d7f0e70dea9d465dd14b1",
+      "sheets": [
+        {
+          "name": "policies",
+          "rows": 2477
+        }
+      ],
+      "size": 224455
+    },
+    {
+      "concept": "premiums",
+      "name": "premiums.xlsx",
+      "sha256": "2ce9a89a7dbe22e56333bf64e91eab852805bba0164a98e4d446ee767bd1974a",
+      "sheets": [
+        {
+          "name": "Sheet1",
+          "rows": 8111
+        }
+      ],
+      "size": 298647
+    },
+    {
+      "concept": "expenses",
+      "name": "expenses.xlsx",
+      "sha256": "5b4d26798d0f339e7b894361b09328284794f644e5867ee558416c4cb1560f1b",
+      "sheets": [
+        {
+          "name": "Giderler",
+          "rows": 846
+        }
+      ],
+      "size": 34249
+    }
+  ],
+  "manifest_version": 1,
+  "mapping_profiles": [
+    {
+      "columns": [
+        [
+          "currency",
+          "currency"
+        ],
+        [
+          "HASAR_DURUMU",
+          "status"
+        ],
+        [
+          "RUCU TAHSILAT ",
+          "subrogation_to_date"
+        ],
+        [
+          "TAHSİS EDİLMİŞ GİDER",
+          "expense_allocated_to_date"
+        ],
+        [
+          "ÖDENEN HASAR TUTARI",
+          "paid_to_date"
+        ],
+        [
+          "REASÜRANS_PAYI_ÖDENEN",
+          "ceded_paid_to_date"
+        ],
+        [
+          "HASARR NO ",
+          "claim_id"
+        ],
+        [
+          "SOVTAJ GELİRİ ",
+          "salvage_to_date"
+        ],
+        [
+          "VALUATION DDATE ",
+          "valuation_date"
+        ],
+        [
+          "OS RSERVE",
+          "case_reserve"
+        ],
+        [
+          "REAS MUALLAK",
+          "ceded_reserve"
+        ]
+      ],
+      "columns_not_used": [],
+      "concept": "claim_valuations",
+      "file": "claim_valuations.xlsx",
+      "fingerprint": "e085883984ab6009",
+      "header_row": 4,
+      "layers": [
+        "canonical",
+        "dictionary",
+        "dictionary",
+        "dictionary",
+        "dictionary",
+        "dictionary",
+        "fuzzy",
+        "dictionary",
+        "fuzzy",
+        "fuzzy",
+        "dictionary"
+      ],
+      "personal_data_dropped": [],
+      "profile_sha256": null,
+      "rows_above_header": 3,
+      "sheet": "Hasar",
+      "source": "automatic",
+      "unmapped_labels": [
+        {
+          "field": "status",
+          "label": "???",
+          "rows": 1
+        },
+        {
+          "field": "status",
+          "label": "PEND-REV",
+          "rows": 1
+        }
+      ]
+    },
+    {
+      "columns": [
+        [
+          "TARİFEE ",
+          "product"
+        ],
+        [
+          "NOTIFICATION DATE ",
+          "report_date"
+        ],
+        [
+          "ARACI ",
+          "partner"
+        ],
+        [
+          "NEDEN",
+          "cause"
+        ],
+        [
+          "POLICY NO",
+          "policy_id"
+        ],
+        [
+          "LINE OF BUSINESS ",
+          "line"
+        ],
+        [
+          "CATASTROPHE_CODE",
+          "event_code"
+        ],
+        [
+          "HASRA TRH ",
+          "occurrence_date"
+        ],
+        [
+          "HAYAT ELEMENTER ",
+          "segment"
+        ],
+        [
+          "ETITY",
+          "entity"
+        ],
+        [
+          "claim_id",
+          "claim_id"
+        ],
+        [
+          "close_date",
+          "close_date"
+        ]
+      ],
+      "columns_not_used": [],
+      "concept": "claims",
+      "file": "claims.xlsx",
+      "fingerprint": "65e70ae0ce8b25db",
+      "header_row": 3,
+      "layers": [
+        "fuzzy",
+        "dictionary",
+        "dictionary",
+        "dictionary",
+        "dictionary",
+        "dictionary",
+        "dictionary",
+        "fuzzy",
+        "dictionary",
+        "fuzzy",
+        "canonical",
+        "canonical"
+      ],
+      "personal_data_dropped": [
+        "TCKN",
+        "MUSTERI_NO",
+        "SIGORTALI_ADI"
+      ],
+      "profile_sha256": null,
+      "rows_above_header": 2,
+      "sheet": "Hasar Listesi",
+      "source": "automatic",
+      "unmapped_labels": []
+    },
+    {
+      "columns": [
+        [
+          "SERİ_TÜRÜ",
+          "kind"
+        ],
+        [
+          "DÖVİZ KURU ",
+          "value"
+        ],
+        [
+          "RATE DATE",
+          "date"
+        ],
+        [
+          "ENDEKS",
+          "series_id"
+        ]
+      ],
+      "columns_not_used": [],
+      "concept": "market",
+      "file": "market.xlsx",
+      "fingerprint": "5f882ae51ef5ca7f",
+      "header_row": 2,
+      "layers": [
+        "dictionary",
+        "dictionary",
+        "dictionary",
+        "dictionary"
+      ],
+      "personal_data_dropped": [],
+      "profile_sha256": null,
+      "rows_above_header": 1,
+      "sheet": "Döviz",
+      "source": "automatic",
+      "unmapped_labels": []
+    },
+    {
+      "columns": [
+        [
+          "TİP",
+          "kind"
+        ],
+        [
+          "DATE",
+          "date"
+        ],
+        [
+          "series_id",
+          "series_id"
+        ],
+        [
+          "DEĞER",
+          "value"
+        ]
+      ],
+      "columns_not_used": [],
+      "concept": "market",
+      "file": "market.xlsx",
+      "fingerprint": "c56907ed56c8b9f1",
+      "header_row": 3,
+      "layers": [
+        "dictionary",
+        "dictionary",
+        "canonical",
+        "dictionary"
+      ],
+      "personal_data_dropped": [],
+      "profile_sha256": null,
+      "rows_above_header": 2,
+      "sheet": "TÜFE",
+      "source": "automatic",
+      "unmapped_labels": []
+    }
+  ],
+  "outputs": [
+    {
+      "name": "report.html",
+      "sha256": "e8cc902fbc3eb9d59a327f628e8ba99db33715139b9fdeddd9d64cf8f6a8c048",
+      "size": 4973314
+    },
+    {
+      "name": "quality.json",
+      "sha256": "80037ffe1ca2c4c153ba2d54917e84a645765612224ca816af4773d1bd4b24b8",
+      "size": 30471
+    },
+    {
+      "name": "triangles.csv",
+      "sha256": "f95e4e32f212281f93dd05d7048d2b177d187cc46e1825a5f5c7295389028efb",
+      "size": 5893
+    },
+    {
+      "name": "factors.csv",
+      "sha256": "73628feea5a01967a7ccc2e9018646e13244315589aed4868d803f8dbe9f8e18",
+      "size": 1998
+    },
+    {
+      "name": "chain_ladder.csv",
+      "sha256": "0254714b249dae8fae1fac4c1ee3099128b316ea3a9756383dc9578ca2603d15",
+      "size": 3412
+    },
+    {
+      "name": "measures.csv",
+      "sha256": "065d36413ac718b9ef7db0aa2fa07856eab4233635d1d2c295e12ec0bcf0ec84",
+      "size": 422150
+    },
+    {
+      "name": "lineage.csv",
+      "sha256": "2fca39422a25b622f6cd350772abd47f483e9bcb5bd9684f1a22dae338dca5b6",
+      "size": 490542
+    },
+    {
+      "name": "modules.json",
+      "sha256": "f575112de599c002b9e51e4ee628f294c489b8c2dd60cccc2521813cbe598a36",
+      "size": 18530
+    },
+    {
+      "name": "assumptions.csv",
+      "sha256": "b710a37a7897cf39bb05f716ea1fccda620f6a02c0a3b9bd1f4e2ba58d4ed6d9",
+      "size": 8142
+    },
+    {
+      "name": "ultimates.csv",
+      "sha256": "d5c64ccde7414b7c6405e7cd3389a1dc5c71075b76aad94d0d217a6f0b5fe45b",
+      "size": 19390
+    },
+    {
+      "name": "reserve_range.csv",
+      "sha256": "7e1f8c95626a4d3066be8505fc485de6fa8d5746f116ccde3715c375b5481bde",
+      "size": 768
+    },
+    {
+      "name": "cash_flows.csv",
+      "sha256": "1a97487fa8038500d16a2844ba09d9389b679bb303289d701093cf6bcd5d83ce",
+      "size": 866
+    },
+    {
+      "name": "diagnostics.csv",
+      "sha256": "0493adc495caec8eae1d6366f76c53986a6863636c0f1881a8f0c4a446bb0971",
+      "size": 4223
+    },
+    {
+      "name": "anomalies.csv",
+      "sha256": "752b80fa9c64bbf2eccdfa4bcd53047e9f4687e8c80b3e0a672d9993a71d0b4c",
+      "size": 30329
+    }
+  ],
+  "randomness": [
+    {
+      "method": "MT09",
+      "purpose": "isolation forest",
+      "seed": 1
+    }
+  ],
+  "run_id": "505e4ce901d9d375",
+  "settings": {
+    "assumptions": {
+      "entries": []
+    },
+    "bases": {
+      "currency": "REPORTING",
+      "currency_conversion": "market",
+      "reinsurance": "GROSS",
+      "value": "NOMINAL"
+    },
+    "chain_ladder": {
+      "average": "volume_weighted",
+      "exclude_high_low": false,
+      "min_origins": 3,
+      "n_diagonals": null,
+      "tail_factor": 1.0
+    },
+    "methods": {
+      "bf_below_maturity": 0.5,
+      "diagnostics": {
+        "few_link_ratios": 3,
+        "late_development_factor": 1.05,
+        "thin_evidence_origins": 8
+      },
+      "isolation_forest": {
+        "contamination": 0.01,
+        "max_samples": "all",
+        "min_group_size": 100,
+        "n_estimators": 200,
+        "seed": 1
+      },
+      "robust_z": {
+        "group_by": [
+          "segment",
+          "line"
+        ],
+        "min_group_size": 30,
+        "threshold": 3.5
+      },
+      "selection_measure": "incurred"
+    },
+    "reporting_currency": "TRY",
+    "triangles": {
+      "cut_off": null,
+      "cut_off_used": "2025-12-31",
+      "development_period": "YEAR",
+      "development_rate_date": null,
+      "development_rate_date_used": "2025-12-31",
+      "fiscal_year_start_month": 1,
+      "origin_axis": "accident",
+      "origin_period": "YEAR",
+      "price_index": "CPI_TR",
+      "reinsurance_basis": "GROSS",
+      "value_basis": "NOMINAL",
+      "value_date": null
+    },
+    "use_market": true
+  },
+  "software": {
+    "actuarycanary": "0.1.0"
+  },
+  "specs": [
+    {
+      "id": "claim_valuations",
+      "title": "Claim valuations",
+      "version": "1.2.0"
+    },
+    {
+      "id": "claims",
+      "title": "Claims",
+      "version": "1.0.0"
+    },
+    {
+      "id": "AL01",
+      "title": "Column aliases",
+      "version": "1.0.0"
+    },
+    {
+      "id": "AL02",
+      "title": "Value aliases",
+      "version": "1.0.0"
+    },
+    {
+      "id": "CV01",
+      "title": "Currency conversion",
+      "version": "1.1.0"
+    },
+    {
+      "id": "CV03",
+      "title": "Gross, ceded and net",
+      "version": "1.0.0"
+    },
+    {
+      "id": "CV04",
+      "title": "Periods, development lags and day counts",
+      "version": "1.0.0"
+    },
+    {
+      "id": "CV06",
+      "title": "Precision and rounding",
+      "version": "1.0.0"
+    },
+    {
+      "id": "CV07",
+      "title": "Input files and canonical values",
+      "version": "1.1.0"
+    },
+    {
+      "id": "MT01",
+      "title": "Triangle construction",
+      "version": "1.0.0"
+    },
+    {
+      "id": "MT02",
+      "title": "Chain ladder",
+      "version": "1.0.0"
+    },
+    {
+      "id": "CL01",
+      "title": "Paid claims",
+      "version": "1.0.0"
+    },
+    {
+      "id": "CL03",
+      "title": "Incurred claims (reported)",
+      "version": "1.0.0"
+    },
+    {
+      "id": "RS01",
+      "title": "Development factors",
+      "version": "1.0.0"
+    },
+    {
+      "id": "RS02",
+      "title": "Ultimate, IBNR and IBNER (indicative)",
+      "version": "1.0.0"
+    },
+    {
+      "id": "DQ01",
+      "title": "Data quality score",
+      "version": "1.0.0"
+    },
+    {
+      "id": "market",
+      "title": "Market series",
+      "version": "1.0.0"
+    },
+    {
+      "id": "policies",
+      "title": "Policies",
+      "version": "1.0.0"
+    },
+    {
+      "id": "premiums",
+      "title": "Premium transactions",
+      "version": "1.0.0"
+    },
+    {
+      "id": "expenses",
+      "title": "Expenses",
+      "version": "1.0.0"
+    },
+    {
+      "id": "M01",
+      "title": "Data understanding",
+      "version": "1.0.0"
+    },
+    {
+      "id": "M02",
+      "title": "Portfolio and premium",
+      "version": "1.0.0"
+    },
+    {
+      "id": "PR01",
+      "title": "Written premium",
+      "version": "1.0.0"
+    },
+    {
+      "id": "PR02",
+      "title": "Earned premium",
+      "version": "1.0.0"
+    },
+    {
+      "id": "PR03",
+      "title": "Unearned premium",
+      "version": "1.0.0"
+    },
+    {
+      "id": "PR04",
+      "title": "Cancellation rate",
+      "version": "1.0.0"
+    },
+    {
+      "id": "PR05",
+      "title": "Retention ratio",
+      "version": "1.0.0"
+    },
+    {
+      "id": "PR06",
+      "title": "Average premium",
+      "version": "1.0.0"
+    },
+    {
+      "id": "RI01",
+      "title": "Cession ratio",
+      "version": "1.0.0"
+    },
+    {
+      "id": "M03",
+      "title": "Claims experience",
+      "version": "1.0.0"
+    },
+    {
+      "id": "CL02",
+      "title": "Case reserve",
+      "version": "1.0.0"
+    },
+    {
+      "id": "CL04",
+      "title": "Claim counts by status",
+      "version": "1.0.0"
+    },
+    {
+      "id": "CL05",
+      "title": "Claim frequency",
+      "version": "1.0.0"
+    },
+    {
+      "id": "CL06",
+      "title": "Average claim severity",
+      "version": "1.0.0"
+    },
+    {
+      "id": "CL07",
+      "title": "Reporting delay",
+      "version": "1.0.0"
+    },
+    {
+      "id": "CL08",
+      "title": "Settlement time",
+      "version": "1.0.0"
+    },
+    {
+      "id": "CL09",
+      "title": "Settlement rate",
+      "version": "1.0.0"
+    },
+    {
+      "id": "CL10",
+      "title": "Paid-to-incurred ratio",
+      "version": "1.0.0"
+    },
+    {
+      "id": "CL11",
+      "title": "Case reserve run-off",
+      "version": "1.0.0"
+    },
+    {
+      "id": "CL12",
+      "title": "Large-loss share",
+      "version": "1.0.0"
+    },
+    {
+      "id": "RC01",
+      "title": "Subrogation ratio",
+      "version": "1.0.0"
+    },
+    {
+      "id": "RC02",
+      "title": "Salvage ratio",
+      "version": "1.0.0"
+    },
+    {
+      "id": "M04",
+      "title": "Reserving (indicative)",
+      "version": "1.0.0"
+    },
+    {
+      "id": "RS03",
+      "title": "Reserve range and risk measures",
+      "version": "1.0.0"
+    },
+    {
+      "id": "AE01",
+      "title": "Actual versus expected development",
+      "version": "1.0.0"
+    },
+    {
+      "id": "M05",
+      "title": "Profitability",
+      "version": "1.0.0"
+    },
+    {
+      "id": "RT01",
+      "title": "Loss ratio (paid, incurred, ultimate)",
+      "version": "1.0.0"
+    },
+    {
+      "id": "RT02",
+      "title": "Combined ratio",
+      "version": "1.0.0"
+    },
+    {
+      "id": "EX01",
+      "title": "Commission ratio",
+      "version": "1.0.0"
+    },
+    {
+      "id": "EX02",
+      "title": "Expense ratio",
+      "version": "1.0.0"
+    },
+    {
+      "id": "EX03",
+      "title": "Claims-handling expense ratio",
+      "version": "1.0.0"
+    },
+    {
+      "id": "RI02",
+      "title": "Reinsurance result",
+      "version": "1.0.0"
+    },
+    {
+      "id": "M06",
+      "title": "Anomalies and large losses",
+      "version": "1.0.0"
+    },
+    {
+      "id": "MT03",
+      "title": "Bornhuetter–Ferguson",
+      "version": "1.0.0"
+    },
+    {
+      "id": "MT04",
+      "title": "Cape Cod",
+      "version": "1.0.0"
+    },
+    {
+      "id": "MT05",
+      "title": "Expected loss ratio method",
+      "version": "1.0.0"
+    },
+    {
+      "id": "MT07",
+      "title": "Inflation-adjusted chain ladder",
+      "version": "1.1.0"
+    },
+    {
+      "id": "MT10",
+      "title": "Ultimate selection",
+      "version": "1.0.0"
+    },
+    {
+      "id": "MT08",
+      "title": "Robust z-score anomaly flags",
+      "version": "1.1.0"
+    },
+    {
+      "id": "MT09",
+      "title": "Isolation forest anomaly flags",
+      "version": "1.1.0"
+    },
+    {
+      "id": "RP01",
+      "title": "Key finding rules",
+      "version": "1.0.0"
+    }
+  ],
+  "tables_not_used": []
+}

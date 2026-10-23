@@ -525,7 +525,7 @@ The plan is gate-based: a phase starts when the previous gate's criteria are met
 
 The project is a personal, open-source portfolio work. That shapes four choices.
 
-- **Licence:** Apache 2.0, a permissive licence with an explicit patent grant, common in data science projects and easy for companies to adopt.
+- **Licence:** MIT, a short permissive licence that companies can adopt without review effort (record 0100; the first draft named Apache 2.0).
 - **Clean origin:** built on personal time and equipment, from public literature and synthetic data only. No employer data, file layouts, names, code or internal methods enter the repository. Before publishing, check the employment contract's intellectual-property clause; this blueprint is not legal advice.
 - **Showcase:** the repository's front page shows a sample executive report from a synthetic scenario, the benchmark reproduction results, and a two-minute path from download to first report.
 - **Method notes:** each tier A and B method gets a short public note (theory, assumptions, a worked example on synthetic data). These notes are what shows actuarial depth to a reader who never runs the code.
@@ -551,7 +551,7 @@ Adoption at a workplace later is a matter of loading that company's files and co
 | D11 | No personal data is ever required; identifying columns are dropped on load | privacy by design |
 | D12 | Python reference implementation; local browser-based app packaged as an executable; self-contained report | best libraries, easiest to package and to match the report |
 | D13 | The synthetic generator is built before the analytics | methods are proven against known truth |
-| D14 | Apache 2.0 licence | permissive, patent grant, easy adoption |
+| D14 | MIT licence (record 0100; first draft Apache 2.0) | permissive, short, easy adoption |
 
 ### 18.2 Open questions
 
