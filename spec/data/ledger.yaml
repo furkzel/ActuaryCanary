@@ -140,7 +140,7 @@ validation:
     rule: Each entity has a row for every month between its first and last period.
     action: Missing months are listed; reconciliation of those months is not available.
 notes: >-
-  Draft for a later version (P32). Account names may carry customer or staff names in some
+  Draft for a later version (the ledger item). Account names may carry customer or staff names in some
   charts of accounts (personal sub-ledgers); such rows are expected to be aggregated before
   loading, and the platform keeps account_name only as evidence for the mapping screen.
 change_log:

@@ -32,7 +32,7 @@ report_page:
   - Allocation notes - which amounts were allocated and how (CV09), aggregate approximations named.
 notes: >-
   Treaty-level allocation follows CV09, the planned amendment of CV03. What-if programmes
-  are written in the assumptions register and never change the gross figures. Built by P31.
+  are written in the assumptions register and never change the gross figures. Built by the reinsurance item.
 change_log:
   - version: 0.1.0
     date: 2026-10-23

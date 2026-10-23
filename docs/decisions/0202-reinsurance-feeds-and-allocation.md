@@ -12,5 +12,5 @@ Blueprint 4.2 names the treaty and transaction feeds, and 7.3 says how treaty-le
 - **Index clause.** Approximated with the claim's paid-weighted average payment month. The report states the approximation.
 
 ## Consequences
-- MT21 uses the same terms and order. Its ground truth is the generator's own ceded amounts (P30).
+- MT21 uses the same terms and order. Its ground truth is the generator's own ceded amounts (generator item).
 - The owner may change the inuring order or the index approximation while reviewing CV09.

@@ -12,13 +12,13 @@ Blueprint 10 states what M07 to M13 require. Some measures need more, or less, t
 - **M13** requires claim valuations and claims.
 - Modules list their blocking DV rules, outputs and report page outline.
 - **Amendments for the building items** (not made here):
-  - M04 gains MT12 to MT16 (P24).
-  - M03 gains MT17 and MT19 (P25).
-  - M06 gains MT18 (P25).
+  - M04 gains MT12 to MT16 (tier B methods item).
+  - M03 gains MT17 and MT19 (severity and extreme values item).
+  - M06 gains MT18 (severity and extreme values item).
   - CV08 changes only after the threshold decision (record 0210).
-  - CV03 absorbs CV09 (P31).
-  - CV02 drops its "DISCOUNTED values are not part of version 1.0" rule (P26).
-  - RS03 points to RS05 for the bootstrap (P26).
+  - CV03 absorbs CV09 (reinsurance item).
+  - CV02 drops its "DISCOUNTED values are not part of version 1.0" rule (uncertainty and discounting item).
+  - RS03 points to RS05 for the bootstrap (uncertainty and discounting item).
   - market keeps its kinds (record 0201).
 
 ## Consequences

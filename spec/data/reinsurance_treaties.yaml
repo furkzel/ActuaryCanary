@@ -227,7 +227,7 @@ validation:
     rule: An index_series names a PRICE_INDEX series present in market.
     action: The retention and limit are used without indexation; the treaty is listed.
 notes: >-
-  Draft for a later version (P28 reads the feed, P31 uses it). Treaty terms are reference
+  Draft for a later version (the new-feeds item reads the feed, the reinsurance item uses it). Treaty terms are reference
   data: the platform never invents a missing term; a treaty without its terms is listed and
   left out. Facultative cessions are recorded per policy in reinsurance_transactions and use
   this row for period and scope only.

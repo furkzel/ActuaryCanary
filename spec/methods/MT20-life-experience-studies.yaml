@@ -112,7 +112,7 @@ validation:
     tolerance: coverage within 90 to 99 per cent
   - kind: ground_truth
     description: >-
-      On the synthetic baseline life book (P33 generator), total A/E per product against the
+      On the synthetic baseline life book (life-feeds item), total A/E per product against the
       generator's multiplier, and lapse rates by policy year against the scenario's lapse
       table, reported as information.
     tolerance: none; information only

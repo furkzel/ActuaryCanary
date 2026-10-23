@@ -109,7 +109,7 @@ validation:
     description: >-
       On the synthetic baseline (medium), applying the scenario's own programme to the
       simulated gross claims reproduces the generator's ceded amounts per treaty and treaty
-      year (P30 generator).
+      year (generator item).
     tolerance: quota share 1e-9 relative; excess of loss within 1 per cent per treaty and year
 references:
   - Antal, P. Mathematical methods in reinsurance. Swiss Re lecture notes.

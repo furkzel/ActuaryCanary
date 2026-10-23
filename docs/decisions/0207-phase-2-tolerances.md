@@ -12,5 +12,5 @@ Phase 1 showed two traps (records 0062, 0063, 0075). A stochastic range tested o
 - **Tier C** ground-truth metrics compare each challenger with its champion. A pass/fail tolerance is set only where the synthetic truth makes one meaningful, for example GLM relativities, AUC on the large_loss scenario, or clustering against products.
 
 ## Consequences
-- The generator (P22) must write the truths these tests read: claim-level settlement dates after the cut-off, rating-factor relativities, ceded amounts per treaty, the life multiplier and the lapse table.
+- The generator item must write the truths these tests read: claim-level settlement dates after the cut-off, rating-factor relativities, ceded amounts per treaty, the life multiplier and the lapse table.
 - No tolerance in these drafts has been run. Every figure is a proposal for the owner's review.

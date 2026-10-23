@@ -190,7 +190,7 @@ validation:
       the cut-off.
     action: A missing valuation carries the previous row forward (CV04); gaps are listed.
 notes: >-
-  Draft for a later version (P33). Names, identity numbers, birth dates and addresses are
+  Draft for a later version (the life-feeds item). Names, identity numbers, birth dates and addresses are
   dropped on load as everywhere (AL01 personal data); age arrives as a whole-year age or band.
   Health contracts are not covered until the owner decides where the health segment belongs
   (blueprint 18.2).

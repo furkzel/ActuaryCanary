@@ -172,7 +172,7 @@ validation:
       This feed is used for every view by treaty and the premiums rows for policy views; the
       differences are listed (CV09).
 notes: >-
-  Draft for a later version (P28 reads the feed, P31 uses it). A movement without claim and
+  Draft for a later version (the new-feeds item reads the feed, the reinsurance item uses it). A movement without claim and
   policy is a treaty-level amount and is allocated by CV09. Ceded amounts never enter the
   gross basis; net is gross minus ceded at the finest grain (CV03).
 change_log:

@@ -8,7 +8,7 @@ Chosen by the owner on 2026-10-23 (flag and separate files):
 - `SpecBase.implemented` (default true). `load_specs()` validates every file and checks references on all specs and again on the built ones, then returns the built specs. `load_specs(planned=True)` returns all of them, for the index and the tests. A built spec can never use a planned one.
 - New planned files carry `implemented: false` and `status: draft`. The item that builds a spec sets `implemented: true` in the same change.
 - Aliases of planned concepts go into `columns-planned.yaml` (AL03) and `values-planned.yaml` (AL04). They are optional files, checked together with AL01 and AL02. The building item moves the entries into AL01 and AL02 with a new version.
-- Treaty-level ceded allocation is CV09, the planned amendment of CV03. CV03 1.0.0 stays as it is until P31 folds CV09 into CV03 1.1.0.
+- Treaty-level ceded allocation is CV09, the planned amendment of CV03. CV03 1.0.0 stays as it is until the reinsurance item folds CV09 into CV03 1.1.0.
 - New optional fields for the drafts: `requires_decision` on every spec, `champion` on methods (tier C must name a tier A or B method), and `blocking_rules`, `outputs` and `report_page` on modules. The value basis DISCOUNTED and the dimensions of the new measures are also allowed. Existing files do not use them, so nothing they mean changes.
 - `just spec-index` lists planned specs with a Built column.
 

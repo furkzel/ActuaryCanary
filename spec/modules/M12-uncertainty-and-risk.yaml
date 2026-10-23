@@ -33,7 +33,7 @@ report_page:
   - Calibration notes - the coverage evidence of MT06 and MT11 and the lines where the ranges are known to be narrow.
 notes: >-
   Indicative ranges, never capital requirements. Without a named curve the discounted view
-  is left out with its reason. Built by P26.
+  is left out with its reason. Built by the uncertainty and discounting item.
 change_log:
   - version: 0.1.0
     date: 2026-10-23

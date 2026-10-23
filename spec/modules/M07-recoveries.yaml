@@ -32,7 +32,7 @@ report_page:
 notes: >-
   The module runs on claim_valuations alone when its to-date recovery columns exist; each
   measure skips with its own reason when its fields are missing. Recoveries stay outside
-  the reinsurance basis (CV03). Built by P29.
+  the reinsurance basis (CV03). Built by the recoveries and expenses item.
 change_log:
   - version: 0.1.0
     date: 2026-10-23

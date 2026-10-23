@@ -19,5 +19,5 @@ chainladder stays test-only: the reference for MT11, MT12, MT13 and MT14.
 
 ## Consequences
 - With statsmodels, one dependency covers three specs. It is a widely used library, licensed BSD-3. Its size in the PyInstaller bundle was not measured (UNVERIFIED); the P11 size figures would be re-measured.
-- Without it, P25, P35 and P36 carry more code and more tests, but the toolchain stays as it is.
+- Without it, the severity, tier C and challenger items carry more code and more tests, but the toolchain stays as it is.
 - The specs name the choice in `requires_decision`; this record is what the owner decides on.

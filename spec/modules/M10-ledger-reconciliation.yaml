@@ -32,7 +32,7 @@ report_page:
   - Profile in use (fingerprint), sign conventions and balance kind.
 notes: >-
   A class whose matching feed is not loaded is listed as not reconciled, never as a gap.
-  Built by P32.
+  Built by the ledger item.
 change_log:
   - version: 0.1.0
     date: 2026-10-23

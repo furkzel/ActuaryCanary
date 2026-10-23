@@ -80,7 +80,7 @@ validation:
   - kind: ground_truth
     description: >-
       Ground-truth metric - on the synthetic baseline (medium), whose frequencies come from
-      known rating-factor relativities (P22 generator), the fitted log relativities against the
+      known rating-factor relativities (generator item), the fitted log relativities against the
       true ones; out-of-time deviance of the GLM against the champion MT16 reported as information.
     tolerance: absolute error of each log relativity within 0.05 for levels with at least 2,000 exposure years
 references:

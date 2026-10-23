@@ -10,4 +10,4 @@ Blueprint 18.2 leaves the default large-loss threshold rule open. Record 0010 ch
 
 ## Consequences
 - An extreme-value threshold changes the LARGE share per line: often fewer large claims on light-tailed lines and more on heavy-tailed ones. CL06, CL12, M06 and the run id move when it is adopted.
-- The bootstrap p-values make MT18 slower than a percentile (around 6,000 refits per group at the defaults). The P25 performance budget must cover it.
+- The bootstrap p-values make MT18 slower than a percentile (around 6,000 refits per group at the defaults). The performance budget of the severity and extreme values item must cover it.

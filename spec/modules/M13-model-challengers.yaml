@@ -55,7 +55,7 @@ report_page:
 notes: >-
   The champions are named in each challenger's spec (champion field). Challengers run only
   when their minimum data sizes are met, and the page says which did not and why. Built by
-  P35 and P36.
+  the tier C and challengers items.
 change_log:
   - version: 0.1.0
     date: 2026-10-23

@@ -122,7 +122,7 @@ validation:
     rule: amount is zero or positive.
     action: Kept as given and listed.
 notes: >-
-  Draft for a later version (P33). When life_events is absent, terminal events are derived
+  Draft for a later version (the life-feeds item). When life_events is absent, terminal events are derived
   from status changes between consecutive valuations of life_in_force, dated at the middle
   of the interval (CV11); exposure then carries up to half an interval of error, which the
   report states.

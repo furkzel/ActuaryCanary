@@ -127,7 +127,7 @@ optional:
   - policies.sum_insured
 uses: [CV01, CV02, CV03, CV04, CV05]
 notes: >-
-  P31 builds this convention and folds it into CV03 as version 1.1.0, whose second rule then
+  The reinsurance item builds this convention and folds it into CV03 as version 1.1.0, whose second rule then
   reads "ceded amounts given per claim are taken as given; treaty-level amounts are
   allocated by these rules". Until then CV03 1.0.0 is in force and allocates nothing
   (decision 0200).

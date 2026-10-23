@@ -30,7 +30,7 @@ report_page:
   - Unallocated expenses shown at the level they were booked, never spread over lines.
 notes: >-
   M05 keeps the expense and commission ratios it uses for the combined ratio; this module
-  adds depth (unit costs, trends) and runs on expenses alone. Built by P29.
+  adds depth (unit costs, trends) and runs on expenses alone. Built by the recoveries and expenses item.
 change_log:
   - version: 0.1.0
     date: 2026-10-23

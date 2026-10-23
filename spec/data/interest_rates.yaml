@@ -123,7 +123,7 @@ validation:
       between adjacent tenors.
     action: Listed only; a jump usually means a mistyped point.
 notes: >-
-  Draft for a later version (P26). A separate concept rather than new kinds of the market
+  Draft for a later version (the uncertainty and discounting item). A separate concept rather than new kinds of the market
   concept, because a curve point needs a tenor and a rate convention that FX rates and price
   indices do not have (decision 0201). A single rate series, such as a central bank policy
   rate, is a curve with one tenor.

@@ -115,7 +115,7 @@ validation:
       REINSTATEMENT came between.
     action: Kept as given and listed.
 notes: >-
-  Draft for a later version (P33). TRANSFER_IN and TRANSFER_OUT are flow types here, beyond
+  Draft for a later version (the life-feeds item). TRANSFER_IN and TRANSFER_OUT are flow types here, beyond
   the blueprint's list, because LF04 needs the money of transfers and life_events holds only
   the event (decision 0205).
 change_log:

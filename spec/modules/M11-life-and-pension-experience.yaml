@@ -35,7 +35,7 @@ report_page:
   - Conventions in force (age definition, exposure, study period, reference table) and the half-interval approximation when events were derived.
 notes: >-
   Never consolidated with non-life (blueprint 10). Without a reference table the module
-  shows crude rates and names the open decision. Built by P34.
+  shows crude rates and names the open decision. Built by the life-module item.
 requires_decision:
   - Default reference mortality, morbidity and lapse tables that may be redistributed openly (blueprint 18.2).
   - Health segment (blueprint 18.2) - whether health contracts are studied here or with non-life.

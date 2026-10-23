@@ -125,7 +125,7 @@ validation:
     rule: amount is positive.
     action: Negative amounts are kept as reversals and listed.
 notes: >-
-  Draft for a later version (P29). Derivation without this feed: subrogation and salvage
+  Draft for a later version (the recoveries and expenses item). Derivation without this feed: subrogation and salvage
   flows are the increments of subrogation_to_date and salvage_to_date between consecutive
   valuations of a claim (CV04 flow rule), booked in the month of the later valuation, with
   type RECOVERY_SUBROGATION or RECOVERY_SALVAGE; RECOVERY_OTHER has no to-date field and is
