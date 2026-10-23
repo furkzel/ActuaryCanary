@@ -1,0 +1,124 @@
+id: fund_flows
+version: 0.1.0
+title_en: Contributions and fund flows
+title_tr: Katkı payları ve fon hareketleri
+status: draft
+implemented: false
+definition: >-
+  Money moving into and out of pension and savings contracts: member, employer and state
+  contributions, fees, benefit payments, transfers between companies and switches between
+  funds, one row per flow.
+file_name: fund_flows.xlsx
+required_for_report: false
+grain: one flow on one contract (a fund switch is two rows, out of one fund and into another)
+keys: [flow_id]
+fields:
+  - name: flow_id
+    type: text
+    required: true
+    description: Flow identifier, kept as text.
+  - name: contract_id
+    type: text
+    required: true
+    description: Contract the flow belongs to.
+    references: life_in_force.contract_id
+  - name: flow_date
+    type: date
+    required: true
+    description: Value date of the flow.
+  - name: amount
+    type: number
+    required: true
+    description: >-
+      Amount in original currency, a positive magnitude per type (CV05); for FUND_SWITCH the
+      amount is positive into fund_code and negative out of it.
+  - name: currency
+    type: text
+    required: true
+    description: ISO 4217 code of the amount.
+  - name: flow_type
+    type: text
+    required: true
+    description: >-
+      Flow type; any source label, mapped to a class. TRANSFER_IN and TRANSFER_OUT carry the
+      money of a transfer between companies, whose event is in life_events.
+    classes:
+      - CONTRIBUTION
+      - EMPLOYER_CONTRIBUTION
+      - STATE_CONTRIBUTION
+      - FEE
+      - BENEFIT_PAYMENT
+      - FUND_SWITCH
+      - TRANSFER_IN
+      - TRANSFER_OUT
+  - name: fund_code
+    type: text
+    required: false
+    description: Fund the flow goes into or out of; needed for FUND_SWITCH.
+validation:
+  - id: DV-FFL-01
+    dimension: completeness
+    severity: BLOCKING
+    fields:
+      - fund_flows.flow_id
+      - fund_flows.contract_id
+      - fund_flows.flow_date
+      - fund_flows.amount
+      - fund_flows.flow_type
+    rule: flow_id, contract_id, flow_date, amount and flow_type are present.
+    action: Rows without any of them are excluded and listed.
+  - id: DV-FFL-02
+    dimension: validity
+    severity: WARNING
+    fields: [fund_flows.flow_type]
+    rule: flow_type maps to a class through the value aliases (AL04).
+    action: Unmapped rows become UNMAPPED, are excluded from LF04 and listed.
+  - id: DV-FFL-03
+    dimension: validity
+    severity: WARNING
+    fields: [fund_flows.currency]
+    rule: currency is present and a valid ISO 4217 code.
+    action: >-
+      The row is kept in original-currency views under currency UNKNOWN and excluded from
+      converted views (CV01).
+  - id: DV-FFL-04
+    dimension: uniqueness
+    severity: WARNING
+    fields: [fund_flows.flow_id]
+    rule: flow_id is unique.
+    action: Identical duplicates are kept once; conflicting duplicates keep the later source row; listed.
+  - id: DV-FFL-05
+    dimension: consistency
+    severity: WARNING
+    fields: [fund_flows.contract_id]
+    rule: When life_in_force is loaded, every contract_id exists in it.
+    action: The flow is kept in totals and left out of views by product and contract status; listed.
+  - id: DV-FFL-06
+    dimension: consistency
+    severity: WARNING
+    fields: [fund_flows.amount, fund_flows.flow_type, fund_flows.fund_code]
+    rule: >-
+      The FUND_SWITCH rows of a contract on one date sum to zero and each carries a fund_code.
+    action: Kept as given; the switch is listed. Switches do not enter LF04.
+  - id: DV-FFL-07
+    dimension: reasonableness
+    severity: INFO
+    fields: [fund_flows.amount, fund_flows.flow_type]
+    rule: Every type other than FUND_SWITCH has a positive amount.
+    action: Negative amounts are kept as reversals and listed.
+  - id: DV-FFL-08
+    dimension: consistency
+    severity: INFO
+    fields: [fund_flows.flow_date, fund_flows.contract_id]
+    rule: >-
+      No CONTRIBUTION is dated after a terminal event of the contract (life_events) unless a
+      REINSTATEMENT came between.
+    action: Kept as given and listed.
+notes: >-
+  Draft for a later version (P33). TRANSFER_IN and TRANSFER_OUT are flow types here, beyond
+  the blueprint's list, because LF04 needs the money of transfers and life_events holds only
+  the event (decision 0205).
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 4.4 (P20).

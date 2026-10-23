@@ -1,0 +1,149 @@
+id: ledger
+version: 0.1.0
+title_en: Trial balance (ledger)
+title_tr: Mizan
+status: draft
+implemented: false
+definition: >-
+  The trial balance of each entity by account and month: opening balance, debit and credit
+  movements and closing balance. Reconciled against the platform's measures through the
+  account-mapping profile (CV12).
+file_name: ledger.xlsx
+required_for_report: false
+grain: one account of one entity in one month (and one currency when the ledger keeps several)
+keys: [entity, account, period, currency]
+fields:
+  - name: entity
+    type: text
+    required: true
+    description: Legal entity whose books the row belongs to.
+  - name: account
+    type: text
+    required: true
+    description: >-
+      Account code as text, so leading zeros and dots survive (for example 600.01.001); the
+      mapping profile matches it exactly or by prefix (CV12).
+  - name: period
+    type: date
+    required: true
+    description: Month of the balance, given as its month end (CV04).
+  - name: closing_balance
+    type: number
+    required: true
+    description: >-
+      Balance at the end of the period in the ledger's own sign (debit positive, credit
+      negative, unless the profile says otherwise, CV12). Period or year-to-date as the
+      profile says.
+  - name: opening_balance
+    type: number
+    required: false
+    description: Balance at the start of the period, same sign and basis as closing_balance.
+  - name: debit
+    type: number
+    required: false
+    description: Sum of debit movements of the period, positive.
+  - name: credit
+    type: number
+    required: false
+    description: Sum of credit movements of the period, positive.
+  - name: currency
+    type: text
+    required: false
+    description: >-
+      ISO 4217 code of the amounts; empty means the entity's reporting currency
+      (project.yaml), with an INFO finding.
+  - name: account_name
+    type: text
+    required: false
+    description: Account label as in the chart of accounts; evidence for the mapping, never used in a measure.
+  - name: account_class
+    type: text
+    required: false
+    description: >-
+      Class of the account when the source carries one; otherwise the mapping profile sets
+      it (CV12). The profile wins when both exist.
+    classes: [PREMIUM, CLAIMS_PAID, OUTSTANDING, UPR, COMMISSION, EXPENSE, RI, INVESTMENT, OTHER]
+  - name: segment
+    type: text
+    required: false
+    description: Business segment of the account, when the chart of accounts splits by segment.
+    classes: [NON_LIFE, LIFE, PENSION, HEALTH]
+  - name: line
+    type: text
+    required: false
+    description: Line of business of the account, when the chart of accounts splits by line.
+validation:
+  - id: DV-LDG-01
+    dimension: completeness
+    severity: BLOCKING
+    fields: [ledger.entity, ledger.account, ledger.period, ledger.closing_balance]
+    rule: entity, account, period and closing_balance are present.
+    action: Rows without any of them are excluded and listed.
+  - id: DV-LDG-02
+    dimension: validity
+    severity: INFO
+    fields: [ledger.period]
+    rule: period is a month end.
+    action: The row is assigned to the month end of its month (CV04).
+  - id: DV-LDG-03
+    dimension: validity
+    severity: WARNING
+    fields: [ledger.currency]
+    rule: currency, when present, is a valid ISO 4217 code.
+    action: The row is excluded from reconciliation and listed.
+  - id: DV-LDG-04
+    dimension: validity
+    severity: WARNING
+    fields: [ledger.account_class, ledger.segment]
+    rule: account_class and segment, when present, map to a class through the value aliases (AL04).
+    action: Unmapped labels become UNMAPPED and are listed; the profile may still map the account.
+  - id: DV-LDG-05
+    dimension: uniqueness
+    severity: WARNING
+    fields: [ledger.entity, ledger.account, ledger.period, ledger.currency]
+    rule: One row per entity, account, period and currency.
+    action: >-
+      Identical duplicates are kept once; conflicting duplicates are all excluded from
+      reconciliation and listed.
+  - id: DV-LDG-06
+    dimension: consistency
+    severity: WARNING
+    fields: [ledger.opening_balance, ledger.debit, ledger.credit, ledger.closing_balance]
+    rule: >-
+      When all four are present, closing_balance equals opening_balance plus debit minus
+      credit, within 0.01 of the currency's unit.
+    action: closing_balance is used; the row is listed with the difference.
+  - id: DV-LDG-07
+    dimension: consistency
+    severity: WARNING
+    fields: [ledger.opening_balance, ledger.closing_balance, ledger.period]
+    rule: >-
+      opening_balance of a month equals closing_balance of the previous month of the same
+      account, except at the fiscal year start for year-to-date income accounts (CV12).
+    action: Kept as given and listed.
+  - id: DV-LDG-08
+    dimension: consistency
+    severity: INFO
+    fields: [ledger.closing_balance, ledger.entity, ledger.period]
+    rule: The closing balances of an entity, period and currency sum to zero (the books balance).
+    action: Listed with the sum; usually a partial extract, which is fine for reconciliation.
+  - id: DV-LDG-09
+    dimension: coverage
+    severity: WARNING
+    fields: [ledger.account]
+    rule: Every account with a non-zero balance is mapped to a class by the profile (CV12).
+    action: Unmapped accounts are listed with their balances; FN02 measures their share.
+  - id: DV-LDG-10
+    dimension: coverage
+    severity: INFO
+    fields: [ledger.period]
+    rule: Each entity has a row for every month between its first and last period.
+    action: Missing months are listed; reconciliation of those months is not available.
+notes: >-
+  Draft for a later version (P32). Account names may carry customer or staff names in some
+  charts of accounts (personal sub-ledgers); such rows are expected to be aggregated before
+  loading, and the platform keeps account_name only as evidence for the mapping screen.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 4.3 (P20).

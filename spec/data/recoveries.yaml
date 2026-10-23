@@ -1,0 +1,137 @@
+id: recoveries
+version: 0.1.0
+title_en: Recovery transactions
+title_tr: Rücu ve sovtaj hareketleri
+status: draft
+implemented: false
+definition: >-
+  Money recovered on claims from liable third parties (subrogation), from the sale of
+  damaged property (salvage) and from other sources, one row per recovery booking. When this
+  feed is absent, recovery flows are derived from the to-date recovery fields of claim
+  valuations.
+file_name: recoveries.xlsx
+required_for_report: false
+grain: one recovery booking on one claim
+keys: [transaction_id]
+fields:
+  - name: transaction_id
+    type: text
+    required: true
+    description: Recovery booking identifier, kept as text.
+  - name: claim_id
+    type: text
+    required: true
+    description: Claim the recovery belongs to.
+    references: claims.claim_id
+  - name: booking_date
+    type: date
+    required: true
+    description: Accounting date of the recovery (booking axis, blueprint 5.1).
+  - name: amount
+    type: number
+    required: true
+    description: Amount recovered in original currency, a positive magnitude (CV05); a reversal is negative.
+  - name: currency
+    type: text
+    required: true
+    description: ISO 4217 code of the amount.
+  - name: type
+    type: text
+    required: true
+    description: Recovery type; any source label, mapped to a class.
+    classes: [RECOVERY_SUBROGATION, RECOVERY_SALVAGE, RECOVERY_OTHER]
+  - name: counterparty_type
+    type: text
+    required: false
+    description: >-
+      Who paid: another insurer (most motor subrogation), any other party, or a salvage
+      buyer. Never the name of a person (personal data is dropped on load).
+    classes: [INSURER, OTHER_PARTY, SALVAGE_BUYER]
+  - name: expected_amount
+    type: number
+    required: false
+    description: >-
+      Recovery still expected on the claim at the booking date (an estimate, not money),
+      when the source keeps one; positive magnitude.
+validation:
+  - id: DV-RCV-01
+    dimension: completeness
+    severity: BLOCKING
+    fields:
+      - recoveries.transaction_id
+      - recoveries.claim_id
+      - recoveries.booking_date
+      - recoveries.amount
+      - recoveries.type
+    rule: transaction_id, claim_id, booking_date, amount and type are present.
+    action: Rows without any of them are excluded and listed.
+  - id: DV-RCV-02
+    dimension: validity
+    severity: WARNING
+    fields: [recoveries.type, recoveries.counterparty_type]
+    rule: type and counterparty_type map to a class through the value aliases (AL04).
+    action: >-
+      Unmapped rows become UNMAPPED and are listed; an UNMAPPED type counts in total
+      recoveries and in no measure by type.
+  - id: DV-RCV-03
+    dimension: validity
+    severity: WARNING
+    fields: [recoveries.currency]
+    rule: currency is present and a valid ISO 4217 code.
+    action: >-
+      An empty or invalid currency takes the currency of its claim in claim_valuations and is
+      flagged; otherwise the row is kept in original-currency views under currency UNKNOWN
+      and excluded from converted views (CV01).
+  - id: DV-RCV-04
+    dimension: uniqueness
+    severity: WARNING
+    fields: [recoveries.transaction_id]
+    rule: transaction_id is unique.
+    action: >-
+      Identical duplicates are kept once; conflicting duplicates keep the later source row;
+      every duplicate is listed.
+  - id: DV-RCV-05
+    dimension: consistency
+    severity: WARNING
+    fields: [recoveries.claim_id]
+    rule: Every claim_id exists in claim_valuations (or in claims when claim_valuations is absent).
+    action: The recovery is kept in totals by booking period and left out of origin views; listed.
+  - id: DV-RCV-06
+    dimension: consistency
+    severity: WARNING
+    fields: [recoveries.booking_date, recoveries.claim_id]
+    rule: A recovery is booked on or after the claim's report_date (or its first valuation).
+    action: Kept as given and listed.
+  - id: DV-RCV-07
+    dimension: reasonableness
+    severity: INFO
+    fields: [recoveries.amount, recoveries.claim_id]
+    rule: The cumulative recovery of a claim is at most its paid_to_date at the cut-off.
+    action: Kept as given and listed; the paid net of recoveries of that claim is negative.
+  - id: DV-RCV-08
+    dimension: consistency
+    severity: WARNING
+    fields: [recoveries.amount, recoveries.type, recoveries.claim_id]
+    rule: >-
+      When claim_valuations carries subrogation_to_date or salvage_to_date, the recoveries of
+      each claim and type accumulated to each valuation date equal that field.
+    action: >-
+      The transactions are used and the to-date fields are not (decision 0203); each
+      difference is listed with both values and the claim.
+  - id: DV-RCV-09
+    dimension: reasonableness
+    severity: INFO
+    fields: [recoveries.amount]
+    rule: amount is positive.
+    action: Negative amounts are kept as reversals and listed.
+notes: >-
+  Draft for a later version (P29). Derivation without this feed: subrogation and salvage
+  flows are the increments of subrogation_to_date and salvage_to_date between consecutive
+  valuations of a claim (CV04 flow rule), booked in the month of the later valuation, with
+  type RECOVERY_SUBROGATION or RECOVERY_SALVAGE; RECOVERY_OTHER has no to-date field and is
+  then unavailable. A negative increment is a reversal and is kept. When both sources exist,
+  the transactions win and DV-RCV-08 lists the differences.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint sections 4.2 and 5.3 (P20).
