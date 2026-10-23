@@ -1,0 +1,77 @@
+id: MT25
+version: 0.1.0
+title_en: Large-loss early warning
+title_tr: Büyük hasar erken uyarısı
+status: draft
+implemented: false
+definition: >-
+  A classifier on what is known in a claim's first months (first case estimate, line,
+  cause, report delay, early payments) that ranks new claims by their probability of
+  becoming LARGE, so that handlers can look at them early. A challenger to the line's
+  large-claim base rate from the fitted severity distribution.
+tier: C
+champion: MT17
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claim_valuations.status
+  - claims.occurrence_date
+  - claims.report_date
+optional: [claims.segment, claims.line, claims.cause, claims.event_code, policies.sum_insured]
+uses: [MT17, MT18, CV08]
+assumptions:
+  - statement: Early features carry information on final size, stable across report years.
+    check: Out-of-time AUC by report year.
+  - statement: The label (LARGE at maturity) is final for the claims used in training.
+    check: Training uses claims reported at least label_age_months before the cut-off.
+parameters:
+  - name: early_window_months
+    default: 3
+    description: Features use valuations within this many months after report.
+  - name: label_age_months
+    default: 36
+    description: Claims are labelled by their size class this long after report.
+  - name: model
+    default: gradient_boosting
+    description: Classifier (scikit-learn HistGradientBoostingClassifier, or logistic regression).
+    allowed: [gradient_boosting, logistic]
+  - name: alert_share
+    default: 0.02
+    description: Share of new claims flagged for review.
+  - name: seed
+    default: run seed
+    description: Seed, recorded in the manifest.
+algorithm:
+  - step: Label - LARGE or CATASTROPHE per CV08 (or the MT18 threshold when the owner adopts it) at label_age_months.
+  - step: Features within the early window - first case reserve, incurred at the window end, paid share, report delay, line, cause, sum insured, event flag.
+  - step: Fit on claims reported before the cut-off minus label_age_months; score claims reported in the last early windows.
+  - step: Champion - the probability of exceeding the threshold from the fitted severity distribution of the line (MT17), the same for every claim of a line, and the ranking by first incurred.
+outputs:
+  - name: scores
+    description: Probability of becoming large per recent claim, with the flagged top alert_share.
+  - name: performance
+    description: Out-of-time AUC, precision and recall at alert_share, of the classifier, the first-incurred ranking and the champion.
+diagnostics:
+  - Calibration plot of predicted against observed large shares.
+  - Feature importance (MT29).
+failure_modes:
+  - condition: Fewer than 30 large claims in the training data.
+    action: Not run; reason gives the count.
+validation:
+  - kind: property
+    description: Same seed, same scores; a claim's score does not depend on facts after its early window.
+    tolerance: exact
+  - kind: ground_truth
+    description: >-
+      Ground-truth metric - out-of-time AUC on the synthetic large_loss scenario (medium),
+      whose large claims are known, against the first-incurred ranking and the champion's
+      base rate (AUC 0.5 within a line).
+    tolerance: AUC at least 0.75 and at least the first-incurred ranking's AUC minus 0.02
+references:
+  - Wüthrich, M. V. and Merz, M. (2023). Statistical Foundations of Actuarial Learning and its Applications. Springer.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.3 (P20).

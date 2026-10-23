@@ -1,0 +1,57 @@
+id: RI03
+version: 0.1.0
+title_en: Ceded share by treaty
+title_tr: Anlaşma bazında devir oranı
+status: draft
+implemented: false
+definition: >-
+  Ceded claims incurred and ceded premium of each treaty as a share of the gross amounts in
+  the treaty's scope, by treaty year: where each treaty takes its part.
+unit: ratio
+formula: 'CS^{\mathrm{claims}}_t = \frac{I^{\mathrm{ceded}}_t(c)}{I^{\mathrm{gross}}_{K_t}(c)}, \qquad CS^{\mathrm{premium}}_t = \frac{WP^{\mathrm{ceded}}_t}{WP^{\mathrm{gross}}_{K_t}}'
+numerator: >-
+  Ceded incurred of treaty t at the cut-off (ceded paid plus ceded case reserve, given or
+  allocated per CV09), and ceded written premium of t.
+denominator: Gross incurred at the cut-off and gross written premium (PR01) of the claims and policies in t's scope (CV09).
+grain: treaty and treaty year
+breakdowns: [treaty, treaty_type, segment, line, origin_period]
+bases:
+  reinsurance: [CEDED]
+  currency: [ORIGINAL, REPORTING]
+  value: [NOMINAL]
+requires:
+  - reinsurance_treaties.treaty_id
+  - reinsurance_treaties.treaty_type
+  - reinsurance_treaties.inception_date
+  - reinsurance_treaties.expiry_date
+  - reinsurance_transactions.treaty_id
+  - reinsurance_transactions.amount
+  - reinsurance_transactions.type
+  - claim_valuations.claim_id
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+optional: [claims.occurrence_date, claims.line, premiums.amount, premiums.type, policies.start_date]
+uses: [CV03, CV09, PR01, CL03]
+edge_cases:
+  - case: Gross in scope zero
+    handling: Not computed for that treaty year.
+  - case: Aggregate allocation (no claim-level data)
+    handling: Computed and labelled "aggregate allocation, an approximation" (CV09).
+  - case: Quota share
+    handling: The claims share should equal cession_share; a difference beyond 0.5 per cent is noted.
+  - case: Treaty year with no booked movements
+    handling: Ceded share zero when the treaty was in force and gross in scope is positive; shown with the note "no ceded bookings".
+interpretation: >-
+  For proportional treaties the shares should equal the contract terms; for excess of loss
+  the claims share shows how often and how far the layer is hit, against its premium share.
+typical_range:
+  low: 0.0
+  high: 1.0
+  note: Quota share equal to its cession; working excess-of-loss layers commonly 2 to 15 per cent of gross.
+test:
+  path: tests/measures/test_ri03_ceded_share_by_treaty.py
+  proves: A quota share of 30 per cent and an excess-of-loss layer on four claims give the hand-computed shares.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft for module M08 (P20).

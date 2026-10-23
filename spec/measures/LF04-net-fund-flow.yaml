@@ -1,0 +1,54 @@
+id: LF04
+version: 0.1.0
+title_en: Net fund flow
+title_tr: Net fon akışı
+status: draft
+implemented: false
+definition: >-
+  Money into pension and savings contracts minus money out, per period: contributions of
+  members, employers and the state, plus transfers in, minus benefits paid and transfers out.
+unit: amount
+formula: 'NF(Q) = \sum_{\tau \in \mathrm{IN}} F_\tau(Q) - \sum_{\tau \in \mathrm{OUT}} F_\tau(Q)'
+numerator: >-
+  IN = CONTRIBUTION, EMPLOYER_CONTRIBUTION, STATE_CONTRIBUTION, TRANSFER_IN; OUT =
+  BENEFIT_PAYMENT, TRANSFER_OUT; flows with flow_date in Q. FEE and FUND_SWITCH are left out
+  (a fee stays with the company, a switch moves money between funds of the same contract)
+  and shown apart.
+denominator: null
+grain: calendar period
+breakdowns: [segment, line, product, flow_type, fund_code, calendar_period]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL, INFLATION_ADJUSTED]
+requires:
+  - fund_flows.flow_id
+  - fund_flows.flow_date
+  - fund_flows.amount
+  - fund_flows.currency
+  - fund_flows.flow_type
+optional: [fund_flows.contract_id, fund_flows.fund_code, life_in_force.product]
+uses: [CV01, CV02, CV04, CV05]
+edge_cases:
+  - case: Flows of contracts not in life_in_force
+    handling: Counted in the total, left out of views by product (DV-FFL-05).
+  - case: UNMAPPED flow type
+    handling: Left out and counted in a note.
+  - case: Reversals (negative amounts)
+    handling: Netted within their type.
+  - case: Month without flows
+    handling: Zero inside the date range of the feed; a month outside it is not computed and listed.
+interpretation: >-
+  Positive means the book grows from cash; a turn to negative with stable contributions
+  points at transfers out to competitors or a wave of retirements.
+typical_range:
+  low: null
+  high: null
+  note: Sign and size depend on the book's age; compare a company with itself.
+test:
+  path: tests/measures/test_lf04_net_fund_flow.py
+  proves: Contributions 100, state contribution 25, transfer in 50, benefit 30 and transfer out 40 give 105; a fee and a switch change nothing.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 8.1 (P20).

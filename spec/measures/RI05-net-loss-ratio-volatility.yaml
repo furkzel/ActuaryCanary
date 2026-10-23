@@ -1,0 +1,54 @@
+id: RI05
+version: 0.1.0
+title_en: Loss ratio volatility, gross and net
+title_tr: Brüt ve net hasar prim oranı oynaklığı
+status: draft
+implemented: false
+definition: >-
+  Standard deviation of the ultimate loss ratio across origin years, gross and net of a
+  reinsurance programme, and their ratio: how much the programme steadies results.
+unit: ratio
+formula: 'V^{b} = \mathrm{sd}_i\big(LR^{b}_i\big), \qquad VR = V^{\mathrm{net}} / V^{\mathrm{gross}}'
+numerator: Sample standard deviation over origin years of the ultimate loss ratio on the net basis (RT01, net of the programme, MT21 for alternatives).
+denominator: The same on the gross basis.
+grain: line, over origin years
+breakdowns: [segment, line]
+bases:
+  reinsurance: [GROSS, NET]
+  currency: [REPORTING]
+  value: [NOMINAL, INFLATION_ADJUSTED]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - premiums.policy_id
+  - premiums.amount
+  - premiums.type
+  - premiums.booking_date
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+optional: [reinsurance_treaties.treaty_id, claims.line]
+uses: [RT01, MT10, MT21]
+edge_cases:
+  - case: Fewer than 5 origin years
+    handling: Not computed; a standard deviation from fewer years says little.
+  - case: Gross standard deviation zero
+    handling: The ratio is not computed; both deviations shown.
+  - case: Missing origin year inside the range
+    handling: Left out of both deviations; the years used are listed.
+interpretation: >-
+  A ratio well below 1 means the programme absorbs much of the variation; near 1, the
+  programme hardly changes volatility and its cost buys little stability.
+typical_range:
+  low: 0.3
+  high: 1.0
+  note: Quota share leaves the ratio at about 1 (it scales both); excess-of-loss and stop-loss lower it.
+test:
+  path: tests/measures/test_ri05_net_loss_ratio_volatility.py
+  proves: Five origin years with gross and net loss ratios give the hand-computed deviations and ratio.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft for module M08 (P20).

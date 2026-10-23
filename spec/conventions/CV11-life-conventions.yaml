@@ -1,0 +1,118 @@
+id: CV11
+version: 0.1.0
+title_en: Life and pension study conventions
+title_tr: Hayat ve emeklilik deneyim çalışması konvansiyonları
+status: draft
+implemented: false
+definition: >-
+  How ages are defined and moved forward without birth dates, how exposure to risk is
+  counted (central and initial), how study cells are cut by calendar year or policy year,
+  and how events are dated, so that every life experience rate has one meaning.
+rules:
+  - >-
+    Age definition: the source states in the mapping profile whether age_band is age last
+    birthday (the default) or age nearest birthday; the study uses that definition
+    throughout and the report names it. Birth dates are personal data and are never read.
+  - >-
+    Age moves on policy anniversaries: the entry age a_e of a contract is the age of its
+    first valuation row minus the whole policy years from entry_date to that valuation; its
+    age at time t is a_e plus the whole policy years completed at t. This is exact for
+    insurance age at entry and is otherwise up to one year from the true age last birthday,
+    which the report states. A band "x-y" uses x for the arithmetic and keeps the band for
+    grouping.
+  - >-
+    Policy year (duration) d at time t is the number of whole years from entry_date to t
+    plus 1, so the first year is policy year 1.
+  - >-
+    Study cells are cut by calendar year (default) or by policy year, and always by age and
+    by policy year within them, so that a contract's time is split at every 1 January (or
+    anniversary), birthday-equivalent anniversary and study boundary.
+  - >-
+    Exit date of a contract: the event_date of its terminal event in life_events; without
+    life_events, the middle of the interval between the last valuation with an in-force
+    status and the first with an exit status (stated in the report as a half-interval
+    approximation).
+  - >-
+    Central exposure of a cell is the time in years (days / 365.25) each contract spends in
+    the cell while IN_FORCE or PAID_UP, from max(entry_date, study start) to min(exit date,
+    study end). Initial exposure adds, for each death (or the decrement studied) in the
+    cell, the time from the event to the end of the cell's age year. Central exposure is the
+    default; initial exposure is used with tables of q when the user asks.
+  - >-
+    Expected decrements: with central exposure, a table rate q_x is used as the force
+    mu_x = -ln(1 - q_x), constant within the year of age; with initial exposure, q_x is
+    used directly. A table of m_x or mu_x is used as given.
+  - >-
+    Decrements: deaths for mortality; DISABILITY for morbidity; LAPSE and SURRENDER for
+    lapse studies, reported apart and together; PARTIAL_WITHDRAWAL is not a decrement and
+    is reported as withdrawals per contract-year. A contract exits at its first terminal
+    event; after a REINSTATEMENT it re-enters exposure.
+  - >-
+    Counting: lives-based by default (one contract, one life); amounts-based as a second
+    view, weighting exposure and decrements by sum_assured (mortality) or fund_value
+    (surrender) at the start of the cell.
+  - >-
+    Study period: whole calendar years fully before the cut-off minus the reporting lag;
+    deaths reported after the cut-off are unknown, so the last reporting_lag_months before
+    the cut-off are left out of mortality studies.
+  - >-
+    Sex is used only when the user turns it on and only in aggregated cells; by default it
+    is dropped on load and tables are unisex.
+  - >-
+    Reference tables are data files (age, rate kind q or mu, optional sex and select
+    duration), read from the user's folder or the platform's default set; which open table
+    ships by default is an open decision (blueprint 18.2).
+formulas:
+  - name: entry age and attained age
+    expression: 'a_e = a(v_1) - \lfloor (v_1 - e)/1\,\mathrm{yr} \rfloor, \qquad a(t) = a_e + \lfloor (t - e)/1\,\mathrm{yr} \rfloor'
+    where: e is entry_date, v_1 the first valuation date, and whole years count anniversaries of e.
+  - name: central exposure
+    expression: 'E^{c}_{x} = \sum_{k} \frac{\big|\,[\max(e_k, s, b_{k,x}),\ \min(\mathrm{exit}_k, S, b_{k,x+1}))\,\big|}{365.25}'
+    where: s and S are study start and end, b(k,x) the date contract k reaches age x, |.| a length in days.
+  - name: initial exposure
+    expression: 'E^{0}_{x} = E^{c}_{x} + \sum_{k \in \mathcal{D}_x} \frac{b_{k,x+1} - \mathrm{exit}_k}{365.25}'
+    where: D(x) are the decrements of the cell.
+  - name: expected decrements
+    expression: 'E[D_x] = \mu_x \, E^{c}_{x}, \ \ \mu_x = -\ln(1 - q_x) \qquad \text{or} \qquad E[D_x] = q_x \, E^{0}_{x}'
+defaults:
+  - name: age_definition
+    default: age_last_birthday
+    description: Definition of age in the source's age_band; set per mapping profile.
+    allowed: [age_last_birthday, age_nearest_birthday]
+  - name: exposure
+    default: central
+    description: Exposure measure of the studies.
+    allowed: [central, initial]
+  - name: study_cells
+    default: calendar_year
+    description: How study time is cut besides age and policy year.
+    allowed: [calendar_year, policy_year]
+  - name: age_band_width
+    default: 5
+    description: Width in years of the age bands shown in the report; finer source ages are grouped.
+  - name: reporting_lag_months
+    default: 3
+    description: Months before the cut-off left out of mortality studies, because deaths are reported late.
+  - name: use_sex
+    default: false
+    description: Whether sex is used as an aggregated rating factor (blueprint 4.4); off by default.
+requires:
+  - life_in_force.contract_id
+  - life_in_force.valuation_date
+  - life_in_force.entry_date
+  - life_in_force.age_band
+  - life_in_force.status
+optional:
+  - life_events.event_date
+  - life_events.event_type
+  - life_events.report_date
+  - life_in_force.sum_assured
+  - life_in_force.fund_value
+  - life_in_force.sex
+uses: [CV04]
+requires_decision:
+  - Default reference mortality, morbidity and lapse tables that may be redistributed openly (blueprint 18.2).
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint sections 4.4 and 9.2 (P20).

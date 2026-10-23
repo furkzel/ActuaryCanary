@@ -1,0 +1,741 @@
+id: AL03
+version: 0.1.0
+title_en: Column aliases of planned concepts
+title_tr: Planlanan kavramların sütun adı eşleştirmeleri
+status: draft
+implemented: false
+definition: >-
+  Turkish and English column names for every field of the data concepts planned for a later
+  version (reinsurance, recoveries, ledger, interest rates, life and pension), plus further
+  personal-data columns of those feeds.
+notes: >-
+  Same rules as AL01 (normalise_label, one field per token within a concept, no token that
+  is also personal data); the loader checks AL01 and AL03 together. Kept apart so that AL01
+  and the run id do not change before a concept is built; the item that builds a concept
+  moves its entries into AL01 (decision 0200).
+columns:
+  - field: treaty_id
+    concepts: [reinsurance_treaties, reinsurance_transactions]
+    aliases:
+      - ANLAŞMA NO
+      - ANLAŞMA KODU
+      - TRETE NO
+      - TRETE KODU
+      - REASÜRANS ANLAŞMASI
+      - TREATY
+      - TREATY ID
+      - TREATY CODE
+      - TREATY NO
+      - LAYER ID
+  - field: treaty_type
+    concepts: [reinsurance_treaties]
+    aliases:
+      - ANLAŞMA TİPİ
+      - ANLAŞMA TÜRÜ
+      - TRETE TİPİ
+      - TRETE TÜRÜ
+      - REASÜRANS TÜRÜ
+      - TİP
+      - TÜR
+      - TREATY TYPE
+      - TYPE OF COVER
+      - TYPE
+  - field: inception_date
+    concepts: [reinsurance_treaties]
+    aliases:
+      - BAŞLANGIÇ TARİHİ
+      - YÜRÜRLÜK TARİHİ
+      - BAŞLANGIÇ
+      - INCEPTION
+      - INCEPTION DATE
+      - START DATE
+      - EFFECTIVE DATE
+  - field: expiry_date
+    concepts: [reinsurance_treaties]
+    aliases:
+      - BİTİŞ TARİHİ
+      - SONA ERME TARİHİ
+      - BİTİŞ
+      - EXPIRY
+      - EXPIRY DATE
+      - END DATE
+  - field: attachment_basis
+    concepts: [reinsurance_treaties]
+    aliases:
+      - BAĞLANMA ESASI
+      - KAPSAM ESASI
+      - ATTACHMENT BASIS
+      - BASIS OF ATTACHMENT
+  - field: loss_basis
+    concepts: [reinsurance_treaties]
+    aliases:
+      - HASAR ESASI
+      - TEMİNAT ESASI
+      - LOSS BASIS
+      - COVER BASIS
+  - field: segment
+    concepts: [reinsurance_treaties, reinsurance_transactions, ledger, life_in_force]
+    aliases:
+      - SEGMENT
+      - ANA BRANŞ
+      - ANA BRANS GRUBU
+      - ANA GRUP
+      - HAYAT ELEMENTER
+      - SİGORTA TÜRÜ
+      - İŞ KOLU
+      - BUSINESS SEGMENT
+      - SEGMENTATION
+  - field: line
+    concepts: [reinsurance_treaties, reinsurance_transactions, ledger, life_in_force]
+    aliases:
+      - BRANŞ
+      - BRANŞ ADI
+      - BRANŞ KODU
+      - BRANS
+      - ALT BRANŞ
+      - SİGORTA BRANŞI
+      - LINE
+      - LINE OF BUSINESS
+      - LOB
+      - BUSINESS LINE
+      - CLASS OF BUSINESS
+  - field: entity
+    concepts: [reinsurance_treaties, ledger, life_in_force]
+    aliases:
+      - ŞİRKET
+      - ŞİRKET KODU
+      - ŞİRKET ADI
+      - SİGORTA ŞİRKETİ
+      - ENTITY
+      - COMPANY
+      - COMPANY CODE
+      - LEGAL ENTITY
+      - INSURER
+  - field: currency
+    concepts:
+      - reinsurance_treaties
+      - reinsurance_transactions
+      - recoveries
+      - ledger
+      - interest_rates
+      - life_in_force
+      - life_events
+      - fund_flows
+    aliases:
+      - PARA BİRİMİ
+      - PARA CİNSİ
+      - DÖVİZ
+      - DÖVİZ CİNSİ
+      - DÖVİZ KODU
+      - PB
+      - CURRENCY
+      - CURRENCY CODE
+      - CCY
+      - CUR
+  - field: cession_share
+    concepts: [reinsurance_treaties]
+    aliases:
+      - DEVİR ORANI
+      - DEVİR PAYI
+      - KOTPAR ORANI
+      - CESSION
+      - CESSION SHARE
+      - CESSION RATE
+      - QUOTA SHARE
+  - field: retention
+    concepts: [reinsurance_treaties]
+    aliases:
+      - SAKLAMA PAYI
+      - KONSERVASYON
+      - ÖNCELİK
+      - PRİORİTE
+      - RETENTION
+      - PRIORITY
+      - DEDUCTIBLE
+      - ATTACHMENT POINT
+  - field: limit
+    concepts: [reinsurance_treaties]
+    aliases:
+      - LİMİT
+      - TEMİNAT LİMİTİ
+      - KATMAN LİMİTİ
+      - KAPASİTE
+      - LIMIT
+      - LAYER LIMIT
+      - COVER
+      - CAPACITY
+  - field: number_of_lines
+    concepts: [reinsurance_treaties]
+    aliases:
+      - HAT SAYISI
+      - EKSEDAN HAT SAYISI
+      - LINES
+      - NUMBER OF LINES
+  - field: aggregate_deductible
+    concepts: [reinsurance_treaties]
+    aliases:
+      - YILLIK TOPLAM MUAFİYET
+      - TOPLAM MUAFİYET
+      - AAD
+      - AGGREGATE DEDUCTIBLE
+      - ANNUAL AGGREGATE DEDUCTIBLE
+  - field: aggregate_limit
+    concepts: [reinsurance_treaties]
+    aliases:
+      - YILLIK TOPLAM LİMİT
+      - TOPLAM LİMİT
+      - AAL
+      - AGGREGATE LIMIT
+      - ANNUAL AGGREGATE LIMIT
+  - field: reinstatements
+    concepts: [reinsurance_treaties]
+    aliases:
+      - İHYA SAYISI
+      - İHYA
+      - REINSTATEMENTS
+      - NUMBER OF REINSTATEMENTS
+  - field: reinstatement_rate
+    concepts: [reinsurance_treaties]
+    aliases:
+      - İHYA PRİMİ ORANI
+      - İHYA ORANI
+      - REINSTATEMENT RATE
+      - REINSTATEMENT PREMIUM RATE
+  - field: placed_share
+    concepts: [reinsurance_treaties]
+    aliases:
+      - PLASMAN PAYI
+      - YERLEŞTİRİLEN PAY
+      - PLACED SHARE
+      - PLACEMENT
+      - SIGNED LINE
+  - field: premium_rate
+    concepts: [reinsurance_treaties]
+    aliases:
+      - PRİM ORANI
+      - REASÜRANS PRİM ORANI
+      - PREMIUM RATE
+      - RATE ON GNPI
+      - RATE ON INCOME
+  - field: ceding_commission
+    concepts: [reinsurance_treaties]
+    aliases:
+      - KOMİSYON
+      - KOMİSYON ORANI
+      - REASÜRANS KOMİSYONU
+      - CEDING COMMISSION
+      - COMMISSION
+      - COMMISSION RATE
+  - field: index_series
+    concepts: [reinsurance_treaties]
+    aliases:
+      - ENDEKS
+      - ENDEKSLEME
+      - ENDEKS KLOZU
+      - INDEX
+      - INDEX CLAUSE
+      - INDEXATION
+  - field: transaction_id
+    concepts: [reinsurance_transactions, recoveries]
+    aliases:
+      - İŞLEM NO
+      - İŞLEM NUMARASI
+      - HAREKET NO
+      - KAYIT NO
+      - TRANSACTION ID
+      - TRANSACTION NO
+      - TRANSACTION NUMBER
+      - TXN ID
+  - field: booking_date
+    concepts: [reinsurance_transactions, recoveries]
+    aliases:
+      - TAHAKKUK TARİHİ
+      - KAYIT TARİHİ
+      - MUHASEBE TARİHİ
+      - İŞLEM TARİHİ
+      - TAHSİLAT TARİHİ
+      - BOOKING DATE
+      - ACCOUNTING DATE
+      - POSTING DATE
+      - TRANSACTION DATE
+  - field: claim_id
+    concepts: [reinsurance_transactions, recoveries]
+    aliases:
+      - HASAR NO
+      - HASAR NUMARASI
+      - HASAR DOSYA NO
+      - DOSYA NO
+      - HASAR ID
+      - CLAIM
+      - CLAIM NO
+      - CLAIM NUMBER
+      - CLAIM REF
+  - field: amount
+    concepts: [reinsurance_transactions]
+    aliases:
+      - TUTAR
+      - İŞLEM TUTARI
+      - DEVREDİLEN TUTAR
+      - REASÜRANS PAYI
+      - AMOUNT
+      - CEDED AMOUNT
+      - AMT
+  - field: type
+    concepts: [reinsurance_transactions]
+    aliases:
+      - İŞLEM TİPİ
+      - İŞLEM TÜRÜ
+      - HAREKET TİPİ
+      - HAREKET TÜRÜ
+      - TİP
+      - TÜR
+      - TRANSACTION TYPE
+      - MOVEMENT TYPE
+      - TYPE
+  - field: policy_id
+    concepts: [reinsurance_transactions]
+    aliases:
+      - POLİÇE NO
+      - POLİÇE NUMARASI
+      - POLICY
+      - POLICY NO
+      - POLICY NUMBER
+      - POLICY ID
+  - field: event_code
+    concepts: [reinsurance_transactions]
+    aliases:
+      - KATASTROF KODU
+      - OLAY KODU
+      - AFET KODU
+      - EVENT CODE
+      - CAT CODE
+      - CAT EVENT
+  - field: effective_date
+    concepts: [reinsurance_transactions]
+    aliases:
+      - GEÇERLİLİK TARİHİ
+      - HASAR TARİHİ
+      - EFFECTIVE DATE
+      - LOSS DATE
+      - VALID FROM
+  - field: amount
+    concepts: [recoveries]
+    aliases:
+      - TUTAR
+      - TAHSİLAT
+      - TAHSİLAT TUTARI
+      - RÜCU TUTARI
+      - SOVTAJ TUTARI
+      - AMOUNT
+      - RECOVERY AMOUNT
+      - RECOVERED
+  - field: type
+    concepts: [recoveries]
+    aliases:
+      - TAHSİLAT TÜRÜ
+      - TAHSİLAT TİPİ
+      - RÜCU TİPİ
+      - TİP
+      - TÜR
+      - RECOVERY TYPE
+      - TYPE
+  - field: counterparty_type
+    concepts: [recoveries]
+    aliases:
+      - KARŞI TARAF
+      - KARŞI TARAF TİPİ
+      - BORÇLU TİPİ
+      - COUNTERPARTY
+      - COUNTERPARTY TYPE
+  - field: expected_amount
+    concepts: [recoveries]
+    aliases:
+      - BEKLENEN RÜCU
+      - BEKLENEN TAHSİLAT
+      - TAHSİL EDİLECEK
+      - EXPECTED RECOVERY
+      - EXPECTED AMOUNT
+      - RECOVERY RESERVE
+  - field: account
+    concepts: [ledger]
+    aliases:
+      - HESAP
+      - HESAP KODU
+      - MUHASEBE HESABI
+      - MUHASEBE KODU
+      - ACCOUNT
+      - ACCOUNT CODE
+      - GL ACCOUNT
+      - GL CODE
+  - field: period
+    concepts: [ledger]
+    aliases:
+      - DÖNEM
+      - AY
+      - DÖNEM SONU
+      - AY SONU
+      - MUHASEBE DÖNEMİ
+      - PERIOD
+      - MONTH
+      - PERIOD END
+      - FISCAL PERIOD
+  - field: closing_balance
+    concepts: [ledger]
+    aliases:
+      - BAKİYE
+      - KAPANIŞ BAKİYESİ
+      - DÖNEM SONU BAKİYESİ
+      - SON BAKİYE
+      - BALANCE
+      - CLOSING BALANCE
+      - ENDING BALANCE
+  - field: opening_balance
+    concepts: [ledger]
+    aliases:
+      - AÇILIŞ BAKİYESİ
+      - DEVREDEN BAKİYE
+      - DÖNEM BAŞI BAKİYESİ
+      - OPENING BALANCE
+      - BEGINNING BALANCE
+  - field: debit
+    concepts: [ledger]
+    aliases:
+      - BORÇ
+      - BORÇ TUTARI
+      - DEBIT
+      - DR
+  - field: credit
+    concepts: [ledger]
+    aliases:
+      - ALACAK
+      - ALACAK TUTARI
+      - CREDIT
+      - CR
+  - field: account_name
+    concepts: [ledger]
+    aliases:
+      - HESAP ADI
+      - HESAP AÇIKLAMASI
+      - ACCOUNT NAME
+      - ACCOUNT DESCRIPTION
+  - field: account_class
+    concepts: [ledger]
+    aliases:
+      - HESAP SINIFI
+      - HESAP GRUBU
+      - ACCOUNT CLASS
+      - ACCOUNT TYPE
+      - ACCOUNT CATEGORY
+  - field: curve_id
+    concepts: [interest_rates]
+    aliases:
+      - EĞRİ
+      - EĞRİ KODU
+      - GETİRİ EĞRİSİ
+      - CURVE
+      - CURVE ID
+      - CURVE CODE
+      - YIELD CURVE
+  - field: date
+    concepts: [interest_rates]
+    aliases:
+      - TARİH
+      - EĞRİ TARİHİ
+      - GÖZLEM TARİHİ
+      - DATE
+      - CURVE DATE
+      - AS OF DATE
+  - field: tenor_months
+    concepts: [interest_rates]
+    aliases:
+      - VADE
+      - VADE AY
+      - VADE AYI
+      - TENOR
+      - TENOR MONTHS
+      - MATURITY MONTHS
+  - field: rate
+    concepts: [interest_rates]
+    aliases:
+      - ORAN
+      - FAİZ
+      - FAİZ ORANI
+      - GETİRİ
+      - RATE
+      - YIELD
+      - INTEREST RATE
+  - field: rate_type
+    concepts: [interest_rates]
+    aliases:
+      - ORAN TİPİ
+      - ORAN TÜRÜ
+      - EĞRİ TİPİ
+      - RATE TYPE
+      - CURVE TYPE
+      - TYPE
+  - field: compounding
+    concepts: [interest_rates]
+    aliases:
+      - BİLEŞİKLEŞTİRME
+      - FAİZ ESASI
+      - COMPOUNDING
+      - COMPOUNDING BASIS
+  - field: source
+    concepts: [interest_rates]
+    aliases:
+      - KAYNAK
+      - VERİ KAYNAĞI
+      - SOURCE
+      - PROVIDER
+  - field: contract_id
+    concepts: [life_in_force, life_events, fund_flows]
+    aliases:
+      - SÖZLEŞME NO
+      - SÖZLEŞME NUMARASI
+      - POLİÇE NO
+      - POLİÇE NUMARASI
+      - SERTİFİKA NO
+      - CONTRACT
+      - CONTRACT ID
+      - CONTRACT NO
+      - POLICY NO
+      - POLICY NUMBER
+      - CERTIFICATE NO
+  - field: valuation_date
+    concepts: [life_in_force]
+    aliases:
+      - DEĞERLEME TARİHİ
+      - DÖNEM SONU
+      - AY SONU
+      - RAPOR DÖNEMİ
+      - VALUATION DATE
+      - AS AT
+      - AS OF
+      - SNAPSHOT DATE
+      - EXTRACT DATE
+  - field: product
+    concepts: [life_in_force]
+    aliases:
+      - ÜRÜN
+      - ÜRÜN KODU
+      - ÜRÜN ADI
+      - TARİFE
+      - TARİFE KODU
+      - PLAN
+      - PRODUCT
+      - PRODUCT CODE
+      - PLAN CODE
+  - field: entry_date
+    concepts: [life_in_force]
+    aliases:
+      - GİRİŞ TARİHİ
+      - BAŞLANGIÇ TARİHİ
+      - YÜRÜRLÜK TARİHİ
+      - SÖZLEŞME BAŞLANGIÇ TARİHİ
+      - ENTRY DATE
+      - START DATE
+      - COMMENCEMENT DATE
+  - field: age_band
+    concepts: [life_in_force]
+    aliases:
+      - YAŞ
+      - YAŞ GRUBU
+      - YAŞ ARALIĞI
+      - YAŞ BANDI
+      - SİGORTALI YAŞI
+      - AGE
+      - AGE BAND
+      - AGE GROUP
+      - ATTAINED AGE
+  - field: status
+    concepts: [life_in_force]
+    aliases:
+      - DURUM
+      - STATÜ
+      - SÖZLEŞME DURUMU
+      - POLİÇE DURUMU
+      - STATUS
+      - CONTRACT STATUS
+      - POLICY STATUS
+  - field: policy_type
+    concepts: [life_in_force]
+    aliases:
+      - POLİÇE TİPİ
+      - SÖZLEŞME TİPİ
+      - BİREYSEL GRUP
+      - POLICY TYPE
+      - CONTRACT TYPE
+  - field: channel
+    concepts: [life_in_force]
+    aliases:
+      - KANAL
+      - SATIŞ KANALI
+      - DAĞITIM KANALI
+      - CHANNEL
+      - SALES CHANNEL
+      - DISTRIBUTION CHANNEL
+  - field: term_years
+    concepts: [life_in_force]
+    aliases:
+      - SÜRE
+      - SÖZLEŞME SÜRESİ
+      - POLİÇE SÜRESİ
+      - TERM
+      - TERM YEARS
+      - POLICY TERM
+  - field: sum_assured
+    concepts: [life_in_force]
+    aliases:
+      - TEMİNAT
+      - TEMİNAT TUTARI
+      - VEFAT TEMİNATI
+      - SİGORTA BEDELİ
+      - SUM ASSURED
+      - SUM INSURED
+      - DEATH BENEFIT
+  - field: fund_value
+    concepts: [life_in_force]
+    aliases:
+      - FON DEĞERİ
+      - FON TUTARI
+      - BİRİKİM
+      - BİRİKİM TUTARI
+      - HESAP DEĞERİ
+      - FUND VALUE
+      - ACCOUNT VALUE
+      - ACCUMULATED VALUE
+  - field: annual_premium
+    concepts: [life_in_force]
+    aliases:
+      - YILLIK PRİM
+      - YILLIK KATKI PAYI
+      - PRİM
+      - ANNUAL PREMIUM
+      - ANNUAL CONTRIBUTION
+      - PREMIUM
+  - field: premium_frequency
+    concepts: [life_in_force]
+    aliases:
+      - ÖDEME SIKLIĞI
+      - ÖDEME PERİYODU
+      - PRİM ÖDEME SIKLIĞI
+      - PAYMENT FREQUENCY
+      - PREMIUM FREQUENCY
+      - FREQUENCY
+  - field: sex
+    concepts: [life_in_force]
+    aliases:
+      - CİNSİYET
+      - SEX
+      - GENDER
+  - field: event_id
+    concepts: [life_events]
+    aliases:
+      - OLAY NO
+      - İŞLEM NO
+      - HAREKET NO
+      - EVENT ID
+      - EVENT NO
+      - TRANSACTION ID
+  - field: event_date
+    concepts: [life_events]
+    aliases:
+      - OLAY TARİHİ
+      - İŞLEM TARİHİ
+      - GERÇEKLEŞME TARİHİ
+      - EVENT DATE
+      - TRANSACTION DATE
+      - EFFECTIVE DATE
+  - field: event_type
+    concepts: [life_events]
+    aliases:
+      - OLAY TİPİ
+      - OLAY TÜRÜ
+      - İŞLEM TİPİ
+      - HAREKET TİPİ
+      - TİP
+      - TÜR
+      - EVENT TYPE
+      - TYPE
+  - field: report_date
+    concepts: [life_events]
+    aliases:
+      - İHBAR TARİHİ
+      - BİLDİRİM TARİHİ
+      - REPORT DATE
+      - NOTIFICATION DATE
+  - field: amount
+    concepts: [life_events]
+    aliases:
+      - TUTAR
+      - ÖDEME TUTARI
+      - TAZMİNAT
+      - TAZMİNAT TUTARI
+      - AMOUNT
+      - BENEFIT AMOUNT
+  - field: flow_id
+    concepts: [fund_flows]
+    aliases:
+      - HAREKET NO
+      - İŞLEM NO
+      - FLOW ID
+      - TRANSACTION ID
+      - TRANSACTION NO
+  - field: flow_date
+    concepts: [fund_flows]
+    aliases:
+      - İŞLEM TARİHİ
+      - HAREKET TARİHİ
+      - VALÖR
+      - VALÖR TARİHİ
+      - FLOW DATE
+      - VALUE DATE
+      - TRANSACTION DATE
+  - field: amount
+    concepts: [fund_flows]
+    aliases:
+      - TUTAR
+      - İŞLEM TUTARI
+      - KATKI PAYI TUTARI
+      - AMOUNT
+      - FLOW AMOUNT
+  - field: flow_type
+    concepts: [fund_flows]
+    aliases:
+      - HAREKET TİPİ
+      - HAREKET TÜRÜ
+      - İŞLEM TİPİ
+      - TİP
+      - TÜR
+      - FLOW TYPE
+      - TRANSACTION TYPE
+      - TYPE
+  - field: fund_code
+    concepts: [fund_flows]
+    aliases:
+      - FON
+      - FON KODU
+      - FON ADI
+      - FUND
+      - FUND CODE
+personal_data:
+  - kind: beneficiary_name
+    aliases:
+      - LEHDAR
+      - LEHDAR ADI
+      - VARİS
+      - VARİS ADI
+      - BENEFICIARY
+      - BENEFICIARY NAME
+  - kind: employee_number
+    aliases:
+      - SİCİL NO
+      - PERSONEL NO
+      - ÇALIŞAN NO
+      - EMPLOYEE ID
+      - EMPLOYEE NUMBER
+      - STAFF NUMBER
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First seed for the concepts planned in P20.

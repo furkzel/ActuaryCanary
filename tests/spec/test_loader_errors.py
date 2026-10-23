@@ -137,3 +137,24 @@ def test_value_alias_classes_must_match_the_field(catalogue: SpecCatalogue) -> N
     ]
     broken = aliases.model_copy(update={"values": values})
     assert "classes of claim_valuations.status differ" in _reference_problems(catalogue, broken)
+
+
+def test_built_spec_using_a_planned_spec_is_rejected() -> None:
+    planned = load_specs(planned=True)
+    planned_id = next(f.spec.id for f in planned.files if not f.spec.implemented)
+    broken = planned.methods["MT05"].model_copy(update={"uses": ["MT04", planned_id]})
+    problems = "\n".join(reference_problems(_replace(planned, broken).built()))
+    assert f"MT05: uses {planned_id}, which is not a defined spec id" in problems
+
+
+def test_planned_column_alias_conflicting_with_al01_is_rejected() -> None:
+    planned = load_specs(planned=True)
+    al03 = next(s for s in planned.column_alias_specs if s.id == "AL03")
+    columns = [*al03.columns, al03.columns[0].model_copy(update={"concepts": ["claims"]})]
+    broken = al03.model_copy(update={"columns": columns})
+    assert "claims.treaty_id is not defined" in _reference_problems(planned, broken)
+
+
+def test_module_with_undefined_blocking_rule_is_rejected(catalogue: SpecCatalogue) -> None:
+    broken = catalogue.modules["M06"].model_copy(update={"blocking_rules": ["DV-CLV-99"]})
+    assert "M06: blocking rule DV-CLV-99 is not defined" in _reference_problems(catalogue, broken)

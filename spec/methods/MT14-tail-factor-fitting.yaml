@@ -1,0 +1,102 @@
+id: MT14
+version: 0.1.0
+title_en: Tail factor fitting
+title_tr: Kuyruk faktörü uydurma
+status: draft
+implemented: false
+definition: >-
+  Estimates development beyond the last age of the triangle by fitting a decay curve to the
+  selected age-to-age factors (exponential decay or inverse power) and extending it until
+  development stops, giving a tail factor and the extra factors by period for cash flows.
+tier: B
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+optional: [claims.occurrence_date, claims.segment, claims.line]
+uses: [MT01, MT02]
+assumptions:
+  - statement: The excess development f(t) - 1 decays smoothly with age along the chosen curve, also beyond the triangle.
+    check: >-
+      Fit quality (R squared on the log scale, residuals by age) on the fitted columns; the
+      fitted factors of the last observed ages are close to the selected ones.
+  - statement: The late factors of the triangle are credible (enough origins).
+    check: Number of link ratios per fitted column (MT02 few-origins diagnostic).
+parameters:
+  - name: curve
+    default: exponential_decay
+    description: >-
+      Shape of the excess development; inverse power decays more slowly and gives larger
+      tails for long-tailed lines.
+    allowed: [exponential_decay, inverse_power]
+  - name: fit_from_age
+    default: null
+    description: First development age (in months) used in the fit; null starts at the first column with a factor above 1.
+  - name: min_points
+    default: 3
+    description: Fewest factors above 1 needed for a fit.
+  - name: stop_below
+    default: 0.0001
+    description: Extension stops when f(t) - 1 falls below this; the remaining development is negligible.
+  - name: max_extension_years
+    default: 100
+    description: Hard limit of the extension, so a slowly decaying inverse power cannot run forever.
+algorithm:
+  - step: >-
+      Selected factors f(j) of MT02 and the age t(j) of each column in years (the age at the
+      start of the link, CV04). Columns from fit_from_age with f(j) above 1 are fitted.
+  - step: Exponential decay, a straight line in age on the log scale (ordinary least squares).
+    formula: '\ln\big(f(t) - 1\big) = a + b\,t, \quad b < 0'
+  - step: Inverse power (Sherman), a straight line in log age.
+    formula: '\ln\big(f(t) - 1\big) = a - b \ln t, \quad b > 1'
+  - step: >-
+      Extension from the age after the last column, one development period at a time, until
+      f(t) - 1 < stop_below or max_extension_years; the tail factor is the product.
+    formula: '\tau = \prod_{t = t_J}^{t_{\mathrm{stop}}} \big(1 + e^{\hat a}\, g(t)\big), \quad g(t) = e^{\hat b t} \ \text{or} \ t^{-\hat b}'
+  - step: >-
+      The tail is used by MT02 in place of the tail_factor parameter only when the user
+      selects it in the assumptions register (with the curve, fit range and value). The
+      extension factors give the timing of tail cash flows (CV10).
+outputs:
+  - name: tail_factor
+    description: tau for the chosen curve, and for the other curve for comparison.
+  - name: fit
+    description: Parameters a and b, R squared on the log scale, columns used.
+  - name: extension_factors
+    description: Fitted factors by development period beyond the triangle, with the share of ultimate each period adds.
+  - name: fitted_factors
+    description: Fitted factors on the observed columns beside the selected ones.
+diagnostics:
+  - Selected and fitted factors against age, log scale.
+  - Tail factor of both curves and their effect on the ultimates.
+  - MT02's late-development warning (decision 0039) with the fitted tail beside it.
+failure_modes:
+  - condition: Fewer than min_points factors above 1.
+    action: Not fitted; reason "too few factors above 1 to fit a tail"; tail stays at the MT02 parameter.
+  - condition: Fitted slope of the wrong sign (b >= 0 for exponential, b <= 1 for inverse power, whose product would not converge).
+    action: That curve is not used; reason names the slope.
+  - condition: Extension reaches max_extension_years before stop_below.
+    action: Tail reported with a WARNING that development had not stopped.
+validation:
+  - kind: fixture
+    description: Factors generated exactly from each curve (a, b known) give back a, b and the closed-form tail product.
+    tolerance: 1e-9 relative
+  - kind: benchmark
+    description: >-
+      Exponential and inverse-power tails on GenIns and RAA with the same fit range and
+      extension match the chainladder package's TailCurve, frozen as in decision 0007.
+    tolerance: 1e-6 relative
+  - kind: ground_truth
+    description: >-
+      On the synthetic baseline (medium), the paid tail fitted for MOTOR_TPL against the true
+      development beyond the last age, which the truth knows (about 1.9 per cent of the 2016
+      ultimate is paid after ten years, decision 0063); other lines reported as information.
+    tolerance: fitted tail minus 1 within 50 per cent of the true tail minus 1 for MOTOR_TPL
+references:
+  - Sherman, R. E. (1984). Extrapolating, smoothing and interpolating development factors. Proceedings of the Casualty Actuarial Society.
+  - 'Boor, J. (2006). Estimating tail development factors: what to do when the triangle runs out. CAS Forum.'
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.2 (P20).

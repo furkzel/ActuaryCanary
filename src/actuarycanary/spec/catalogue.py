@@ -63,5 +63,18 @@ class SpecCatalogue:
         return next(iter(self._of_type(FindingRulesSpec).values()))
 
     @property
+    def column_alias_specs(self) -> list[ColumnAliasSpec]:
+        """AL01 and, in a catalogue with planned specs, the column aliases of planned concepts."""
+        return list(self._of_type(ColumnAliasSpec).values())
+
+    @property
+    def value_alias_specs(self) -> list[ValueAliasSpec]:
+        return list(self._of_type(ValueAliasSpec).values())
+
+    @property
     def ids(self) -> set[str]:
         return {f.spec.id for f in self.files}
+
+    def built(self) -> "SpecCatalogue":
+        """The specs a run uses: every spec except those planned for a later version."""
+        return SpecCatalogue(tuple(f for f in self.files if f.spec.implemented))

@@ -41,6 +41,11 @@ class SpecBase(_Strict):
     status: Status
     definition: str = Field(min_length=1)
     notes: str = ""
+    # False: specified for a later version and not built yet; the run catalogue leaves the
+    # spec out, so a draft for later work cannot change a run (decision 0200).
+    implemented: bool = True
+    # Open owner decisions the rule waits on (a library, a reference table, a threshold rule).
+    requires_decision: list[str] = []
     change_log: list[ChangeLogEntry] = Field(min_length=1)
 
 
@@ -127,13 +132,25 @@ Dimension = Literal[
     "premium_type",
     "expense_type",
     "data_concept",
+    "treaty",
+    "treaty_type",
+    "recovery_type",
+    "account_class",
+    "age_band",
+    "policy_year",
+    "contract_status",
+    "life_event_type",
+    "flow_type",
+    "fund_code",
+    "method",
+    "horizon",
 ]
 
 
 class Bases(_Strict):
     reinsurance: list[Literal["GROSS", "CEDED", "NET"]] = Field(min_length=1)
     currency: list[Literal["ORIGINAL", "FUNCTIONAL", "REPORTING"]] = Field(min_length=1)
-    value: list[Literal["NOMINAL", "INFLATION_ADJUSTED"]] = Field(min_length=1)
+    value: list[Literal["NOMINAL", "INFLATION_ADJUSTED", "DISCOUNTED"]] = Field(min_length=1)
 
 
 class EdgeCase(_Strict):
@@ -214,6 +231,7 @@ class MethodSpec(SpecBase):
     failure_modes: list[FailureMode] = Field(min_length=1)
     validation: list[Evidence] = Field(min_length=1)
     references: list[str] = []
+    champion: str | None = None  # tier C: the tier A or B method it runs beside (blueprint 9.3)
 
 
 # --- modules -------------------------------------------------------------------------
@@ -229,6 +247,9 @@ class ModuleSpec(SpecBase):
     measures: list[str]
     methods: list[str]
     skip_reason: str = Field(min_length=1)
+    blocking_rules: list[str] = []  # DV rule IDs whose BLOCKING findings stop the module
+    outputs: list[str] = []  # files the module writes into the run folder
+    report_page: list[str] = []  # outline of the module's report page, in reading order
 
 
 # --- aliases -------------------------------------------------------------------------

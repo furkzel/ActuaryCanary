@@ -1,0 +1,45 @@
+id: M11
+version: 0.1.0
+title_en: Life and pension experience
+title_tr: Hayat ve emeklilik deneyimi
+status: draft
+implemented: false
+definition: >-
+  Mortality, morbidity, lapse and surrender experience against expectation, persistency of
+  entry cohorts and the net fund flow of pension and savings contracts, reported apart from
+  non-life.
+phase: 2
+question: Do deaths, lapses and surrenders behave as expected?
+required_all: []
+required_any: [life_in_force, fund_flows]
+optional: [life_events]
+measures: [LF01, LF02, LF03, LF04]
+methods: [MT20]
+skip_reason: >-
+  Life and pension experience did not run: no life contracts or fund flows were loaded.
+  Load life_in_force.xlsx (with life_events.xlsx for exact event dates) for the experience
+  studies, or fund_flows.xlsx for the net fund flow; mortality against expected needs a
+  reference table.
+blocking_rules: [DV-LIF-01, DV-LEV-01, DV-FFL-01]
+outputs:
+  - exposure.csv (central and initial exposure by age, policy year, calendar year and product)
+  - experience.csv (actual, expected, A/E with interval and credibility by cell)
+  - persistency.csv (LF03 by entry cohort)
+  - fund_flows_by_period.csv (LF04 by type and month)
+report_page:
+  - Headline - total mortality A/E with its interval, lapse rate of the last year, net fund flow of the last 12 months.
+  - Mortality and morbidity A/E by age band and policy year, with intervals and credibility weights (LF02).
+  - Lapse and surrender rates by policy year and product (LF01).
+  - Persistency of entry cohorts (LF03).
+  - Net fund flow by month and type (LF04).
+  - Conventions in force (age definition, exposure, study period, reference table) and the half-interval approximation when events were derived.
+notes: >-
+  Never consolidated with non-life (blueprint 10). Without a reference table the module
+  shows crude rates and names the open decision. Built by the life-module item.
+requires_decision:
+  - Default reference mortality, morbidity and lapse tables that may be redistributed openly (blueprint 18.2).
+  - Health segment (blueprint 18.2) - whether health contracts are studied here or with non-life.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 10 (P20).

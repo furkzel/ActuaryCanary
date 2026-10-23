@@ -1,0 +1,66 @@
+id: RS04
+version: 0.1.0
+title_en: Discounted unpaid claims
+title_tr: İskonto edilmiş ödenmemiş hasarlar
+status: draft
+implemented: false
+definition: >-
+  The selected unpaid claims (selected ultimate minus paid) as a present value at the
+  discount date, from the projected cash flows by calendar period and the chosen yield
+  curve, with the discount effect beside it.
+unit: amount
+formula: 'R^{\mathrm{disc}}_i = \sum_{k > J_i} \hat X_{i,k}\, D(t_{i,k}), \qquad \Delta_i = \hat R_i - R^{\mathrm{disc}}_i'
+numerator: >-
+  Projected incremental payments of origin i (the selected method's pattern, MT10 on paid
+  development; MT07 nominal flows when selected; tail flows per CV10) times the discount
+  factor of their time (CV10).
+denominator: null
+grain: origin period and total, by segment and line
+breakdowns: [segment, line, entity, origin_period, calendar_period]
+bases:
+  reinsurance: [GROSS, NET]
+  currency: [REPORTING]
+  value: [DISCOUNTED]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - interest_rates.curve_id
+  - interest_rates.date
+  - interest_rates.tenor_months
+  - interest_rates.rate
+  - interest_rates.rate_type
+  - interest_rates.currency
+optional: [claims.occurrence_date, claims.segment, claims.line, interest_rates.compounding]
+uses: [MT02, MT10, MT14, CV10]
+parameters:
+  - name: payment_pattern
+    default: paid_chain_ladder
+    description: >-
+      Pattern that times the selected unpaid - the paid chain-ladder pattern (MT02), scaled
+      to the selected unpaid of each origin.
+edge_cases:
+  - case: No curve named, or the curve in another currency
+    handling: Not available (CV10), with the reason.
+  - case: Selected unpaid negative for an origin
+    handling: Discounted like any cash flow and flagged.
+  - case: Selected method without its own payment pattern (Bornhuetter–Ferguson, ELR)
+    handling: The paid chain-ladder pattern spreads the selected unpaid, labelled.
+  - case: Calendar period of a cash flow beyond the curve's last tenor
+    handling: Discounted with the flat last forward rate (CV10) and counted in a note.
+interpretation: >-
+  What the unpaid claims are worth today at the chosen curve. The discount effect grows
+  with interest rates and with the length of the tail; in high-rate markets it is large and
+  must be read beside the nominal figure, never instead of it.
+typical_range:
+  low: null
+  high: null
+  note: Discount effect commonly 1 to 10 per cent of unpaid for short-tailed lines, more for long-tailed lines and high rates.
+test:
+  path: tests/measures/test_rs04_discounted_unpaid.py
+  proves: Cash flows of 100 at 0.5 and 1.5 years with a flat 10 per cent annual curve give 100/1.1^0.5 + 100/1.1^1.5.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint sections 5.3 and 7.2 (P20).

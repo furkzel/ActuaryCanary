@@ -1,0 +1,96 @@
+id: MT23
+version: 0.1.0
+title_en: Generalised linear models (Poisson, gamma, Tweedie)
+title_tr: Genelleştirilmiş doğrusal modeller (Poisson, gama, Tweedie)
+status: draft
+implemented: false
+definition: >-
+  Multiplicative models of claim frequency (Poisson with log exposure offset), severity
+  (gamma weighted by claim count) and pure premium (Tweedie), showing which rating factors
+  drive experience and by how much. A challenger beside the one-way frequency and severity
+  of MT16.
+tier: C
+champion: MT16
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claims.policy_id
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+optional: [policies.line, policies.product, policies.channel, policies.partner, policies.exposure_units, policies.sum_insured]
+uses: [MT16, CV04, CV08]
+assumptions:
+  - statement: Log link - factors act multiplicatively; the variance function of the family fits (mean for Poisson, mean squared for gamma, mean to the power p for Tweedie).
+    check: Deviance residuals against fitted values; dispersion estimate; for Tweedie, the profile likelihood of p.
+  - statement: Claims are developed enough that open-claim incurred stands for the final cost.
+    check: Fit on accident years with maturity at least 0.9 (MT10), or on ultimates by claim when MT24 ran.
+parameters:
+  - name: family
+    default: poisson
+    description: Model fitted.
+    allowed: [poisson, gamma, tweedie]
+  - name: tweedie_power
+    default: 1.5
+    description: Power p of the Tweedie variance, between 1 and 2.
+  - name: factors
+    default: [line, product, channel]
+    description: Rating factors (categorical, levels with less than min_level_exposure merged into OTHER).
+  - name: min_level_exposure
+    default: 100
+    description: Exposure years below which a level is merged.
+  - name: holdout
+    default: latest_year
+    description: Out-of-time test set - the latest accident year is held out of the fit.
+algorithm:
+  - step: >-
+      Data per policy and accident year - earned exposure (CV04), non-nil claim count,
+      incurred of attritional claims (CV08; large and catastrophe claims are modelled apart).
+  - step: Poisson frequency with offset, gamma severity with count weights, or Tweedie pure premium, fitted by maximum likelihood (iteratively reweighted least squares).
+    formula: '\ln E[N] = \ln E + \beta^\top x, \qquad \ln E[S] = \gamma^\top x, \qquad \ln E[Y] = \ln E + \delta^\top x'
+  - step: Relativities exp(beta) per level against the base level, with standard errors from (X^T W X)^-1 times the dispersion.
+  - step: >-
+      Out-of-time score on the holdout - Poisson, gamma or Tweedie deviance and the Gini
+      index of the ordered lift, for the GLM and for the champion's one-way rates by line.
+outputs:
+  - name: relativities
+    description: Relativities with standard errors and confidence intervals per factor level.
+  - name: deviance_table
+    description: Deviance and its change as each factor enters (analysis of deviance).
+  - name: holdout_scores
+    description: Out-of-time deviance and Gini of the GLM and of the champion.
+diagnostics:
+  - Deviance residuals against fitted values and by factor.
+  - One-way observed against fitted per factor level.
+  - Lift chart on the holdout.
+failure_modes:
+  - condition: Fewer than 1,000 exposure years or 100 claims in the fitting data.
+    action: Not run; reason gives the size.
+  - condition: Fit does not converge or the design matrix is singular (aliased levels).
+    action: Aliased levels are merged and the fit repeated once; otherwise not run, with the reason.
+validation:
+  - kind: fixture
+    description: A 2 x 2 factor table with exposure; Poisson relativities equal the closed-form marginal-totals solution.
+    tolerance: 1e-8 relative
+  - kind: benchmark
+    description: Coefficients against scikit-learn's PoissonRegressor, GammaRegressor and TweedieRegressor with no penalty on the same design.
+    tolerance: 1e-6 relative
+  - kind: ground_truth
+    description: >-
+      Ground-truth metric - on the synthetic baseline (medium), whose frequencies come from
+      known rating-factor relativities (generator item), the fitted log relativities against the
+      true ones; out-of-time deviance of the GLM against the champion MT16 reported as information.
+    tolerance: absolute error of each log relativity within 0.05 for levels with at least 2,000 exposure years
+references:
+  - Ohlsson, E. and Johansson, B. (2010). Non-Life Insurance Pricing with Generalized Linear Models. Springer.
+  - Wüthrich, M. V. and Merz, M. (2023). Statistical Foundations of Actuarial Learning and its Applications. Springer.
+requires_decision:
+  - >-
+    statsmodels for GLM inference (standard errors, analysis of deviance), or the
+    covariance computed with numpy from the scikit-learn fit (record 0211).
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.3 (P20).

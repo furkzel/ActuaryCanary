@@ -1,0 +1,237 @@
+id: reinsurance_treaties
+version: 0.1.0
+title_en: Reinsurance treaties
+title_tr: Reasürans anlaşmaları
+status: draft
+implemented: false
+definition: >-
+  The terms of each reinsurance treaty or layer in force for a contract period and a line of
+  business: type, share or retention, limit, aggregate terms, reinstatements and commission.
+  Used to allocate treaty-level ceded amounts (CV09) and to compute what another programme
+  would cede (MT21).
+file_name: reinsurance_treaties.xlsx
+required_for_report: false
+grain: >-
+  one treaty or layer for one contract period and one line; a treaty covering several lines
+  has one row per line with the same terms
+keys: [treaty_id, inception_date, line]
+fields:
+  - name: treaty_id
+    type: text
+    required: true
+    description: >-
+      Treaty or layer identifier, kept as text. Each layer of an excess-of-loss programme is
+      its own treaty_id (for example XL_TPL_L1, XL_TPL_L2).
+  - name: treaty_type
+    type: text
+    required: true
+    description: Type of cover; any source label, mapped to a class.
+    classes: [QUOTA_SHARE, SURPLUS, EXCESS_OF_LOSS, STOP_LOSS, FACULTATIVE]
+  - name: inception_date
+    type: date
+    required: true
+    description: First day of the contract period.
+  - name: expiry_date
+    type: date
+    required: true
+    description: Day after the last day of the contract period, so [inception, expiry) as in CV04.
+  - name: attachment_basis
+    type: text
+    required: false
+    description: >-
+      Which claims the period covers. LOSSES_OCCURRING covers claims with occurrence_date in
+      the period; RISKS_ATTACHING covers claims on policies whose start_date is in the
+      period. Empty means LOSSES_OCCURRING.
+    classes: [LOSSES_OCCURRING, RISKS_ATTACHING]
+  - name: loss_basis
+    type: text
+    required: false
+    description: >-
+      Unit the terms apply to: RISK (each claim), EVENT (all claims with the same event_code)
+      or AGGREGATE (all claims of the period, stop loss). Empty means RISK, or AGGREGATE for
+      STOP_LOSS.
+    classes: [RISK, EVENT, AGGREGATE]
+  - name: segment
+    type: text
+    required: false
+    description: Business segment in scope.
+    classes: [NON_LIFE, LIFE, PENSION, HEALTH]
+  - name: line
+    type: text
+    required: false
+    description: Line of business in scope; empty means every line of the segment or entity.
+  - name: entity
+    type: text
+    required: false
+    description: Ceding company; empty means every entity.
+  - name: currency
+    type: text
+    required: true
+    description: ISO 4217 code of retention, limit and the other amounts of the row.
+  - name: cession_share
+    type: number
+    required: false
+    description: >-
+      QUOTA_SHARE: share of each risk ceded, between 0 and 1. SURPLUS and FACULTATIVE: not
+      used (the share follows from sum insured, CV09).
+  - name: retention
+    type: number
+    required: false
+    description: >-
+      EXCESS_OF_LOSS: priority (deductible) per risk or event. SURPLUS: retained line per
+      risk, as sum insured. STOP_LOSS: priority as a loss ratio (for example 1.05).
+  - name: limit
+    type: number
+    required: false
+    description: >-
+      EXCESS_OF_LOSS: layer limit above the retention (cover, not exhaustion point).
+      STOP_LOSS: cover as a loss ratio. Empty means unlimited.
+  - name: number_of_lines
+    type: number
+    required: false
+    description: SURPLUS only; the capacity is number_of_lines times retention.
+  - name: aggregate_deductible
+    type: number
+    required: false
+    description: EXCESS_OF_LOSS annual aggregate deductible of the layer; empty means none.
+  - name: aggregate_limit
+    type: number
+    required: false
+    description: >-
+      EXCESS_OF_LOSS annual aggregate limit of the layer; empty means limit times (1 +
+      reinstatements) when reinstatements is given, otherwise unlimited.
+  - name: reinstatements
+    type: number
+    required: false
+    description: Number of reinstatements of the layer; empty means unlimited free cover.
+  - name: reinstatement_rate
+    type: number
+    required: false
+    description: >-
+      Premium for one full reinstatement as a share of the layer's deposit premium (1 means
+      100 per cent), charged pro rata to the amount reinstated; empty means free.
+  - name: placed_share
+    type: number
+    required: false
+    description: Share of the layer placed with reinsurers, between 0 and 1; empty means 1.
+  - name: premium_rate
+    type: number
+    required: false
+    description: >-
+      Non-proportional premium as a rate on gross net premium income of the scope (GNPI);
+      proportional treaties cede premium by share instead.
+  - name: ceding_commission
+    type: number
+    required: false
+    description: Commission paid by reinsurers as a share of ceded premium (proportional treaties).
+  - name: index_series
+    type: text
+    required: false
+    description: >-
+      series_id of the PRICE_INDEX (market) the retention and limit are indexed to; empty
+      means no index clause.
+validation:
+  - id: DV-RTY-01
+    dimension: completeness
+    severity: BLOCKING
+    fields:
+      - reinsurance_treaties.treaty_id
+      - reinsurance_treaties.treaty_type
+      - reinsurance_treaties.inception_date
+      - reinsurance_treaties.expiry_date
+      - reinsurance_treaties.currency
+    rule: treaty_id, treaty_type, inception_date, expiry_date and currency are present.
+    action: The row is excluded from allocation and what-if, and listed.
+  - id: DV-RTY-02
+    dimension: validity
+    severity: WARNING
+    fields:
+      - reinsurance_treaties.treaty_type
+      - reinsurance_treaties.attachment_basis
+      - reinsurance_treaties.loss_basis
+      - reinsurance_treaties.segment
+    rule: Classified fields map to a class through the value aliases (AL04).
+    action: >-
+      Unmapped labels become UNMAPPED and are listed; a row with an UNMAPPED treaty_type is
+      excluded from allocation and what-if.
+  - id: DV-RTY-03
+    dimension: consistency
+    severity: BLOCKING
+    fields: [reinsurance_treaties.inception_date, reinsurance_treaties.expiry_date]
+    rule: expiry_date is after inception_date.
+    action: The row is excluded and listed.
+  - id: DV-RTY-04
+    dimension: validity
+    severity: WARNING
+    fields: [reinsurance_treaties.currency]
+    rule: currency is a valid ISO 4217 code.
+    action: The row is excluded from converted views (CV01) and listed.
+  - id: DV-RTY-05
+    dimension: completeness
+    severity: BLOCKING
+    fields:
+      - reinsurance_treaties.treaty_type
+      - reinsurance_treaties.cession_share
+      - reinsurance_treaties.retention
+      - reinsurance_treaties.number_of_lines
+    rule: >-
+      The terms of the type are present: QUOTA_SHARE has cession_share; SURPLUS has retention
+      and number_of_lines; EXCESS_OF_LOSS and STOP_LOSS have retention.
+    action: The row is excluded from allocation and what-if, and listed.
+  - id: DV-RTY-06
+    dimension: validity
+    severity: WARNING
+    fields:
+      - reinsurance_treaties.cession_share
+      - reinsurance_treaties.placed_share
+      - reinsurance_treaties.ceding_commission
+    rule: cession_share, placed_share and ceding_commission lie between 0 and 1.
+    action: The row is excluded from allocation and what-if, and listed.
+  - id: DV-RTY-07
+    dimension: validity
+    severity: WARNING
+    fields:
+      - reinsurance_treaties.retention
+      - reinsurance_treaties.limit
+      - reinsurance_treaties.number_of_lines
+      - reinsurance_treaties.aggregate_deductible
+      - reinsurance_treaties.aggregate_limit
+      - reinsurance_treaties.reinstatements
+    rule: Retention, limit and the aggregate terms are zero or positive; number_of_lines is positive.
+    action: The row is excluded from allocation and what-if, and listed.
+  - id: DV-RTY-08
+    dimension: uniqueness
+    severity: WARNING
+    fields:
+      - reinsurance_treaties.treaty_id
+      - reinsurance_treaties.inception_date
+      - reinsurance_treaties.line
+    rule: One row per treaty, inception date and line.
+    action: Identical duplicates are kept once; conflicting duplicates are all excluded and listed.
+  - id: DV-RTY-09
+    dimension: consistency
+    severity: INFO
+    fields:
+      - reinsurance_treaties.treaty_type
+      - reinsurance_treaties.line
+      - reinsurance_treaties.inception_date
+      - reinsurance_treaties.expiry_date
+    rule: >-
+      Two proportional treaties of the same type do not overlap in time on the same line and
+      entity, and two layers of the same programme do not overlap in their retention and limit.
+    action: Kept as given; the overlap is listed, because the inuring order (CV09) then matters.
+  - id: DV-RTY-10
+    dimension: consistency
+    severity: WARNING
+    fields: [reinsurance_treaties.index_series]
+    rule: An index_series names a PRICE_INDEX series present in market.
+    action: The retention and limit are used without indexation; the treaty is listed.
+notes: >-
+  Draft for a later version (the new-feeds item reads the feed, the reinsurance item uses it). Treaty terms are reference
+  data: the platform never invents a missing term; a treaty without its terms is listed and
+  left out. Facultative cessions are recorded per policy in reinsurance_transactions and use
+  this row for period and scope only.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint sections 4.2 and 7.3 (P20).

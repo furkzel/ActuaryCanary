@@ -1,0 +1,62 @@
+id: FN01
+version: 0.1.0
+title_en: Ledger reconciliation gap
+title_tr: Mizan mutabakat farkı
+status: draft
+implemented: false
+definition: >-
+  The platform's figure minus the mapped ledger amount, per entity, account class and
+  month, in amount and as a share of the ledger amount, with a materiality flag (CV12).
+unit: amount
+formula: 'G_{e,c}(t) = M_{e,c}(t) - L_{e,c}(t), \qquad g_{e,c}(t) = \frac{G_{e,c}(t)}{|L_{e,c}(t)|}'
+numerator: >-
+  M is the platform measure linked to class c (CV12 - PR01 written premium, CL01 paid
+  flows, CL02 case reserve, PR03 unearned premium, commission, expenses, ceded) for entity e
+  and month t, in the ledger currency; L the mapped ledger amount.
+denominator: null
+grain: entity, account class and month
+breakdowns: [entity, account_class, segment, line, calendar_period]
+bases:
+  reinsurance: [GROSS, CEDED]
+  currency: [FUNCTIONAL, REPORTING]
+  value: [NOMINAL]
+requires:
+  - ledger.entity
+  - ledger.account
+  - ledger.period
+  - ledger.closing_balance
+optional:
+  - ledger.opening_balance
+  - ledger.currency
+  - ledger.line
+  - premiums.amount
+  - premiums.type
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - expenses.amount
+  - reinsurance_transactions.amount
+uses: [CV12, PR01, PR03, CL01, CL02, EX02, RI01]
+edge_cases:
+  - case: The matching feed is not loaded for a class
+    handling: That class is not reconciled; the reason names the feed.
+  - case: Ledger amount zero
+    handling: The share g is not computed; the amount gap is.
+  - case: Month missing in the ledger or in the feed
+    handling: Not computed for that month (DV-LDG-10).
+  - case: Ledger outstanding including IBNR
+    handling: Compared as CV12 says; the gap carries the label of the comparison used.
+interpretation: >-
+  Zero within materiality means the actuarial data and the books agree. A constant gap is
+  usually scope (an entity, line or account missing); a gap that moves with the month end
+  is usually cut-off timing.
+typical_range:
+  low: -0.005
+  high: 0.005
+  note: Shares within half a per cent are not material by default (CV12).
+test:
+  path: tests/measures/test_fn01_ledger_reconciliation_gap.py
+  proves: A premium account of -1,000 (credit) with sign -1 against written premium 1,004 gives a gap of 4 and 0.4 per cent, not material.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 8.1 (P20).

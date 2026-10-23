@@ -35,6 +35,12 @@ ALIAS_MODELS: dict[str, type[SpecBase]] = {
     "columns.yaml": ColumnAliasSpec,
     "values.yaml": ValueAliasSpec,
 }
+# Aliases of concepts planned for a later version (AL03, AL04); optional, merged into AL01 and
+# AL02 when a concept is built, so that AL01 and AL02 and the run id do not move before.
+PLANNED_ALIAS_MODELS: dict[str, type[SpecBase]] = {
+    "columns-planned.yaml": ColumnAliasSpec,
+    "values-planned.yaml": ValueAliasSpec,
+}
 # Report specifications: one file per kind of rule, named by what it holds.
 REPORT_MODELS: dict[str, type[SpecBase]] = {"findings.yaml": FindingRulesSpec}
 NAMED_FILE_KINDS = ("aliases", "report")
@@ -80,6 +86,11 @@ def read_spec_files(root: Path) -> tuple[list[SpecFile], list[str]]:
         for path in sorted((root / kind).glob("*.yaml"))
     ]
     jobs += [("aliases", model, root / "aliases" / name) for name, model in ALIAS_MODELS.items()]
+    jobs += [
+        ("aliases", model, root / "aliases" / name)
+        for name, model in PLANNED_ALIAS_MODELS.items()
+        if (root / "aliases" / name).is_file()
+    ]
     jobs += [("report", model, root / "report" / name) for name, model in REPORT_MODELS.items()]
     files: list[SpecFile] = []
     problems: list[str] = []
@@ -100,22 +111,35 @@ def duplicate_id_problems(files: list[SpecFile]) -> list[str]:
     return [f"spec id {spec_id} is used {n} times" for spec_id, n in counts.items() if n > 1]
 
 
-def load_specs(root: Path | None = None) -> SpecCatalogue:
-    """Load all specs; raise SpecError listing every invalid file, repeated ID or bad reference."""
+def load_specs(root: Path | None = None, *, planned: bool = False) -> SpecCatalogue:
+    """Load all specs; raise SpecError listing every invalid file, repeated ID or bad reference.
+
+    References are checked on every spec, planned ones included, and again on the built specs
+    alone, so that a built spec never depends on a planned one. The result holds the built
+    specs, which is what a run uses; `planned=True` returns every spec (index, tests)."""
     files, problems = read_spec_files(root or find_spec_root())
     problems += duplicate_id_problems(files)
     if problems:
         raise SpecError(problems)
     catalogue = SpecCatalogue(tuple(files))
-    problems = reference_problems(catalogue)
+    built = catalogue.built()
+    problems = list(dict.fromkeys([*reference_problems(catalogue), *reference_problems(built)]))
     if problems:
         raise SpecError(problems)
-    return catalogue
+    return catalogue if planned else built
 
 
-def index_rows(catalogue: SpecCatalogue) -> list[tuple[str, str, str, str, str, str]]:
-    """One row per spec: kind, id, version, status, English title, Turkish title."""
+def index_rows(catalogue: SpecCatalogue) -> list[tuple[str, str, str, str, str, str, str]]:
+    """One row per spec: kind, id, version, status, built or planned, English and Turkish title."""
     return [
-        (f.kind, f.spec.id, f.spec.version, f.spec.status.value, f.spec.title_en, f.spec.title_tr)
+        (
+            f.kind,
+            f.spec.id,
+            f.spec.version,
+            f.spec.status.value,
+            "built" if f.spec.implemented else "planned",
+            f.spec.title_en,
+            f.spec.title_tr,
+        )
         for f in catalogue.files
     ]

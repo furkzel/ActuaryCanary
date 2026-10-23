@@ -1,0 +1,39 @@
+id: M08
+version: 0.1.0
+title_en: Reinsurance
+title_tr: Reasürans
+status: draft
+implemented: false
+definition: >-
+  What is ceded and what is net, treaty by treaty, what reinsurance costs over the years,
+  and what another programme would cede and cost on the same claims.
+phase: 2
+question: What is ceded, what is net, what would another programme do?
+required_all: [reinsurance_treaties]
+required_any: [reinsurance_transactions, claim_valuations]
+optional: [claims, premiums, policies, market]
+measures: [RI01, RI02, RI03, RI04, RI05]
+methods: [MT01, MT02, MT03, MT04, MT06, MT10, MT11, MT14, MT17, MT21]
+skip_reason: >-
+  Reinsurance did not run: no reinsurance treaties were loaded. Load
+  reinsurance_treaties.xlsx with reinsurance_transactions.xlsx (or claim_valuations.xlsx
+  with ceded columns) to enable it; add claims.xlsx and policies.xlsx for claim-level
+  allocation and what-if programmes.
+blocking_rules: [DV-RTY-01, DV-RTY-03, DV-RTY-05, DV-RTR-01]
+outputs:
+  - ceded_by_treaty.csv (ceded claims, premium, commission and reinstatement premium per treaty and year)
+  - ceded_allocation.csv (treaty-level amounts allocated to claims or cells, CV09, with the method used)
+  - programme_comparison.csv (MT21 results per programme)
+report_page:
+  - Headline - ceded share of premium and of claims, and the reinsurance result over the last years.
+  - Treaty table - type, terms, ceded share against the terms (RI03), layer use and reinstatements.
+  - Gross, ceded and net loss ratios by origin; result ratio (RI04).
+  - What-if - the current and alternative programmes side by side, cost against volatility (RI05).
+  - Allocation notes - which amounts were allocated and how (CV09), aggregate approximations named.
+notes: >-
+  Treaty-level allocation follows CV09, the planned amendment of CV03. What-if programmes
+  are written in the assumptions register and never change the gross figures. Built by the reinsurance item.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 10 (P20).

@@ -1,0 +1,133 @@
+id: interest_rates
+version: 0.1.0
+title_en: Interest rates and yield curves
+title_tr: Faiz oranları ve getiri eğrileri
+status: draft
+implemented: false
+definition: >-
+  Interest rates by curve, date and tenor: the points of a yield curve, or a single rate
+  series as a curve with one tenor. Used to discount future cash flows (CV10).
+file_name: interest_rates.xlsx
+required_for_report: false
+grain: one rate per curve, date and tenor
+keys: [curve_id, date, tenor_months]
+fields:
+  - name: curve_id
+    type: text
+    required: true
+    description: Curve code, for example TRY_GOV or EUR_SWAP; one currency per curve.
+  - name: date
+    type: date
+    required: true
+    description: Date the curve was observed (curve date).
+  - name: tenor_months
+    type: number
+    required: true
+    description: Tenor of the point in whole months (12 means one year).
+  - name: rate
+    type: number
+    required: true
+    description: Rate as a decimal per year (0.25 means 25 per cent), on the convention of rate_type and compounding.
+  - name: rate_type
+    type: text
+    required: true
+    description: >-
+      SPOT is the zero-coupon rate to the tenor; PAR is the coupon of a bond priced at par
+      (annual coupons); FORWARD is the one-year forward rate starting at tenor minus 12
+      months. Any source label, mapped to a class.
+    classes: [SPOT, PAR, FORWARD]
+  - name: compounding
+    type: text
+    required: false
+    description: >-
+      Compounding of the rate: ANNUAL, CONTINUOUS or SIMPLE (money-market, for tenors up to
+      12 months). Empty means ANNUAL.
+    classes: [ANNUAL, CONTINUOUS, SIMPLE]
+  - name: currency
+    type: text
+    required: true
+    description: ISO 4217 code of the currency the curve discounts.
+  - name: source
+    type: text
+    required: false
+    description: Where the curve comes from (publisher, dataset); shown in the report next to discounted values.
+validation:
+  - id: DV-IRT-01
+    dimension: completeness
+    severity: BLOCKING
+    fields:
+      - interest_rates.curve_id
+      - interest_rates.date
+      - interest_rates.tenor_months
+      - interest_rates.rate
+      - interest_rates.rate_type
+      - interest_rates.currency
+    rule: curve_id, date, tenor_months, rate, rate_type and currency are present.
+    action: Rows without any of them are excluded and listed.
+  - id: DV-IRT-02
+    dimension: validity
+    severity: WARNING
+    fields: [interest_rates.rate_type, interest_rates.compounding]
+    rule: rate_type and compounding map to a class through the value aliases (AL04).
+    action: Unmapped rows become UNMAPPED, are excluded and listed.
+  - id: DV-IRT-03
+    dimension: validity
+    severity: WARNING
+    fields: [interest_rates.tenor_months]
+    rule: tenor_months is a positive whole number.
+    action: The row is excluded and listed.
+  - id: DV-IRT-04
+    dimension: validity
+    severity: WARNING
+    fields: [interest_rates.rate]
+    rule: rate lies between -0.05 and 2.0 (minus 5 to plus 200 per cent a year).
+    action: >-
+      The row is excluded and listed; a rate given in per cent (25 for 0.25) is the usual
+      cause, and the finding says so.
+  - id: DV-IRT-05
+    dimension: validity
+    severity: WARNING
+    fields: [interest_rates.currency]
+    rule: currency is a valid ISO 4217 code and the same on every row of a curve.
+    action: Rows of a curve with a second currency are excluded and listed.
+  - id: DV-IRT-06
+    dimension: uniqueness
+    severity: WARNING
+    fields: [interest_rates.curve_id, interest_rates.date, interest_rates.tenor_months]
+    rule: One rate per curve, date and tenor.
+    action: >-
+      Identical duplicates are kept once; for conflicting duplicates the later source row is
+      kept; listed.
+  - id: DV-IRT-07
+    dimension: consistency
+    severity: WARNING
+    fields: [interest_rates.rate_type, interest_rates.curve_id, interest_rates.date]
+    rule: A curve on one date has one rate_type and one compounding.
+    action: The curve on that date is excluded and listed.
+  - id: DV-IRT-08
+    dimension: coverage
+    severity: WARNING
+    fields: [interest_rates.curve_id, interest_rates.date]
+    rule: >-
+      The curve chosen for discounting has a date on or before the discount date and no more
+      than 31 days before it (CV10).
+    action: >-
+      An older curve is used and flagged; with no curve on or before the discount date the
+      DISCOUNTED basis is unavailable.
+  - id: DV-IRT-09
+    dimension: reasonableness
+    severity: INFO
+    fields: [interest_rates.rate, interest_rates.tenor_months]
+    rule: >-
+      The forward rates implied by the curve (CV10) are above -0.05 and change by at most 0.10
+      between adjacent tenors.
+    action: Listed only; a jump usually means a mistyped point.
+notes: >-
+  Draft for a later version (the uncertainty and discounting item). A separate concept rather than new kinds of the market
+  concept, because a curve point needs a tenor and a rate convention that FX rates and price
+  indices do not have (decision 0201). A single rate series, such as a central bank policy
+  rate, is a curve with one tenor.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint sections 4.3 and 7.2 (P20).

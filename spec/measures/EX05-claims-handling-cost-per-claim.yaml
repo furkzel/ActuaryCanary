@@ -1,0 +1,49 @@
+id: EX05
+version: 0.1.0
+title_en: Claims-handling cost per claim
+title_tr: Hasar başına hasar yönetim gideri
+status: draft
+implemented: false
+definition: >-
+  Allocated and unallocated claims-handling expenses of a period divided by the claims
+  handled in that period (open at its start plus reported in it).
+unit: amount
+formula: 'HC(Q) = \frac{\Delta A(Q) + X^{\mathrm{CLAIMS\_HANDLING\_UNALLOCATED}}(Q)}{N^{\mathrm{open}}(Q^{-}) + N^{\mathrm{reported}}(Q)}'
+numerator: As EX03 - flows of expense_allocated_to_date in Q plus expenses of type CLAIMS_HANDLING_UNALLOCATED in Q.
+denominator: Claims open at the start of Q plus claims reported in Q (CL04), the denominator of CL09.
+grain: calendar period
+breakdowns: [segment, line, entity, calendar_period]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL, INFLATION_ADJUSTED]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.status
+  - expenses.period
+  - expenses.amount
+  - expenses.type
+optional: [claim_valuations.expense_allocated_to_date, expenses.segment, expenses.line, claims.segment, claims.line]
+uses: [EX03, CL04, CL09, CV04]
+edge_cases:
+  - case: No claims handled in Q
+    handling: Not computed.
+  - case: No allocated expense column
+    handling: Unallocated only, labelled.
+  - case: Month without expense rows
+    handling: Not computed for that month and listed, as EX04.
+interpretation: >-
+  The cost of handling one claim. A rise with stable claim mix points at handling
+  efficiency; a mix shift to litigated or large claims raises it naturally.
+typical_range:
+  low: null
+  high: null
+  note: Depends on line and currency; compare over time at value-date prices.
+test:
+  path: tests/measures/test_ex05_claims_handling_cost_per_claim.py
+  proves: Ten open plus five reported claims and handling costs of 300 give 20 per claim.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft for module M09 (P20).

@@ -1,0 +1,181 @@
+id: reinsurance_transactions
+version: 0.1.0
+title_en: Reinsurance transactions
+title_tr: Reasürans hareketleri
+status: draft
+implemented: false
+definition: >-
+  Ceded movements booked against reinsurance treaties: ceded premium, ceded paid claims,
+  changes of the ceded case reserve, reinsurance commission and reinstatement premium, at
+  claim, policy or treaty level.
+file_name: reinsurance_transactions.xlsx
+required_for_report: false
+grain: one ceded movement
+keys: [transaction_id]
+fields:
+  - name: transaction_id
+    type: text
+    required: true
+    description: Movement identifier, kept as text.
+  - name: treaty_id
+    type: text
+    required: true
+    description: Treaty or layer the movement belongs to.
+    references: reinsurance_treaties.treaty_id
+  - name: booking_date
+    type: date
+    required: true
+    description: Accounting date of the movement (booking axis, blueprint 5.1).
+  - name: amount
+    type: number
+    required: true
+    description: >-
+      Amount in original currency as a positive magnitude per type (CV05): measures subtract
+      or add it by its type; a reversal is negative. A CEDED_CASE_RESERVE change is
+      positive when the ceded reserve rises.
+  - name: currency
+    type: text
+    required: true
+    description: ISO 4217 code of the amount.
+  - name: type
+    type: text
+    required: true
+    description: >-
+      Movement type; any source label, mapped to a class. CEDED_CASE_RESERVE is a change of
+      the ceded case reserve, so the ceded reserve at a date is the sum of its changes booked
+      up to that date.
+    classes:
+      - CEDED_PREMIUM
+      - CEDED_CLAIM_PAID
+      - CEDED_CASE_RESERVE
+      - RI_COMMISSION
+      - REINSTATEMENT_PREMIUM
+  - name: claim_id
+    type: text
+    required: false
+    description: Claim the movement belongs to, when ceded at claim level.
+    references: claims.claim_id
+  - name: policy_id
+    type: text
+    required: false
+    description: Policy the movement belongs to, when ceded at policy level (premium, facultative).
+    references: policies.policy_id
+  - name: event_code
+    type: text
+    required: false
+    description: Catastrophe event of an event-basis recovery, when ceded per event.
+  - name: effective_date
+    type: date
+    required: false
+    description: >-
+      Date that places the movement on the origin axis when no claim or policy is given:
+      occurrence date of a loss, or period start of a premium instalment.
+  - name: segment
+    type: text
+    required: false
+    description: Business segment of the movement, when not given by claim, policy or treaty.
+    classes: [NON_LIFE, LIFE, PENSION, HEALTH]
+  - name: line
+    type: text
+    required: false
+    description: Line of business of the movement, when not given by claim, policy or treaty.
+validation:
+  - id: DV-RTR-01
+    dimension: completeness
+    severity: BLOCKING
+    fields:
+      - reinsurance_transactions.transaction_id
+      - reinsurance_transactions.treaty_id
+      - reinsurance_transactions.booking_date
+      - reinsurance_transactions.amount
+      - reinsurance_transactions.type
+    rule: transaction_id, treaty_id, booking_date, amount and type are present.
+    action: Rows without any of them are excluded and listed.
+  - id: DV-RTR-02
+    dimension: validity
+    severity: WARNING
+    fields: [reinsurance_transactions.type, reinsurance_transactions.segment]
+    rule: type and segment map to a class through the value aliases (AL04).
+    action: Unmapped rows become UNMAPPED, are excluded from ceded measures and listed.
+  - id: DV-RTR-03
+    dimension: validity
+    severity: WARNING
+    fields: [reinsurance_transactions.currency]
+    rule: currency is present and a valid ISO 4217 code.
+    action: >-
+      The row is kept in original-currency views under currency UNKNOWN and excluded from
+      converted views (CV01).
+  - id: DV-RTR-04
+    dimension: uniqueness
+    severity: WARNING
+    fields: [reinsurance_transactions.transaction_id]
+    rule: transaction_id is unique.
+    action: >-
+      Identical duplicates are kept once; conflicting duplicates keep the later source row;
+      every duplicate is listed.
+  - id: DV-RTR-05
+    dimension: consistency
+    severity: WARNING
+    fields: [reinsurance_transactions.treaty_id]
+    rule: Every treaty_id exists in reinsurance_treaties when that feed is loaded.
+    action: >-
+      The movement is kept for totals by type and line, and left out of every view by
+      treaty; listed.
+  - id: DV-RTR-06
+    dimension: consistency
+    severity: WARNING
+    fields: [reinsurance_transactions.booking_date, reinsurance_transactions.treaty_id]
+    rule: >-
+      A claim movement belongs to a claim covered by the treaty period (attachment basis,
+      CV09); a premium movement is booked no earlier than the treaty's inception_date.
+    action: Kept as given and listed.
+  - id: DV-RTR-07
+    dimension: consistency
+    severity: WARNING
+    fields: [reinsurance_transactions.claim_id]
+    rule: When claims is loaded, every claim_id exists in claims.
+    action: The movement is allocated as a treaty-level amount (CV09); listed.
+  - id: DV-RTR-08
+    dimension: consistency
+    severity: WARNING
+    fields: [reinsurance_transactions.amount, reinsurance_transactions.claim_id]
+    rule: >-
+      For each claim, cumulative ceded paid is at most the claim's paid_to_date and the ceded
+      case reserve at most its case_reserve, at each valuation of claim_valuations.
+    action: Kept as given, so the net amount is negative; listed.
+  - id: DV-RTR-09
+    dimension: consistency
+    severity: INFO
+    fields: [reinsurance_transactions.amount, reinsurance_transactions.claim_id]
+    rule: >-
+      When claim_valuations carries ceded_paid_to_date or ceded_reserve, they agree with the
+      accumulated ceded movements of the claim at each valuation date.
+    action: >-
+      The claim-level fields of claim_valuations are used for claim views (CV09); each
+      difference is listed with both values.
+  - id: DV-RTR-10
+    dimension: reasonableness
+    severity: INFO
+    fields: [reinsurance_transactions.amount, reinsurance_transactions.type]
+    rule: >-
+      CEDED_CLAIM_PAID, CEDED_PREMIUM, RI_COMMISSION and REINSTATEMENT_PREMIUM are positive;
+      CEDED_CASE_RESERVE changes may have either sign.
+    action: Negative values are kept as reversals and listed.
+  - id: DV-RTR-11
+    dimension: consistency
+    severity: INFO
+    fields: [reinsurance_transactions.amount, reinsurance_transactions.type]
+    rule: >-
+      When premiums also holds CEDED_PREMIUM or RI_COMMISSION rows, their totals per month
+      and line agree with this feed.
+    action: >-
+      This feed is used for every view by treaty and the premiums rows for policy views; the
+      differences are listed (CV09).
+notes: >-
+  Draft for a later version (the new-feeds item reads the feed, the reinsurance item uses it). A movement without claim and
+  policy is a treaty-level amount and is allocated by CV09. Ceded amounts never enter the
+  gross basis; net is gross minus ceded at the finest grain (CV03).
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint sections 4.2 and 7.3 (P20).

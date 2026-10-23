@@ -1,0 +1,116 @@
+id: MT17
+version: 0.1.0
+title_en: Severity distribution fitting with goodness of fit
+title_tr: Hasar şiddeti dağılımı uydurma ve uyum iyiliği
+status: draft
+implemented: false
+definition: >-
+  Fits lognormal, gamma, Weibull and Pareto distributions to individual claim sizes by
+  maximum likelihood, per segment and line, tests the fit, selects one, and gives quantiles,
+  limited expected values and layer costs for limits and reinsurance (MT21).
+tier: B
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claim_valuations.status
+optional: [claims.segment, claims.line, claims.event_code, market.series_id, market.value]
+uses: [CV01, CV02, CV08]
+assumptions:
+  - statement: Claim sizes of a group are independent draws from one distribution.
+    check: >-
+      Sizes by origin year at value-date prices show no trend (a trend means superimposed
+      inflation, which pooling turns into a wider distribution); the report shows the trend.
+  - statement: Sizes of closed claims are final; open claims' incurred is an estimate.
+    check: Fit on closed claims (default) and on all non-nil claims; compare the two fits.
+parameters:
+  - name: candidates
+    default: [lognormal, gamma, weibull, pareto]
+    description: Families fitted; Pareto is the two-parameter Pareto II (Lomax) on sizes above zero.
+  - name: claims_used
+    default: closed
+    description: Closed non-nil claims at the cut-off (final sizes), or all non-nil claims at their incurred.
+    allowed: [closed, all_non_nil]
+  - name: truncation_point
+    default: 0
+    description: Left truncation d; sizes at or below d are left out and the likelihood is conditioned on X > d (deductibles, reporting thresholds).
+  - name: exclude_catastrophes
+    default: true
+    description: CATASTROPHE claims (CV08) are left out; events are not single-claim severity.
+  - name: gof_bootstrap
+    default: 200
+    description: Parametric bootstrap samples for the p-values of Kolmogorov–Smirnov and Anderson–Darling with estimated parameters.
+  - name: significance
+    default: 0.05
+    description: A family whose Anderson–Darling bootstrap p-value is below this is rejected.
+  - name: min_claims
+    default: 50
+    description: Fewest claims for a fit in a group.
+  - name: limits
+    default: []
+    description: Policy limits or layer bounds for which limited expected values and layer costs are reported.
+algorithm:
+  - step: >-
+      Size of each claim: paid_to_date (closed) or paid plus case reserve (open), converted at
+      the constant development rate (CV01) and restated to value-date prices when the index is
+      loaded (CV02), as CV08 does.
+  - step: Maximum likelihood per family, with location fixed at zero; with truncation, the conditional likelihood.
+    formula: '\hat\theta = \arg\max_\theta \sum_k \ln f_\theta(x_k) - n \ln\big(1 - F_\theta(d)\big)'
+  - step: Standard errors from the observed information (numerical Hessian of the log-likelihood).
+    formula: '\widehat{\mathrm{Var}}(\hat\theta) = \big[-\nabla^2 \ell(\hat\theta)\big]^{-1}'
+  - step: Goodness of fit per family; p-values by parametric bootstrap (refit on each sample).
+    formula: 'D = \sup_x |F_n(x) - F_{\hat\theta}(x)|, \qquad A^2 = -n - \frac{1}{n}\sum_{k=1}^{n} (2k-1)\big[\ln F_{\hat\theta}(x_{(k)}) + \ln\big(1 - F_{\hat\theta}(x_{(n+1-k)})\big)\big], \qquad AIC = 2p - 2\ell'
+  - step: Selection - the lowest AIC among the families not rejected by Anderson–Darling; when all are rejected, the lowest AIC, labelled "no family fits".
+  - step: Quantiles, limited expected value and layer cost of the selected family.
+    formula: 'E[X \wedge L] = \int_0^L \big(1 - F(x)\big)\,dx, \qquad E[\text{layer } (R, R+L]] = E[X \wedge (R+L)] - E[X \wedge R]'
+outputs:
+  - name: fits
+    description: Parameters with standard errors, log-likelihood, AIC, BIC, D, A^2 and their p-values, per family and group.
+  - name: selected
+    description: Selected family per group and why.
+  - name: quantiles
+    description: Quantiles of the selected family (50, 75, 90, 95, 99, 99.5 per cent).
+  - name: limited_expected_values
+    description: E[X ^ L] and layer costs for the given limits.
+diagnostics:
+  - Quantile–quantile and probability–probability plots per family.
+  - Empirical against fitted survival function on the log scale (tail fit).
+  - Severity by origin year at value-date prices, with its trend.
+failure_modes:
+  - condition: Fewer than min_claims sizes in a group.
+    action: Not fitted for that group; reason gives the count.
+  - condition: The optimiser does not converge for a family.
+    action: That family is left out of selection, with a WARNING.
+  - condition: Pareto shape at or below 1 (infinite mean).
+    action: Fitted and shown; limited expected values only; WARNING "infinite mean".
+validation:
+  - kind: fixture
+    description: >-
+      Lognormal maximum likelihood equals the mean and standard deviation (divisor n) of the
+      log sizes; exponential (gamma with shape 1 fixed) equals the mean; the truncated
+      likelihood of a hand sample.
+    tolerance: 1e-9 relative
+  - kind: benchmark
+    description: Parameters on fixed samples against scipy.stats fit with location fixed at zero (an independent optimiser of the same likelihood).
+    tolerance: 1e-4 relative
+  - kind: ground_truth
+    description: >-
+      Calibration on samples from each family itself (known parameters, 1,000 samples of
+      2,000 sizes, fixed seed): the 95 per cent Wald interval covers the true parameter, and
+      the true family is selected (slow test, behind ACTUARYCANARY_MONTE_CARLO=1).
+    tolerance: coverage within 90 to 99 per cent per parameter; true family selected in at least 80 per cent of samples
+  - kind: ground_truth
+    description: >-
+      On the synthetic baseline (medium), the selected family and the fitted 95th percentile
+      per line against the scenario's severity body and tail, reported as information:
+      the generator mixes a body with a Pareto tail and adds superimposed inflation, which
+      no single family reproduces.
+    tolerance: none; information only
+references:
+  - 'Klugman, S. A., Panjer, H. H. and Willmot, G. E. Loss Models: From Data to Decisions. Wiley.'
+  - Stephens, M. A. (1974). EDF statistics for goodness of fit and some comparisons. Journal of the American Statistical Association.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.2 (P20).

@@ -1,0 +1,160 @@
+id: MT11
+version: 0.1.0
+title_en: Over-dispersed Poisson bootstrap
+title_tr: Aşırı yayılımlı Poisson bootstrap
+status: draft
+implemented: false
+definition: >-
+  The full predictive distribution of the chain-ladder reserve under the over-dispersed
+  Poisson model (England and Verrall 1999, 2002): residual resampling for parameter error
+  and gamma draws for process error give simulated reserves per origin and in total, with
+  percentiles, value at risk, tail value at risk and simulated cash flows by calendar period.
+tier: B
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+optional: [claims.occurrence_date, claims.segment, claims.line]
+uses: [MT01, MT02, MT14, MT06]
+assumptions:
+  - statement: >-
+      Incremental paid amounts are independent with mean m(i) r(j) and variance phi times the
+      mean (row and column effects, one scale parameter); the chain ladder gives the same
+      reserve as this model.
+    check: >-
+      Unscaled Pearson residuals show no trend against origin, development, calendar
+      diagonal or fitted value; their spread is similar across columns (otherwise use the
+      column-wise scale option).
+  - statement: Every column of incremental paid sums to a positive amount.
+    check: Column sums of the incremental triangle; a non-positive column stops the method.
+  - statement: Residuals are exchangeable across cells.
+    check: Residual plots by development period; a few columns with much larger residuals suggest heteroscedasticity.
+parameters:
+  - name: n_simulations
+    default: 10000
+    description: Number of bootstrap samples; 10,000 gives the 99.5th percentile from 50 tail values.
+  - name: seed
+    default: run seed
+    description: Seed of the random generator, recorded in the manifest (blueprint 12).
+  - name: process_distribution
+    default: gamma
+    description: Distribution of process error; gamma with mean m and variance phi m, or over-dispersed Poisson (phi times a Poisson with mean m / phi).
+    allowed: [gamma, odp]
+  - name: scale
+    default: constant
+    description: One scale parameter for the triangle, or one per development period (heteroscedastic adjustment).
+    allowed: [constant, by_development]
+  - name: tail_factor
+    default: MT02 tail_factor
+    description: Tail of the fitted chain ladder; a tail from MT14 adds a fixed share to each simulation, without its own error.
+  - name: percentiles
+    default: [0.5, 0.75, 0.9, 0.95, 0.99, 0.995]
+    description: Percentiles reported, as in MT06.
+  - name: var_level
+    default: 0.995
+    description: Value-at-risk level, as in MT06.
+  - name: tvar_level
+    default: 0.99
+    description: Tail value-at-risk level, as in MT06.
+algorithm:
+  - step: >-
+      Paid triangle from MT01 (cumulative C and incremental X, origins i = 0..I-1, columns
+      j = 0..J-1). Fit the volume-weighted chain ladder over all diagonals (MT02) and the
+      fitted cumulative cells by backward recursion from the latest diagonal.
+    formula: '\hat m_{i,J_i} = C_{i,J_i}, \qquad \hat m_{i,j} = \hat m_{i,j+1} / f_j \ (j < J_i), \qquad \hat\mu_{i,j} = \hat m_{i,j} - \hat m_{i,j-1}'
+  - step: Unscaled Pearson residuals and the scale parameter.
+    formula: 'r_{i,j} = \frac{X_{i,j} - \hat\mu_{i,j}}{\sqrt{\hat\mu_{i,j}}}, \qquad \hat\phi = \frac{\sum r_{i,j}^2}{n - p}, \quad p = I + J - 1'
+  - step: >-
+      Bias adjustment of the residuals; the cells fitted exactly (the single cell of the
+      first column of the latest origin and of the last column of the oldest origin) have
+      zero residual and leave the resampling pool. With scale by_development, phi and the
+      residuals are computed per column and residuals are rescaled to a common variance.
+    formula: 'r^{\mathrm{adj}}_{i,j} = r_{i,j} \sqrt{\frac{n}{n - p}}'
+  - step: For each simulation b, resample residuals with replacement and form a pseudo-triangle.
+    formula: 'X^{*}_{i,j} = \hat\mu_{i,j} + r^{*}_{i,j} \sqrt{\hat\mu_{i,j}}'
+  - step: >-
+      Refit the chain ladder on the cumulated pseudo-triangle, giving f*(j), and project the
+      future incremental means of each origin from its actual latest cumulative C(i, J_i).
+    formula: '\mu^{*}_{i,k} = C_{i,J_i} \Big(\prod_{l=J_i}^{k-1} f^*_l\Big)\,\big(f^*_{k} - 1\big), \quad k \ge J_i'
+  - step: >-
+      Process error: draw every future increment from the process distribution; a negative
+      mean is drawn with its absolute value and the sign restored. The simulated reserve is
+      the sum of the draws.
+    formula: 'Y^{*}_{i,k} \sim \Gamma\big(\mathrm{shape} = |\mu^*_{i,k}| / \hat\phi,\ \mathrm{scale} = \hat\phi\big)\, \mathrm{sign}(\mu^*_{i,k}), \qquad R^{*}_{b} = \sum_{i}\sum_{k \ge J_i} Y^{*}_{i,k}'
+  - step: Summary statistics over the simulations, per origin and in total.
+    formula: 'q_p = \mathrm{quantile}_p\{R^*_b\}, \quad \mathrm{VaR}_p = q_p, \quad \mathrm{TVaR}_p = \mathrm{mean}\{R^*_b : R^*_b \ge q_p\}, \quad cv = sd / \mathrm{mean}'
+  - step: >-
+      Simulated cash flows: each Y*(i, k) is assigned to the calendar period of origin i and
+      development k (CV04), so that every simulation has a cash-flow vector for discounting
+      (CV10, RS04) and the one-year view.
+outputs:
+  - name: reserve_distribution
+    description: Simulated reserves per origin and in total (kept as a parquet file in the run folder).
+  - name: summary
+    description: Mean, standard deviation, coefficient of variation, percentiles, VaR and TVaR per origin and in total.
+  - name: simulated_cash_flows
+    description: Mean and percentiles of future payments by calendar period.
+  - name: residuals
+    description: Unscaled and adjusted Pearson residuals with origin, development and calendar diagonal.
+  - name: scale_parameter
+    description: phi, constant or per development period.
+diagnostics:
+  - Residuals against origin, development, calendar diagonal and fitted value, with mean per group.
+  - Mean of the simulated reserve against the chain-ladder reserve (bias of the bootstrap).
+  - Comparison of the bootstrap range with the Mack lognormal range of MT06.
+  - Histogram of the simulated total reserve.
+failure_modes:
+  - condition: Chain ladder not available (MT02 failure) or fewer than 5 origin periods.
+    action: Not run; reason "the bootstrap needs a chain ladder on at least 5 origin periods".
+  - condition: A column of incremental paid sums to zero or less, or a fitted increment is not positive.
+    action: Not run; reason names the column. The user may start the triangle later or merge columns.
+  - condition: n - p is 2 or less.
+    action: Not run; reason "too few cells to estimate the scale parameter".
+  - condition: More than 1 per cent of simulations have a negative total reserve.
+    action: Run, with a WARNING giving the share.
+validation:
+  - kind: fixture
+    description: >-
+      A 4 x 4 incremental triangle: fitted values, unscaled residuals, phi, the bias
+      adjustment and the zero-residual cells hand-computed.
+    tolerance: 1e-12 relative
+  - kind: property
+    description: >-
+      Same seed, same output; row order of the input does not matter; multiplying the
+      triangle by a constant multiplies every simulated reserve by that constant (gamma
+      process).
+    tolerance: 1e-9 relative
+  - kind: benchmark
+    description: >-
+      On GenIns and RAA with 10,000 simulations: mean total reserve against the chain-ladder
+      reserve, and the standard deviation of the total reserve against the chainladder
+      package's BootstrapODPSample run with 10,000 samples, frozen in tests/benchmarks as in
+      decision 0007 (two independent simulations, so the tolerance carries Monte Carlo error
+      of about 1 per cent).
+    tolerance: mean within 2 per cent of the chain-ladder reserve; standard deviation within 5 per cent of the reference
+  - kind: ground_truth
+    description: >-
+      Calibration on triangles drawn from the model itself: row and column parameters and
+      phi fitted to GenIns, incremental cells drawn from the gamma process, at least 1,000
+      triangles with 2,000 simulations each, fixed seed. The true total reserve of each
+      triangle falls below the bootstrap 95th percentile (slow test, behind
+      ACTUARYCANARY_MONTE_CARLO=1).
+    tolerance: coverage within 90 to 99 per cent
+  - kind: ground_truth
+    description: >-
+      Coverage of the 95th percentile per line on repeated synthetic baseline simulations,
+      beside MT06's coverage, reported as information (slow test, behind
+      ACTUARYCANARY_MONTE_CARLO=1). Calendar-year inflation breaks the independence the
+      model assumes, as for Mack (decision 0062).
+    tolerance: none; information only
+references:
+  - England, P. D. and Verrall, R. J. (1999). Analytic and bootstrap estimates of prediction errors in claims reserving. Insurance Mathematics and Economics.
+  - England, P. D. and Verrall, R. J. (2002). Stochastic claims reserving in general insurance. British Actuarial Journal.
+  - England, P. D. (2002). Addendum to "Analytic and bootstrap estimates of prediction errors in claims reserving". Insurance Mathematics and Economics.
+notes: >-
+  The bootstrap replaces neither MT06 nor RS03; M12 shows both ranges side by side. Paid
+  only: an incurred bootstrap has negative increments too often for the model.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.2 (P20).

@@ -1,0 +1,202 @@
+id: life_in_force
+version: 0.1.0
+title_en: Life and pension in-force
+title_tr: Hayat ve emeklilik yürürlükteki sözleşmeler
+status: draft
+implemented: false
+definition: >-
+  The state of each life or pension contract at each valuation date: product, entry date,
+  age band, status, term, sums assured or fund value and premium. The exposure base of the
+  life experience studies (MT20) and of persistency (LF03).
+file_name: life_in_force.xlsx
+required_for_report: false
+grain: one contract at one valuation date (month end or year end)
+keys: [contract_id, valuation_date]
+fields:
+  - name: contract_id
+    type: text
+    required: true
+    description: Contract identifier, kept as text; never a person's identity number.
+  - name: valuation_date
+    type: date
+    required: true
+    description: The as-known-at date of the row (CV04).
+  - name: product
+    type: text
+    required: true
+    description: Product code or name.
+  - name: entry_date
+    type: date
+    required: true
+    description: Date the contract (or the member's participation in a group contract) started.
+  - name: age_band
+    type: text
+    required: true
+    description: >-
+      Age of the insured life at the valuation date in whole years, on the age definition of
+      CV11, written as one age ("45") or a band of whole years ("45-49"). The birth date is
+      personal data and is never read (blueprint 4.4).
+  - name: status
+    type: text
+    required: true
+    description: Contract status at the valuation date; any source label, mapped to a class.
+    classes:
+      - IN_FORCE
+      - PAID_UP
+      - LAPSED
+      - SURRENDERED
+      - MATURED
+      - DEATH_CLAIM
+      - TRANSFERRED_OUT
+  - name: segment
+    type: text
+    required: false
+    description: Business segment; empty is read as LIFE.
+    classes: [NON_LIFE, LIFE, PENSION, HEALTH]
+  - name: line
+    type: text
+    required: false
+    description: Line of business (for example TERM_LIFE, CREDIT_LIFE, PERSONAL_PENSION).
+  - name: entity
+    type: text
+    required: false
+    description: Company or legal entity.
+  - name: policy_type
+    type: text
+    required: false
+    description: Individual or group contract.
+    classes: [INDIVIDUAL, GROUP]
+  - name: channel
+    type: text
+    required: false
+    description: Distribution channel.
+    classes: [AGENCY, BROKER, BANK, DIRECT, DIGITAL, PARTNER]
+  - name: term_years
+    type: number
+    required: false
+    description: Contract term in years; empty for whole-life and open-ended pension contracts.
+  - name: sum_assured
+    type: number
+    required: false
+    description: Death benefit in original currency at the valuation date (life risk products).
+  - name: fund_value
+    type: number
+    required: false
+    description: Accumulated fund or account value at the valuation date (savings and pension products).
+  - name: annual_premium
+    type: number
+    required: false
+    description: Annualised regular premium or contribution; zero for single-premium and paid-up contracts.
+  - name: premium_frequency
+    type: text
+    required: false
+    description: How often premium or contribution is due.
+    classes: [MONTHLY, QUARTERLY, HALF_YEARLY, YEARLY, SINGLE]
+  - name: currency
+    type: text
+    required: false
+    description: ISO 4217 code of the amounts; empty means the reporting currency, with an INFO finding.
+  - name: sex
+    type: text
+    required: false
+    description: >-
+      Optional rating factor, used only in aggregated studies and only when the user turns it
+      on (CV11, off by default); otherwise dropped on load.
+    classes: [FEMALE, MALE]
+validation:
+  - id: DV-LIF-01
+    dimension: completeness
+    severity: BLOCKING
+    fields:
+      - life_in_force.contract_id
+      - life_in_force.valuation_date
+      - life_in_force.entry_date
+      - life_in_force.age_band
+      - life_in_force.status
+    rule: contract_id, valuation_date, entry_date, age_band and status are present.
+    action: Rows without any of them are excluded from every study and listed.
+  - id: DV-LIF-02
+    dimension: validity
+    severity: WARNING
+    fields:
+      - life_in_force.status
+      - life_in_force.segment
+      - life_in_force.policy_type
+      - life_in_force.channel
+      - life_in_force.premium_frequency
+      - life_in_force.sex
+    rule: Classified fields map to a class through the value aliases (AL04).
+    action: Unmapped labels become UNMAPPED and are listed; an UNMAPPED status excludes the row.
+  - id: DV-LIF-03
+    dimension: validity
+    severity: WARNING
+    fields: [life_in_force.age_band]
+    rule: >-
+      age_band is one whole age or a band "x-y" with x at most y, both between 0 and 120.
+    action: The row is excluded and listed.
+  - id: DV-LIF-04
+    dimension: consistency
+    severity: WARNING
+    fields: [life_in_force.entry_date, life_in_force.valuation_date]
+    rule: entry_date is on or before valuation_date.
+    action: The row is excluded and listed.
+  - id: DV-LIF-05
+    dimension: uniqueness
+    severity: WARNING
+    fields: [life_in_force.contract_id, life_in_force.valuation_date]
+    rule: One row per contract per valuation date.
+    action: >-
+      Identical duplicates are kept once; conflicting duplicates keep the later source row;
+      listed.
+  - id: DV-LIF-06
+    dimension: consistency
+    severity: WARNING
+    fields: [life_in_force.entry_date, life_in_force.contract_id]
+    rule: A contract keeps the same entry_date, product and sex in every valuation.
+    action: The values of the latest valuation are used; the contract is listed.
+  - id: DV-LIF-07
+    dimension: consistency
+    severity: WARNING
+    fields: [life_in_force.age_band, life_in_force.valuation_date]
+    rule: >-
+      The age implied by age_band moves forward with time: between two valuations it rises
+      by the whole years between them, give or take one (CV11).
+    action: The entry age of CV11 is taken from the first valuation; the contract is listed.
+  - id: DV-LIF-08
+    dimension: consistency
+    severity: WARNING
+    fields: [life_in_force.status, life_in_force.contract_id]
+    rule: >-
+      A contract with an exit status (LAPSED, SURRENDERED, MATURED, DEATH_CLAIM,
+      TRANSFERRED_OUT) does not return to IN_FORCE or PAID_UP without a REINSTATEMENT in
+      life_events.
+    action: The exit is kept and the later rows are excluded from exposure; listed.
+  - id: DV-LIF-09
+    dimension: reasonableness
+    severity: INFO
+    fields:
+      - life_in_force.sum_assured
+      - life_in_force.fund_value
+      - life_in_force.annual_premium
+      - life_in_force.term_years
+    rule: Amounts and term are zero or positive.
+    action: Kept as given and listed.
+  - id: DV-LIF-10
+    dimension: coverage
+    severity: INFO
+    fields: [life_in_force.valuation_date, life_in_force.contract_id]
+    rule: >-
+      Each contract has a row at every valuation date from its first one until its exit or
+      the cut-off.
+    action: A missing valuation carries the previous row forward (CV04); gaps are listed.
+notes: >-
+  Draft for a later version (the life-feeds item). Names, identity numbers, birth dates and addresses are
+  dropped on load as everywhere (AL01 personal data); age arrives as a whole-year age or band.
+  Health contracts are not covered until the owner decides where the health segment belongs
+  (blueprint 18.2).
+requires_decision:
+  - Health segment (blueprint 18.2) is in this concept, in the non-life concepts, or in its own.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 4.4 (P20).
