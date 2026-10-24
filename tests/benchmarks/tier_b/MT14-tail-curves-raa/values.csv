@@ -1,0 +1,40 @@
+quantity,key,value,rel_tol,note
+selected_factor,12_24,2.9993586513353794,1e-09,"package, volume weighted"
+selected_factor,24_36,1.6235227537534538,1e-09,"package, volume weighted"
+selected_factor,36_48,1.2708881150356526,1e-09,"package, volume weighted"
+selected_factor,48_60,1.1716746330883747,1e-09,"package, volume weighted"
+selected_factor,60_72,1.113384886206463,1e-09,"package, volume weighted"
+selected_factor,72_84,1.0419346379110106,1e-09,"package, volume weighted"
+selected_factor,84_96,1.033263553789384,1e-09,"package, volume weighted"
+selected_factor,96_108,1.0169364810075625,1e-09,"package, volume weighted"
+selected_factor,108_120,1.0092165898617511,1e-09,"package, volume weighted"
+exponential_fit,a,0.8989261488135605,1e-06,package intercept
+exponential_fit,b,-0.6323338075042658,1e-06,package slope
+exponential_fit,r_squared_log_scale,0.982704653611705,1e-06,derived by numpy
+exponential_fit,n_points,9.0,0.0,factors above 1.00001 (package threshold)
+exponential_tail,package_100_periods,1.009435751581231,1e-06,"package TailCurve(extrap_periods=100); x = link number 1, 2, ..."
+exponential_tail,spec_stop_below_1e-4,1.009222120897068,1e-06,"derived: spec rule from a and b, 6 periods, stops when f - 1 < 1e-4"
+exponential_fitted_factor,12_24,2.3055081361001126,1e-06,derived from a and b
+exponential_fitted_factor,24_36,1.6936821183065176,1e-06,derived from a and b
+exponential_fitted_factor,36_48,1.368588190262582,1e-06,derived from a and b
+exponential_fitted_factor,48_60,1.1958494394128438,1e-06,derived from a and b
+exponential_fitted_factor,60_72,1.104064655167057,1e-06,derived from a and b
+exponential_fitted_factor,72_84,1.0552947840315763,1e-06,derived from a and b
+exponential_fitted_factor,84_96,1.02938089917456,1e-06,derived from a and b
+exponential_fitted_factor,96_108,1.0156115491076465,1e-06,derived from a and b
+exponential_fitted_factor,108_120,1.008295201045157,1e-06,derived from a and b
+inverse_power_fit,a,1.1141016173909164,1e-06,package intercept
+inverse_power_fit,b,2.3740048522115185,1e-06,spec b is minus the package slope (ln(f - 1) = a - b ln t)
+inverse_power_fit,r_squared_log_scale,0.9554465468537312,1e-06,derived by numpy
+inverse_power_fit,n_points,9.0,0.0,factors above 1.00001 (package threshold)
+inverse_power_tail,package_100_periods,1.101482118118157,1e-06,"package TailCurve(extrap_periods=100); x = link number 1, 2, ..."
+inverse_power_tail,spec_stop_below_1e-4,1.0991432818557134,1e-06,"derived: spec rule from a and b, 68 periods, stops when f - 1 < 1e-4"
+inverse_power_fitted_factor,12_24,4.046829730436837,1e-06,derived from a and b
+inverse_power_fitted_factor,24_36,1.5877620131490326,1e-06,derived from a and b
+inverse_power_fitted_factor,36_48,1.2244708809145588,1e-06,derived from a and b
+inverse_power_fitted_factor,48_60,1.1133848014708303,1e-06,derived from a and b
+inverse_power_fitted_factor,60_72,1.0667559534070095,1e-06,derived from a and b
+inverse_power_fitted_factor,72_84,1.0433025369096558,1e-06,derived from a and b
+inverse_power_fitted_factor,84_96,1.0300317982067788,1e-06,derived from a and b
+inverse_power_fitted_factor,96_108,1.021872990967383,1e-06,derived from a and b
+inverse_power_fitted_factor,108_120,1.016537575393599,1e-06,derived from a and b

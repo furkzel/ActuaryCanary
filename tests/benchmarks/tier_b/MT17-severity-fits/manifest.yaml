@@ -1,0 +1,30 @@
+produced_on: '2026-10-24'
+id: MT17-severity-fits
+spec_ids:
+- MT17
+kind: library_reference
+title: Maximum-likelihood fits of lognormal, gamma, Weibull and Pareto II to fixed samples
+source:
+  tool: scipy.stats
+  version: 1.18.1
+  numpy_version: 2.5.4
+  calls:
+  - <family>.fit(x, floc=0) for lognorm, gamma, weibull_min, lomax
+how_produced: Run tests/benchmarks/tools/freeze_scipy.py. Samples drawn with numpy default_rng(20261024),
+  500 sizes each, written to samples.csv.
+seed: 20261024
+samples_drawn_from:
+  lognormal: mu 10, sigma 1.2
+  gamma: shape 2.5, scale 4000
+  weibull: shape 1.5, scale 8000
+  pareto: alpha 3, theta 50000 (Pareto II, Lomax)
+files:
+  samples: samples.csv
+  values: values.csv
+tolerance_note: '1e-4 relative (spec MT17 benchmark: an independent optimiser of the same likelihood).'
+notes:
+- 'Parameter names: lognormal sigma is scipy''s s and exp_mu is its scale = exp(mu); Pareto is the two-parameter
+  Pareto II (Lomax) with alpha and theta.'
+- 'The closed-form lognormal rows (mean and divisor-n standard deviation of the logs) equal the fit: mu
+  = ln(exp_mu), sigma = sigma.'
+checked_by_owner: false

@@ -1,0 +1,26 @@
+quantity,key,value,rel_tol,note
+deterministic,chain_ladder_reserve,52135.228261210155,1e-09,package
+deterministic,n_cells,55.0,0.0,derived
+deterministic,n_parameters,19.0,0.0,derived: I + J - 1
+deterministic,scale_parameter_phi,983.6350270308734,1e-09,derived by numpy from the spec formulas; equals the package scale_ (checked)
+deterministic,volume_factor_12_24,2.9993586513353794,1e-09,derived
+deterministic,volume_factor_24_36,1.6235227537534538,1e-09,derived
+deterministic,volume_factor_36_48,1.2708881150356526,1e-09,derived
+deterministic,volume_factor_48_60,1.1716746330883747,1e-09,derived
+deterministic,volume_factor_60_72,1.113384886206463,1e-09,derived
+deterministic,volume_factor_72_84,1.0419346379110106,1e-09,derived
+deterministic,volume_factor_84_96,1.033263553789384,1e-09,derived
+deterministic,volume_factor_96_108,1.0169364810075625,1e-09,derived
+deterministic,volume_factor_108_120,1.0092165898617511,1e-09,derived
+deterministic,adjusted_residual_sum_of_squares,54099.926486698016,1e-09,derived
+simulation_parameter_error_only_total_reserve,mean,53173.59815321577,0.011,"package parameter draws; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.0035)"
+simulation_parameter_error_only_total_reserve,sd,15875.575350073499,0.027,"package parameter draws; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.009)"
+simulation_parameter_error_only_total_reserve,p75,62911.05694239936,0.014,"package parameter draws; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.0047)"
+simulation_parameter_error_only_total_reserve,p95,81382.02253893486,0.018,"package parameter draws; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.006)"
+simulation_parameter_error_only_total_reserve,p99.5,101123.25264348583,0.039,"package parameter draws; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.013)"
+simulation_with_process_error_total_reserve,mean,53061.792618344734,0.012,"derived: package parameter draws plus numpy gamma process error; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.0041)"
+simulation_with_process_error_total_reserve,sd,17574.752001847846,0.56,"derived: package parameter draws plus numpy gamma process error; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.19); heavy tailed: rare simulations (roughly one in 100,000) have cell means of both signs that cancel in the total but not in the process error (sign restored, spec MT11), so compare percentiles rather than this value"
+simulation_with_process_error_total_reserve,p75,63749.16419094417,0.015,"derived: package parameter draws plus numpy gamma process error; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.0051)"
+simulation_with_process_error_total_reserve,p95,84319.32979505548,0.017,"derived: package parameter draws plus numpy gamma process error; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.0057)"
+simulation_with_process_error_total_reserve,p99.5,106891.77448820586,0.037,"derived: package parameter draws plus numpy gamma process error; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.012)"
+simulation_with_process_error_total_reserve,sd_analytic,17445.266015530644,0.0,derived: sqrt(var of the parameter-only reserve + phi x its mean); compare with sd within the Monte Carlo tolerance of sd

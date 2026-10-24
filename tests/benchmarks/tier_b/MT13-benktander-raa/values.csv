@@ -1,0 +1,71 @@
+quantity,key,value,rel_tol,note
+chain_ladder_ultimate,1981,18834.0,1e-09,package; equals the spec formula (checked)
+chain_ladder_ultimate,1982,16857.95391705069,1e-09,package; equals the spec formula (checked)
+chain_ladder_ultimate,1983,24083.37092381492,1e-09,package; equals the spec formula (checked)
+chain_ladder_ultimate,1984,28703.1421634209,1e-09,package; equals the spec formula (checked)
+chain_ladder_ultimate,1985,28926.736343422213,1e-09,package; equals the spec formula (checked)
+chain_ladder_ultimate,1986,19501.103183996383,1e-09,package; equals the spec formula (checked)
+chain_ladder_ultimate,1987,17749.30259029518,1e-09,package; equals the spec formula (checked)
+chain_ladder_ultimate,1988,24019.192509507353,1e-09,package; equals the spec formula (checked)
+chain_ladder_ultimate,1989,16044.98410070215,1e-09,package; equals the spec formula (checked)
+chain_ladder_ultimate,1990,18402.44252900036,1e-09,package; equals the spec formula (checked)
+bornhuetter_ferguson_ultimate,1981,18834.0,1e-09,package; equals the spec formula (checked)
+bornhuetter_ferguson_ultimate,1982,16923.178082191782,1e-09,package; equals the spec formula (checked)
+bornhuetter_ferguson_ultimate,1983,24081.233731956785,1e-09,package; equals the spec formula (checked)
+bornhuetter_ferguson_ultimate,1984,28435.052727416853,1e-09,package; equals the spec formula (checked)
+bornhuetter_ferguson_ultimate,1985,28458.918418569658,1e-09,package; equals the spec formula (checked)
+bornhuetter_ferguson_ultimate,1986,20342.949849841552,1e-09,package; equals the spec formula (checked)
+bornhuetter_ferguson_ultimate,1987,19663.430294709677,1e-09,package; equals the spec formula (checked)
+bornhuetter_ferguson_ultimate,1988,24010.47712926073,1e-09,package; equals the spec formula (checked)
+bornhuetter_ferguson_ultimate,1989,21325.188326311036,1e-09,package; equals the spec formula (checked)
+bornhuetter_ferguson_ultimate,1990,23372.487589923232,1e-09,package; equals the spec formula (checked)
+benktander_k1_ultimate,1981,18834.0,1e-09,package; equals the spec formula (checked)
+benktander_k1_ultimate,1982,16858.549571526866,1e-09,package; equals the spec formula (checked)
+benktander_k1_ultimate,1983,24083.316137459806,1e-09,package; equals the spec formula (checked)
+benktander_k1_ultimate,1984,28687.860476582693,1e-09,package; equals the spec formula (checked)
+benktander_k1_ultimate,1985,28882.314723193733,1e-09,package; equals the spec formula (checked)
+benktander_k1_ultimate,1986,19658.63198222834,1e-09,package; equals the spec formula (checked)
+benktander_k1_ultimate,1987,18335.4587627438,1e-09,package; equals the spec formula (checked)
+benktander_k1_ultimate,1988,24015.234827328575,1e-09,package; equals the spec formula (checked)
+benktander_k1_ultimate,1989,19549.76108884102,1e-09,package; equals the spec formula (checked)
+benktander_k1_ultimate,1990,22815.322260129324,1e-09,package; equals the spec formula (checked)
+benktander_k2_ultimate,1981,18834.0,1e-09,package; equals the spec formula (checked)
+benktander_k2_ultimate,1982,16857.95935681759,1e-09,package; equals the spec formula (checked)
+benktander_k2_ultimate,1983,24083.369519381016,1e-09,package; equals the spec formula (checked)
+benktander_k2_ultimate,1984,28702.27107369763,1e-09,package; equals the spec formula (checked)
+benktander_k2_ultimate,1985,28922.518291400487,1e-09,package; equals the spec formula (checked)
+benktander_k2_ultimate,1986,19530.580431194947,1e-09,package; equals the spec formula (checked)
+benktander_k2_ultimate,1987,17928.799004096218,1e-09,package; equals the spec formula (checked)
+benktander_k2_ultimate,1988,24017.39531331109,1e-09,package; equals the spec formula (checked)
+benktander_k2_ultimate,1989,18371.307328317707,1e-09,package; equals the spec formula (checked)
+benktander_k2_ultimate,1990,22320.617773430215,1e-09,package; equals the spec formula (checked)
+reported_share_p,1981,1.0,1e-09,derived: 1 / cdf at the latest age
+reported_share_p,1982,0.9908675799086758,1e-09,derived: 1 / cdf at the latest age
+reported_share_p,1983,0.9743652611684673,1e-09,derived: 1 / cdf at the latest age
+reported_share_p,1984,0.9429978030242978,1e-09,derived: 1 / cdf at the latest age
+reported_share_p,1985,0.905045065892931,1e-09,derived: 1 / cdf at the latest age
+reported_share_p,1986,0.8128770895899353,1e-09,derived: 1 / cdf at the latest age
+reported_share_p,1987,0.6937737377204302,1e-09,derived: 1 / cdf at the latest age
+reported_share_p,1988,0.545896786280803,1e-09,derived: 1 / cdf at the latest age
+reported_share_p,1989,0.3362421530703734,1e-09,derived: 1 / cdf at the latest age
+reported_share_p,1990,0.11210468375319874,1e-09,derived: 1 / cdf at the latest age
+mack_credibility_weight_Z,1981,0.5,1e-09,derived: p / (p + sqrt p)
+mack_credibility_weight_Z,1982,0.49885320497642743,1e-09,derived: p / (p + sqrt p)
+mack_credibility_weight_Z,1983,0.4967539163351923,1e-09,derived: p / (p + sqrt p)
+mack_credibility_weight_Z,1984,0.4926641106796511,1e-09,derived: p / (p + sqrt p)
+mack_credibility_weight_Z,1985,0.48753126814335357,1e-09,derived: p / (p + sqrt p)
+mack_credibility_weight_Z,1986,0.4741262119487227,1e-09,derived: p / (p + sqrt p)
+mack_credibility_weight_Z,1987,0.4544256698579223,1e-09,derived: p / (p + sqrt p)
+mack_credibility_weight_Z,1988,0.4249066986511818,1e-09,derived: p / (p + sqrt p)
+mack_credibility_weight_Z,1989,0.36703408803538,1e-09,derived: p / (p + sqrt p)
+mack_credibility_weight_Z,1990,0.25083552928709896,1e-09,derived: p / (p + sqrt p)
+mack_credibility_ultimate,1981,18834.0,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
+mack_credibility_ultimate,1982,16890.640798369237,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
+mack_credibility_ultimate,1983,24082.29539038227,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
+mack_credibility_ultimate,1984,28567.130770988395,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
+mack_credibility_ultimate,1985,28686.994284733213,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
+mack_credibility_ultimate,1986,19943.80827912272,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
+mack_credibility_ultimate,1987,18793.60153043751,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
+mack_credibility_ultimate,1988,24014.180352708812,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
+mack_credibility_ultimate,1989,19387.17338372412,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
+mack_credibility_ultimate,1990,22125.82370648591,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson

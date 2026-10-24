@@ -1,0 +1,29 @@
+quantity,key,value,rel_tol,note
+error_chain_ladder_h12,2021,-0.02,1e-12,(estimate - 1000) / 1000
+error_chain_ladder_h12,2022,0.02727272727272727,1e-12,(estimate - 1100) / 1100
+error_chain_ladder_h12,2023,-0.041666666666666664,1e-12,(estimate - 1200) / 1200
+error_chain_ladder_h12,2024,0.07692307692307693,1e-12,(estimate - 1300) / 1300
+bias_chain_ladder_h12,all,0.013043478260869565,1e-12,"sum of w e / sum of w, w = reference ultimate"
+mae_chain_ladder_h12,all,0.043478260869565216,1e-12,sum of w |e| / sum of w
+rmse_chain_ladder_h12,all,0.04888723235966191,1e-12,SQRT(sum of w e^2 / sum of w) (float)
+error_chain_ladder_h24,2021,-0.05,1e-12,(estimate - 1000) / 1000
+error_chain_ladder_h24,2022,-0.045454545454545456,1e-12,(estimate - 1100) / 1100
+error_chain_ladder_h24,2023,0.08333333333333333,1e-12,(estimate - 1200) / 1200
+error_chain_ladder_h24,2024,-0.07692307692307693,1e-12,(estimate - 1300) / 1300
+bias_chain_ladder_h24,all,-0.021739130434782608,1e-12,"sum of w e / sum of w, w = reference ultimate"
+mae_chain_ladder_h24,all,0.06521739130434782,1e-12,sum of w |e| / sum of w
+rmse_chain_ladder_h24,all,0.06724124041604795,1e-12,SQRT(sum of w e^2 / sum of w) (float)
+error_bornhuetter_ferguson_h12,2021,0.0,1e-12,(estimate - 1000) / 1000
+error_bornhuetter_ferguson_h12,2022,-0.00909090909090909,1e-12,(estimate - 1100) / 1100
+error_bornhuetter_ferguson_h12,2023,0.025,1e-12,(estimate - 1200) / 1200
+error_bornhuetter_ferguson_h12,2024,-0.015384615384615385,1e-12,(estimate - 1300) / 1300
+bias_bornhuetter_ferguson_h12,all,0.0,1e-12,"sum of w e / sum of w, w = reference ultimate"
+mae_bornhuetter_ferguson_h12,all,0.013043478260869565,1e-12,sum of w |e| / sum of w
+rmse_bornhuetter_ferguson_h12,all,0.015801770667165604,1e-12,SQRT(sum of w e^2 / sum of w) (float)
+error_bornhuetter_ferguson_h24,2021,0.01,1e-12,(estimate - 1000) / 1000
+error_bornhuetter_ferguson_h24,2022,0.01818181818181818,1e-12,(estimate - 1100) / 1100
+error_bornhuetter_ferguson_h24,2023,-0.008333333333333333,1e-12,(estimate - 1200) / 1200
+error_bornhuetter_ferguson_h24,2024,0.007692307692307693,1e-12,(estimate - 1300) / 1300
+bias_bornhuetter_ferguson_h24,all,0.006521739130434782,1e-12,"sum of w e / sum of w, w = reference ultimate"
+mae_bornhuetter_ferguson_h24,all,0.010869565217391304,1e-12,sum of w |e| / sum of w
+rmse_bornhuetter_ferguson_h24,all,0.011645980589445161,1e-12,SQRT(sum of w e^2 / sum of w) (float)

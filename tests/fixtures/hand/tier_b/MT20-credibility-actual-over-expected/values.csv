@@ -1,0 +1,39 @@
+quantity,key,value,rel_tol,note
+limited_fluctuation,z_for_probability,1.6448536269514722,1e-12,NORM.S.INV((1 + 0.9) / 2) (float)
+limited_fluctuation,full_credibility_deaths_nF,1082.2173816381653,1e-12,(z / 0.05)^2 (float)
+expected_deaths,age_30_39,10.5,1e-12,exposure 5000 x rate 0.0021
+actual_over_expected,age_30_39,1.1428571428571428,1e-12,A 12 / E 10.5
+garwood_lower,age_30_39,0.5905309627354495,1e-09,"CHISQ.INV(0.025, 2A) / (2E) (float)"
+garwood_upper,age_30_39,1.9963414331597105,1e-09,"CHISQ.INV(0.975, 2A + 2) / (2E) (float)"
+credibility_Z,age_30_39,0.1053012121679796,1e-12,"MIN(1, SQRT(A / nF)) (float)"
+credibility_weighted_ae,age_30_39,1.0150430303097113,1e-12,Z x A/E + (1 - Z) x 1 (float)
+expected_deaths,age_40_49,90.0,1e-12,exposure 30000 x rate 0.003
+actual_over_expected,age_40_49,0.9444444444444444,1e-12,A 85 / E 90
+garwood_lower,age_40_49,0.7543886778310499,1e-09,"CHISQ.INV(0.025, 2A) / (2E) (float)"
+garwood_upper,age_40_49,1.1678201813210995,1e-09,"CHISQ.INV(0.975, 2A + 2) / (2E) (float)"
+credibility_Z,age_40_49,0.2802542519962747,1e-12,"MIN(1, SQRT(A / nF)) (float)"
+credibility_weighted_ae,age_40_49,0.9844303193335402,1e-12,Z x A/E + (1 - Z) x 1 (float)
+expected_deaths,age_50_59,280.0,1e-12,exposure 40000 x rate 0.007
+actual_over_expected,age_50_59,1.1071428571428572,1e-12,A 310 / E 280
+garwood_lower,age_50_59,0.9873141662048703,1e-09,"CHISQ.INV(0.025, 2A) / (2E) (float)"
+garwood_upper,age_50_59,1.2375054653515007,1e-09,"CHISQ.INV(0.975, 2A + 2) / (2E) (float)"
+credibility_Z,age_50_59,0.5352092299632464,1e-12,"MIN(1, SQRT(A / nF)) (float)"
+credibility_weighted_ae,age_50_59,1.0573438460674907,1e-12,Z x A/E + (1 - Z) x 1 (float)
+expected_deaths,age_60_69,700.0,1e-12,exposure 50000 x rate 0.014
+actual_over_expected,age_60_69,0.9142857142857143,1e-12,A 640 / E 700
+garwood_lower,age_60_69,0.8448146273591833,1e-09,"CHISQ.INV(0.025, 2A) / (2E) (float)"
+garwood_upper,age_60_69,0.9879465447627002,1e-09,"CHISQ.INV(0.975, 2A + 2) / (2E) (float)"
+credibility_Z,age_60_69,0.7690113231605319,1e-12,"MIN(1, SQRT(A / nF)) (float)"
+credibility_weighted_ae,age_60_69,0.9340847437290972,1e-12,Z x A/E + (1 - Z) x 1 (float)
+expected_deaths,age_70_79,1100.0,1e-12,exposure 55000 x rate 0.02
+actual_over_expected,age_70_79,1.0818181818181818,1e-12,A 1190 / E 1100
+garwood_lower,age_70_79,1.0212185672795868,1e-09,"CHISQ.INV(0.025, 2A) / (2E) (float)"
+garwood_upper,age_70_79,1.1450747016534275,1e-09,"CHISQ.INV(0.975, 2A + 2) / (2E) (float)"
+credibility_Z,age_70_79,1.0,1e-12,"MIN(1, SQRT(A / nF)) (float)"
+credibility_weighted_ae,age_70_79,1.0818181818181818,1e-12,Z x A/E + (1 - Z) x 1 (float)
+total,actual_deaths,2237.0,1e-12,sum
+total,expected_deaths,2180.5,1e-12,sum
+total,actual_over_expected,1.025911488190782,1e-12,A / E
+total,garwood_lower,0.9838341985932463,1e-09,float
+total,garwood_upper,1.0693256102923179,1e-09,float
+total,credibility_Z,1.0,1e-12,float

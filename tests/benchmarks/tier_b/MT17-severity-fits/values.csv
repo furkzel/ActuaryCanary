@@ -1,0 +1,72 @@
+quantity,key,value,rel_tol,note
+closed_form_lognormal,mu,9.916305250680223,1e-12,mean of ln x
+closed_form_lognormal,sigma,1.1838045994006225,1e-12,"standard deviation of ln x, divisor n"
+sample_mean_gamma,mean,10032.600979148272,1e-12,mean of the gamma sample: the scale of an exponential fit (gamma with shape 1 fixed)
+mle_sigma,lognormal_sample/lognormal,1.1838045994006225,0.0001,"scipy fit, floc=0"
+mle_exp_mu,lognormal_sample/lognormal,20258.003938833826,0.0001,"scipy fit, floc=0"
+loglik,lognormal_sample/lognormal,-5751.988636218519,0.0001,sum of logpdf at the fit
+aic,lognormal_sample/lognormal,11507.977272437038,0.0001,2 x 2 - 2 loglik
+mle_shape,lognormal_sample/gamma,0.8520126008787621,0.0001,"scipy fit, floc=0"
+mle_scale,lognormal_sample/gamma,47446.85571476123,0.0001,"scipy fit, floc=0"
+loglik,lognormal_sample/gamma,-5799.154988387606,0.0001,sum of logpdf at the fit
+aic,lognormal_sample/gamma,11602.309976775212,0.0001,2 x 2 - 2 loglik
+mle_shape,lognormal_sample/weibull,0.8520477161929039,0.0001,"scipy fit, floc=0"
+mle_scale,lognormal_sample/weibull,36540.97017289611,0.0001,"scipy fit, floc=0"
+loglik,lognormal_sample/weibull,-5789.513705916348,0.0001,sum of logpdf at the fit
+aic,lognormal_sample/weibull,11583.027411832696,0.0001,2 x 2 - 2 loglik
+mle_alpha,lognormal_sample/pareto,3.1542927785569903,0.0001,"scipy fit, floc=0"
+mle_theta,lognormal_sample/pareto,86242.0852056184,0.0001,"scipy fit, floc=0"
+loglik,lognormal_sample/pareto,-5766.588784315221,0.0001,sum of logpdf at the fit
+aic,lognormal_sample/pareto,11537.177568630443,0.0001,2 x 2 - 2 loglik
+lowest_aic_family,lognormal_sample,0.0,0.0,"index in lognormal, gamma, weibull, pareto = lognormal"
+mle_sigma,gamma_sample/lognormal,0.7044157769861614,0.0001,"scipy fit, floc=0"
+mle_exp_mu,gamma_sample/lognormal,8081.614162244788,0.0001,"scipy fit, floc=0"
+loglik,gamma_sample/lognormal,-5032.949466238886,0.0001,sum of logpdf at the fit
+aic,gamma_sample/lognormal,10069.898932477772,0.0001,2 x 2 - 2 loglik
+mle_shape,gamma_sample/gamma,2.4660287621426664,0.0001,"scipy fit, floc=0"
+mle_scale,gamma_sample/gamma,4068.3227759400556,0.0001,"scipy fit, floc=0"
+loglik,gamma_sample/gamma,-5015.935226165301,0.0001,sum of logpdf at the fit
+aic,gamma_sample/gamma,10035.870452330602,0.0001,2 x 2 - 2 loglik
+mle_shape,gamma_sample/weibull,1.649924323700996,0.0001,"scipy fit, floc=0"
+mle_scale,gamma_sample/weibull,11260.68289984946,0.0001,"scipy fit, floc=0"
+loglik,gamma_sample/weibull,-5021.969851826047,0.0001,sum of logpdf at the fit
+aic,gamma_sample/weibull,10047.939703652093,0.0001,2 x 2 - 2 loglik
+mle_alpha,gamma_sample/pareto,34288641240138.406,0.0001,"scipy fit, floc=0"
+mle_theta,gamma_sample/pareto,3.4400426098791194e+17,0.0001,"scipy fit, floc=0"
+loglik,gamma_sample/pareto,-5106.797583646672,0.0001,sum of logpdf at the fit
+aic,gamma_sample/pareto,10217.595167293344,0.0001,2 x 2 - 2 loglik
+lowest_aic_family,gamma_sample,1.0,0.0,"index in lognormal, gamma, weibull, pareto = gamma"
+mle_sigma,weibull_sample/lognormal,0.8619906196470862,0.0001,"scipy fit, floc=0"
+mle_exp_mu,weibull_sample/lognormal,5484.568928821768,0.0001,"scipy fit, floc=0"
+loglik,weibull_sample/lognormal,-4940.0607107256255,0.0001,sum of logpdf at the fit
+aic,weibull_sample/lognormal,9884.121421451251,0.0001,2 x 2 - 2 loglik
+mle_shape,weibull_sample/gamma,1.908341421171511,0.0001,"scipy fit, floc=0"
+mle_scale,weibull_sample/gamma,3819.1640407562736,0.0001,"scipy fit, floc=0"
+loglik,weibull_sample/gamma,-4895.701947353085,0.0001,sum of logpdf at the fit
+aic,weibull_sample/gamma,9795.40389470617,0.0001,2 x 2 - 2 loglik
+mle_shape,weibull_sample/weibull,1.5067101872526578,0.0001,"scipy fit, floc=0"
+mle_scale,weibull_sample/weibull,8072.644917817648,0.0001,"scipy fit, floc=0"
+loglik,weibull_sample/weibull,-4891.086492762714,0.0001,sum of logpdf at the fit
+aic,weibull_sample/weibull,9786.172985525429,0.0001,2 x 2 - 2 loglik
+mle_alpha,weibull_sample/pareto,21463527136029.4,0.0001,"scipy fit, floc=0"
+mle_theta,weibull_sample/pareto,1.5643195065638317e+17,0.0001,"scipy fit, floc=0"
+loglik,weibull_sample/pareto,-4947.010669542772,0.0001,sum of logpdf at the fit
+aic,weibull_sample/pareto,9898.021339085544,0.0001,2 x 2 - 2 loglik
+lowest_aic_family,weibull_sample,2.0,0.0,"index in lognormal, gamma, weibull, pareto = weibull"
+mle_sigma,pareto_sample/lognormal,1.373049430692752,0.0001,"scipy fit, floc=0"
+mle_exp_mu,pareto_sample/lognormal,11487.526408511683,0.0001,"scipy fit, floc=0"
+loglik,pareto_sample/lognormal,-5542.494863428042,0.0001,sum of logpdf at the fit
+aic,pareto_sample/lognormal,11088.989726856084,0.0001,2 x 2 - 2 loglik
+mle_shape,pareto_sample/gamma,0.770040612509177,0.0001,"scipy fit, floc=0"
+mle_scale,pareto_sample/gamma,32369.63657139522,0.0001,"scipy fit, floc=0"
+loglik,pareto_sample/gamma,-5549.405658136263,0.0001,sum of logpdf at the fit
+aic,pareto_sample/gamma,11102.811316272526,0.0001,2 x 2 - 2 loglik
+mle_shape,pareto_sample/weibull,0.8199424002390572,0.0001,"scipy fit, floc=0"
+mle_scale,pareto_sample/weibull,22065.01711386144,0.0001,"scipy fit, floc=0"
+loglik,pareto_sample/weibull,-5541.370283242862,0.0001,sum of logpdf at the fit
+aic,pareto_sample/weibull,11086.740566485723,0.0001,2 x 2 - 2 loglik
+mle_alpha,pareto_sample/pareto,3.1628671653882474,0.0001,"scipy fit, floc=0"
+mle_theta,pareto_sample/pareto,54003.83467243135,0.0001,"scipy fit, floc=0"
+loglik,pareto_sample/pareto,-5530.750074710531,0.0001,sum of logpdf at the fit
+aic,pareto_sample/pareto,11065.500149421063,0.0001,2 x 2 - 2 loglik
+lowest_aic_family,pareto_sample,3.0,0.0,"index in lognormal, gamma, weibull, pareto = pareto"

@@ -1,0 +1,14 @@
+produced_on: '2026-10-24'
+id: MT18-gpd-closed-forms
+spec_ids:
+- MT18
+kind: hand_worked
+title: Generalised Pareto quantile, return level and expected shortfall for given parameters
+source:
+  tool: plain Python floats
+how_produced: Run tests/benchmarks/tools/build_hand_fixtures.py. n = 2000 claims, N_u = 100 above u =
+  100, h = 10 years, sigma = 50, xi = 0.25 and xi = 0 (the exponential limit).
+files:
+  values: values.csv
+tolerance_note: 1e-12 relative.
+checked_by_owner: false

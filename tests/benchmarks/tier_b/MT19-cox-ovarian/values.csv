@@ -1,0 +1,36 @@
+quantity,key,value,rel_tol,note
+data,n,26,0,rows
+data,events,12,0,rows with event = 1
+data,tied_event_times,0,0,event times shared with another event
+efron_coef,age,0.12481307879516082,1e-05,coxph coef
+efron_se,age,0.046890363007897992,1e-05,coxph se(coef)
+efron_z,age,2.6618066226985255,1e-05,Wald z
+efron_coef,resid.ds,0.82618644082439363,1e-05,coxph coef
+efron_se,resid.ds,0.78961106084523836,1e-05,coxph se(coef)
+efron_z,resid.ds,1.0463207543470874,1e-05,Wald z
+efron_coef,rx,-0.91449991955531584,1e-05,coxph coef
+efron_se,rx,0.65331563066560272,1e-05,coxph se(coef)
+efron_z,rx,-1.3997827032297034,1e-05,Wald z
+efron_coef,ecog.ps,0.33621168622608155,1e-05,coxph coef
+efron_se,ecog.ps,0.64392306273131894,1e-05,coxph se(coef)
+efron_z,ecog.ps,0.52213021350715005,1e-05,Wald z
+efron_loglik,null,-34.984940371162558,1e-05,partial log-likelihood at beta = 0
+efron_loglik,fit,-26.463293516710806,1e-05,partial log-likelihood at the estimate
+efron_lr_test,statistic,17.043293708903505,1e-05,2 x (fit - null)
+efron_wald_test,statistic,14.25,1e-05,overall Wald
+breslow_coef,age,0.12481307879516082,1e-05,coxph coef
+breslow_se,age,0.046890363007897992,1e-05,coxph se(coef)
+breslow_z,age,2.6618066226985255,1e-05,Wald z
+breslow_coef,resid.ds,0.82618644082439363,1e-05,coxph coef
+breslow_se,resid.ds,0.78961106084523836,1e-05,coxph se(coef)
+breslow_z,resid.ds,1.0463207543470874,1e-05,Wald z
+breslow_coef,rx,-0.91449991955531584,1e-05,coxph coef
+breslow_se,rx,0.65331563066560272,1e-05,coxph se(coef)
+breslow_z,rx,-1.3997827032297034,1e-05,Wald z
+breslow_coef,ecog.ps,0.33621168622608155,1e-05,coxph coef
+breslow_se,ecog.ps,0.64392306273131894,1e-05,coxph se(coef)
+breslow_z,ecog.ps,0.52213021350715005,1e-05,Wald z
+breslow_loglik,null,-34.984940371162558,1e-05,partial log-likelihood at beta = 0
+breslow_loglik,fit,-26.463293516710806,1e-05,partial log-likelihood at the estimate
+breslow_lr_test,statistic,17.043293708903505,1e-05,2 x (fit - null)
+breslow_wald_test,statistic,14.25,1e-05,overall Wald

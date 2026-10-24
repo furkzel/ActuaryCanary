@@ -1,0 +1,10 @@
+quantity,key,value,rel_tol,note
+lognormal_sample,threshold_u,67372.0386739299,1e-12,"np.quantile(sample, 0.90), linear"
+lognormal_sample,exceedances,300.0,0.0,sizes above u
+lognormal_sample,xi,0.29036850183359475,0.0001,"scipy genpareto.fit(excess, floc=0), shape c"
+lognormal_sample,sigma,63678.44624178672,0.0001,scipy scale
+lognormal_sample,loglik,-3705.5909730786616,0.0001,at the fit
+gpd_sample,threshold_u,100000.0,0.0,"stated threshold; the 400 excesses are drawn from xi 0.3, sigma 20000"
+gpd_sample,xi,0.24072209642863393,0.0001,"scipy genpareto.fit(excess, floc=0)"
+gpd_sample,sigma,22317.974987827067,0.0001,scipy scale
+gpd_sample,loglik,-4501.547902480479,0.0001,at the fit

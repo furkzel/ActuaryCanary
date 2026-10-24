@@ -1,0 +1,16 @@
+produced_on: '2026-10-24'
+id: MT19-kaplan-meier-ten-times
+spec_ids:
+- MT19
+kind: hand_worked
+title: Kaplan-Meier with censoring and ties, Greenwood variance and log-log interval
+source:
+  tool: exact fractions in Python; agrees with R survival survfit (tests/benchmarks/tools/check_km_hand_fixture.R)
+how_produced: Run tests/benchmarks/tools/build_hand_fixtures.py. Ten observations, event 1 / censored
+  0; two tied events at time 3, a tied event and censoring at time 5 (the censored observation stays in
+  the risk set at 5).
+files:
+  times: times.csv
+  values: values.csv
+tolerance_note: 1e-12 relative for exact rows; 1e-9 for the interval.
+checked_by_owner: false

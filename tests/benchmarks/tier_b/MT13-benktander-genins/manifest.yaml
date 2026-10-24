@@ -1,0 +1,32 @@
+produced_on: '2026-10-24'
+id: MT13-benktander-genins
+spec_ids:
+- MT13
+kind: library_reference
+title: Benktander and Mack credibility blend on genins with a constant prior
+source:
+  tool: chainladder
+  version: 0.10.1
+  data: chainladder.load_sample('genins')
+  calls:
+  - tri = chainladder.load_sample('genins')
+  - dev = chainladder.Development(average='volume').fit_transform(tri)
+  - premium = tri.latest_diagonal * 0 + 6e+06
+  - chainladder.Benktander(apriori=0.75, n_iters=2).fit(dev, sample_weight=premium)
+  - chainladder.BornhuetterFerguson(apriori=0.75).fit(dev, sample_weight=premium)
+how_produced: Run tests/benchmarks/tools/freeze_chainladder.py. Package ultimates (checked against the
+  spec formulas); the Mack credibility rows are derived by the script.
+prior:
+  earned_premium_each_origin: 6000000.0
+  prior_loss_ratio: 0.75
+files:
+  triangle: triangle.csv
+  premium: premium.csv
+  values: values.csv
+tolerance_note: 1e-9 relative (spec MT13 benchmark). Tail factor 1.0.
+notes:
+- The package counts n_iters = 1 as Bornhuetter-Ferguson; the spec's k is n_iters - 1 (k = 1 is the classical
+  Benktander, package n_iters = 2).
+- The samples carry no premium; premium and prior loss ratio are chosen for the test and are not market
+  figures.
+checked_by_owner: false

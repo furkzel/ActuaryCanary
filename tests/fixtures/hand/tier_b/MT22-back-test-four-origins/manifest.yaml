@@ -1,0 +1,19 @@
+produced_on: '2026-10-24'
+id: MT22-back-test-four-origins
+spec_ids:
+- MT22
+- AE02
+kind: hand_worked
+title: Back-test errors, bias, mean absolute error and root mean square error
+source:
+  tool: exact fractions in Python
+how_produced: Run tests/benchmarks/tools/build_hand_fixtures.py. Four origins, two methods at two horizons;
+  the reference is today's selected ultimate (given). Weights are the reference ultimates.
+files:
+  estimates: estimates.csv
+  reference: reference.csv
+  values: values.csv
+tolerance_note: 1e-12 relative.
+notes:
+- RMSE is taken as SQRT(sum of w e^2 / sum of w); the spec names RMSE without a formula (decision 0275).
+checked_by_owner: false

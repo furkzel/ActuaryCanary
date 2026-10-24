@@ -63,3 +63,71 @@ def load_hand() -> dict[str, Any]:
         "premium": load_premium(HAND_DIR / "premium.csv"),
         "expected": load_expected(HAND_DIR / "expected.yaml"),
     }
+
+
+# --- tier B references (decisions 0270-0279) -------------------------------------------
+
+TIER_B_DIR = BENCHMARK_DIR / "tier_b"
+HAND_TIER_B_DIR = HAND_DIR / "tier_b"
+
+
+class RefValue(TypedDict):
+    value: float
+    rel_tol: float
+    note: str
+
+
+def tier_b_folders() -> list[Path]:
+    """Every folder with a manifest.yaml: library and external references, then hand fixtures."""
+    found = [
+        p.parent for root in (TIER_B_DIR, HAND_TIER_B_DIR) for p in root.glob("*/manifest.yaml")
+    ]
+    return sorted(found, key=lambda p: (p.parent.name, p.name))
+
+
+def tier_b_names() -> list[str]:
+    return [folder.name for folder in tier_b_folders()]
+
+
+def tier_b_folder(name: str) -> Path:
+    for folder in tier_b_folders():
+        if folder.name == name:
+            return folder
+    raise KeyError(name)
+
+
+def load_values(folder: Path) -> dict[tuple[str, str], RefValue]:
+    """values.csv as {(quantity, key): {value, rel_tol, note}}; keys stay text (origins, ages)."""
+    table: dict[tuple[str, str], RefValue] = {}
+    with (folder / "values.csv").open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            key = (row["quantity"], row["key"])
+            if key in table:
+                raise ValueError(f"{folder.name}: duplicate row {key}")
+            table[key] = {
+                "value": float(row["value"]),
+                "rel_tol": float(row["rel_tol"]),
+                "note": row["note"],
+            }
+    return table
+
+
+def load_reference(name: str) -> dict[str, Any]:
+    """Manifest, values and folder of one tier B reference (plain dicts, no external package)."""
+    folder = tier_b_folder(name)
+    return {
+        "folder": folder,
+        "manifest": load_expected(folder / "manifest.yaml"),
+        "values": load_values(folder),
+    }
+
+
+def reference_series(values: dict[tuple[str, str], RefValue], quantity: str) -> dict[str, float]:
+    """The rows of one quantity as {key: value}, in file order."""
+    return {key: row["value"] for (q, key), row in values.items() if q == quantity}
+
+
+def load_table(path: Path) -> list[dict[str, str]]:
+    """A small input CSV (header row, text cells) as a list of dicts."""
+    with path.open(newline="", encoding="utf-8") as handle:
+        return list(csv.DictReader(handle))

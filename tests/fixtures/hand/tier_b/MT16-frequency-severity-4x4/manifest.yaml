@@ -1,0 +1,21 @@
+produced_on: '2026-10-24'
+id: MT16-frequency-severity-4x4
+spec_ids:
+- MT16
+kind: hand_worked
+title: Frequency x severity projection on four origins
+source:
+  tool: exact fractions and numpy least squares in Python
+how_produced: Run tests/benchmarks/tools/build_hand_fixtures.py. Counts and incurred developed by the
+  volume-weighted chain ladder (tail 1.0), log-linear trends by ordinary least squares on t = 0..3. maturity_for_trend
+  0.9, min_trend_origins 3, no catastrophe claims, nominal amounts (no inflation basis).
+files:
+  reported_counts: reported_counts.csv
+  incurred: incurred.csv
+  exposure: exposure.csv
+  values: values.csv
+tolerance_note: 1e-12 relative for the rational rows, 1e-9 for rows with logarithms.
+notes:
+- Maturity p of an origin is taken from the incurred chain ladder (the severity measure); the spec says
+  p_i >= 0.9 without naming the pattern - recorded in decision 0277.
+checked_by_owner: false
