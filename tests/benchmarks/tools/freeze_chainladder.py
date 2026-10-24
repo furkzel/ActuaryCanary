@@ -21,7 +21,7 @@ SCRIPT = "tests/benchmarks/tools/freeze_chainladder.py"
 N_SIMS = 10_000
 SEED = 42
 N_SEEDS_FOR_TOLERANCE = 30
-PERCENTILES = (75.0, 95.0, 99.5)
+PERCENTILES = (50.0, 75.0, 95.0, 99.5)
 
 
 def triangle_rows(tri) -> tuple[list[int], list[int], list[list[float | None]]]:
@@ -115,19 +115,11 @@ def freeze_munich() -> None:
     assert math.isclose(cut_i, float(munich.lambda_["incurred"]), rel_tol=1e-9)
     rows += [
         (
-            "lambda_all_links",
-            "paid",
-            all_p,
-            1e-9,
-            "derived by numpy from the spec text: every link with both residuals",
-        ),
-        ("lambda_all_links", "incurred", all_i, 1e-9, "derived, as above"),
-        (
             "lambda_without_last_link",
             "paid",
             cut_p,
             1e-9,
-            "derived: the last link (one origin, extrapolated variance parameters) left out; equals the package",
+            "derived by numpy: the last link (one origin, extrapolated variance parameters) left out; equals the package",
         ),
         ("lambda_without_last_link", "incurred", cut_i, 1e-9, "derived, as above"),
     ]
@@ -162,12 +154,25 @@ def freeze_munich() -> None:
             "how_produced": f"Run {SCRIPT}; values.csv holds the package output unchanged.",
             "files": {"paid": "paid.csv", "incurred": "incurred.csv", "values": "values.csv"},
             "tolerance_note": "1e-6 relative (spec MT12 benchmark).",
+            "information": [
+                {
+                    "quantity": "lambda_all_links",
+                    "key": "paid",
+                    "value": all_p,
+                    "note": "dropped variant (decision 0607): every link with both residuals; derived by numpy",
+                },
+                {
+                    "quantity": "lambda_all_links",
+                    "key": "incurred",
+                    "value": all_i,
+                    "note": "dropped variant (decision 0607), as above",
+                },
+            ],
             "notes": [
                 "Seven accident years, seven ages (12 to 84 months); tail factor 1.0.",
-                "The package leaves the last link (one origin, extrapolated variance parameters) out of "
-                "the lambda regressions; the spec text says every link with both residuals. The lambdas "
-                "differ (paid 0.6360 against 0.6130, incurred 0.4362 against 0.4208). The ultimates "
-                "follow the package. Decision 0274.",
+                "The lambda regressions leave the last link (one origin, extrapolated variance "
+                "parameters) out, as the package does (decisions 0274 and 0607). The lambdas with every "
+                "link (paid 0.6130, incurred 0.4208) are information only, see `information`.",
                 "Published figures of Quarg and Mack (2004) were not opened: UNVERIFIED.",
             ],
         },
@@ -386,6 +391,10 @@ def freeze_odp(name: str) -> None:
                 "The package samples parameter error only, uses hat_adj=False (the degrees-of-freedom "
                 "adjustment sqrt(n/(n-p)) of the spec) and centres the pool of residuals; the spec "
                 "does not centre. Its residual pool differs slightly from residuals.csv.",
+                "Acceptance statistics are the median (p50), p75 and p95 of the total reserve; the "
+                "standard deviation is reported and compared only with its wide Monte Carlo tolerance, "
+                "it is not a pass criterion on its own (decision 0609). Process error is gamma with "
+                "shape |m| / phi and scale phi, sign kept, as in the spec.",
                 "Published scale parameter of GenIns (England and Verrall) not opened: UNVERIFIED.",
             ],
         },
@@ -545,6 +554,7 @@ def freeze_tail(name: str) -> None:
     ldf = [float(v) for v in dev.ldf_.to_frame().iloc[0].to_numpy()]
     n_links = len(ldf)
     out: list[tuple] = []
+    information: list[dict] = []
     for j, f in enumerate(ldf):
         out.append(
             ("selected_factor", f"{ages[j]}_{ages[j + 1]}", f, 1e-9, "package, volume weighted")
@@ -565,6 +575,15 @@ def freeze_tail(name: str) -> None:
         r2 = 1.0 - float(np.sum((y - (a_chk + s_chk * design)) ** 2) / np.sum((y - y.mean()) ** 2))
         spec_value, steps = spec_tail(intercept, slope, curve, first_t=n_links + 1)
         spec_b = slope if curve == "exponential" else -slope
+        information.append(
+            {
+                "quantity": f"{curve}_tail",
+                "key": "stop_below_1e-4",
+                "value": spec_value,
+                "note": f"dropped variant (decision 0608): extension stops when f - 1 < 1e-4, "
+                f"{steps} periods; derived from a and b",
+            }
+        )
         note_b = (
             "package slope"
             if curve == "exponential"
@@ -586,14 +605,7 @@ def freeze_tail(name: str) -> None:
                 "package_100_periods",
                 tail,
                 1e-6,
-                "package TailCurve(extrap_periods=100); x = link number 1, 2, ...",
-            ),
-            (
-                f"{curve}_tail",
-                "spec_stop_below_1e-4",
-                spec_value,
-                1e-6,
-                f"derived: spec rule from a and b, {steps} periods, stops when f - 1 < 1e-4",
+                "package TailCurve(extrap_periods=100); x = link number 1, 2, ...; 100 periods is the spec default (decision 0608)",
             ),
         ]
         for j in range(n_links):
@@ -628,11 +640,13 @@ def freeze_tail(name: str) -> None:
             "how_produced": f"Run {SCRIPT}; the fit rows are checked against a numpy straight-line fit.",
             "files": {"triangle": "triangle.csv", "values": "values.csv"},
             "tolerance_note": "1e-6 relative (spec MT14 benchmark).",
+            "information": information,
             "notes": [
                 "x is the link number (1 for 12-24 months, annual grain), which is the age at the start "
                 "of the link in years (spec MT14, CV04).",
-                "The package multiplies 100 extension periods; the spec stops when f - 1 falls below "
-                "1e-4. Both tails are frozen; for the inverse power curve they differ (decision 0276).",
+                "The extension runs to a fixed number of development periods, default 100, as in the "
+                "package (decisions 0276 and 0608). The tail with the old stopping rule (f - 1 below "
+                "1e-4) is information only, see `information`.",
             ],
         },
     )

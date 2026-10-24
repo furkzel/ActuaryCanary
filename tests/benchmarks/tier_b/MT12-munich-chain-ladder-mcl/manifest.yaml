@@ -19,10 +19,19 @@ files:
   incurred: incurred.csv
   values: values.csv
 tolerance_note: 1e-6 relative (spec MT12 benchmark).
+information:
+- quantity: lambda_all_links
+  key: paid
+  value: 0.6129837617419834
+  note: 'dropped variant (decision 0607): every link with both residuals; derived by numpy'
+- quantity: lambda_all_links
+  key: incurred
+  value: 0.42079527712292153
+  note: dropped variant (decision 0607), as above
 notes:
 - Seven accident years, seven ages (12 to 84 months); tail factor 1.0.
-- The package leaves the last link (one origin, extrapolated variance parameters) out of the lambda regressions;
-  the spec text says every link with both residuals. The lambdas differ (paid 0.6360 against 0.6130, incurred
-  0.4362 against 0.4208). The ultimates follow the package. Decision 0274.
+- The lambda regressions leave the last link (one origin, extrapolated variance parameters) out, as the
+  package does (decisions 0274 and 0607). The lambdas with every link (paid 0.6130, incurred 0.4208) are
+  information only, see `information`.
 - 'Published figures of Quarg and Mack (2004) were not opened: UNVERIFIED.'
 checked_by_owner: false

@@ -29,6 +29,12 @@ def _ref(name: str):
     return ref["folder"], ref["values"]
 
 
+def _information(name: str) -> dict[tuple[str, str], float]:
+    """Variants the specs dropped, kept in the manifest as information (decisions 0607, 0608)."""
+    rows = load_reference(name)["manifest"].get("information", [])
+    return {(r["quantity"], str(r["key"])): r["value"] for r in rows}
+
+
 def _value(values, quantity: str, key) -> float:
     return values[(quantity, str(key))]["value"]
 
@@ -113,6 +119,7 @@ def test_mt11_simulation_summaries_are_consistent(name: str) -> None:
         q = f"simulation_{kind}_total_reserve"
         # spec benchmark: simulated mean within 2 per cent of the chain-ladder reserve
         assert _value(values, q, "mean") == pytest.approx(reserve, rel=0.02)
+        assert _value(values, q, "p50") < _value(values, q, "p75")
         assert _value(values, q, "p75") < _value(values, q, "p95") < _value(values, q, "p99.5")
     q_param = "simulation_parameter_error_only_total_reserve"
     q_full = "simulation_with_process_error_total_reserve"
@@ -157,9 +164,12 @@ def test_mt12_munich_reference_is_consistent_with_separate_chain_ladders() -> No
         for o in origins
     )
     assert gap_munich < gap_separate
+    information = _information("MT12-munich-chain-ladder-mcl")
     for kind in ("paid", "incurred"):
         _close(values, "lambda_without_last_link", kind, _value(values, "lambda", kind), 1e-8)
-        assert _value(values, "lambda_all_links", kind) != pytest.approx(
+        # the variant with every link is information only (decision 0607)
+        assert ("lambda_all_links", kind) not in values
+        assert information[("lambda_all_links", kind)] != pytest.approx(
             _value(values, "lambda", kind), rel=1e-2
         )
 
@@ -257,7 +267,10 @@ def test_mt14_tail_fit_and_tail_from_the_triangle(name: str, curve: str) -> None
     while t - first < 100 and excess(t) >= 1e-4:
         spec *= 1 + excess(t)
         t += 1
-    _close(values, f"{curve}_tail", "spec_stop_below_1e-4", spec, 1e-8)
+    # the old stopping rule is information only (decision 0608)
+    assert (f"{curve}_tail", "spec_stop_below_1e-4") not in values
+    dropped = _information(f"MT14-tail-curves-{name}")[(f"{curve}_tail", "stop_below_1e-4")]
+    assert spec == pytest.approx(dropped, rel=1e-8)
     assert spec <= package
     if curve == "exponential":
         assert b < 0

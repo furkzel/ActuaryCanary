@@ -15,11 +15,13 @@ deterministic,volume_factor_108_120,1.017724725219544,1e-09,derived
 deterministic,adjusted_residual_sum_of_squares,2893074.8831307273,1e-09,derived
 simulation_parameter_error_only_total_reserve,mean,18771111.46900591,0.0044,"package parameter draws; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.0015)"
 simulation_parameter_error_only_total_reserve,sd,2491682.0355725987,0.022,"package parameter draws; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.0075)"
+simulation_parameter_error_only_total_reserve,p50,18642427.868108798,0.0045,"package parameter draws; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.0015)"
 simulation_parameter_error_only_total_reserve,p75,20335434.196605776,0.006,"package parameter draws; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.002)"
 simulation_parameter_error_only_total_reserve,p95,23067483.387174584,0.0081,"package parameter draws; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.0027)"
 simulation_parameter_error_only_total_reserve,p99.5,26252311.02769767,0.021,"package parameter draws; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.0071)"
 simulation_with_process_error_total_reserve,mean,18767603.032290485,0.0048,"derived: package parameter draws plus numpy gamma process error; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.0016)"
 simulation_with_process_error_total_reserve,sd,2658019.316395335,0.024,"derived: package parameter draws plus numpy gamma process error; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.0081)"
+simulation_with_process_error_total_reserve,p50,18635671.250064775,0.0058,"derived: package parameter draws plus numpy gamma process error; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.0019)"
 simulation_with_process_error_total_reserve,p75,20450330.362664282,0.0051,"derived: package parameter draws plus numpy gamma process error; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.0017)"
 simulation_with_process_error_total_reserve,p95,23368535.075540356,0.0082,"derived: package parameter draws plus numpy gamma process error; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.0027)"
 simulation_with_process_error_total_reserve,p99.5,26564788.44851739,0.023,"derived: package parameter draws plus numpy gamma process error; seed 42, 10000 sims; rel_tol = 3 x relative sd of the statistic over 30 other seeds (0.0076)"

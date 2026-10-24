@@ -1,9 +1,7 @@
 quantity,key,value,rel_tol,note
 lambda,paid,0.6360214664251506,1e-06,"lambda^P, package"
 lambda,incurred,0.4361871320120305,1e-06,"lambda^I, package"
-lambda_all_links,paid,0.6129837617419834,1e-09,derived by numpy from the spec text: every link with both residuals
-lambda_all_links,incurred,0.42079527712292153,1e-09,"derived, as above"
-lambda_without_last_link,paid,0.6360214664251503,1e-09,"derived: the last link (one origin, extrapolated variance parameters) left out; equals the package"
+lambda_without_last_link,paid,0.6360214664251503,1e-09,"derived by numpy: the last link (one origin, extrapolated variance parameters) left out; equals the package"
 lambda_without_last_link,incurred,0.4361871320120306,1e-09,"derived, as above"
 munich_paid_ultimate,2001,2131.0,1e-06,package
 munich_paid_ultimate,2002,2384.8420915142624,1e-06,package

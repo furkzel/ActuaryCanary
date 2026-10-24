@@ -1,5 +1,5 @@
 id: MT14
-version: 0.1.0
+version: 0.2.0
 title_en: Tail factor fitting
 title_tr: Kuyruk faktörü uydurma
 status: draft
@@ -36,12 +36,11 @@ parameters:
   - name: min_points
     default: 3
     description: Fewest factors above 1 needed for a fit.
-  - name: stop_below
-    default: 0.0001
-    description: Extension stops when f(t) - 1 falls below this; the remaining development is negligible.
-  - name: max_extension_years
+  - name: extension_periods
     default: 100
-    description: Hard limit of the extension, so a slowly decaying inverse power cannot run forever.
+    description: >-
+      Number of development periods the extension runs, as in the reference package (decision
+      0608). There is no stopping rule: the product always runs all periods.
 algorithm:
   - step: >-
       Selected factors f(j) of MT02 and the age t(j) of each column in years (the age at the
@@ -51,9 +50,9 @@ algorithm:
   - step: Inverse power (Sherman), a straight line in log age.
     formula: '\ln\big(f(t) - 1\big) = a - b \ln t, \quad b > 1'
   - step: >-
-      Extension from the age after the last column, one development period at a time, until
-      f(t) - 1 < stop_below or max_extension_years; the tail factor is the product.
-    formula: '\tau = \prod_{t = t_J}^{t_{\mathrm{stop}}} \big(1 + e^{\hat a}\, g(t)\big), \quad g(t) = e^{\hat b t} \ \text{or} \ t^{-\hat b}'
+      Extension from the age after the last column, one development period at a time, for
+      extension_periods periods; the tail factor is the product.
+    formula: '\tau = \prod_{t = t_J}^{t_J + N - 1} \big(1 + e^{\hat a}\, g(t)\big), \quad N = \text{extension\_periods}, \quad g(t) = e^{\hat b t} \ \text{or} \ t^{-\hat b}'
   - step: >-
       The tail is used by MT02 in place of the tail_factor parameter only when the user
       selects it in the assumptions register (with the curve, fit range and value). The
@@ -76,16 +75,18 @@ failure_modes:
     action: Not fitted; reason "too few factors above 1 to fit a tail"; tail stays at the MT02 parameter.
   - condition: Fitted slope of the wrong sign (b >= 0 for exponential, b <= 1 for inverse power, whose product would not converge).
     action: That curve is not used; reason names the slope.
-  - condition: Extension reaches max_extension_years before stop_below.
-    action: Tail reported with a WARNING that development had not stopped.
+  - condition: The last period of the extension still adds more than 1e-4 to the factor.
+    action: Tail reported with a WARNING that development had not stopped within extension_periods.
 validation:
   - kind: fixture
     description: Factors generated exactly from each curve (a, b known) give back a, b and the closed-form tail product.
     tolerance: 1e-9 relative
   - kind: benchmark
     description: >-
-      Exponential and inverse-power tails on GenIns and RAA with the same fit range and
-      extension match the chainladder package's TailCurve, frozen as in decision 0007.
+      Exponential and inverse-power tails on GenIns and RAA with the same fit range and the
+      same 100 extension periods match the chainladder package's TailCurve, frozen as in
+      decision 0007. The tails with the former stopping rule (RAA inverse power 1.0991 against
+      1.1015) are recorded as information in the manifests and are not tested.
     tolerance: 1e-6 relative
   - kind: ground_truth
     description: >-
@@ -100,3 +101,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 9.2 (P20).
+  - version: 0.2.0
+    date: 2026-10-24
+    change: The extension runs a fixed number of development periods (extension_periods, default 100), as in the reference package; the stopping rule of 1e-4 is removed (decision 0608).

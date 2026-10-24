@@ -3,11 +3,7 @@
 no_reference: {}
 open_items:
   MT11:
-    - The process-error draws are made by the freeze script with numpy; the package samples parameter error only. Percentiles with process error are therefore a reference of this repository, not of the package (decision 0271).
-  MT12:
-    - The package leaves the last link out of the lambda regressions, the spec text does not; the two lambdas differ by about 4 per cent. The spec needs one rule before P24 builds the method (decision 0274).
-  MT14:
-    - The package multiplies 100 extension periods, the spec stops below 1e-4; both tails are frozen for each curve and differ for RAA (decision 0276).
+    - The process-error draws are made by the freeze script with numpy (the gamma form of the spec); the package samples parameter error only. Percentiles with process error are therefore a reference of this repository, not of the package (decisions 0271 and 0609). The acceptance statistics are the median, 75th and 95th percentile; the standard deviation is not a pass criterion on its own.
   MT17:
     - Standard errors, Kolmogorov-Smirnov and Anderson-Darling statistics, bootstrap p-values and layer costs have no frozen reference; only the estimates and the AIC ranking do.
   MT18:
@@ -15,7 +11,7 @@ open_items:
   MT19:
     - The Breslow baseline hazard, the likelihood-ratio interval and the median interval of Kaplan-Meier have no reference; Cox coefficients, standard errors and likelihoods have (R survival).
   MT20:
-    - Buehlmann-Straub credibility has no reference because the spec names no estimator for its structural parameters (decision 0272); a reference table for expected rates waits for the owner (HANDOVER, before P32).
+    - Buehlmann-Straub credibility has no frozen reference yet; the spec now names the estimators (decision 0610) and the hand-worked fixture is built by the item that implements MT20 (P33). A reference table for expected rates waits for the owner (HANDOVER, before P32).
   MT21:
     - Aggregate deductible and limit, reinstatements, stop loss, event excess of loss and the index clause have no hand case; they go with the reinsurance item P30 (decision 0273).
   MT16:

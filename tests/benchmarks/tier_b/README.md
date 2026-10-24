@@ -18,3 +18,5 @@ Regenerate (by hand; the tests never run these): from the repository root, with 
 `uv run python tests/benchmarks/tools/freeze_chainladder.py [munich|raa|genins]` (about 5 minutes),
 `freeze_scipy.py`, `freeze_survival.py` (needs Rscript with survival), `build_hand_fixtures.py`.
 `check_km_hand_fixture.R` compares the Kaplan–Meier fixture with R.
+
+A manifest may carry an `information` list: values of variants that a decision dropped (the Munich lambda with every link, decision 0607; the tail with the 1e-4 stopping rule, decision 0608). They are not pass criteria and have no row in `values.csv`.

@@ -30,5 +30,9 @@ notes:
 - The package samples parameter error only, uses hat_adj=False (the degrees-of-freedom adjustment sqrt(n/(n-p))
   of the spec) and centres the pool of residuals; the spec does not centre. Its residual pool differs
   slightly from residuals.csv.
+- Acceptance statistics are the median (p50), p75 and p95 of the total reserve; the standard deviation
+  is reported and compared only with its wide Monte Carlo tolerance, it is not a pass criterion on its
+  own (decision 0609). Process error is gamma with shape |m| / phi and scale phi, sign kept, as in the
+  spec.
 - 'Published scale parameter of GenIns (England and Verrall) not opened: UNVERIFIED.'
 checked_by_owner: false
