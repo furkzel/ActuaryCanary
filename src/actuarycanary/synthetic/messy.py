@@ -26,6 +26,19 @@ SHEET_NAMES = {
     "premiums": ("premiums", "Sheet1", "Sayfa1", "Prim"),
     "expenses": ("expenses", "Sheet1", "Sayfa1", "Giderler"),
     "market": ("market", "Sheet1", "Sayfa1", "Piyasa"),
+    "reinsurance_treaties": ("reinsurance_treaties", "Sheet1", "Sayfa1", "Trete Şartları"),
+    "reinsurance_transactions": (
+        "reinsurance_transactions",
+        "Sheet1",
+        "Sayfa1",
+        "Reasürans Hareketleri",
+    ),
+    "recoveries": ("recoveries", "Sheet1", "Sayfa1", "Rücu ve Sovtaj"),
+    "ledger": ("ledger", "Sheet1", "Sayfa1", "Mizan"),
+    "interest_rates": ("interest_rates", "Sheet1", "Sayfa1", "Faiz Oranları"),
+    "life_in_force": ("life_in_force", "Sheet1", "Sayfa1", "Yürürlükteki Sözleşmeler"),
+    "life_events": ("life_events", "Sheet1", "Sayfa1", "Hayat Olayları"),
+    "fund_flows": ("fund_flows", "Sheet1", "Sayfa1", "Fon Hareketleri"),
 }
 MARKET_SHEETS = {"fx": ("fx", "Kurlar", "Döviz"), "cpi": ("cpi", "Enflasyon", "TÜFE")}
 FIRST_NAMES = (
@@ -63,6 +76,14 @@ TITLES = {
     "premiums": "Prim Hareketleri",
     "expenses": "Gider Dökümü",
     "market": "Piyasa Verileri",
+    "reinsurance_treaties": "Reasürans Anlaşmaları",
+    "reinsurance_transactions": "Reasürans Hareketleri",
+    "recoveries": "Rücu ve Sovtaj Tahsilatları",
+    "ledger": "Mizan",
+    "interest_rates": "Faiz Oranları",
+    "life_in_force": "Yürürlükteki Hayat Sözleşmeleri",
+    "life_events": "Hayat Sözleşmesi Olayları",
+    "fund_flows": "Fon Hareketleri",
 }
 
 
@@ -97,18 +118,22 @@ class Dictionaries:
 
     def __init__(self) -> None:
         root = find_spec_root() / "aliases"
-        columns = yaml.safe_load((root / "columns.yaml").read_text(encoding="utf-8"))
-        values = yaml.safe_load((root / "values.yaml").read_text(encoding="utf-8"))
         self.columns: dict[tuple[str, str], list[str]] = {}
-        for entry in columns["columns"]:
-            for concept in entry["concepts"]:
-                self.columns[(concept, entry["field"])] = list(entry["aliases"])
         self.values: dict[tuple[str, str], dict[str, list[str]]] = {}
-        for entry in values["values"]:
-            for concept in entry["concepts"]:
-                self.values[(concept, entry["field"])] = {
-                    k: list(v) for k, v in entry["classes"].items()
-                }
+        # the planned dictionaries (AL03, AL04) cover concepts that AL01 and AL02 do not
+        for name in ("columns", "columns-planned"):
+            columns = yaml.safe_load((root / f"{name}.yaml").read_text(encoding="utf-8"))
+            for entry in columns["columns"]:
+                for concept in entry["concepts"]:
+                    self.columns.setdefault((concept, entry["field"]), list(entry["aliases"]))
+        for name in ("values", "values-planned"):
+            values = yaml.safe_load((root / f"{name}.yaml").read_text(encoding="utf-8"))
+            for entry in values["values"]:
+                for concept in entry["concepts"]:
+                    self.values.setdefault(
+                        (concept, entry["field"]),
+                        {k: list(v) for k, v in entry["classes"].items()},
+                    )
 
 
 def misspell(text: str, rng: np.random.Generator) -> str:

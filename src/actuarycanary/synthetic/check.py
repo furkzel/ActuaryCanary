@@ -63,8 +63,9 @@ class _Reader:
             for p in (find_spec_root() / "data").glob("*.yaml")
         }
         if self.truth is not None:
-            self.layout = pl.read_csv(self.truth / "layout.csv")
-            self.columns = pl.read_csv(self.truth / "column_map.csv")
+            # the logs of the feeds added after version 1.0 are in files of their own
+            self.layout = _logs(self.truth, "layout")
+            self.columns = _logs(self.truth, "column_map")
 
     def read(self, feed: str) -> dict[str, pl.DataFrame] | None:
         paths = [self.folder / f"{feed}.xlsx"]
@@ -112,17 +113,31 @@ class _Reader:
         return frame.with_columns(casts) if casts else frame
 
 
+def _logs(truth: Path, name: str) -> pl.DataFrame:
+    frame = pl.read_csv(truth / f"{name}.csv")
+    later = truth / f"{name}_phase2.csv"
+    return pl.concat([frame, pl.read_csv(later)]) if later.exists() else frame
+
+
 def read_sheet(path: Path, sheet: str | None, header_row: int) -> pl.DataFrame:
     """One worksheet as read by calamine, cached as parquet keyed by the file's SHA-256."""
     cache = find_spec_root().parent / ".cache" / "synthetic"
-    key = f"{sha256(path)[:24]}-{sheet or 'first'}-{header_row}.parquet"
+    key = f"{sha256(path)[:24]}-{sheet or 'first'}-{header_row}-all.parquet"
     if (cache / key).exists():
         return pl.read_parquet(cache / key)
     options = {"header_row": header_row - 1}
     if sheet:
-        frame = pl.read_excel(path, sheet_name=sheet, engine="calamine", read_options=options)
+        frame = pl.read_excel(
+            path,
+            sheet_name=sheet,
+            engine="calamine",
+            read_options=options,
+            infer_schema_length=None,  # as the reader of the product: all cells decide the type
+        )
     else:
-        frame = pl.read_excel(path, engine="calamine", read_options=options)
+        frame = pl.read_excel(
+            path, engine="calamine", read_options=options, infer_schema_length=None
+        )
     cache.mkdir(parents=True, exist_ok=True)
     frame.write_parquet(cache / key)
     return frame
@@ -189,8 +204,12 @@ def class_of(feed: str, field: str, values: pl.Series) -> pl.Series:
     return _lookup_classes(Dictionaries(), feed, field, values)
 
 
-def check_folder(folder: Path, truth: Path | None = None) -> list[Violation]:
-    """Every violation found in the spreadsheets under `folder` (truth defaults to folder/truth)."""
+def check_folder(
+    folder: Path, truth: Path | None = None, later_feeds: bool = False
+) -> list[Violation]:
+    """Every violation found in the spreadsheets under `folder` (truth defaults to folder/truth).
+
+    The rules of the feeds added after version 1.0 are checked too when `later_feeds` is true."""
     reader = _Reader(folder, truth if truth is not None else folder / "truth")
     tables = {feed: reader.read(feed) for feed in FEED_FILES}
     found: list[Violation] = []
@@ -215,6 +234,10 @@ def check_folder(folder: Path, truth: Path | None = None) -> list[Violation]:
         found += _expenses(reader, tables["expenses"]["expenses"])
     if tables["market"] is not None:
         found += _market(reader, tables["market"])
+    if later_feeds:
+        from actuarycanary.synthetic.check_phase2 import check_later_feeds
+
+        found += check_later_feeds(reader, tables)
     return found
 
 

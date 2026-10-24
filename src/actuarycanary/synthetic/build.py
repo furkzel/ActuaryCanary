@@ -21,6 +21,7 @@ from actuarycanary.synthetic.messy import (
     layout_sheet,
     sheet_name_for,
 )
+from actuarycanary.synthetic.phase2 import PHASE2_FEEDS, TRUTH_USERS, Phase2Output, build_phase2
 from actuarycanary.synthetic.portfolio import Policies, PremiumRows, build_policies, build_premiums
 from actuarycanary.synthetic.reinsurance import Reinsurance
 from actuarycanary.synthetic.scenario import Scenario, SizeSpec, load_scenario, sized
@@ -47,6 +48,7 @@ class Simulation:
     clean: dict[str, pl.DataFrame]  # claim_valuations and claims before faults
     faults: list[Fault]
     truth: dict[str, pl.DataFrame]
+    phase2: Phase2Output
 
 
 def simulate(scenario: str | Scenario, size: str | SizeSpec) -> Simulation:
@@ -60,11 +62,13 @@ def simulate(scenario: str | Scenario, size: str | SizeSpec) -> Simulation:
 
     market = build_market(scenario, streams)
     policies = build_policies(scenario, spec, market, streams)
-    premiums = build_premiums(scenario, policies, streams)
+    premiums = build_premiums(scenario, policies, streams, market)
     world = build_claims(scenario, spec, market, policies, streams)
     reinsurance = Reinsurance(scenario, world)
 
-    valuations, _, _ = feeds.valuation_rows(world, reinsurance, scenario, spec)
+    valuations, valuation_claim, valuation_day = feeds.valuation_rows(
+        world, reinsurance, scenario, spec
+    )
     clean = {
         "claim_valuations": valuations,
         "claims": feeds.claims_table(world, scenario),
@@ -78,6 +82,22 @@ def simulate(scenario: str | Scenario, size: str | SizeSpec) -> Simulation:
 
     frames: dict[str, dict[str, pl.DataFrame]] = {feed: {feed: faulted[feed]} for feed in faulted}
     frames["market"] = feeds.market_sheets(scenario, market)
+    later = build_phase2(
+        scenario,
+        spec,
+        size_name,
+        market,
+        policies,
+        premiums,
+        world,
+        reinsurance,
+        valuations,
+        valuation_claim,
+        valuation_day,
+        clean["expenses"],
+        streams,
+    )
+    frames.update(later.frames)
 
     claims = truth._claim_frame(scenario, world, reinsurance, market, cut_off)
     exposure = truth.exposure_by_year(scenario, spec, policies)
@@ -101,6 +121,7 @@ def simulate(scenario: str | Scenario, size: str | SizeSpec) -> Simulation:
         clean,
         faults,
         tables,
+        later,
     )
 
 
@@ -202,6 +223,22 @@ def anomalies(sim: Simulation, fault_rows: pl.DataFrame) -> pl.DataFrame:
     )
 
 
+def _of(rows: list[dict[str, str]], later: bool) -> list[dict[str, str]]:
+    """The log rows of the feeds added later (`later`) or of the first six."""
+    return [r for r in rows if (r["file"] in PHASE2_FEEDS) == later]
+
+
+LAYOUT_SCHEMA = {
+    "file": pl.String,
+    "sheet": pl.String,
+    "title_rows": pl.Int64,
+    "header_row": pl.Int64,
+    "first_data_row": pl.Int64,
+    "data_rows": pl.Int64,
+    "written": pl.Boolean,
+}
+
+
 def locate(workbooks: list[tuple[str, list[SheetPlan]]], row: int) -> tuple[str, int]:
     """The workbook holding 0-based data row `row` of a feed's first sheet, and the worksheet
     row it sits on there."""
@@ -249,8 +286,15 @@ def write_outputs(sim: Simulation, out: Path) -> dict[str, object]:
             for feed in plans
             for file, parts in workbooks[feed]
             for s in parts
-        ]
+        ],
+        schema=LAYOUT_SCHEMA,
     )
+    # the logs of the feeds added later go to files of their own, so that the files of the
+    # first six feeds stay byte for byte what they were
+    layout_later = layout.filter(
+        pl.col("file").str.replace(r"(_part\d+)?\.xlsx$", "").is_in(PHASE2_FEEDS)
+    )
+    layout = layout.join(layout_later, on=layout.columns, how="anti")
     fault_table = pl.DataFrame(
         [
             {
@@ -280,27 +324,35 @@ def write_outputs(sim: Simulation, out: Path) -> dict[str, object]:
     write_csv(truth_dir / "money_columns.csv", truth.money_columns_table())
     write_csv(truth_dir / "injected_faults.csv", fault_table)
     write_csv(truth_dir / "anomalies.csv", anomalies(sim, fault_table))
-    write_csv(truth_dir / "column_map.csv", pl.DataFrame(log.columns))
-    write_csv(
-        truth_dir / "value_map.csv",
-        pl.DataFrame(
-            log.values,
-            schema={"file": pl.String, "field": pl.String, "label": pl.String, "class": pl.String},
-        ),
-    )
-    write_csv(
-        truth_dir / "date_formats.csv",
-        pl.DataFrame(
-            log.dates,
-            schema={
-                "file": pl.String,
-                "field": pl.String,
-                "text_format": pl.String,
-                "text_share": pl.String,
-            },
-        ),
-    )
-    write_csv(truth_dir / "layout.csv", layout)
+    for suffix, later in (("", False), ("_phase2", True)):
+        if later and not any(feed in sim.phase2.frames for feed in PHASE2_FEEDS):
+            continue
+        write_csv(truth_dir / f"column_map{suffix}.csv", pl.DataFrame(_of(log.columns, later)))
+        write_csv(
+            truth_dir / f"value_map{suffix}.csv",
+            pl.DataFrame(
+                _of(log.values, later),
+                schema={
+                    "file": pl.String,
+                    "field": pl.String,
+                    "label": pl.String,
+                    "class": pl.String,
+                },
+            ),
+        )
+        write_csv(
+            truth_dir / f"date_formats{suffix}.csv",
+            pl.DataFrame(
+                _of(log.dates, later),
+                schema={
+                    "file": pl.String,
+                    "field": pl.String,
+                    "text_format": pl.String,
+                    "text_share": pl.String,
+                },
+            ),
+        )
+        write_csv(truth_dir / f"layout{suffix}.csv", layout_later if later else layout)
     write_csv(
         truth_dir / "personal_data_columns.csv",
         pl.DataFrame(
@@ -313,6 +365,25 @@ def write_outputs(sim: Simulation, out: Path) -> dict[str, object]:
                 "kind": pl.String,
             },
         ),
+    )
+    for name, table in sim.phase2.truth.items():
+        write_csv(truth_dir / f"{name}.csv", table)
+    if sim.phase2.truth:
+        write_csv(
+            truth_dir / "money_columns_phase2.csv", truth.money_columns_table(sim.phase2.money)
+        )
+    for relative, table in sim.phase2.files.items():
+        target = out / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        write_csv(target, table)
+    (truth_dir / "phase2_scenario.yaml").write_text(
+        yaml.safe_dump(
+            {"phase2": scenario.phase2.model_dump(mode="json"), "truth_users": TRUTH_USERS},
+            sort_keys=False,
+            allow_unicode=True,
+        ),
+        encoding="utf-8",
+        newline="\n",
     )
     (truth_dir / "scenario.yaml").write_text(
         yaml.safe_dump(
@@ -328,7 +399,8 @@ def write_outputs(sim: Simulation, out: Path) -> dict[str, object]:
                             name: {"large_events"}
                             for name, line in scenario.lines.items()
                             if line.large_events is None
-                        }
+                        },
+                        "phase2": True,
                     },
                 ),
             },
