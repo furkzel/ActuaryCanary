@@ -16,7 +16,7 @@ import yaml
 
 from actuarycanary.spec.loader import find_spec_root
 from actuarycanary.synthetic.messy import Dictionaries
-from actuarycanary.synthetic.writer import sha256
+from actuarycanary.synthetic.writer import LATER_FOLDER, sha256
 
 TEXT_DATE_FORMATS = ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d", "%d.%m.%Y", "%d/%m/%Y")
 PAIR = re.compile(r"^[A-Z]{3}/[A-Z]{3}$")
@@ -68,9 +68,15 @@ class _Reader:
             self.columns = _logs(self.truth, "column_map")
 
     def read(self, feed: str) -> dict[str, pl.DataFrame] | None:
-        paths = [self.folder / f"{feed}.xlsx"]
-        if not paths[0].exists():
+        # the feeds added after version 1.0 are in a subfolder of their own
+        where = self.folder / LATER_FOLDER if (self.folder / LATER_FOLDER).is_dir() else self.folder
+        paths = [p for p in (self.folder / f"{feed}.xlsx", where / f"{feed}.xlsx") if p.exists()][
+            :1
+        ]
+        if not paths:
             paths = sorted(self.folder.glob(f"{feed}_part*.xlsx"))  # a feed split over workbooks
+        if not paths:
+            paths = sorted(where.glob(f"{feed}_part*.xlsx"))
         if not paths:
             return None
         keys = ["fx", "cpi"] if feed == "market" else [feed]

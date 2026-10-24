@@ -1,0 +1,226 @@
+file,field,label,class
+interest_rates,rate_type,SPOT RATE,SPOT
+interest_rates,rate_type,SPOT FAİZ,SPOT
+interest_rates,rate_type,ZERO,SPOT
+interest_rates,rate_type,SIFIR KUPON,SPOT
+interest_rates,rate_type,ZERO COUPON,SPOT
+interest_rates,compounding,YILLIK BİLEŞİK,ANNUAL
+interest_rates,compounding,YILLIK,ANNUAL
+interest_rates,compounding,ANNUALLY,ANNUAL
+interest_rates,compounding,EFFECTIVE ANNUAL,ANNUAL
+reinsurance_treaties,treaty_type,KOTPAR ANLAŞMASI,QUOTA_SHARE
+reinsurance_treaties,treaty_type,XOL,EXCESS_OF_LOSS
+reinsurance_treaties,treaty_type,XL,EXCESS_OF_LOSS
+reinsurance_treaties,treaty_type,EXCESS OF LOSS,EXCESS_OF_LOSS
+reinsurance_treaties,treaty_type,QUOTA SHARE,QUOTA_SHARE
+reinsurance_treaties,attachment_basis,LOD,LOSSES_OCCURRING
+reinsurance_treaties,attachment_basis,LOSSES OCCURRING DURING,LOSSES_OCCURRING
+reinsurance_treaties,attachment_basis,HASAR TARİHİ ESASLI,LOSSES_OCCURRING
+reinsurance_treaties,attachment_basis,LOSSES OCCURRING,LOSSES_OCCURRING
+reinsurance_treaties,loss_basis,OLAY BAŞINA,EVENT
+reinsurance_treaties,loss_basis,CAT,EVENT
+reinsurance_treaties,segment,NON LIFE,NON_LIFE
+reinsurance_treaties,segment,P&C,NON_LIFE
+reinsurance_treaties,segment,HAYATDIŞI,NON_LIFE
+reinsurance_treaties,segment,ELMNTR,NON_LIFE
+reinsurance_treaties,segment,PROPERTY AND CASUALTY,NON_LIFE
+reinsurance_treaties,segment,HAYAT DIŞI,NON_LIFE
+reinsurance_treaties,segment,ELEMENTER,NON_LIFE
+reinsurance_transactions,type,DEVREDİLEN PRİM,CEDED_PREMIUM
+reinsurance_transactions,type,OUTWARD PREMIUM,CEDED_PREMIUM
+reinsurance_transactions,type,REASÜRANS KOMİSYONU,RI_COMMISSION
+reinsurance_transactions,type,RI COMMISSION,RI_COMMISSION
+reinsurance_transactions,type,REASÜRÖR PAYI PRİM,CEDED_PREMIUM
+reinsurance_transactions,type,RI PREMIUM,CEDED_PREMIUM
+reinsurance_transactions,type,KOMİSYON,RI_COMMISSION
+reinsurance_transactions,type,CEDING COMMISSION,RI_COMMISSION
+reinsurance_transactions,type,REASÜRANS PRİMİ,CEDED_PREMIUM
+reinsurance_transactions,type,CEDED PREMIUM,CEDED_PREMIUM
+reinsurance_transactions,type,REINSURANCE COMMISSION,RI_COMMISSION
+reinsurance_transactions,type,CEDED CASE RESERVE,CEDED_CASE_RESERVE
+reinsurance_transactions,type,CEDED PAID,CEDED_CLAIM_PAID
+reinsurance_transactions,type,CEDED OUTSTANDING,CEDED_CASE_RESERVE
+reinsurance_transactions,type,DEVREDİLEN MUALLAK,CEDED_CASE_RESERVE
+reinsurance_transactions,type,CEDED RESERVE,CEDED_CASE_RESERVE
+reinsurance_transactions,type,CEDED CLAIMS PAID,CEDED_CLAIM_PAID
+reinsurance_transactions,type,REASÜRÖR PAYI MUALLAK,CEDED_CASE_RESERVE
+reinsurance_transactions,segment,GENERAL INSURANCE,NON_LIFE
+reinsurance_transactions,segment,GI,NON_LIFE
+reinsurance_transactions,segment,P&C,NON_LIFE
+reinsurance_transactions,segment,NONLIFE,NON_LIFE
+reinsurance_transactions,segment,NON LIFE,NON_LIFE
+reinsurance_transactions,segment,ELEMENTER,NON_LIFE
+reinsurance_transactions,segment,ELMNTR,NON_LIFE
+reinsurance_transactions,segment,PROPERTY AND CASUALTY,NON_LIFE
+reinsurance_transactions,segment,HAYATDIŞI,NON_LIFE
+reinsurance_transactions,segment,HAYAT DIŞI,NON_LIFE
+recoveries,type,HURDA SATIŞI,RECOVERY_SALVAGE
+recoveries,type,SUBRO,RECOVERY_SUBROGATION
+recoveries,type,RÜCU TAHSİLATI,RECOVERY_SUBROGATION
+recoveries,type,SUBROGATION,RECOVERY_SUBROGATION
+recoveries,type,SALVAGE,RECOVERY_SALVAGE
+recoveries,type,RÜCU GELİRİ,RECOVERY_SUBROGATION
+recoveries,counterparty_type,SOVTAJ ALICISI,SALVAGE_BUYER
+recoveries,counterparty_type,INSURANCE COMPANY,INSURER
+recoveries,counterparty_type,INSURER,INSURER
+recoveries,counterparty_type,DİĞER,OTHER_PARTY
+recoveries,counterparty_type,KARŞI SİGORTA ŞİRKETİ,INSURER
+recoveries,counterparty_type,HURDA ALICISI,SALVAGE_BUYER
+recoveries,counterparty_type,SİGORTA ŞİRKETİ,INSURER
+recoveries,counterparty_type,ŞİRKET,INSURER
+ledger,account_class,DİĞER,OTHER
+ledger,account_class,WRITTEN PREMIUM,PREMIUM
+ledger,account_class,KOMİSYON,COMMISSION
+ledger,account_class,REASÜRÖR PAYI,RI
+ledger,account_class,OTHER,OTHER
+ledger,account_class,KAZANILMAMIŞ PRİMLER KARŞILIĞI,UPR
+ledger,account_class,PREMIUM,PREMIUM
+ledger,account_class,COMMISSION,COMMISSION
+ledger,account_class,REASÜRANS,RI
+ledger,account_class,YATIRIM GELİRİ,INVESTMENT
+ledger,account_class,EXPENSE,EXPENSE
+ledger,account_class,MUALLAK,OUTSTANDING
+ledger,account_class,YAZILAN PRİM,PREMIUM
+ledger,account_class,KOMİSYON GİDERİ,COMMISSION
+ledger,account_class,DEVREDİLEN,RI
+ledger,account_class,INVESTMENT,INVESTMENT
+ledger,account_class,PAID CLAIMS,CLAIMS_PAID
+ledger,account_class,GENEL GİDER,EXPENSE
+ledger,account_class,UNEARNED PREMIUM RESERVE,UPR
+ledger,account_class,ÜRETİM KOMİSYONU,COMMISSION
+ledger,account_class,OPERATING EXPENSE,EXPENSE
+ledger,account_class,OUTSTANDING CLAIMS,OUTSTANDING
+ledger,account_class,PREMIUM INCOME,PREMIUM
+ledger,account_class,GİDER,EXPENSE
+ledger,account_class,YATIRIM,INVESTMENT
+ledger,account_class,CLAIMS PAID,CLAIMS_PAID
+ledger,account_class,UNEARNED PREMIUM,UPR
+ledger,account_class,INVESTMENT INCOME,INVESTMENT
+ledger,account_class,MUALLAK HASAR,OUTSTANDING
+ledger,account_class,PRİM,PREMIUM
+ledger,account_class,ÖDENEN HASAR,CLAIMS_PAID
+ledger,account_class,FAALİYET GİDERİ,EXPENSE
+ledger,account_class,ÖDENEN TAZMİNAT,CLAIMS_PAID
+ledger,account_class,HASAR ÖDEMESİ,CLAIMS_PAID
+ledger,account_class,CLAIMS RESERVE,OUTSTANDING
+ledger,account_class,KPK,UPR
+ledger,account_class,OUTSTANDING,OUTSTANDING
+ledger,account_class,CEDED,RI
+ledger,account_class,MUALLAK TAZMİNAT KARŞILIĞI,OUTSTANDING
+ledger,account_class,MALİ GELİR,INVESTMENT
+ledger,account_class,UPR,UPR
+ledger,account_class,PRİM GELİRİ,PREMIUM
+ledger,account_class,REINSURANCE,RI
+ledger,account_class,ACQUISITION COMMISSION,COMMISSION
+ledger,segment,GENERAL INSURANCE,NON_LIFE
+ledger,segment,P&C,NON_LIFE
+ledger,segment,HAYATDIŞI,NON_LIFE
+ledger,segment,ELMNTR,NON_LIFE
+ledger,segment,HAYAT DIŞI,NON_LIFE
+ledger,segment,NONLIFE,NON_LIFE
+ledger,segment,GI,NON_LIFE
+ledger,segment,ELEMENTER,NON_LIFE
+ledger,segment,PROPERTY AND CASUALTY,NON_LIFE
+ledger,segment,NON LIFE,NON_LIFE
+ledger,segment,HAYAT,LIFE
+ledger,segment,LIFE,LIFE
+ledger,segment,LIFE INSURANCE,LIFE
+ledger,segment,HAYAT SİGORTASI,LIFE
+life_in_force,status,ACTIVE,IN_FORCE
+life_in_force,status,AKTİF,IN_FORCE
+life_in_force,status,INFORCE,IN_FORCE
+life_in_force,status,IN FORCE,IN_FORCE
+life_in_force,status,YÜRÜRLÜKTE,IN_FORCE
+life_in_force,status,GEÇERLİ,IN_FORCE
+life_in_force,status,ÖDENMEDİĞİNDEN İPTAL,LAPSED
+life_in_force,status,LAPSE,LAPSED
+life_in_force,status,PRİM ÖDEMEME İPTALİ,LAPSED
+life_in_force,status,İŞTİRA EDİLDİ,SURRENDERED
+life_in_force,status,AYRILDI,SURRENDERED
+life_in_force,status,İPTAL,LAPSED
+life_in_force,status,GERİ SATIN ALMA,SURRENDERED
+life_in_force,status,İŞTİRA,SURRENDERED
+life_in_force,status,AYRILMA,SURRENDERED
+life_in_force,status,SURRENDER,SURRENDERED
+life_in_force,status,DECEASED,DEATH_CLAIM
+life_in_force,status,TRANSFERRED,TRANSFERRED_OUT
+life_in_force,segment,LIFE,LIFE
+life_in_force,segment,HAYAT,LIFE
+life_in_force,segment,HAYAT SİGORTASI,LIFE
+life_in_force,segment,LIFE INSURANCE,LIFE
+life_in_force,segment,EMEKLİLİK,PENSION
+life_in_force,segment,BES,PENSION
+life_in_force,segment,OKS,PENSION
+life_in_force,segment,RETIREMENT,PENSION
+life_in_force,segment,BİREYSEL EMEKLİLİK,PENSION
+life_in_force,segment,PENSION,PENSION
+life_in_force,policy_type,BİREYSEL,INDIVIDUAL
+life_in_force,policy_type,RETAIL,INDIVIDUAL
+life_in_force,policy_type,FERDİ,INDIVIDUAL
+life_in_force,policy_type,CORPORATE,GROUP
+life_in_force,policy_type,İŞVEREN GRUP,GROUP
+life_in_force,policy_type,TOPLU,GROUP
+life_in_force,policy_type,GRUP,GROUP
+life_in_force,policy_type,EMPLOYER,GROUP
+life_in_force,channel,ACENTE,AGENCY
+life_in_force,channel,ACENTELİK,AGENCY
+life_in_force,channel,TIED AGENT,AGENCY
+life_in_force,channel,ACENTA,AGENCY
+life_in_force,channel,AGENT,AGENCY
+life_in_force,channel,BROKERLIK,BROKER
+life_in_force,channel,BROKERAGE,BROKER
+life_in_force,channel,SİGORTA BROKERİ,BROKER
+life_in_force,channel,BANCASSURANCE,BANK
+life_in_force,channel,BANKASÜRANS,BANK
+life_in_force,channel,BANKA,BANK
+life_in_force,premium_frequency,AYLIK,MONTHLY
+life_in_force,premium_frequency,1 AYLIK,MONTHLY
+life_in_force,premium_frequency,YILLIK,YEARLY
+life_in_force,premium_frequency,ANNUAL,YEARLY
+life_in_force,premium_frequency,ÜÇ AYLIK,QUARTERLY
+life_in_force,premium_frequency,3 AYLIK,QUARTERLY
+life_in_force,sex,ERKEK,MALE
+life_in_force,sex,M,MALE
+life_in_force,sex,KADIN,FEMALE
+life_in_force,sex,F,FEMALE
+life_in_force,sex,E,MALE
+life_in_force,sex,K,FEMALE
+life_events,event_type,LAPSED,LAPSE
+life_events,event_type,TRANSFER INWARD,TRANSFER_IN
+life_events,event_type,PRİM ÖDEMEME,LAPSE
+life_events,event_type,ÖDENMEDİĞİNDEN İPTAL,LAPSE
+life_events,event_type,İPTAL,LAPSE
+life_events,event_type,GERİ SATIN ALMA,SURRENDER
+life_events,event_type,KISMİ İŞTİRA,PARTIAL_WITHDRAWAL
+life_events,event_type,AYRILMA,SURRENDER
+life_events,event_type,AKTARIM GİRİŞ,TRANSFER_IN
+life_events,event_type,İŞTİRA,SURRENDER
+life_events,event_type,PARTIAL SURRENDER,PARTIAL_WITHDRAWAL
+life_events,event_type,ÖLÜM,DEATH
+life_events,event_type,GİDEN AKTARIM,TRANSFER_OUT
+fund_flows,flow_type,KATILIMCI KATKI PAYI,CONTRIBUTION
+fund_flows,flow_type,DEVLET KATKISI,STATE_CONTRIBUTION
+fund_flows,flow_type,AKTARIM GİRİŞ,TRANSFER_IN
+fund_flows,flow_type,MEMBER CONTRIBUTION,CONTRIBUTION
+fund_flows,flow_type,GOVERNMENT CONTRIBUTION,STATE_CONTRIBUTION
+fund_flows,flow_type,PRİM,CONTRIBUTION
+fund_flows,flow_type,DK,STATE_CONTRIBUTION
+fund_flows,flow_type,DEVLET KATKI PAYI,STATE_CONTRIBUTION
+fund_flows,flow_type,İŞVEREN KATKISI,EMPLOYER_CONTRIBUTION
+fund_flows,flow_type,FON DEĞİŞİKLİĞİ,FUND_SWITCH
+fund_flows,flow_type,GİRİŞ AİDATI,FEE
+fund_flows,flow_type,CHARGE,FEE
+fund_flows,flow_type,FON İŞLETİM GİDERİ,FEE
+fund_flows,flow_type,KATKI PAYI,CONTRIBUTION
+fund_flows,flow_type,KESİNTİ,FEE
+fund_flows,flow_type,SWITCH,FUND_SWITCH
+fund_flows,flow_type,YÖNETİM GİDER KESİNTİSİ,FEE
+fund_flows,flow_type,MANAGEMENT FEE,FEE
+fund_flows,flow_type,İŞVEREN KATKI PAYI,EMPLOYER_CONTRIBUTION
+fund_flows,flow_type,YILLIK GELİR ÖDEMESİ,BENEFIT_PAYMENT
+fund_flows,flow_type,EMEKLİLİK ÖDEMESİ,BENEFIT_PAYMENT
+fund_flows,flow_type,BENEFIT,BENEFIT_PAYMENT
+fund_flows,flow_type,FON DAĞILIM DEĞİŞİKLİĞİ,FUND_SWITCH
+fund_flows,flow_type,FAYDA ÖDEMESİ,BENEFIT_PAYMENT
+fund_flows,flow_type,GELEN AKTARIM,TRANSFER_IN
+fund_flows,flow_type,GİDEN AKTARIM,TRANSFER_OUT

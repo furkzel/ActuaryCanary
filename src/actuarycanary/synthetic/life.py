@@ -818,6 +818,8 @@ def _truth(
     final_cause = timelines.final_cause
     exit_type = np.array([EVENT_OF.get(int(c), "") for c in final_cause], dtype=object)
     exit_type = np.where(final_cause == LAPSE, lapse_name, exit_type)
+    first_type = np.array([EVENT_OF.get(int(c), "") for c in timelines.cause1], dtype=object)
+    first_type = np.where(timelines.cause1 == LAPSE, lapse_name, first_type)
     final_exit = timelines.final_exit
     report_final = np.where(timelines.reinstated & (timelines.cause2 == DEATH), report2, report1)
     contract_truth = pl.DataFrame(
@@ -827,6 +829,10 @@ def _truth(
             "entry_date": date_series("entry_date", contracts.entry),
             "entry_age": contracts.entry_age,
             "sex": SEX_NAMES[contracts.sex].tolist(),
+            "first_exit_date": date_series(
+                "first_exit_date", timelines.exit1, timelines.exit1 >= BIG // 2
+            ),
+            "first_exit_type": first_type.tolist(),
             "exit_date": date_series("exit_date", final_exit, final_exit >= BIG // 2),
             "exit_type": exit_type.tolist(),
             "reinstated": timelines.reinstated,

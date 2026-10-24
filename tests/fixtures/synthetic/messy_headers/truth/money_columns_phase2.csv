@@ -1,0 +1,28 @@
+file,column,currency,conversion
+reinsurance_by_claim.csv,gross_ultimate,row,""
+reinsurance_by_claim.csv,ceded_ultimate,row,""
+reinsurance_by_claim.csv,net_ultimate_after_treaty,row,""
+reinsurance_by_treaty.csv,gross_ultimate_covered,row,""
+reinsurance_by_treaty.csv,ceded_ultimate,row,""
+reinsurance_by_treaty.csv,net_ultimate_after_treaty,row,""
+reinsurance_by_treaty.csv,ceded_paid_cutoff,row,""
+reinsurance_by_treaty.csv,ceded_reserve_cutoff,row,""
+reinsurance_by_treaty.csv,ceded_premium,row,""
+reinsurance_by_treaty.csv,ri_commission,row,""
+recoveries_truth.csv,recovery_amount,row,""
+ledger_gaps.csv,platform_amount,reporting,ledger and platform amounts are in the reporting currency
+ledger_gaps.csv,ledger_amount,reporting,ledger and platform amounts are in the reporting currency
+ledger_gaps.csv,gap,reporting,ledger and platform amounts are in the reporting currency
+ledger_differences.csv,ledger_minus_platform,reporting,reporting currency
+severity_truth.csv,body_median,reporting,"claim cost at base-date prices, reporting currency"
+severity_truth.csv,body_mean,reporting,"claim cost at base-date prices, reporting currency"
+severity_truth.csv,tail_threshold,reporting,"claim cost at base-date prices, reporting currency"
+severity_truth.csv,tail_gpd_sigma_at_threshold,reporting,"claim cost at base-date prices, reporting currency"
+severity_truth.csv,mean_severity,reporting,"claim cost at base-date prices, reporting currency"
+severity_truth.csv,quantile_0_9,reporting,"claim cost at base-date prices, reporting currency"
+severity_truth.csv,quantile_0_95,reporting,"claim cost at base-date prices, reporting currency"
+severity_truth.csv,quantile_0_99,reporting,"claim cost at base-date prices, reporting currency"
+severity_truth.csv,quantile_0_995,reporting,"claim cost at base-date prices, reporting currency"
+severity_truth.csv,quantile_0_999,reporting,"claim cost at base-date prices, reporting currency"
+severity_tail_truth.csv,threshold,reporting,"claim cost at base-date prices, reporting currency"
+severity_tail_truth.csv,mean_excess,reporting,"claim cost at base-date prices, reporting currency"

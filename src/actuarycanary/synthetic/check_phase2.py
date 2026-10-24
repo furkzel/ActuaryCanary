@@ -357,6 +357,7 @@ def _cumulative_at(valuations: pl.DataFrame, movements: pl.DataFrame, name: str)
         right_on="booking_date",
         by="claim_id",
         strategy="backward",
+        check_sortedness=False,
     )
     return joined.select(
         "claim_id", "valuation_date", pl.col("cumulative").fill_null(0.0).alias(name)
@@ -782,6 +783,7 @@ def _events(reader: _Reader, e: pl.DataFrame, g: pl.DataFrame | None) -> list[Vi
             right_on="valuation_date",
             by="contract_id",
             strategy="forward",
+            check_sortedness=False,
         ).filter(pl.col("status").is_not_null())
         wrong = after.filter(
             (pl.col("status") != pl.col("kind").replace_strict(EXIT_STATUS, default=None))

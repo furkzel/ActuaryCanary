@@ -1,0 +1,6 @@
+file,sheet,title_rows,header_row,first_data_row,data_rows,written
+interest_rates.xlsx,interest_rates,0,1,2,1008,true
+reinsurance_treaties.xlsx,reinsurance_treaties,0,1,2,12,true
+reinsurance_transactions.xlsx,reinsurance_transactions,0,1,2,380,true
+recoveries.xlsx,recoveries,0,1,2,15,true
+ledger.xlsx,ledger,0,1,2,1507,true

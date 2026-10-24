@@ -92,23 +92,16 @@ def quantile(line: Line, p: float) -> float:
 
 
 def _mean_excess(line: Line, u: float) -> float:
-    """E[X - u | X > u]: the survival function integrated on a logarithmic scale up to a point far
-    out, plus the Pareto tail beyond it (the tail index is the one of the scenario)."""
+    """E[X - u | X > u]: the survival function integrated on a logarithmic grid up to a point far
+    out (Simpson), plus the Pareto tail beyond it (the tail index is the one of the scenario)."""
     far = 1e13
-
-    def sf(x: float) -> float:
-        return float(survival(line, np.array([x]))[0])
-
-    area, _ = integrate.quad(
-        lambda y: sf(float(np.exp(y))) * float(np.exp(y)),
-        float(np.log(u)),
-        float(np.log(far)),
-        limit=400,
-    )
+    grid = np.linspace(np.log(u), np.log(far), 8001)
+    x = np.exp(grid)
+    area = float(integrate.simpson(survival(line, x) * x, x=grid))
     tail = line.severity.tail
     if tail is not None and tail.alpha > 1:
-        area += sf(far) * far / (tail.alpha - 1.0)
-    return area / sf(u)
+        area += float(survival(line, np.array([far]))[0]) * far / (tail.alpha - 1.0)
+    return area / float(survival(line, np.array([u]))[0])
 
 
 def severity_truth(scenario: Scenario) -> dict[str, pl.DataFrame]:

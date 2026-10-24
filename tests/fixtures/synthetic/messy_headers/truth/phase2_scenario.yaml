@@ -1,0 +1,252 @@
+phase2:
+  surplus: []
+  rates:
+    curves:
+    - curve_id: TRY_GOV
+      currency: TRY
+    - curve_id: USD_TSY
+      currency: USD
+    - curve_id: EUR_SWAP
+      currency: EUR
+    tenors_months:
+    - 3
+    - 12
+    - 24
+    - 36
+    - 60
+    - 84
+    - 120
+    real_rate: 0.015
+    term_premium: 0.01
+    term_premium_scale_years: 5.0
+    noise_sd: 0.002
+    noise_persistence: 0.9
+    source: SYNTHETIC
+  ledger:
+    fiscal_year_start_month: 1
+    differences:
+      premium_timing_months: 2
+      unmapped_account: true
+      outstanding_with_ibnr_share: 0.08
+      translation_months: 1
+      missing_months: 1
+    other_income_share_of_written: 0.002
+  life_book:
+    enabled: true
+    opening_years: 4
+    opening_share: 0.7
+    count_scale_by_size:
+      tiny: 0.7
+      medium: 1.0
+      large: 1.0
+    mortality:
+      a: 0.0006
+      b: 3.0e-05
+      c: 1.1
+      male_factor: 1.1
+      female_factor: 0.9
+      reporting_lag_days:
+        dist: lognormal
+        median: 12.0
+        sigma: 0.8
+        mean: null
+        cv: null
+        value: null
+        min: null
+        share: null
+      table_max_age: 110
+    fund_return_spread: 0.01
+    funds:
+    - EQUITY
+    - BOND
+    - MONEY_MARKET
+    switch_probability_per_year: 0.05
+    products:
+    - key: TERM_LIFE
+      line: TERM_LIFE
+      segment: LIFE
+      policy_type: INDIVIDUAL
+      channel: AGENCY
+      contracts_first_year: 10000
+      growth_per_year: 0.05
+      entry_age_mean: 42.0
+      entry_age_sd: 9.0
+      entry_age_min: 18
+      entry_age_max: 70
+      term_years: 20
+      age_band_width: 1
+      sum_assured:
+        dist: lognormal
+        median: 400000.0
+        sigma: 0.6
+        mean: null
+        cv: null
+        value: null
+        min: null
+        share: null
+      premium_rate: 0.0016
+      annual_contribution: null
+      premium_frequency: MONTHLY
+      mortality_multiplier: 0.85
+      lapse_by_policy_year:
+      - 0.14
+      - 0.1
+      - 0.08
+      - 0.06
+      - 0.05
+      - 0.04
+      lapse_multiplier: 1.0
+      lapse_decrement: LAPSE
+      reinstatement_probability: 0.05
+      partial_withdrawal_rate: 0.0
+      transfer_out_rate: 0.0
+      transfer_in_share: 0.0
+      fund_fee_rate: 0.0
+      state_contribution_rate: 0.0
+      employer_contribution_share: 0.0
+      has_fund: false
+    - key: GROUP_TERM
+      line: GROUP_TERM_LIFE
+      segment: LIFE
+      policy_type: GROUP
+      channel: BROKER
+      contracts_first_year: 14000
+      growth_per_year: 0.06
+      entry_age_mean: 45.0
+      entry_age_sd: 10.0
+      entry_age_min: 20
+      entry_age_max: 64
+      term_years: null
+      age_band_width: 5
+      sum_assured:
+        dist: lognormal
+        median: 250000.0
+        sigma: 0.5
+        mean: null
+        cv: null
+        value: null
+        min: null
+        share: null
+      premium_rate: 0.0035
+      annual_contribution: null
+      premium_frequency: YEARLY
+      mortality_multiplier: 1.1
+      lapse_by_policy_year:
+      - 0.25
+      - 0.18
+      - 0.15
+      - 0.12
+      lapse_multiplier: 1.0
+      lapse_decrement: LAPSE
+      reinstatement_probability: 0.0
+      partial_withdrawal_rate: 0.0
+      transfer_out_rate: 0.0
+      transfer_in_share: 0.0
+      fund_fee_rate: 0.0
+      state_contribution_rate: 0.0
+      employer_contribution_share: 0.0
+      has_fund: false
+    - key: ENDOWMENT_SAVINGS
+      line: ENDOWMENT
+      segment: LIFE
+      policy_type: INDIVIDUAL
+      channel: BANK
+      contracts_first_year: 4000
+      growth_per_year: 0.03
+      entry_age_mean: 34.0
+      entry_age_sd: 8.0
+      entry_age_min: 18
+      entry_age_max: 70
+      term_years: 15
+      age_band_width: 1
+      sum_assured:
+        dist: lognormal
+        median: 150000.0
+        sigma: 0.5
+        mean: null
+        cv: null
+        value: null
+        min: null
+        share: null
+      premium_rate: 0.0
+      annual_contribution:
+        dist: lognormal
+        median: 12000.0
+        sigma: 0.5
+        mean: null
+        cv: null
+        value: null
+        min: null
+        share: null
+      premium_frequency: YEARLY
+      mortality_multiplier: 0.95
+      lapse_by_policy_year:
+      - 0.05
+      - 0.12
+      - 0.1
+      - 0.08
+      - 0.06
+      lapse_multiplier: 1.2
+      lapse_decrement: SURRENDER
+      reinstatement_probability: 0.0
+      partial_withdrawal_rate: 0.02
+      transfer_out_rate: 0.0
+      transfer_in_share: 0.0
+      fund_fee_rate: 0.01
+      state_contribution_rate: 0.0
+      employer_contribution_share: 0.0
+      has_fund: true
+    - key: PERSONAL_PENSION
+      line: PERSONAL_PENSION
+      segment: PENSION
+      policy_type: INDIVIDUAL
+      channel: BANK
+      contracts_first_year: 7000
+      growth_per_year: 0.08
+      entry_age_mean: 36.0
+      entry_age_sd: 9.0
+      entry_age_min: 18
+      entry_age_max: 70
+      term_years: 25
+      age_band_width: 1
+      sum_assured: null
+      premium_rate: 0.0
+      annual_contribution:
+        dist: lognormal
+        median: 18000.0
+        sigma: 0.6
+        mean: null
+        cv: null
+        value: null
+        min: null
+        share: null
+      premium_frequency: QUARTERLY
+      mortality_multiplier: 0.75
+      lapse_by_policy_year:
+      - 0.12
+      - 0.09
+      - 0.07
+      - 0.05
+      lapse_multiplier: 1.0
+      lapse_decrement: SURRENDER
+      reinstatement_probability: 0.0
+      partial_withdrawal_rate: 0.01
+      transfer_out_rate: 0.03
+      transfer_in_share: 0.12
+      fund_fee_rate: 0.012
+      state_contribution_rate: 0.25
+      employer_contribution_share: 0.2
+      has_fund: true
+truth_users:
+  reinsurance_by_claim: reinsurance item (CV09 allocation, MT21)
+  reinsurance_by_treaty: reinsurance item (RI03, RI04, RI05, M08)
+  recoveries_truth: recoveries and expenses item (RC03, RC04, M07)
+  ledger_gaps: ledger item (FN01, FN02, M10)
+  ledger_differences: ledger item (FN01, M10)
+  interest_rates_truth: uncertainty and discounting item (CV10, RS04)
+  severity_truth: severity and extremes item (MT17, MT18)
+  severity_tail_truth: severity and extremes item (MT18)
+  life_contracts: life experience item (MT20, LF01-LF04)
+  life_mortality_truth: life experience item (MT20, LF02)
+  life_lapse_truth: life experience item (MT20, LF01)
+  life_expected_decrements: life experience item (MT20, MT19)

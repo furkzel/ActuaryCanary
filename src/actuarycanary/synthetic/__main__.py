@@ -29,16 +29,23 @@ def _write(scenario: str, size: str, target: Path) -> None:
 
 @app.command()
 def write(
-    scenario: Annotated[str, typer.Argument(help="A file name in synthetic/scenarios/.")],
+    scenario: Annotated[str, typer.Argument(help="A file name in synthetic/scenarios/, or all.")],
     size: Annotated[str, typer.Argument(help="tiny, medium or large.")] = "tiny",
     out: Annotated[
-        Path | None, typer.Option(help="Folder; default data/synthetic/<scenario>/<size>.")
+        Path | None,
+        typer.Option(
+            help="Folder (for all: the folder of the scenario folders); default data/synthetic."
+        ),
     ] = None,
 ) -> None:
-    """Write one scenario at one size."""
+    """Write one scenario at one size, or every scenario with the name `all`."""
+    if scenario == "all":
+        for name in list_scenarios():
+            _write(name, size, (out / name) if out else Path("data") / "synthetic" / name / size)
+        return
     if scenario not in list_scenarios():
         raise typer.BadParameter(
-            f"unknown scenario {scenario!r}; choose from {', '.join(list_scenarios())}"
+            f"unknown scenario {scenario!r}; choose from {', '.join(list_scenarios())} or all"
         )
     _write(scenario, size, out or Path("data") / "synthetic" / scenario / size)
 

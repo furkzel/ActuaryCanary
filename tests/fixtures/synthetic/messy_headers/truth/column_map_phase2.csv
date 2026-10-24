@@ -1,0 +1,93 @@
+file,sheet,header,field,kind
+interest_rates,Faiz Oranları,EĞRİ KODU,curve_id,alias
+interest_rates,Faiz Oranları,TARİH,date,alias
+interest_rates,Faiz Oranları,VADE ,tenor_months,alias
+interest_rates,Faiz Oranları,ORAN ,rate,alias
+interest_rates,Faiz Oranları,TYEP,rate_type,misspelt
+interest_rates,Faiz Oranları,FAİZ ESASI,compounding,alias
+interest_rates,Faiz Oranları,crrency,currency,misspelt
+interest_rates,Faiz Oranları,PROVIDER ,source,alias
+reinsurance_treaties,Trete Şartları,REASÜRANS ANLAŞMASI,treaty_id,alias
+reinsurance_treaties,Trete Şartları,treaty_type,treaty_type,canonical
+reinsurance_treaties,Trete Şartları,BAĞLANMA_ESASI,attachment_basis,alias
+reinsurance_treaties,Trete Şartları,HASAR ESASI ,loss_basis,alias
+reinsurance_treaties,Trete Şartları,segmentt,segment,misspelt
+reinsurance_treaties,Trete Şartları,BUSINESS LINE ,line,alias
+reinsurance_treaties,Trete Şartları,SİGORTA_ŞİRKETİ,entity,alias
+reinsurance_treaties,Trete Şartları,currency,currency,canonical
+reinsurance_treaties,Trete Şartları,INDEX_CLAUSE,index_series,alias
+reinsurance_treaties,Trete Şartları,EFFECTIVE DATTE,inception_date,misspelt
+reinsurance_treaties,Trete Şartları,BİTİŞ,expiry_date,alias
+reinsurance_treaties,Trete Şartları,QUOTA SHARE ,cession_share,alias
+reinsurance_treaties,Trete Şartları,DEDUCTBILE,retention,misspelt
+reinsurance_treaties,Trete Şartları,CAPACITY,limit,alias
+reinsurance_treaties,Trete Şartları,HAT SAYISI ,number_of_lines,alias
+reinsurance_treaties,Trete Şartları,AGGREGATE DEDUCTIBLE ,aggregate_deductible,alias
+reinsurance_treaties,Trete Şartları,TOPLAM_LİMİT,aggregate_limit,alias
+reinsurance_treaties,Trete Şartları,İHYA ,reinstatements,alias
+reinsurance_treaties,Trete Şartları,İHYA PRİMİ ORANI,reinstatement_rate,alias
+reinsurance_treaties,Trete Şartları,SIGNED_LINE,placed_share,alias
+reinsurance_treaties,Trete Şartları,premium_rrate,premium_rate,misspelt
+reinsurance_treaties,Trete Şartları,CEDING COMMISSION,ceding_commission,alias
+reinsurance_transactions,Sheet1,İŞLME_NUMARASI,transaction_id,misspelt
+reinsurance_transactions,Sheet1,TREATY CODE,treaty_id,alias
+reinsurance_transactions,Sheet1,booking_date,booking_date,canonical
+reinsurance_transactions,Sheet1,TUTAR,amount,alias
+reinsurance_transactions,Sheet1,CUR,currency,alias
+reinsurance_transactions,Sheet1,HAREKET TÜRÜ ,type,alias
+reinsurance_transactions,Sheet1,CLAIM,claim_id,alias
+reinsurance_transactions,Sheet1,poolicy_id,policy_id,misspelt
+reinsurance_transactions,Sheet1,event_code,event_code,canonical
+reinsurance_transactions,Sheet1,LOSS DATE ,effective_date,alias
+reinsurance_transactions,Sheet1,ANA_GRUP,segment,alias
+reinsurance_transactions,Sheet1,ALT BRNAŞ ,line,misspelt
+recoveries,Sayfa1,TRANSACION NO,transaction_id,misspelt
+recoveries,Sayfa1,claim_di,claim_id,misspelt
+recoveries,Sayfa1,POSTING DATE ,booking_date,alias
+recoveries,Sayfa1,amont,amount,misspelt
+recoveries,Sayfa1,currrency,currency,misspelt
+recoveries,Sayfa1,TAAHSİLAT TÜRÜ,type,misspelt
+recoveries,Sayfa1,COUNTERPARTY,counterparty_type,alias
+ledger,ledger,ŞİRKET ,entity,alias
+ledger,ledger,GL ACCOUNT,account,alias
+ledger,ledger,DÖEM SONU ,period,misspelt
+ledger,ledger,BAKİYE,closing_balance,alias
+ledger,ledger,DÖNEM BAŞI BAKİYESİ,opening_balance,alias
+ledger,ledger,DEBIT,debit,alias
+ledger,ledger,CERDIT,credit,misspelt
+ledger,ledger,CUR ,currency,alias
+ledger,ledger,HESAP AÇIKLAMASI,account_name,alias
+ledger,ledger,HESAP GRBU ,account_class,misspelt
+ledger,ledger,SEGMENTATION,segment,alias
+life_in_force,life_in_force,CONTRACT,contract_id,alias
+life_in_force,life_in_force,EXTRATC DATE ,valuation_date,misspelt
+life_in_force,life_in_force,PRRODUCT,product,misspelt
+life_in_force,life_in_force,COMMENCEMENT DATE ,entry_date,alias
+life_in_force,life_in_force,age_abnd,age_band,misspelt
+life_in_force,life_in_force,status,status,canonical
+life_in_force,life_in_force,segmen,segment,misspelt
+life_in_force,life_in_force,LOB,line,alias
+life_in_force,life_in_force,entity,entity,canonical
+life_in_force,life_in_force,SÖZLEŞME_TİPİ,policy_type,alias
+life_in_force,life_in_force,DISTRIBUION CHANNEL ,channel,misspelt
+life_in_force,life_in_force,term_years,term_years,canonical
+life_in_force,life_in_force,TEMİNNAT,sum_assured,misspelt
+life_in_force,life_in_force,FON_DEĞERİ,fund_value,alias
+life_in_force,life_in_force,annual_premium,annual_premium,canonical
+life_in_force,life_in_force,FREQUENCY,premium_frequency,alias
+life_in_force,life_in_force,CUR,currency,alias
+life_in_force,life_in_force,CİNSİYET,sex,alias
+life_events,Sheet1,OLAY NO ,event_id,alias
+life_events,Sheet1,contract_id,contract_id,canonical
+life_events,Sheet1,EVENNT_DATE,event_date,misspelt
+life_events,Sheet1,event_type,event_type,canonical
+life_events,Sheet1,NOTIFICATION DATE ,report_date,alias
+life_events,Sheet1,AMOUNT ,amount,alias
+life_events,Sheet1,CCY,currency,misspelt
+fund_flows,Sheet1,TRANSACTION_ID,flow_id,alias
+fund_flows,Sheet1,contract_id,contract_id,canonical
+fund_flows,Sheet1,FLOW_DATE,flow_date,alias
+fund_flows,Sheet1,KATKI PAYI TUTARI ,amount,alias
+fund_flows,Sheet1,DVÖİZ ,currency,misspelt
+fund_flows,Sheet1,TRANSACTION TYPE,flow_type,alias
+fund_flows,Sheet1,FON KODU ,fund_code,alias
