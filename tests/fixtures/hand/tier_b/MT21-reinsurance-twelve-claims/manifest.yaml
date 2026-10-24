@@ -1,0 +1,23 @@
+produced_on: '2026-10-24'
+id: MT21-reinsurance-twelve-claims
+spec_ids:
+- MT21
+- CV09
+kind: hand_worked
+title: Quota share, surplus and per-risk excess of loss on twelve claims, alone and in the CV09 inuring
+  order
+source:
+  tool: exact fractions in Python
+how_produced: 'Run tests/benchmarks/tools/build_hand_fixtures.py. Amounts in thousands. Quota share 30
+  % with 25 % commission; surplus with a retained line of 400 and four lines; per-risk excess of loss
+  200 xs 100 at 100 % placed, flat premium 40. Programme: surplus on gross, quota share on what the surplus
+  leaves, excess of loss on what the quota share leaves (decision 0604).'
+files:
+  claims: claims.csv
+  values: values.csv
+tolerance_note: 1e-12 relative (all rational).
+not_covered:
+- 'Aggregate deductible and limit, reinstatements with premium, stop loss, event excess of loss and the
+  index clause: no hand case yet; they belong to the reinsurance item (P30) and the spec MT21 fixture
+  line stays open for them (decision 0273).'
+checked_by_owner: false

@@ -1,0 +1,21 @@
+produced_on: '2026-10-24'
+id: MT20-credibility-actual-over-expected
+spec_ids:
+- MT20
+kind: hand_worked
+title: Actual over expected with Garwood intervals and limited fluctuation credibility
+source:
+  tool: exact fractions and scipy.stats (chi-square, normal quantiles)
+  scipy_version: 1.18.1
+how_produced: Run tests/benchmarks/tools/build_hand_fixtures.py. Five age cells with central exposure,
+  a reference rate and actual deaths. full_credibility_probability 0.9, tolerance 0.05, confidence 0.95
+  (the MT20 defaults).
+files:
+  cells: cells.csv
+  values: values.csv
+tolerance_note: 1e-12 relative for exact rows; 1e-9 for chi-square quantiles.
+notes:
+- 'Buehlmann-Straub credibility is NOT frozen: the spec says the structural parameters are ''estimated
+  from the cells, non-negative'' without naming the estimators; a choice changes the numbers, so it waits
+  for the owner (decision 0272).'
+checked_by_owner: false

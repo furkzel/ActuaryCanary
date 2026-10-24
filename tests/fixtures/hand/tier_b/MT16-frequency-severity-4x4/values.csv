@@ -1,0 +1,41 @@
+quantity,key,value,rel_tol,note
+count_factor,12_24,1.15625,1e-12,volume weighted
+count_factor,24_36,1.034375,1e-12,volume weighted
+count_factor,36_48,1.0105263157894737,1e-12,volume weighted
+incurred_factor,12_24,1.1,1e-12,volume weighted
+incurred_factor,24_36,1.0297326203208557,1e-12,volume weighted
+incurred_factor,36_48,1.0105913503971757,1e-12,volume weighted
+ultimate_count_N,2021,480.0,1e-12,480 x 1
+ultimate_incurred_U,2021,2290.0,1e-12,2290 x 1
+incurred_reported_share_p,2021,1.0,1e-12,1 / incurred cdf
+frequency,2021,0.48,1e-12,N 480 / exposure 1000
+severity_chain_ladder,2021,4.770833333333333,1e-12,U 2290 / N 480
+ultimate_count_N,2022,523.4526315789474,1e-12,518 x 1.01053
+ultimate_incurred_U,2022,2574.9867608120035,1e-12,2548 x 1.01059
+incurred_reported_share_p,2022,0.9895196506550218,1e-12,1 / incurred cdf
+frequency,2022,0.4985263157894737,1e-12,N 523.453 / exposure 1050
+severity_chain_ladder,2022,4.919235486589855,1e-12,U 2574.99 / N 523.453
+ultimate_count_N,2023,543.5368421052632,1e-12,520 x 1.04526
+ultimate_incurred_U,2023,2747.2866413997194,1e-12,2640 x 1.04064
+incurred_reported_share_p,2023,0.9609481443315802,1e-12,1 / incurred cdf
+frequency,2023,0.4941244019138756,1e-12,N 543.537 / exposure 1100
+severity_chain_ladder,2023,5.054462602311824,1e-12,U 2747.29 / N 543.537
+ultimate_count_N,2024,568.0351973684211,1e-12,470 x 1.20859
+ultimate_incurred_U,2024,2976.2271948496964,1e-12,2600 x 1.1447
+incurred_reported_share_p,2024,0.8735892221196183,1e-12,1 / incurred cdf
+frequency,2024,0.49394364988558354,1e-12,N 568.035 / exposure 1150
+severity_chain_ladder,2024,5.2395119327779085,1e-12,U 2976.23 / N 568.035
+frequency_trend,slope,0.007703694643066716,1e-09,"spreadsheet: SLOPE(LN(frequency), t), t = 0..3 (float)"
+frequency_trend,intercept,-0.7216480122704754,1e-09,"INTERCEPT(LN(frequency), t) (float)"
+severity_trend,mature_origins_p_at_least_0.9,3.0,0.0,"origins 2021, 2022, 2023 (p = 1, 0.9895, 0.9609); 2024 has p = 0.8736"
+severity_trend,slope,0.028875272024258887,1e-09,"SLOPE(LN(severity of the mature origins), t) (float)"
+severity_trend,intercept,1.5631066142646821,1e-09,INTERCEPT(...) (float)
+projected_severity,2021,4.773628054715557,1e-09,EXP(intercept + slope t) (float)
+frequency_severity_ultimate,2021,2291.3414662634673,1e-09,N 480 x projected severity (float); no catastrophe claims
+projected_severity,2022,4.913477238109672,1e-09,EXP(intercept + slope t) (float)
+frequency_severity_ultimate,2022,2571.972590491766,1e-09,N 523.453 x projected severity (float); no catastrophe claims
+projected_severity,2023,5.057423471770759,1e-09,EXP(intercept + slope t) (float)
+frequency_severity_ultimate,2023,2748.895983035315,1e-09,N 543.537 x projected severity (float); no catastrophe claims
+projected_severity,2024,5.205586783721026,1e-09,EXP(intercept + slope t) (float)
+frequency_severity_ultimate,2024,2956.9565161094174,1e-09,N 568.035 x projected severity (float); no catastrophe claims
+frequency_severity_ultimate,total,10569.166555899965,1e-09,sum over origins (float)

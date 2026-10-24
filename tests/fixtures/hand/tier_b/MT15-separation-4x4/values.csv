@@ -1,0 +1,60 @@
+quantity,key,value,rel_tol,note
+avg_paid_per_claim_s,2021_dev0,50.0,1e-12,X 1000 / n 20
+avg_paid_per_claim_s,2021_dev1,33.0,1e-12,X 660 / n 20
+avg_paid_per_claim_s,2021_dev2,18.75,1e-12,X 375 / n 20
+avg_paid_per_claim_s,2021_dev3,7.0,1e-12,X 140 / n 20
+avg_paid_per_claim_s,2022_dev0,55.0,1e-12,X 1100 / n 20
+avg_paid_per_claim_s,2022_dev1,37.5,1e-12,X 750 / n 20
+avg_paid_per_claim_s,2022_dev2,21.0,1e-12,X 420 / n 20
+avg_paid_per_claim_s,2023_dev0,62.5,1e-12,X 1500 / n 24
+avg_paid_per_claim_s,2023_dev1,42.0,1e-12,X 1008 / n 24
+avg_paid_per_claim_s,2024_dev0,70.0,1e-12,X 2800 / n 40
+diagonal_sum_d,k0,50.0,1e-12,50
+diagonal_sum_d,k1,88.0,1e-12,33 + 55
+diagonal_sum_d,k2,118.75,1e-12,18.75 + 37.5 + 62.5
+diagonal_sum_d,k3,140.0,1e-12,7 + 21 + 42 + 70
+column_sum_v,dev0,237.5,1e-12,50 + 55 + 62.5 + 70
+column_sum_v,dev1,112.5,1e-12,33 + 37.5 + 42
+column_sum_v,dev2,39.75,1e-12,18.75 + 21
+column_sum_v,dev3,7.0,1e-12,7
+calendar_index_lambda,k3,140.0,1e-12,d_3
+development_pattern_r,dev3,0.05,1e-12,v_3 / sum of lambda_k for k >= 3
+calendar_index_lambda,k2,125.0,1e-12,d_2 / (1 - sum of r_j for j > 2)
+development_pattern_r,dev2,0.15,1e-12,v_2 / sum of lambda_k for k >= 2
+calendar_index_lambda,k1,110.0,1e-12,d_1 / (1 - sum of r_j for j > 1)
+development_pattern_r,dev1,0.3,1e-12,v_1 / sum of lambda_k for k >= 1
+calendar_index_lambda,k0,100.0,1e-12,d_0 / (1 - sum of r_j for j > 0)
+development_pattern_r,dev0,0.5,1e-12,v_0 / sum of lambda_k for k >= 0
+development_pattern_r,sum,1.0,1e-12,must be 1
+reserve_assumed_5pct,2021,0.0,1e-12,sum of the projected increments of the origin
+ultimate_assumed_5pct,2021,2175.0,1e-12,paid to date 2175 + reserve
+projected_increment_assumed_5pct,2022_dev3,147.0,1e-12,n 20 x r_3 0.05 x lambda_4 147
+reserve_assumed_5pct,2022,147.0,1e-12,sum of the projected increments of the origin
+ultimate_assumed_5pct,2022,2417.0,1e-12,paid to date 2270 + reserve
+projected_increment_assumed_5pct,2023_dev2,529.2,1e-12,n 24 x r_2 0.15 x lambda_4 147
+projected_increment_assumed_5pct,2023_dev3,185.22,1e-12,n 24 x r_3 0.05 x lambda_5 154.35
+reserve_assumed_5pct,2023,714.42,1e-12,sum of the projected increments of the origin
+ultimate_assumed_5pct,2023,3222.42,1e-12,paid to date 2508 + reserve
+projected_increment_assumed_5pct,2024_dev1,1764.0,1e-12,n 40 x r_1 0.3 x lambda_4 147
+projected_increment_assumed_5pct,2024_dev2,926.1,1e-12,n 40 x r_2 0.15 x lambda_5 154.35
+projected_increment_assumed_5pct,2024_dev3,324.135,1e-12,n 40 x r_3 0.05 x lambda_6 162.067
+reserve_assumed_5pct,2024,3014.235,1e-12,sum of the projected increments of the origin
+ultimate_assumed_5pct,2024,5814.235,1e-12,paid to date 2800 + reserve
+total_reserve_assumed_5pct,all,3875.655,1e-12,sum over origins
+future_index_trend,slope_of_ln_lambda,0.11372500813735216,1e-09,"spreadsheet: SLOPE(LN(lambda), k) over k = 0..3 (float)"
+future_index_trend,growth_g,0.12044396954181225,1e-09,EXP(slope) - 1 (float)
+reserve_ols_trend,2021,0.0,1e-12,sum of the projected increments of the origin
+ultimate_ols_trend,2021,2175.0,1e-12,paid to date 2175 + reserve
+projected_increment_ols_trend,2022_dev3,156.86215573585372,1e-12,n 20 x r_3 0.05 x lambda_4 156.862
+reserve_ols_trend,2022,156.86215573585372,1e-12,sum of the projected increments of the origin
+ultimate_ols_trend,2022,2426.862155735854,1e-12,paid to date 2270 + reserve
+projected_increment_ols_trend,2023_dev2,564.7037606490734,1e-12,n 24 x r_2 0.15 x lambda_4 156.862
+projected_increment_ols_trend,2023_dev3,210.90630773227906,1e-12,n 24 x r_3 0.05 x lambda_5 175.755
+reserve_ols_trend,2023,775.6100683813524,1e-12,sum of the projected increments of the origin
+ultimate_ols_trend,2023,3283.6100683813524,1e-12,paid to date 2508 + reserve
+projected_increment_ols_trend,2024_dev1,1882.3458688302446,1e-12,n 40 x r_1 0.3 x lambda_4 156.862
+projected_increment_ols_trend,2024_dev2,1054.5315386613952,1e-12,n 40 x r_2 0.15 x lambda_5 175.755
+projected_increment_ols_trend,2024_dev3,393.8478343949362,1e-12,n 40 x r_3 0.05 x lambda_6 196.924
+reserve_ols_trend,2024,3330.7252418865764,1e-12,sum of the projected increments of the origin
+ultimate_ols_trend,2024,6130.725241886576,1e-12,paid to date 2800 + reserve
+total_reserve_ols_trend,all,4263.197466003782,1e-12,sum over origins

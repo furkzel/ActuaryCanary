@@ -1,0 +1,49 @@
+quantity,key,value,rel_tol,note
+lambda,paid,0.6360214664251506,1e-06,"lambda^P, package"
+lambda,incurred,0.4361871320120305,1e-06,"lambda^I, package"
+lambda_all_links,paid,0.6129837617419834,1e-09,derived by numpy from the spec text: every link with both residuals
+lambda_all_links,incurred,0.42079527712292153,1e-09,"derived, as above"
+lambda_without_last_link,paid,0.6360214664251503,1e-09,"derived: the last link (one origin, extrapolated variance parameters) left out; equals the package"
+lambda_without_last_link,incurred,0.4361871320120306,1e-09,"derived, as above"
+munich_paid_ultimate,2001,2131.0,1e-06,package
+munich_paid_ultimate,2002,2384.8420915142624,1e-06,package
+munich_paid_ultimate,2003,4553.623621139067,1e-06,package
+munich_paid_ultimate,2004,6069.50929270239,1e-06,package
+munich_paid_ultimate,2005,4878.950382978834,1e-06,package
+munich_paid_ultimate,2006,4598.995746311977,1e-06,package
+munich_paid_ultimate,2007,7504.575860343228,1e-06,package
+chain_ladder_paid_ultimate,2001,2131.0,1e-06,package
+chain_ladder_paid_ultimate,2002,2380.3939105613704,1e-06,package
+chain_ladder_paid_ultimate,2003,4652.180870597246,1e-06,package
+chain_ladder_paid_ultimate,2004,6181.608910260367,1e-06,package
+chain_ladder_paid_ultimate,2005,5055.60063777399,1e-06,package
+chain_ladder_paid_ultimate,2006,4934.085956578036,1e-06,package
+chain_ladder_paid_ultimate,2007,6128.340220605438,1e-06,package
+munich_incurred_ultimate,2001,2174.0,1e-06,package
+munich_incurred_ultimate,2002,2443.222399682932,1e-06,package
+munich_incurred_ultimate,2003,4634.357894639794,1e-06,package
+munich_incurred_ultimate,2004,6182.347407062567,1e-06,package
+munich_incurred_ultimate,2005,4957.805406393461,1e-06,package
+munich_incurred_ultimate,2006,4672.401782158647,1e-06,package
+munich_incurred_ultimate,2007,7655.377611105532,1e-06,package
+chain_ladder_incurred_ultimate,2001,2174.0,1e-06,package
+chain_ladder_incurred_ultimate,2002,2445.0027497708525,1e-06,package
+chain_ladder_incurred_ultimate,2003,4581.51404740193,1e-06,package
+chain_ladder_incurred_ultimate,2004,6126.363201239726,1e-06,package
+chain_ladder_incurred_ultimate,2005,4839.017552856421,1e-06,package
+chain_ladder_incurred_ultimate,2006,4476.118116417678,1e-06,package
+chain_ladder_incurred_ultimate,2007,8428.838215714628,1e-06,package
+munich_paid_to_incurred_ratio,2001,0.9802207911683533,1e-06,derived
+munich_paid_to_incurred_ratio,2002,0.9761052009934724,1e-06,derived
+munich_paid_to_incurred_ratio,2003,0.9825791888895534,1e-06,derived
+munich_paid_to_incurred_ratio,2004,0.9817483381423577,1e-06,derived
+munich_paid_to_incurred_ratio,2005,0.9840947723940641,1e-06,derived
+munich_paid_to_incurred_ratio,2006,0.9842894427172408,1e-06,derived
+munich_paid_to_incurred_ratio,2007,0.9803012002251151,1e-06,derived
+chain_ladder_paid_to_incurred_ratio,2001,0.9802207911683533,1e-06,derived
+chain_ladder_paid_to_incurred_ratio,2002,0.973575146606466,1e-06,derived
+chain_ladder_paid_to_incurred_ratio,2003,1.0154243384313948,1e-06,derived
+chain_ladder_paid_to_incurred_ratio,2004,1.009017700584494,1e-06,derived
+chain_ladder_paid_to_incurred_ratio,2005,1.0447576563944723,1e-06,derived
+chain_ladder_paid_to_incurred_ratio,2006,1.1023136182400115,1e-06,derived
+chain_ladder_paid_to_incurred_ratio,2007,0.7270681989339683,1e-06,derived
