@@ -1,0 +1,39 @@
+id: M07
+version: 0.1.0
+title_en: Recoveries
+title_tr: Rücu ve sovtaj
+status: draft
+implemented: false
+definition: >-
+  Subrogation, salvage and other recoveries: how much of paid claims comes back, how long
+  it takes, and how recovery development compares across origins and lines.
+phase: 2
+question: How much do subrogation and salvage bring back, and when?
+required_all: []
+required_any: [recoveries, claim_valuations]
+optional: [claims]
+measures: [RC01, RC02, RC03, RC04]
+methods: [MT01]
+skip_reason: >-
+  Recoveries did not run: no recovery data was loaded. Load recoveries.xlsx, or
+  claim_valuations.xlsx with subrogation_to_date or salvage_to_date columns, to enable it;
+  add claims.xlsx for accident-period origins and causes.
+blocking_rules: [DV-RCV-01, DV-CLV-01]
+outputs:
+  - recoveries.csv (recovery flows per claim, type and month, from transactions or derived)
+  - recovery_development.csv (RC04 triangles by type)
+  - recovery_reconciliation.csv (transactions against to-date fields, DV-RCV-08)
+report_page:
+  - Headline - recovered to date and as a share of paid, by type, with the change against the previous year.
+  - Recovery ratios by origin with development age (RC01, RC02).
+  - Recovery development triangle as a heatmap per type (RC04).
+  - Delay from first payment to recovery, distribution by type (RC03).
+  - Source of the figures (transactions or derived from to-date fields) and the reconciliation differences.
+notes: >-
+  The module runs on claim_valuations alone when its to-date recovery columns exist; each
+  measure skips with its own reason when its fields are missing. Recoveries stay outside
+  the reinsurance basis (CV03). Built by the recoveries and expenses item.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 10 (P20).

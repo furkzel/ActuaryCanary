@@ -1,0 +1,99 @@
+id: MT13
+version: 0.1.0
+title_en: Benktander and credibility-weighted blends
+title_tr: Benktander ve güvenilirlik ağırlıklı karışımlar
+status: draft
+implemented: false
+definition: >-
+  Ultimates that blend the chain ladder and Bornhuetter–Ferguson by maturity: the
+  Benktander (iterated Bornhuetter–Ferguson) estimate and Mack's credibility-weighted
+  reserve, as principled alternatives to the hard switch of MT10.
+tier: B
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claims.occurrence_date
+  - premiums.policy_id
+  - premiums.amount
+  - premiums.type
+  - premiums.booking_date
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+optional: [claims.segment, claims.line, policies.segment, policies.line]
+uses: [MT01, MT02, MT03, MT04, MT10]
+assumptions:
+  - statement: The chain-ladder pattern is right (as MT02), and the prior ultimate of MT03 or MT04 is unbiased.
+    check: As for MT02 and MT03; compare the three estimates per origin.
+  - statement: >-
+      For the credibility weights: the reserve's variance grows with the unreported share in
+      the way Mack (2000) assumes, which gives the weight Z = p / (p + sqrt(p)).
+    check: None on one triangle; back-testing (MT22) compares the blends with CL and BF over time.
+parameters:
+  - name: blend
+    default: benktander
+    description: Which blend.
+    allowed: [benktander, mack_credibility]
+  - name: iterations
+    default: 1
+    description: Benktander iterations k; 0 gives Bornhuetter–Ferguson, large k approaches the chain ladder.
+  - name: prior
+    default: MT03
+    description: Source of the prior ultimate (Bornhuetter–Ferguson prior loss ratio, or the Cape Cod loss ratio of MT04).
+    allowed: [MT03, MT04]
+  - name: measure
+    default: incurred
+    description: Triangle the blend is made on, as MT10.
+    allowed: [incurred, paid]
+algorithm:
+  - step: Reported share p(i) and unreported share q(i) from the selected chain-ladder factors (MT02).
+    formula: 'p_i = 1 / CDF_{J_i}, \qquad q_i = 1 - p_i'
+  - step: Prior ultimate U^0(i) = prior loss ratio times earned premium (MT03 or MT04); Bornhuetter–Ferguson ultimate.
+    formula: '\hat U^{BF}_i = C_{i,J_i} + q_i U^0_i'
+  - step: Benktander, iterated k times from the prior (k = 1 is the classical Benktander).
+    formula: '\hat U^{(0)}_i = U^0_i, \qquad \hat U^{(m+1)}_i = C_{i,J_i} + q_i \hat U^{(m)}_i, \qquad \hat U^{GB}_i = \hat U^{(k+1)}_i'
+  - step: Equivalently, a credibility mix with weight 1 - q^k on the chain ladder.
+    formula: '\hat R^{(k)}_i = \big(1 - q_i^{k}\big)\, \hat R^{CL}_i + q_i^{k}\, \hat R^{BF}_i'
+  - step: Mack's credibility weight and reserve.
+    formula: 'Z_i = \frac{p_i}{p_i + \sqrt{p_i}}, \qquad \hat R^{c}_i = Z_i \hat R^{CL}_i + (1 - Z_i) \hat R^{BF}_i'
+outputs:
+  - name: blended_ultimate
+    description: Ultimate per origin of the chosen blend.
+  - name: weights
+    description: Weight on the chain ladder per origin (1 - q^k, or Z).
+  - name: comparison
+    description: Chain ladder, Bornhuetter–Ferguson and the blend per origin.
+diagnostics:
+  - Ultimates of chain ladder, Bornhuetter–Ferguson and the blend per origin against maturity.
+failure_modes:
+  - condition: Chain ladder or prior not available.
+    action: Not run, with the reason of MT02, MT03 or MT04.
+  - condition: A cumulative development factor below 1 (p above 1).
+    action: Weights are capped at 1 for that origin, with a WARNING.
+validation:
+  - kind: fixture
+    description: Benktander with k = 1 and the Mack credibility reserve for a 4 x 4 triangle with premium, hand-computed.
+    tolerance: 1e-12 relative
+  - kind: property
+    description: k = 0 equals Bornhuetter–Ferguson; k = 200 equals the chain ladder for origins with p above 0.1; the iterated and the closed form agree.
+    tolerance: 1e-9 relative
+  - kind: benchmark
+    description: >-
+      Benktander ultimates on RAA with a constant prior (the chainladder package's
+      Benktander estimator, n_iters 1, the same apriori), frozen as in decision 0007.
+    tolerance: 1e-9 relative
+  - kind: ground_truth
+    description: >-
+      On the synthetic baseline (medium), the blended ultimate, summed per line over all
+      accident years, is within tolerance of the true ultimate; per accident year reported as
+      information beside chain ladder and Bornhuetter–Ferguson.
+    tolerance: 5 per cent per line, 10 per cent for MOTOR_TPL
+references:
+  - Benktander, G. (1976). An approach to credibility in calculating IBNR for casualty excess reinsurance. The Actuarial Review.
+  - 'Mack, T. (2000). Credible claims reserves: the Benktander method. ASTIN Bulletin.'
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.2 (P20).

@@ -1,0 +1,65 @@
+id: MT28
+version: 0.1.0
+title_en: Portfolio segmentation (clustering)
+title_tr: Portföy segmentasyonu (kümeleme)
+status: draft
+implemented: false
+definition: >-
+  Groups policies into homogeneous segments by clustering their rating factors and
+  experience, so that analyses can run on groups that behave alike rather than only by line.
+  A challenger to the grouping by line used by the frequency analysis of MT16.
+tier: C
+champion: MT16
+requires:
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+optional: [policies.line, policies.product, policies.channel, policies.sum_insured, policies.exposure_units, claims.policy_id]
+uses: [MT16, CV04]
+assumptions:
+  - statement: The chosen features describe risk; clusters in them are clusters in risk.
+    check: Frequency and severity differ more between clusters than within (deviance explained).
+parameters:
+  - name: algorithm
+    default: kmeans
+    description: Clustering method (scikit-learn KMeans on standardised numeric and one-hot categorical features, or a Gaussian mixture).
+    allowed: [kmeans, gaussian_mixture]
+  - name: k_range
+    default: [2, 12]
+    description: Numbers of clusters tried; k chosen by the silhouette score.
+  - name: seed
+    default: run seed
+    description: Seed, recorded in the manifest.
+algorithm:
+  - step: Features per policy - rating factors, sum insured, exposure; claim experience (frequency) only as a check, never as a clustering input, so clusters do not reuse the outcome.
+  - step: Fit for each k in the range; choose k by the silhouette score.
+  - step: >-
+      Compare with the champion - share of Poisson frequency deviance explained by the
+      clusters against the share explained by line (MT16 grouping), on an out-of-time year.
+outputs:
+  - name: assignments
+    description: Cluster per policy, with cluster profiles (feature means and shares).
+  - name: comparison
+    description: Deviance explained by clusters and by line; frequency per cluster.
+diagnostics:
+  - Silhouette by k; cluster sizes; profile chart.
+failure_modes:
+  - condition: Fewer than 1,000 policies.
+    action: Not run; reason gives the count.
+validation:
+  - kind: property
+    description: Same seed, same clusters; scaling a numeric feature does not change clusters (features are standardised).
+    tolerance: exact
+  - kind: ground_truth
+    description: >-
+      Ground-truth metric - adjusted Rand index between clusters and the generator's
+      products on the synthetic baseline (medium), with the deviance explained against the
+      champion's line grouping reported as information.
+    tolerance: adjusted Rand index at least 0.5
+references:
+  - Hastie, T., Tibshirani, R. and Friedman, J. (2009). The Elements of Statistical Learning. Springer.
+  - Rousseeuw, P. J. (1987). Silhouettes - a graphical aid to the interpretation and validation of cluster analysis. Journal of Computational and Applied Mathematics.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.3 (P20).

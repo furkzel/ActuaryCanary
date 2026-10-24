@@ -7,8 +7,10 @@ from pathlib import Path
 
 import polars as pl
 import pytest
+from polars.testing import assert_frame_equal
 
 from actuarycanary.io.excel import RawTable
+from actuarycanary.measures.lineage import read_lineage, to_format1
 from actuarycanary.methods.assumptions import Assumption, AssumptionsRegister
 from actuarycanary.pipeline import InputError, RunResult, RunSettings, run
 from actuarycanary.recognition.dictionary import Dictionary
@@ -49,6 +51,7 @@ def test_baseline_tiny_outputs_inputs_and_groups(default_run: RunResult) -> None
         "chain_ladder.csv",
         "measures.csv",
         "lineage.csv",
+        "lineage_atoms.csv",
         "modules.json",
         "assumptions.csv",
         "ultimates.csv",
@@ -268,8 +271,36 @@ def test_every_value_in_the_outputs_names_its_spec_version_and_its_source_rows(
     assert values[0].startswith("measure,version,view,basis,row,key,column,value,note")
     assert any(line.startswith("PR02,1.0.0,") for line in values)
     lineage = (default_run.folder / "lineage.csv").read_text(encoding="utf-8").splitlines()
-    assert lineage[0] == "measure,version,view,row,concept,file,sheet,rows,count"
-    assert any(",premiums,premiums.xlsx," in line for line in lineage)
+    assert lineage[0] == "measure,version,view,row,concept,atoms,count"
+    atoms = (default_run.folder / "lineage_atoms.csv").read_text(encoding="utf-8").splitlines()
+    assert atoms[0] == "atom,concept,file,sheet,rows,count"
+    assert any(",premiums,premiums.xlsx," in line for line in atoms)
+    assert _manifest(default_run.manifest)["lineage_format"] == 2
+
+
+@pytest.mark.slow
+def test_lineage_format_1_is_the_same_lineage_as_format_2(
+    default_run: RunResult, tmp_path: Path, cache: Path
+) -> None:
+    one = run(BASELINE, tmp_path, RunSettings(lineage_format=1), cache_dir=cache)
+    assert one.run_id != default_run.run_id  # the files differ, so the run id differs
+    assert not (one.folder / "lineage_atoms.csv").exists()
+    assert _manifest(one.manifest)["lineage_format"] == 1
+    header = (one.folder / "lineage.csv").read_text(encoding="utf-8").splitlines()[0]
+    assert header == "measure,version,view,row,concept,file,sheet,rows,count"
+    first, second = read_lineage(one.folder), read_lineage(default_run.folder)
+    text = [pl.col(c).cast(pl.String) for c in first.values.columns]
+    assert to_format1(first).select(text).equals(to_format1(second).select(text))
+    assert one.report_data["lineage"]["format"] == 1
+    assert default_run.report_data["lineage"]["format"] == 2
+    assert (
+        one.report_data["lineage"]["rows_cited"] == default_run.report_data["lineage"]["rows_cited"]
+    )
+
+
+def test_a_lineage_format_that_does_not_exist_is_refused() -> None:
+    with pytest.raises(ValueError, match="lineage format 3"):
+        RunSettings(lineage_format=3)
 
 
 def _csv(result: RunResult, name: str) -> pl.DataFrame:
@@ -371,3 +402,49 @@ def test_the_report_shows_the_modules_and_the_method_tables(default_run: RunResu
     assert 'id="measure-views"' in html and 'id="anomalies"' in html
     for heading in ("Ultimates by method", "Diagnostics", "Assumptions register", "Key findings"):
         assert heading in html
+
+
+def _incremental_copy(folder: Path) -> None:
+    """The baseline folder with claim_valuations.xlsx holding the amounts of each month instead
+    of the amounts to date (every other file as it was)."""
+    for source in BASELINE.glob("*.xlsx"):
+        shutil.copyfile(source, folder / source.name)
+    sheets = pl.read_excel(BASELINE / "claim_valuations.xlsx", sheet_id=0)  # all sheets
+    # a repeated month is one row in the amounts to date, so it is one row here too
+    ordered = (
+        pl.concat(list(sheets.values()))
+        .unique(subset=["claim_id", "valuation_date"], keep="last", maintain_order=True)
+        .sort("claim_id", "valuation_date")
+    )
+    flows = ("paid_to_date", "subrogation_to_date", "salvage_to_date")
+    diffs = [
+        (pl.col(c) - pl.col(c).shift(1).over("claim_id").fill_null(0.0)).alias(c)
+        for c in flows
+        if c in ordered.columns
+    ]
+    ordered.with_columns(diffs).write_excel(folder / "claim_valuations.xlsx")
+
+
+@pytest.mark.slow
+def test_amounts_per_period_are_added_up_and_give_the_triangles_of_the_cumulative_file(
+    default_run: RunResult, tmp_path: Path, cache: Path
+) -> None:
+    folder = tmp_path / "incremental"
+    folder.mkdir()
+    _incremental_copy(folder)
+    result = run(folder, tmp_path / "out", cache_dir=cache)
+    assert result.run_id != default_run.run_id  # the input differs, and so does its reading
+    sheet = next(t for t in result.tables if t.concept == "claim_valuations")
+    assert sheet.amounts == "incremental" and "per period" in sheet.amounts_note
+    for name in ("triangles.csv", "factors.csv", "chain_ladder.csv"):
+        # adding up the differences gives the amounts back up to rounding in the last digits
+        assert_frame_equal(
+            pl.read_csv(result.folder / name),
+            pl.read_csv(default_run.folder / name),
+            rel_tol=1e-9,
+            abs_tol=1e-6,
+        )
+    manifest = _manifest(result.manifest)
+    mapped = next(m for m in manifest["mapping_profiles"] if m["concept"] == "claim_valuations")
+    assert mapped["amounts"] == "incremental"
+    assert any(f["rule"] == "CV07-INCREMENTAL" for f in manifest["data_findings"])

@@ -1,0 +1,132 @@
+id: life_events
+version: 0.1.0
+title_en: Life and pension events
+title_tr: Hayat ve emeklilik olayları
+status: draft
+implemented: false
+definition: >-
+  Decrements and movements of life and pension contracts: deaths, disabilities, surrenders,
+  partial withdrawals, lapses, maturities, annuity starts, transfers and reinstatements, one
+  row per event with its date and amount.
+file_name: life_events.xlsx
+required_for_report: false
+grain: one event on one contract
+keys: [event_id]
+fields:
+  - name: event_id
+    type: text
+    required: true
+    description: Event identifier, kept as text.
+  - name: contract_id
+    type: text
+    required: true
+    description: Contract the event belongs to.
+    references: life_in_force.contract_id
+  - name: event_date
+    type: date
+    required: true
+    description: Date the event happened (death, surrender request, lapse effective date).
+  - name: event_type
+    type: text
+    required: true
+    description: Event type; any source label, mapped to a class.
+    classes:
+      - DEATH
+      - DISABILITY
+      - SURRENDER
+      - PARTIAL_WITHDRAWAL
+      - LAPSE
+      - MATURITY
+      - ANNUITY_START
+      - TRANSFER_IN
+      - TRANSFER_OUT
+      - REINSTATEMENT
+  - name: report_date
+    type: date
+    required: false
+    description: Date the insurer learned of the event; used for the reporting lag of deaths (CV11).
+  - name: amount
+    type: number
+    required: false
+    description: >-
+      Benefit or value paid or transferred in original currency, a positive magnitude (CV05);
+      empty for events without money (a lapse without surrender value).
+  - name: currency
+    type: text
+    required: false
+    description: ISO 4217 code of the amount; empty means the currency of the contract.
+validation:
+  - id: DV-LEV-01
+    dimension: completeness
+    severity: BLOCKING
+    fields:
+      - life_events.event_id
+      - life_events.contract_id
+      - life_events.event_date
+      - life_events.event_type
+    rule: event_id, contract_id, event_date and event_type are present.
+    action: Rows without any of them are excluded and listed.
+  - id: DV-LEV-02
+    dimension: validity
+    severity: WARNING
+    fields: [life_events.event_type]
+    rule: event_type maps to a class through the value aliases (AL04).
+    action: Unmapped rows become UNMAPPED, are excluded from every rate and listed.
+  - id: DV-LEV-03
+    dimension: uniqueness
+    severity: WARNING
+    fields: [life_events.event_id]
+    rule: event_id is unique.
+    action: Identical duplicates are kept once; conflicting duplicates keep the later source row; listed.
+  - id: DV-LEV-04
+    dimension: consistency
+    severity: WARNING
+    fields: [life_events.contract_id]
+    rule: Every contract_id exists in life_in_force.
+    action: >-
+      The event is counted in totals by type and left out of every rate, because it has no
+      exposure; listed.
+  - id: DV-LEV-05
+    dimension: consistency
+    severity: WARNING
+    fields: [life_events.event_date, life_events.contract_id]
+    rule: event_date is on or after the contract's entry_date and on or before the cut-off.
+    action: The row is excluded and listed.
+  - id: DV-LEV-06
+    dimension: consistency
+    severity: WARNING
+    fields: [life_events.event_type, life_events.contract_id]
+    rule: >-
+      A contract has at most one terminal event (DEATH, SURRENDER, LAPSE, MATURITY,
+      TRANSFER_OUT) between two REINSTATEMENT events.
+    action: The earliest terminal event is used; the others are listed.
+  - id: DV-LEV-07
+    dimension: consistency
+    severity: INFO
+    fields: [life_events.event_type, life_events.event_date]
+    rule: >-
+      The status of the contract at its first valuation after a terminal event matches the
+      event (DEATH and DEATH_CLAIM, SURRENDER and SURRENDERED, LAPSE and LAPSED, MATURITY and
+      MATURED, TRANSFER_OUT and TRANSFERRED_OUT).
+    action: The event is used for exposure and decrement; the mismatch is listed.
+  - id: DV-LEV-08
+    dimension: consistency
+    severity: INFO
+    fields: [life_events.report_date, life_events.event_date]
+    rule: report_date, when present, is on or after event_date.
+    action: Kept as given and listed.
+  - id: DV-LEV-09
+    dimension: reasonableness
+    severity: INFO
+    fields: [life_events.amount]
+    rule: amount is zero or positive.
+    action: Kept as given and listed.
+notes: >-
+  Draft for a later version (the life-feeds item). When life_events is absent, terminal events are derived
+  from status changes between consecutive valuations of life_in_force, dated at the middle
+  of the interval (CV11); exposure then carries up to half an interval of error, which the
+  report states.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 4.4 (P20).

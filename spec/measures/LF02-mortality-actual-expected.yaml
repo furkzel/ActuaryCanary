@@ -1,0 +1,52 @@
+id: LF02
+version: 0.1.0
+title_en: Mortality and morbidity actual to expected
+title_tr: Ölüm ve maluliyet gerçekleşen/beklenen oranı
+status: draft
+implemented: false
+definition: >-
+  Actual deaths (or disabilities) divided by the deaths expected from a reference table on
+  the same exposure, with an exact Poisson interval and the credibility-weighted ratio.
+unit: ratio
+formula: 'AE_c = \frac{A_c}{\sum_x \mu^{\mathrm{ref}}_x E^{c}_{x,c}}'
+numerator: Actual decrements in cell c (DEATH or DISABILITY, CV11).
+denominator: Expected decrements from the reference table on the cell's exposure (MT20).
+grain: age band by product, per calendar year
+breakdowns: [segment, line, product, age_band, policy_year, calendar_period]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL]
+  value: [NOMINAL]
+requires:
+  - life_in_force.contract_id
+  - life_in_force.valuation_date
+  - life_in_force.entry_date
+  - life_in_force.age_band
+  - life_in_force.status
+optional: [life_events.event_date, life_events.event_type, life_events.report_date, life_in_force.sum_assured, life_in_force.sex]
+uses: [CV11, MT20]
+edge_cases:
+  - case: No reference table chosen
+    handling: Not available; crude rates are shown instead (MT20), with the open decision named.
+  - case: Expected zero
+    handling: Not computed.
+  - case: Fewer than 10 actual decrements in a cell
+    handling: Computed; the credibility weight and interval carry the uncertainty, and the cell is marked thin.
+  - case: Calendar year not fully observed, or within the reporting lag
+    handling: Only the observed part enters; months within reporting_lag_months of the cut-off are left out (CV11).
+interpretation: >-
+  Above 1, more decrements than the table expects. The interval says whether the gap is
+  more than chance; the credibility-weighted ratio is the figure to use for small books.
+typical_range:
+  low: 0.5
+  high: 1.5
+  note: Insured lives usually die less than the population (ratios below 1 against population tables).
+test:
+  path: tests/measures/test_lf02_mortality_actual_expected.py
+  proves: 12 deaths against 10 expected give 1.2 with the Garwood interval from chi-square quantiles.
+requires_decision:
+  - Default reference mortality and morbidity tables that may be redistributed openly (blueprint 18.2).
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 8.1 (P20).

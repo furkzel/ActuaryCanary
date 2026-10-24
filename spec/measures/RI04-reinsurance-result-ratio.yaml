@@ -1,0 +1,60 @@
+id: RI04
+version: 0.1.0
+title_en: Reinsurance result ratio
+title_tr: Reasürans sonuç oranı
+status: draft
+implemented: false
+definition: >-
+  The reinsurance result (RI02) as a share of gross earned premium, on the ultimate view per
+  origin year when ceded ultimates exist: what reinsurance costs or brings per unit of
+  premium.
+unit: ratio
+formula: 'RR\%_i = \frac{\hat U^{\mathrm{ceded}}_i + EC^{\mathrm{RI}}_i - EP^{\mathrm{ceded}}_i - RP_i}{EP^{\mathrm{gross}}_i}'
+numerator: >-
+  Ceded ultimate of origin i (MT10 on the CEDED basis; ceded incurred when no ceded
+  selection exists, labelled), plus reinsurance commission earned, minus ceded premium
+  earned and reinstatement premium.
+denominator: Gross earned premium of origin i (PR02).
+grain: origin period
+breakdowns: [segment, line, entity, treaty, origin_period]
+bases:
+  reinsurance: [CEDED]
+  currency: [REPORTING]
+  value: [NOMINAL]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.ceded_paid_to_date
+  - claim_valuations.ceded_reserve
+  - premiums.policy_id
+  - premiums.amount
+  - premiums.type
+  - premiums.booking_date
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+optional: [reinsurance_transactions.type, reinsurance_transactions.amount, claims.line]
+uses: [RI02, PR02, MT10, CV09]
+edge_cases:
+  - case: Gross earned premium zero
+    handling: Not computed.
+  - case: No ceded selection
+    handling: Ceded incurred used, labelled "incurred view"; recent origins then look favourable to the reinsurer.
+  - case: No CEDED_PREMIUM
+    handling: Not computed (CV03).
+  - case: Origin year outside every treaty period
+    handling: Not computed for that origin; the reason says no treaty was in force.
+interpretation: >-
+  Negative values are the price of protection; over many years a programme costs its
+  margin. One year far above zero shows a loss the programme absorbed.
+typical_range:
+  low: -0.10
+  high: 0.05
+  note: A long-run average cost of 1 to 5 per cent of gross premium is common; catastrophe years are positive.
+test:
+  path: tests/measures/test_ri04_reinsurance_result_ratio.py
+  proves: Hand figures for two origins, with ceded ultimate, commission and reinstatement premium.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft for module M08 (P20).

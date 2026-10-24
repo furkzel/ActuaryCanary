@@ -1,0 +1,110 @@
+id: MT16
+version: 0.1.0
+title_en: Frequency–severity projection
+title_tr: Frekans–şiddet projeksiyonu
+status: draft
+implemented: false
+definition: >-
+  Ultimate as ultimate claim count times ultimate severity: counts are developed with the
+  chain ladder on the reported-count triangle, frequency is related to earned exposure,
+  severity is trended from mature origins at value-date prices, and catastrophe claims are
+  projected apart. Also fits the frequency trend that forecasts use (MT27).
+tier: B
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claim_valuations.status
+  - claims.occurrence_date
+optional:
+  - claims.segment
+  - claims.line
+  - claims.event_code
+  - policies.policy_id
+  - policies.start_date
+  - policies.end_date
+  - policies.exposure_units
+  - market.series_id
+  - market.value
+uses: [MT01, MT02, CL04, CL05, CL06, CV02, CV04, CV08]
+assumptions:
+  - statement: Reported counts develop with a stable pattern (chain ladder on counts).
+    check: As for MT02, on the count triangle; nil claims excluded (CL04 non-nil).
+  - statement: Severity at value-date prices follows a log-linear trend across origins.
+    check: Mature origins' severities against the fitted trend; residuals without pattern.
+  - statement: The price index captures most of claims inflation.
+    check: A residual trend in real severity is superimposed inflation, reported as the fitted trend.
+parameters:
+  - name: severity_measure
+    default: incurred
+    description: Severity of mature origins from the incurred or paid chain-ladder ultimate.
+    allowed: [incurred, paid]
+  - name: maturity_for_trend
+    default: 0.9
+    description: Origins whose reported share (1 / CDF) is at least this give the severity trend.
+  - name: min_trend_origins
+    default: 3
+    description: Fewest mature origins needed to fit a trend; fewer means a constant real severity.
+  - name: value_basis
+    default: INFLATION_ADJUSTED
+    description: Severity is trended at value-date prices when the price index is loaded, otherwise nominal and labelled.
+    allowed: [INFLATION_ADJUSTED, NOMINAL]
+  - name: separate_catastrophes
+    default: true
+    description: CATASTROPHE claims (CV08) are left out of counts and severity and added at their chain-ladder incurred ultimate.
+algorithm:
+  - step: >-
+      Non-nil reported count triangle (CL04) by origin; chain ladder (MT02) gives ultimate
+      counts N(i). Without catastrophes when separate_catastrophes is set.
+  - step: Frequency per origin from earned exposure (CL05), and its log-linear trend for forecasting.
+    formula: '\hat\varphi_i = \hat N_i / E_i, \qquad \ln \hat\varphi_i = \alpha + \beta\, t_i'
+  - step: >-
+      Severity of mature origins: chain-ladder ultimate of the measure (restated to the value
+      date per CV02) over the ultimate count; log-linear trend over origin time.
+    formula: '\hat S_i = \hat U^{\mathrm{adj}}_i / \hat N_i \ (p_i \ge 0.9), \qquad \ln \hat S_i = \gamma + \delta\, t_i'
+  - step: Projected severity of every origin from the trend, and the ultimate.
+    formula: '\tilde S_i = e^{\hat\gamma + \hat\delta t_i}, \qquad \hat U^{FS}_i = \hat N_i\, \tilde S_i + \hat U^{CAT}_i'
+  - step: >-
+      With value_basis INFLATION_ADJUSTED, ultimates are at value-date prices and are turned
+      nominal only with the future inflation assumption, as in MT07.
+outputs:
+  - name: ultimate_counts
+    description: N(i) per origin.
+  - name: frequency
+    description: Frequency per origin and its trend (alpha, beta, annual rate).
+  - name: severity
+    description: Observed mature severities, the fitted trend and the projected severity per origin.
+  - name: ultimate
+    description: Frequency–severity ultimate per origin, with the catastrophe part apart.
+diagnostics:
+  - Frequency and severity per origin against their trends.
+  - Ultimates against the chain ladder and Bornhuetter–Ferguson per origin.
+  - Real severity trend as an estimate of superimposed inflation.
+failure_modes:
+  - condition: Count chain ladder not available.
+    action: Not run, with the MT02 reason on the count triangle.
+  - condition: Fewer than min_trend_origins mature origins.
+    action: Severity held constant at the mean of the mature origins, with a WARNING.
+  - condition: No exposure (policies not loaded).
+    action: Ultimates still computed; frequency and its trend not shown, reason given.
+validation:
+  - kind: fixture
+    description: Four origins with counts, exposure and incurred; counts developed, trend fitted and ultimates hand-computed.
+    tolerance: 1e-12 relative
+  - kind: property
+    description: With constant real severity and no trend, the ultimate equals counts times the mean mature severity.
+    tolerance: 1e-12 relative
+  - kind: ground_truth
+    description: >-
+      On the synthetic baseline (medium): ultimate non-nil claim counts per line, summed over
+      all accident years, against the simulated truth; and the frequency–severity ultimate
+      per line at value-date prices, summed over all accident years, against the true
+      ultimate at value-date prices.
+    tolerance: counts within 3 per cent per line; ultimate within 5 per cent per line, 10 per cent for MOTOR_TPL and PROPERTY
+references:
+  - Friedland, J. Estimating Unpaid Claims Using Basic Techniques. Casualty Actuarial Society, chapter 11.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.2 (P20).

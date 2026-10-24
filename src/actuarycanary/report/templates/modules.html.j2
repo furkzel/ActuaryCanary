@@ -1,15 +1,15 @@
 <div id="measure-views">
-  <h3>Every measure view of the run</h3>
-  <p>{{ ran }} of {{ total }} modules ran; a module that ran with some measures or methods not available is marked limited. Every value in the measure tables is a measure of the specification named next to it; the files <code>measures.csv</code> and <code>lineage.csv</code> hold all values unrounded and the source rows behind each.</p>
+  <h3>{{ tr("Every measure view of the run") }}</h3>
+  <p>{{ trh("{ran} of {total} modules ran; a module that ran with some measures or methods not available is marked limited. Every value in the measure tables is a measure of the specification named next to it; the files <code>measures.csv</code> and <code>lineage.csv</code> hold all values unrounded and the source rows behind each.", ran=ran, total=total) }}</p>
   <div class="scroll"><table>
-    <thead><tr><th>Module</th><th>Question</th><th>State</th><th>Why</th></tr></thead>
-    <tbody>{% for m in modules %}<tr><td class="text">{{ m.module }} {{ m.title }}</td><td class="text">{{ m.question }}</td><td class="text{% if m.state == 'skipped' %} negative{% endif %}">{{ m.state }}</td><td class="text">{{ m.reasons }}</td></tr>{% endfor %}</tbody>
+    <thead><tr><th>{{ tr("Module") }}</th><th>{{ tr("Question") }}</th><th>{{ tr("State") }}</th><th>{{ tr("Why") }}</th></tr></thead>
+    <tbody>{% for m in modules %}<tr><td class="text">{{ m.module }} {{ m.title }}</td><td class="text">{{ m.question }}</td><td class="text{% if m.state_code == 'skipped' %} negative{% endif %}">{{ m.state }}</td><td class="text">{{ m.reasons }}</td></tr>{% endfor %}</tbody>
   </table></div>
   {% for m in modules if m.measures %}
   <details>
-    <summary>{{ m.module }} {{ m.title }}: {{ m.available }} of {{ m.measures|length }} measure views computed</summary>
+    <summary>{{ tr("{module} {title}: {available} of {total} measure views computed", module=m.module, title=m.title, available=m.available, total=m.measures|length) }}</summary>
     <div class="scroll"><table>
-      <thead><tr><th>Measure</th><th>Spec</th><th>Breakdown</th><th>Basis</th><th>Values</th><th>Headline</th><th>Notes</th></tr></thead>
+      <thead><tr><th>{{ tr("Measure") }}</th><th>{{ tr("Spec") }}</th><th>{{ tr("Breakdown") }}</th><th>{{ tr("Basis") }}</th><th>{{ tr("Values") }}</th><th>{{ tr("Headline") }}</th><th>{{ tr("Notes") }}</th></tr></thead>
       <tbody>{% for r in m.measures %}<tr><td class="text">{{ r.measure }} {{ r.title }}</td><td class="text">v{{ r.version }}</td><td class="text">{{ r.breakdowns }}</td><td class="text">{{ r.basis }}</td><td>{{ r.rows }}</td><td>{{ r.headline }}</td><td class="text">{{ r.notes }}</td></tr>{% endfor %}</tbody>
     </table></div>
   </details>

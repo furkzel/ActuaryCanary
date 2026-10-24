@@ -88,9 +88,11 @@ def request_for(
     period: Period,
     reinsurance: ReinsuranceBasis,
     value: ValueBasis,
+    view: CurrencyView = CurrencyView.REPORTING,
 ) -> tuple[MeasureRequest, str]:
     """The request for a default view on the run's bases, or the first basis the spec defines
-    when the run's is not among them (and the note that says so)."""
+    when the run's is not among them (and the note that says so). In the ORIGINAL currency
+    view a measure is asked in the ORIGINAL view where the spec defines it."""
     allowed = spec.bases
     chosen_reinsurance = (
         reinsurance
@@ -98,7 +100,12 @@ def request_for(
         else ReinsuranceBasis(allowed.reinsurance[0])
     )
     chosen_value = value if value.value in allowed.value else ValueBasis(allowed.value[0])
-    currency = CurrencyView.REPORTING if "REPORTING" in allowed.currency else CurrencyView.ORIGINAL
+    if view is CurrencyView.ORIGINAL and "ORIGINAL" in allowed.currency:
+        currency = CurrencyView.ORIGINAL
+    else:
+        currency = (
+            CurrencyView.REPORTING if "REPORTING" in allowed.currency else CurrencyView.ORIGINAL
+        )
     note = ""
     if chosen_reinsurance is not reinsurance or chosen_value is not value:
         note = (
@@ -160,6 +167,7 @@ def run_module(
     value: ValueBasis,
     cache: dict[tuple[str, MeasureRequest], MeasureResult],
     notes: Sequence[str] = (),
+    view: CurrencyView = CurrencyView.REPORTING,
 ) -> ModuleOutcome:
     built, missing = _methods(module, inputs)
     status = _status(quality, module.id)
@@ -196,7 +204,7 @@ def run_module(
         if measure_id not in IMPLEMENTATIONS and measure_id not in METHOD_OUTPUTS:
             continue
         for breakdowns in DEFAULT_VIEWS.get(measure_id, ((),)):
-            request, note = request_for(spec, breakdowns, period, reinsurance, value)
+            request, note = request_for(spec, breakdowns, period, reinsurance, value, view)
             key = (measure_id, request)
             if key not in cache:
                 result = run_measure(catalogue, inputs, measure_id, request)
@@ -248,6 +256,7 @@ def run_modules(
     only: Mapping[str, object] | None = None,
     cache: dict[tuple[str, MeasureRequest], MeasureResult] | None = None,
     notes: Mapping[str, Sequence[str]] | None = None,
+    view: CurrencyView = CurrencyView.REPORTING,
 ) -> AnalysisResult:
     """Run every module of the catalogue (phase 1) in module order. `cache` holds measures
     already computed; `notes` are what a module's methods report, by module ID: a module with
@@ -265,6 +274,7 @@ def run_modules(
             value,
             cache,
             notes.get(module.id, ()),
+            view,
         )
         for module in sorted(catalogue.modules.values(), key=lambda m: m.id)
         if only is None or module.id in only

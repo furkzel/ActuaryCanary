@@ -1,0 +1,120 @@
+id: MT21
+version: 0.1.0
+title_en: Reinsurance what-if
+title_tr: Reasürans senaryo analizi
+status: draft
+implemented: false
+definition: >-
+  Applies a reinsurance programme (the treaties loaded, or an alternative written in the
+  assumptions register) to claim-level gross losses and to premium, giving ceded and net
+  amounts by claim, treaty, line and origin, and compares programmes on cost and on the
+  volatility of the net result.
+tier: B
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+optional:
+  - claims.occurrence_date
+  - claims.event_code
+  - claims.segment
+  - claims.line
+  - claims.policy_id
+  - policies.policy_id
+  - policies.start_date
+  - policies.sum_insured
+  - premiums.amount
+  - premiums.type
+  - reinsurance_treaties.treaty_id
+  - reinsurance_treaties.treaty_type
+  - reinsurance_treaties.retention
+  - reinsurance_treaties.limit
+  - market.series_id
+  - market.value
+uses: [CV03, CV09, MT10, MT11, MT17]
+assumptions:
+  - statement: Gross losses do not depend on the reinsurance programme (no change of underwriting or claims handling).
+    check: None; a stated limitation of every what-if.
+  - statement: Claim-level ultimates are the incurred at the cut-off times the origin's selected development to ultimate (IBNER spread pro rata); pure IBNR claims are not in the per-claim view.
+    check: The share of IBNR in the selected ultimate per origin, shown beside the result.
+  - statement: For non-proportional treaties, one origin year's claims stand for a treaty year (losses-occurring basis).
+    check: Attachment basis of the treaties (CV09); risks-attaching treaties are mapped by policy start year.
+parameters:
+  - name: programme
+    default: loaded
+    description: >-
+      The treaties of reinsurance_treaties, or a named alternative from the assumptions
+      register (same fields as reinsurance_treaties), or both side by side.
+  - name: loss_view
+    default: ultimate
+    description: Claim amounts the programme is applied to - incurred at the cut-off, or developed to ultimate per the assumption above.
+    allowed: [incurred, ultimate]
+  - name: simulate
+    default: false
+    description: >-
+      Also apply the programme to simulated annual losses (attritional from MT11, large claims
+      from MT17), giving the distribution of the net result and its VaR.
+  - name: inuring_order
+    default: CV09
+    description: Order in which treaties apply (CV09 default - surplus, quota share, risk XL, event XL, stop loss).
+algorithm:
+  - step: >-
+      Claim amounts X(k) per loss_view, converted at the constant development rate (CV01);
+      events by claims.event_code for EVENT treaties.
+  - step: Proportional treaties - quota share and surplus (CV09 surplus share).
+    formula: 'c^{QS}_k = s\, X_k, \qquad c^{SP}_k = s_k X_k, \qquad P^{\mathrm{ced}} = s\, P, \qquad \mathrm{Comm} = \kappa\, P^{\mathrm{ced}}'
+  - step: Excess of loss per risk or event on what the inuring treaties leave, with placed share and index clause (CV09).
+    formula: 'c_k = \pi \min\big(L,\ \max(0,\ X^{\mathrm{ret}}_k - R)\big)'
+  - step: Aggregate deductible and limit, reinstatement premium (CV09) per treaty year; stop loss on the year's loss ratio.
+    formula: 'C^{SL} = EP \cdot \min\Big(L,\ \max\Big(0,\ \frac{\sum_k X^{\mathrm{ret}}_k}{EP} - R\Big)\Big)'
+  - step: Net amounts and the programme result per treaty year.
+    formula: 'X^{\mathrm{net}}_k = X_k - \sum_t c_{t,k}, \qquad \mathrm{Result} = \sum_t \big(C_t + \mathrm{Comm}_t - P^{\mathrm{ced}}_t - RP_t\big)'
+  - step: >-
+      Comparison of programmes - ceded premium, expected ceded loss, net result, and the
+      volatility of the net loss ratio across origin years (RI05); with simulate, the
+      distribution of the annual net result with VaR and TVaR.
+outputs:
+  - name: ceded_by_claim
+    description: Ceded and net amount per claim and treaty.
+  - name: ceded_by_treaty
+    description: Ceded losses, ceded premium, commission and reinstatement premium per treaty and year.
+  - name: net_by_origin
+    description: Gross, ceded and net per line and origin, for each programme.
+  - name: programme_comparison
+    description: Cost, result and volatility of each programme side by side.
+diagnostics:
+  - Ceded share by size band of claims (where each treaty bites).
+  - Layer exhaustion and reinstatements used per treaty year.
+  - Applied current programme against the booked ceded amounts (reinsurance_transactions), per treaty and year.
+failure_modes:
+  - condition: A treaty without the terms of its type (DV-RTY-05).
+    action: That treaty is left out; the comparison names it.
+  - condition: Surplus without sum_insured on the claim's policy.
+    action: Surplus not applied to that claim; the count is reported.
+  - condition: Event treaty without event codes.
+    action: Applied per claim, labelled "event cover applied per claim, an approximation".
+validation:
+  - kind: fixture
+    description: >-
+      Hand cases for each treaty type, with inuring order, aggregate deductible and limit,
+      two reinstatements at 100 per cent pro rata as to amount, and an index clause.
+    tolerance: 1e-12 relative
+  - kind: property
+    description: >-
+      Net equals gross minus ceded exactly; ceded never exceeds gross; ceded does not rise
+      when a retention rises; an empty programme gives net equal to gross.
+    tolerance: 1e-12 absolute
+  - kind: ground_truth
+    description: >-
+      On the synthetic baseline (medium), applying the scenario's own programme to the
+      simulated gross claims reproduces the generator's ceded amounts per treaty and treaty
+      year (generator item).
+    tolerance: quota share 1e-9 relative; excess of loss within 1 per cent per treaty and year
+references:
+  - Antal, P. Mathematical methods in reinsurance. Swiss Re lecture notes.
+  - 'Albrecher, H., Beirlant, J. and Teugels, J. L. (2017). Reinsurance: Actuaries and Statisticians. Wiley.'
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.2 (P20).

@@ -17,6 +17,7 @@ from actuarycanary.methods.mack import Mack, applied_to_selected
 from actuarycanary.methods.selection import Selection
 from actuarycanary.modules.reserving import SELECTION_MEASURE, GroupReserving
 from actuarycanary.report import numbers
+from actuarycanary.report.language import t
 from actuarycanary.structures.triangles import MEASURES
 
 METHOD_LABELS = (
@@ -26,7 +27,7 @@ METHOD_LABELS = (
     ("expected_loss_ratio", "Expected loss ratio"),
 )
 PERCENTILES = (0.75, 0.95, 0.995)
-RANGE_LABEL = "lognormal approximation with the Mack mean and standard error"
+RANGE_LABEL = "lognormal approximation with the Mack mean and standard error"  # via t()
 
 
 def _ultimates(group: GroupReserving) -> dict[str, Any]:
@@ -36,14 +37,14 @@ def _ultimates(group: GroupReserving) -> dict[str, Any]:
         for key, label in METHOD_LABELS:
             found = group.method_ultimates(measure).get(key)
             if found is not None:
-                columns.append((f"{label}, {measure}", found))
+                columns.append((f"{t(label)}, {t(measure)}", found))
     adjusted = group.inflation_adjusted
     if isinstance(adjusted, InflationAdjusted):
         by_origin = dict(
             zip(group.inflation_adjusted_origins, adjusted.chain.ultimate, strict=True)
         )
         mapped = np.array([by_origin.get(o, np.nan) for o in origins])
-        columns.append(("Inflation-adjusted chain ladder, paid, value-date prices", mapped))
+        columns.append((t("Inflation-adjusted chain ladder, paid, value-date prices"), mapped))
     selection = group.selection
     selected = (
         selection.ultimate if isinstance(selection, Selection) else np.full(len(origins), np.nan)
@@ -51,7 +52,9 @@ def _ultimates(group: GroupReserving) -> dict[str, Any]:
     rows = []
     for i, origin in enumerate(origins):
         chosen = (
-            selection.method[i].value.replace("_", " ") if isinstance(selection, Selection) else ""
+            t(selection.method[i].value.replace("_", " "))
+            if isinstance(selection, Selection)
+            else ""
         )
         rows.append(
             {
@@ -64,7 +67,7 @@ def _ultimates(group: GroupReserving) -> dict[str, Any]:
             }
         )
     total = {
-        "origin": "Total",
+        "origin": t("Total"),
         "cells": [numbers.amount(_total(v)) for _, v in columns],
         "selected": numbers.amount(_total(selected)),
         "chosen": "",
@@ -83,28 +86,53 @@ def _not_run(group: GroupReserving) -> list[str]:
     """Why a method has no result, and the origins it left out."""
     notes: list[str] = []
     titles = {
-        "bornhuetter_ferguson": "Bornhuetter–Ferguson (MT03)",
-        "cape_cod": "Cape Cod (MT04)",
-        "expected_loss_ratio": "Expected loss ratio (MT05)",
+        "bornhuetter_ferguson": f"{t('Bornhuetter–Ferguson')} (MT03)",
+        "cape_cod": f"{t('Cape Cod')} (MT04)",
+        "expected_loss_ratio": f"{t('Expected loss ratio')} (MT05)",
     }
     for key, title in titles.items():
         for measure in MEASURES:
             result = getattr(group, key).get(measure)
             if isinstance(result, Skipped):
-                notes.append(f"{title} on {measure} did not run: {result.reason}.")
+                notes.append(
+                    t(
+                        "{title} on {measure} did not run: {reason}.",
+                        title=title,
+                        measure=t(measure),
+                        reason=result.reason,
+                    )
+                )
             elif result is not None and result.not_run:
                 origins = group.triangles[measure].origins
                 left = "; ".join(f"{origins[i]} ({r})" for i, r in result.not_run.items())
-                notes.append(f"{title} on {measure} left out: {left}.")
+                notes.append(
+                    t(
+                        "{title} on {measure} left out: {left}.",
+                        title=title,
+                        measure=t(measure),
+                        left=left,
+                    )
+                )
     for measure in MEASURES:
         found = group.mack.get(measure)
         if isinstance(found, Skipped):
-            notes.append(f"Mack standard error (MT06) on {measure} did not run: {found.reason}.")
+            notes.append(
+                t(
+                    "Mack standard error (MT06) on {measure} did not run: {reason}.",
+                    measure=t(measure),
+                    reason=found.reason,
+                )
+            )
     adjusted = group.inflation_adjusted
     if isinstance(adjusted, Skipped):
-        notes.append(f"Inflation-adjusted chain ladder (MT07) did not run: {adjusted.reason}.")
+        notes.append(
+            t(
+                "Inflation-adjusted chain ladder (MT07) did not run: {reason}.",
+                reason=adjusted.reason,
+            )
+        )
     if isinstance(group.selection, Skipped):
-        notes.append(f"Selection (MT10) did not run: {group.selection.reason}.")
+        notes.append(t("Selection (MT10) did not run: {reason}.", reason=group.selection.reason))
     return notes
 
 
@@ -114,8 +142,9 @@ def _mack(group: GroupReserving) -> dict[str, Any] | None:
         return None
     origins = group.triangles["paid"].origins
     rows: list[dict[str, Any]] = []
-    for i, origin in enumerate([*origins, "Total"]):
-        total = origin == "Total"
+    for i, entry in enumerate([*origins, None]):
+        total = entry is None
+        origin = t("Total") if entry is None else entry
         cells: list[str] = []
         for measure in MEASURES:
             f = fitted[measure]
@@ -154,7 +183,7 @@ def _mack(group: GroupReserving) -> dict[str, Any] | None:
                 ],
             }
         )
-    return {"rows": rows, "ranges": ranges, "label": RANGE_LABEL}
+    return {"rows": rows, "ranges": ranges, "label": t(RANGE_LABEL)}
 
 
 def _inflation(group: GroupReserving) -> dict[str, Any] | None:
@@ -213,7 +242,11 @@ def _stability(group: GroupReserving) -> list[dict[str, Any]]:
                 }
             )
         tables.append(
-            {"measure": measure, "names": [n.replace("_", " ") for n in averages], "rows": rows}
+            {
+                "measure": measure,
+                "names": [t(n.replace("_", " ")) for n in averages],
+                "rows": rows,
+            }
         )
     return tables
 
@@ -221,9 +254,9 @@ def _stability(group: GroupReserving) -> list[dict[str, Any]]:
 def _diagnostics(group: GroupReserving) -> list[dict[str, str]]:
     return [
         {
-            "measure": d.measure or "all",
+            "measure": t(d.measure or "all"),
             "method": d.item.method,
-            "code": d.item.code.replace("_", " ").lower(),
+            "code": t(d.item.code.replace("_", " ").lower()),
             "target": d.item.target,
             "message": d.item.message,
         }

@@ -13,7 +13,15 @@ from datetime import date
 import polars as pl
 
 from actuarycanary.canonical.feeds import CURRENCY_CODE, Finding
+from actuarycanary.convert.market import (
+    FX_PERIOD_AVERAGE,
+    FX_PERIOD_END,
+    FX_SPOT,
+    PRICE_INDEX,
+    month_of,
+)
 from actuarycanary.io.excel import SOURCE_COLUMNS, SOURCE_FILE, SOURCE_ROW, SOURCE_SHEET
+from actuarycanary.methods.robust_z import MAD_SCALE, MEAN_AD_SCALE, THRESHOLD
 from actuarycanary.quality.model import EXAMPLES, Outcome, SourceRef
 from actuarycanary.spec.models import DataConceptSpec
 
@@ -36,6 +44,10 @@ class Context:
     frames: dict[str, pl.DataFrame]
     specs: dict[str, DataConceptSpec]
     cut_off: date | None
+    # what the run converts into and restates with (DV-MKT-07); unknown: that rule is not evaluated
+    reporting_currency: str | None = None
+    price_index: str | None = None
+    adjusted: bool = False  # the run restates amounts with the price index (CV02)
 
 
 Check = Callable[[Context], Outcome | None]
@@ -371,6 +383,197 @@ def premium_currency_is_policy_currency(ctx: Context) -> Outcome | None:  # DV-P
     return _outcome("DV-PRM-09", "premiums", joined.height, bad)
 
 
+def effective_within_cover(ctx: Context) -> Outcome | None:  # DV-PRM-07
+    premiums = _frame(ctx, "premiums", ("policy_id", "booking_date", "effective_date"))
+    policies = _frame(ctx, "policies", ("policy_id", "start_date", "end_date"))
+    if premiums is None or policies is None:
+        return None
+    cover = policies.select("policy_id", "start_date", "end_date").unique("policy_id")
+    joined = premiums.join(cover, on="policy_id").with_columns(
+        pl.col("effective_date").fill_null(pl.col("booking_date")).alias("_effective")
+    )
+    scope = joined.filter(
+        pl.col("_effective").is_not_null()
+        & pl.col("start_date").is_not_null()
+        & pl.col("end_date").is_not_null()
+    )
+    bad = scope.filter(
+        (pl.col("_effective") < pl.col("start_date")) | (pl.col("_effective") > pl.col("end_date"))
+    )
+    return _outcome("DV-PRM-07", "premiums", scope.height, bad)
+
+
+# --- market series ---------------------------------------------------------------------------
+
+MONTHLY_KINDS = (FX_PERIOD_AVERAGE, FX_PERIOD_END, PRICE_INDEX)
+FX_KINDS = (FX_SPOT, FX_PERIOD_AVERAGE, FX_PERIOD_END)
+SERIES_KEY = ["series_id", "kind"]
+MARKET_FIELDS = ("series_id", "kind", "date", "value")
+MONTH = "_month"
+
+
+def _month_label(month: int) -> str:
+    return f"{month // 12}-{month % 12 + 1:02d}"
+
+
+def _usable_market(frame: pl.DataFrame, kinds: tuple[str, ...]) -> pl.DataFrame:
+    """The rows of `kinds` the conversion can use, with the month index of their date."""
+    return frame.filter(
+        pl.col("kind").is_in(kinds)
+        & pl.col("series_id").is_not_null()
+        & pl.col("date").is_not_null()
+        & (pl.col("value") > 0)
+    ).with_columns(month_of("date").alias(MONTH))
+
+
+def _month_gaps(present: list[int], first: int, last: int) -> list[int]:
+    """The months from `first` to `last` that are not in `present`, in order."""
+    have = set(present)
+    return [m for m in range(first, last + 1) if m not in have]
+
+
+def _nearest_row(rows: pl.DataFrame, month: int) -> pl.DataFrame:
+    """The latest source row of the closest earlier month of `rows`, else of the closest later."""
+    ordered = rows.sort(MONTH, *SOURCE_COLUMNS)
+    before = ordered.filter(pl.col(MONTH) < month)
+    if before.height:
+        return before.filter(pl.col(MONTH) == before[MONTH].max()).tail(1)
+    after = ordered.filter(pl.col(MONTH) > month)
+    return after.filter(pl.col(MONTH) == after[MONTH].min()).tail(1) if after.height else after
+
+
+def _listing(what: str, listed: list[str], total: int) -> str:
+    if total == 0:
+        return ""
+    return f"{what}: {', '.join(listed)} ({total} months in all)"
+
+
+def monthly_series_complete(ctx: Context) -> Outcome | None:  # DV-MKT-06
+    frame = _frame(ctx, "market", MARKET_FIELDS)
+    if frame is None:
+        return None
+    rows = _usable_market(frame, MONTHLY_KINDS)
+    checked = missing = 0
+    neighbours: list[pl.DataFrame] = []
+    listed: list[str] = []
+    for (series_id, kind), part in rows.group_by(SERIES_KEY, maintain_order=True):
+        months = sorted(part[MONTH].unique().to_list())
+        gaps = _month_gaps(months, months[0], months[-1])
+        checked += months[-1] - months[0] + 1
+        missing += len(gaps)
+        for gap in gaps[: EXAMPLES - len(neighbours)]:
+            neighbours.append(_nearest_row(part, gap))
+            listed.append(f"{series_id} {kind} {_month_label(gap)}")
+    found = pl.concat(neighbours).unique(SOURCE_COLUMNS) if neighbours else rows.head(0)
+    message = _listing("months missing between the first and last month", listed, missing)
+    return Outcome("DV-MKT-06", "market", checked, missing, message, references(found))
+
+
+def _first_dates(ctx: Context) -> pl.DataFrame:
+    """Earliest date of any amount per currency, over the feeds that hold amounts (CV01)."""
+    parts = []
+    for concept, date_field in (
+        ("claim_valuations", "valuation_date"),
+        ("premiums", "booking_date"),
+        ("expenses", "period"),
+    ):
+        frame = _frame(ctx, concept, ("currency", date_field))
+        if frame is not None:
+            parts.append(
+                frame.filter(pl.col("currency").is_not_null() & pl.col(date_field).is_not_null())
+                .group_by("currency")
+                .agg(pl.col(date_field).min().alias("first"))
+            )
+    if not parts:
+        return pl.DataFrame(schema={"currency": pl.String, "first": pl.Date})
+    return pl.concat(parts).group_by("currency").agg(pl.col("first").min()).sort("currency")
+
+
+def _month_of_date(day: date) -> int:
+    return day.year * 12 + day.month - 1
+
+
+def series_cover_conversions(ctx: Context) -> Outcome | None:  # DV-MKT-07
+    frame = _frame(ctx, "market", MARKET_FIELDS)
+    reporting, cut_off = ctx.reporting_currency, ctx.cut_off
+    if frame is None or reporting is None or cut_off is None:
+        return None
+    last = _month_of_date(cut_off)
+    firsts = _first_dates(ctx)
+    # what the run converts or restates: label, series ids, kinds, first month applied
+    needs: list[tuple[str, tuple[str, ...], tuple[str, ...], int]] = [
+        (
+            f"{currency} into {reporting}",
+            (f"{currency}/{reporting}", f"{reporting}/{currency}"),
+            FX_KINDS,
+            _month_of_date(first),
+        )
+        for currency, first in firsts.iter_rows()
+        if currency not in (reporting, "UNKNOWN")
+    ]
+    index = ctx.price_index
+    if (
+        index is not None
+        and firsts.height
+        and (ctx.adjusted or (frame["series_id"] == index).any())
+    ):
+        earliest = firsts["first"].min()
+        assert isinstance(earliest, date)
+        needs.append((f"price index {index}", (index,), (PRICE_INDEX,), _month_of_date(earliest)))
+    checked = missing = 0
+    neighbours: list[pl.DataFrame] = []
+    listed: list[str] = []
+    for label, ids, kinds, first in needs:
+        if first > last:
+            continue
+        rows = _usable_market(frame, kinds).filter(pl.col("series_id").is_in(ids))
+        gaps = _month_gaps(rows[MONTH].unique().to_list(), first, last)
+        checked += last - first + 1
+        missing += len(gaps)
+        if gaps and len(listed) < EXAMPLES:
+            span = _month_label(gaps[0]) + (
+                f" to {_month_label(gaps[-1])}" if len(gaps) > 1 else ""
+            )
+            listed.append(f"{label} {span}")
+        for gap in gaps[: EXAMPLES - len(neighbours)]:
+            neighbours.append(_nearest_row(rows, gap))
+    found = pl.concat(neighbours).unique(SOURCE_COLUMNS) if neighbours else frame.head(0)
+    message = _listing("no value for a month a conversion or adjustment needs", listed, missing)
+    return Outcome("DV-MKT-07", "market", checked, missing, message, references(found))
+
+
+def monthly_change_is_reasonable(ctx: Context) -> Outcome | None:  # DV-MKT-08
+    frame = _frame(ctx, "market", MARKET_FIELDS)
+    if frame is None:
+        return None
+    rows = _usable_market(frame, (*FX_KINDS, PRICE_INDEX))
+    # one value per series, kind and month: the latest date, then the latest source row
+    monthly = (
+        rows.sort("date", *SOURCE_COLUMNS)
+        .group_by([*SERIES_KEY, MONTH], maintain_order=True)
+        .last()
+        .sort([*SERIES_KEY, MONTH])
+    )
+    log_value = pl.col("value").log()
+    steps = monthly.with_columns(
+        (log_value - log_value.shift(1).over(SERIES_KEY)).alias("_y"),
+        (pl.col(MONTH) - pl.col(MONTH).shift(1).over(SERIES_KEY)).alias("_step"),
+    ).filter(pl.col("_step") == 1)
+    d = pl.col("_y") - pl.col("_y").median().over(SERIES_KEY)
+    mad = d.abs().median().over(SERIES_KEY)
+    mean_ad = d.abs().mean().over(SERIES_KEY)
+    z = (  # the formula of MT08
+        pl.when(mad > 0)
+        .then(MAD_SCALE * d / mad)
+        .when(mean_ad > 0)
+        .then(d / (MEAN_AD_SCALE * mean_ad))
+        .otherwise(0.0)
+    )
+    scored = steps.with_columns(z.alias("_z"))
+    flagged = scored.filter(pl.col("_z").abs() > THRESHOLD)
+    return _outcome("DV-MKT-08", "market", scored.height, flagged)
+
+
 CHECKS: dict[str, Check] = {
     "DV-CLV-07": paid_never_decreases,
     "DV-CLV-08": amounts_not_negative,
@@ -404,6 +607,7 @@ CHECKS: dict[str, Check] = {
     "DV-PRM-04": in_classes("DV-PRM-04", "premiums", ("type",)),
     "DV-PRM-05": iso_currency("DV-PRM-05", "premiums"),
     "DV-PRM-06": premium_policy_exists,
+    "DV-PRM-07": effective_within_cover,
     "DV-PRM-09": premium_currency_is_policy_currency,
     "DV-EXP-01": present("DV-EXP-01", "expenses", ("period", "amount", "type")),
     "DV-EXP-02": iso_currency("DV-EXP-02", "expenses"),
@@ -415,6 +619,9 @@ CHECKS: dict[str, Check] = {
     "DV-MKT-02": unique("DV-MKT-02", "market", ("series_id", "kind", "date")),
     "DV-MKT-03": not_below("DV-MKT-03", "market", ("value",), 0.0, strict=True),
     "DV-MKT-05": in_classes("DV-MKT-05", "market", ("kind",)),
+    "DV-MKT-06": monthly_series_complete,
+    "DV-MKT-07": series_cover_conversions,
+    "DV-MKT-08": monthly_change_is_reasonable,
 }
 
 # Rules the canonical step applies while it builds the feed; its findings are the evidence.

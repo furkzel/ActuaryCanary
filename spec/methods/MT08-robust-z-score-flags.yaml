@@ -1,12 +1,13 @@
 id: MT08
-version: 1.1.0
+version: 1.2.0
 title_en: Robust z-score anomaly flags
 title_tr: Sağlam z-skoru ile anomali işaretleri
 status: reviewed
 definition: >-
-  Flags individual payments, case-reserve changes and movements of incurred at a payment
-  that lie far from the typical values of their segment and line, measured by a z-score
-  built on the median and the median absolute deviation, which outliers cannot distort.
+  Flags individual payments, case-reserve movements and movements of incurred at a payment
+  that lie far from the typical values of their kind in their segment and line, measured by
+  a z-score built on the median and the median absolute deviation, which outliers cannot
+  distort.
 tier: A
 requires:
   - claim_valuations.claim_id
@@ -18,6 +19,10 @@ uses: [CV01, CV04]
 assumptions:
   - statement: Anomalies are rare, so the median and MAD describe normal behaviour.
     check: Share of flagged values per group stays below a few per cent; a higher share is reported as a data-shape problem rather than anomalies.
+  - statement: >-
+      A reserve that opens or is released is a change of status, not a movement of the same
+      kind as a revision of a running reserve; each kind has its own typical size.
+    check: Share of flagged reserve movements per line stays under 10 per cent; the ground-truth validation measures it.
   - statement: On the log scale the variables are roughly symmetric.
     check: Histogram of the log values per group in the diagnostics.
 parameters:
@@ -31,19 +36,23 @@ parameters:
     default: [segment, line]
     description: Groups within which median and MAD are computed.
   - name: variables
-    default: [paid_flow, reserve_change, incurred_change_at_payment]
+    default: [paid_flow, reserve_change, reserve_opening, reserve_release, incurred_change_at_payment]
     description: Variables scored.
-    allowed: [paid_flow, reserve_change, incurred_change_at_payment]
+    allowed: [paid_flow, reserve_change, reserve_opening, reserve_release, incurred_change_at_payment]
 algorithm:
   - step: >-
       Variables per claim and month, in reporting currency with the constant development
-      rate (CV01): paid_flow is ln of each positive paid flow (CV04); reserve_change is
-      ln((R(v_n) + 1) / (R(v_(n-1)) + 1)) for consecutive rows with any reserve;
-      incurred_change_at_payment is ln((I+(v_n) + 1) / (I+(v_(n-1)) + 1)), I = P + R, on
-      consecutive rows with paid and reserve where the paid flow is positive and incurred
-      moved, that is a payment the case reserve did not absorb (x+ means max(x, 0)).
+      rate (CV01): paid_flow is ln of each positive paid flow (CV04). A case-reserve
+      movement is a pair of consecutive rows whose reserve differs and is positive on at
+      least one side (a reserve that did not move is not a movement), with
+      y = ln((R(v_n) + 1) / (R(v_(n-1)) + 1)), scored as one of three variables:
+      reserve_opening when R(v_(n-1)) is zero, reserve_release when R(v_n) is zero,
+      reserve_change when both are positive. incurred_change_at_payment is
+      ln((I+(v_n) + 1) / (I+(v_(n-1)) + 1)), I = P + R, on consecutive rows with paid and
+      reserve where the paid flow is positive and incurred moved, that is a payment the case
+      reserve did not absorb (x+ means max(x, 0)).
     formula: 'y = \ln(\Delta P), \quad y = \ln\frac{R(v_n) + 1}{R(v_{n-1}) + 1}, \quad y = \ln\frac{I^+(v_n) + 1}{I^+(v_{n-1}) + 1}'
-  - step: Robust z-score within each group.
+  - step: Robust z-score within each group and variable.
     formula: 'z = \frac{0.6745\,(y - \tilde y)}{\mathrm{MAD}}, \qquad \mathrm{MAD} = \mathrm{median}\,|y - \tilde y|'
   - step: When MAD is zero, the mean absolute deviation is used instead.
     formula: 'z = \frac{y - \tilde y}{1.253314 \cdot \mathrm{mean}\,|y - \tilde y|}'
@@ -66,6 +75,11 @@ validation:
     tolerance: 1e-12 relative
   - kind: ground_truth
     description: >-
+      On the synthetic baseline and high_inflation, no line has more than 10 per cent of its
+      reserve movements (reserve_change, reserve_opening and reserve_release together) flagged.
+    tolerance: share of flagged reserve movements per line at most 0.10
+  - kind: ground_truth
+    description: >-
       On the synthetic baseline, the injected extreme payment outliers are recalled (a
       payment is recalled when its row is flagged on paid_flow or incurred_change_at_payment);
       report recall and the number of other flagged payment rows per thousand payments.
@@ -85,3 +99,12 @@ change_log:
       Third variable incurred_change_at_payment, approved by the owner (record 0060). The
       injected payments are 20 to 50 times the median payment, inside the spread of log
       payments, so paid_flow alone recalled none of them.
+  - version: 1.2.0
+    date: 2026-10-23
+    change: >-
+      Case-reserve movements are scored by kind, each against its own median and MAD in the
+      segment and line: reserve_change (positive on both sides), reserve_opening and
+      reserve_release; a reserve that did not move is not scored (record 0221). Under one scale
+      the openings and releases, which are status changes, put 40 to 45 per cent of the
+      MOTOR_OD movements beyond the threshold; now no line has more than 2 per cent flagged.
+      Payment variables and the recall of the injected payments are unchanged.

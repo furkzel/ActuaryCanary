@@ -4,6 +4,12 @@ Flows follow CV04: consecutive rows of a claim, in date order, differenced; the 
 flow is its full value. Amounts are converted with the constant development rate of the
 row's currency (CV01); a value whose currency has no rate is not scored and is counted.
 
+A case-reserve movement is judged against movements of its own kind in its segment and line
+(MT08 1.2.0, record 0221): a reserve that moved while positive on both sides, a reserve
+opened from nothing and a reserve released to nothing. A reserve that did not move is not a
+movement. Mixing the kinds put the openings and releases, which are status changes, far from
+the typical small movement and flagged 40 to 45 % of MOTOR_OD.
+
 The incurred change at a payment is the movement of paid plus case reserve on a row with a
 payment, when the reserve did not absorb it: a payment the case reserve did not foresee
 (MT08 1.1.0, record 0060).
@@ -22,7 +28,8 @@ MAX_FLAG_RATE = 0.05  # above it the group may mix populations (MT08)
 MAD_SCALE = 0.6745
 MEAN_AD_SCALE = 1.253314
 GROUP_BY = ("segment", "line")
-VARIABLES = ("paid_flow", "reserve_change", "incurred_change_at_payment")
+RESERVE_VARIABLES = ("reserve_change", "reserve_opening", "reserve_release")
+VARIABLES = ("paid_flow", *RESERVE_VARIABLES, "incurred_change_at_payment")
 UNKNOWN = "UNKNOWN"
 
 
@@ -83,13 +90,21 @@ def _reserve_changes(rows: pl.DataFrame, group_by: Sequence[str]) -> pl.DataFram
         pl.col("case_reserve").shift(1).over("claim_id").alias("previous"),
         pl.col("rate").shift(1).over("claim_id").alias("previous_rate"),
     )
+    kind = (
+        pl.when(pl.col("previous") <= 0)
+        .then(pl.lit("reserve_opening"))
+        .when(pl.col("case_reserve") <= 0)
+        .then(pl.lit("reserve_release"))
+        .otherwise(pl.lit("reserve_change"))
+    )
     return (
         reserve.filter(
             pl.col("previous").is_not_null()
+            & (pl.col("case_reserve") != pl.col("previous"))
             & ((pl.col("case_reserve") > 0) | (pl.col("previous") > 0))
         )
         .with_columns(
-            pl.lit("reserve_change").alias("variable"),
+            kind.alias("variable"),
             (pl.col("previous") * pl.col("previous_rate")).alias("before"),
             pl.when(pl.col("previous_rate").is_null())
             .then(None)
@@ -166,6 +181,24 @@ def _reason() -> pl.Expr:
         z,
         pl.col("threshold"),
     )
+    opening = pl.format(
+        "case reserve opened at {}, log size {} against the group median {} of reserves "
+        "opened (robust z {}, threshold {})",
+        pl.col("amount").round(2),
+        pl.col("y").round(3),
+        pl.col("median").round(3),
+        z,
+        pl.col("threshold"),
+    )
+    release = pl.format(
+        "case reserve of {} released, log change {} against the group median {} of reserves "
+        "released (robust z {}, threshold {})",
+        pl.col("before").round(2),
+        pl.col("y").round(3),
+        pl.col("median").round(3),
+        z,
+        pl.col("threshold"),
+    )
     incurred = pl.format(
         "incurred moved from {} to {} with a payment, log change {} against the group median {} "
         "(robust z {}, threshold {})",
@@ -181,6 +214,10 @@ def _reason() -> pl.Expr:
         .then(paid)
         .when(pl.col("variable") == "reserve_change")
         .then(reserve)
+        .when(pl.col("variable") == "reserve_opening")
+        .then(opening)
+        .when(pl.col("variable") == "reserve_release")
+        .then(release)
         .otherwise(incurred)
     )
 
@@ -205,11 +242,17 @@ def robust_z_flags(
     group_by = list(group_by)
     rows = _rows(valuations, claims, rates, group_by)
     parts = {
-        "paid_flow": _paid_flows,
-        "reserve_change": _reserve_changes,
-        "incurred_change_at_payment": _incurred_changes,
+        "paid_flow": (_paid_flows, ("paid_flow",)),
+        "reserve": (_reserve_changes, RESERVE_VARIABLES),
+        "incurred_change_at_payment": (_incurred_changes, ("incurred_change_at_payment",)),
     }
-    values = pl.concat([parts[v](rows, group_by) for v in variables])
+    values = pl.concat(
+        [
+            build(rows, group_by).filter(pl.col("variable").is_in(list(variables)))
+            for build, produces in parts.values()
+            if set(produces) & set(variables)
+        ]
+    )
     not_converted = values.filter(pl.col("rate").is_null()).height
     values = values.filter(pl.col("rate").is_not_null())
 

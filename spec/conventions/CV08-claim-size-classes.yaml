@@ -1,5 +1,5 @@
 id: CV08
-version: 1.0.0
+version: 1.1.0
 title_en: Claim size classes
 title_tr: Hasar büyüklük sınıfları
 status: reviewed
@@ -26,9 +26,15 @@ rules:
     threshold of its segment; a segment with fewer has no LARGE class, and an INFO finding
     says so.
   - >-
-    The user may set a fixed threshold per segment and line, at value-date prices in
-    reporting currency, in the assumptions register; it replaces the percentile and is
-    written to the run manifest.
+    The user may override the default in project.yaml: `large_loss.percentile` replaces
+    large_loss_percentile, and `large_loss.thresholds` maps a "SEGMENT/LINE" key to a fixed
+    threshold at value-date prices in reporting currency, which replaces the percentile for
+    that group. The values in force are written to the run manifest.
+  - >-
+    This is the one large-loss threshold of a run. M06 and every other large-loss view (CL12
+    and the views built on it) use it. The threshold that MT18 selects for its
+    extreme-value fit is used only inside that fit and is reported next to this one; it
+    never decides which claims are LARGE (record 0601).
   - >-
     The class is fixed for the whole run, so triangles and ratios do not shift between
     classes across valuation points.
@@ -46,8 +52,8 @@ defaults:
   - name: large_loss_percentile
     default: 0.99
     description: >-
-      The top one per cent of claims by size are LARGE; owner decision, see 0010. Replaced by
-      an extreme-value threshold when tier B methods arrive.
+      The top one per cent of claims by size are LARGE; owner decision, see 0010 and 0601.
+      It stays the default when the tier B methods arrive.
   - name: min_claims_for_percentile
     default: 100
     description: >-
@@ -66,3 +72,10 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-10-24
+    change: >-
+      Owner decision (record 0601): the 99th percentile stays the default threshold for M06 and
+      every large-loss view, MT18's threshold does not replace it, and the override moves
+      from the assumptions register to project.yaml. The override in project.yaml is not
+      built yet (the severity and extremes item builds it).

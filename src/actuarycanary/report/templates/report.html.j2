@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ m.language }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ m.cover.title }} report {{ m.cover.rows[0].value }}</title>
+<title>{{ tr("{title} report {run}", title=m.cover.title, run=m.cover.rows[0].value) }}</title>
 <style>
 :root {
   color-scheme: light;
@@ -121,68 +121,68 @@ ul.why li { font-size: 0.85rem; }
 {% macro values(items) %}{% for x in items %}<tr><td class="text">{{ x.measure }}</td>{% for v in x.points %}<td>{{ v.period }}: {{ v.value }}</td>{% endfor %}<td class="text">{{ x.basis }}</td></tr>{% endfor %}{% endmacro %}
 
 <header id="cover">
-  <h1>{{ m.cover.title }}: executive report</h1>
+  <h1>{{ tr("{title}: executive report", title=m.cover.title) }}</h1>
   <p class="tagline">{{ m.cover.tagline }}</p>
   {{ label() }}
   <dl class="cover">
-    {% for r in m.cover.rows %}<dt>{{ r.label }}</dt><dd>{% if r.label == "Run id" %}<code>{{ r.value }}</code>{% else %}{{ r.value }}{% endif %}</dd>
+    {% for r in m.cover.rows %}<dt>{{ r.label }}</dt><dd>{% if loop.first %}<code>{{ r.value }}</code>{% else %}{{ r.value }}{% endif %}</dd>
     {% endfor %}
   </dl>
 </header>
 
 <nav>
-  <h2>Contents</h2>
+  <h2>{{ tr("Contents") }}</h2>
   <ul>
-    <li><a href="#findings">Key findings</a></li>
-    <li><a href="#glance">At a glance</a></li>
+    <li><a href="#findings">{{ tr("Key findings") }}</a></li>
+    <li><a href="#glance">{{ tr("At a glance") }}</a></li>
     {% for p in m.pages %}<li><a href="#{{ p.anchor }}">{{ p.module }} {{ p.title }}</a></li>
-    {% endfor %}<li><a href="#reserving">Reserving</a></li>
-    {% for l in m.reserving.lines %}<li><a href="#{{ l.anchor }}">Reserving: {{ l.name }}</a></li>
-    {% endfor %}<li><a href="#not-run">What did not run and why</a></li>
-    <li><a href="#quality">Data quality appendix</a></li>
-    <li><a href="#methods">Methods and assumptions appendix</a></li>
-    <li><a href="#reproducibility">Reproducibility appendix</a></li>
+    {% endfor %}<li><a href="#reserving">{{ tr("Reserving") }}</a></li>
+    {% for l in m.reserving.lines %}<li><a href="#{{ l.anchor }}">{{ tr("Reserving: {name}", name=l.name) }}</a></li>
+    {% endfor %}<li><a href="#not-run">{{ tr("What did not run and why") }}</a></li>
+    <li><a href="#quality">{{ tr("Data quality appendix") }}</a></li>
+    <li><a href="#methods">{{ tr("Methods and assumptions appendix") }}</a></li>
+    <li><a href="#reproducibility">{{ tr("Reproducibility appendix") }}</a></li>
   </ul>
 </nav>
 
 <section id="findings" class="page">
-  <h2>Key findings</h2>
+  <h2>{{ tr("Key findings") }}</h2>
   {{ label() }}
   {% if m.key_findings %}
   <ol class="findings">
-    {% for f in m.key_findings %}<li>{{ f.text }} <span class="evidence">Evidence: <a href="#{{ f.section }}">{{ f.section }}</a>{% if f.files %} · {{ f.files|join(", ") }}{% endif %}{% if f.evidence %} · {{ f.evidence }}{% endif %} · rule {{ f.rule }}</span></li>
+    {% for f in m.key_findings %}<li>{{ f.text }} <span class="evidence">{{ tr("Evidence") }}: <a href="#{{ f.section }}">{{ tr(f.section) }}</a>{% if f.files %} · {{ f.files|join(", ") }}{% endif %}{% if f.evidence %} · {{ f.evidence }}{% endif %} · {{ tr("rule") }} {{ f.rule }}</span></li>
     {% endfor %}
   </ol>
-  {% else %}<p>No finding rule fired on this run.</p>{% endif %}
+  {% else %}<p>{{ tr("No finding rule fired on this run.") }}</p>{% endif %}
   {% if m.further_findings %}
   <details open>
-    <summary>{{ m.further_findings|length }} further findings</summary>
+    <summary>{{ tr("{n} further findings", n=m.further_findings|length) }}</summary>
     <ol class="findings" start="{{ m.key_findings|length + 1 }}">
-      {% for f in m.further_findings %}<li>{{ f.text }} <span class="evidence">Evidence: <a href="#{{ f.section }}">{{ f.section }}</a>{% if f.files %} · {{ f.files|join(", ") }}{% endif %}{% if f.evidence %} · {{ f.evidence }}{% endif %} · rule {{ f.rule }}</span></li>
+      {% for f in m.further_findings %}<li>{{ f.text }} <span class="evidence">{{ tr("Evidence") }}: <a href="#{{ f.section }}">{{ tr(f.section) }}</a>{% if f.files %} · {{ f.files|join(", ") }}{% endif %}{% if f.evidence %} · {{ f.evidence }}{% endif %} · {{ tr("rule") }} {{ f.rule }}</span></li>
       {% endfor %}
     </ol>
   </details>
   {% endif %}
-  <p class="footnote">Every sentence comes from a fixed rule of {{ m.findings_spec }} with its number filled in; nothing on this page is free text. Rules, conditions and templates are in spec/report/findings.yaml.</p>
+  <p class="footnote">{{ tr("Every sentence comes from a fixed rule of {spec} with its number filled in; nothing on this page is free text. Rules, conditions and templates are in spec/report/findings.yaml.", spec=m.findings_spec) }}</p>
 </section>
 
 <section id="glance" class="page">
-  <h2>At a glance</h2>
+  <h2>{{ tr("At a glance") }}</h2>
   {{ label() }}
-  <p>Segments are shown separately and never added together. Each change compares with the previous period named under it.</p>
+  <p>{{ tr("Segments are shown separately and never added together. Each change compares with the previous period named under it.") }}</p>
   {% for s in m.tiles %}
   <div class="tiles-segment">
     <h3><span class="swatch" style="background: var({{ s.colour or '--segment-other' }})"></span>{{ s.segment }}</h3>
     <div class="tiles">
-      {% for t in s.tiles %}<div class="tile"><div class="k">{{ t.label }}</div><div class="v">{{ t.value }}</div><div class="d">{{ t.change }} {{ t.against }}</div>{% if t.note %}<div class="n">{{ t.note }}</div>{% endif %}<div class="s">{{ t.source }}</div></div>
+      {% for tile in s.tiles %}<div class="tile"><div class="k">{{ tile.label }}</div><div class="v">{{ tile.value }}</div><div class="d">{{ tile.change }} {{ tile.against }}</div>{% if tile.note %}<div class="n">{{ tile.note }}</div>{% endif %}<div class="s">{{ tile.source }}</div></div>
       {% endfor %}
     </div>
   </div>
   {% endfor %}
   <div class="tiles-segment">
-    <h3>All data</h3>
+    <h3>{{ tr("All data") }}</h3>
     <div class="tiles">
-      {% set t = m.quality_tile %}<div class="tile"><div class="k">{{ t.label }}</div><div class="v">{{ t.value }}</div><div class="d">{{ t.change }} {{ t.against }}</div><div class="n">{{ t.note }}</div><div class="s">{{ t.source }}</div></div>
+      {% set qt = m.quality_tile %}<div class="tile"><div class="k">{{ qt.label }}</div><div class="v">{{ qt.value }}</div><div class="d">{{ qt.change }} {{ qt.against }}</div><div class="n">{{ qt.note }}</div><div class="s">{{ qt.source }}</div></div>
     </div>
   </div>
 </section>
@@ -191,207 +191,207 @@ ul.why li { font-size: 0.85rem; }
 <section id="{{ p.anchor }}" class="page">
   <h2>{{ p.module }} {{ p.title }}</h2>
   {{ label() }}
-  <p><em>{{ p.question }}</em> State: {{ p.state }}{% if p.reasons %}: {{ p.reasons|join("; ") }}{% endif %}.</p>
+  <p><em>{{ p.question }}</em> {{ tr("State") }}: {{ p.state }}{% if p.reasons %}: {{ p.reasons|join("; ") }}{% endif %}.</p>
   {% set b = p.body %}
   {% if p.module == "M01" %}
-  <p>Data quality score <strong>{{ b.score }}</strong> out of 100; the findings are in the <a href="#quality">data quality appendix</a>.</p>
+  <p>{{ trh("Data quality score <strong>{score}</strong> out of 100; the findings are in the <a href=\"#quality\">data quality appendix</a>.", score=b.score) }}</p>
   <div class="scroll"><table>
-    <thead><tr><th>Concept</th><th>Rows</th><th>First date</th><th>Last date</th><th>Score</th></tr></thead>
-    <tbody>{% for c in b.coverage %}<tr><td>{{ c.concept }}{% if not c.loaded %} (not loaded){% endif %}</td><td>{{ c.rows }}</td><td>{{ c.first }}</td><td>{{ c.last }}</td><td>{{ c.score }}</td></tr>{% endfor %}</tbody>
+    <thead><tr><th>{{ tr("Concept") }}</th><th>{{ tr("Rows") }}</th><th>{{ tr("First date") }}</th><th>{{ tr("Last date") }}</th><th>{{ tr("Score") }}</th></tr></thead>
+    <tbody>{% for c in b.coverage %}<tr><td>{{ c.concept }}{% if not c.loaded %} ({{ tr("not loaded") }}){% endif %}</td><td>{{ c.rows }}</td><td>{{ c.first }}</td><td>{{ c.last }}</td><td>{{ c.score }}</td></tr>{% endfor %}</tbody>
   </table></div>
   <p class="footnote">{{ b.footnote }}</p>
   {% elif p.module == "M02" %}
-  {{ figure(b.figure, "Written premium by line") }}
+  {{ figure(b.figure, tr("Written premium by line")) }}
   <div class="scroll"><table>
-    <thead><tr><th>Line</th><th>Written, previous</th><th>Written, {{ b.period }}</th><th>Change</th><th>Earned, {{ b.period }}</th><th>Unearned</th><th>Average premium</th></tr></thead>
+    <thead><tr><th>{{ tr("Line") }}</th><th>{{ tr("Written, previous") }}</th><th>{{ tr("Written, {period}", period=b.period) }}</th><th>{{ tr("Change") }}</th><th>{{ tr("Earned, {period}", period=b.period) }}</th><th>{{ tr("Unearned") }}</th><th>{{ tr("Average premium") }}</th></tr></thead>
     <tbody>{% for r in b.rows %}<tr title="{{ r.ref }}"><td>{{ r.line }}</td><td>{{ r.previous }}</td><td>{{ r.latest }}</td><td>{{ r.change }}</td><td>{{ r.earned }}</td><td>{{ r.unearned }}</td><td>{{ r.average }}</td></tr>{% endfor %}</tbody>
   </table></div>
-  <p class="footnote">{{ b.footnote }} Hover a row for the measure rows behind it (lineage.csv).</p>
-  {% if b.business %}<h3>All business</h3>
+  <p class="footnote">{{ b.footnote }} {{ tr("Hover a row for the measure rows behind it (lineage.csv).") }}</p>
+  {% if b.business %}<h3>{{ tr("All business") }}</h3>
   <div class="scroll"><table><tbody>{{ values(b.business) }}</tbody></table></div>{% endif %}
   {% elif p.module == "M03" %}
-  {{ figure(b.figure, "Incurred to date by line") }}
+  {{ figure(b.figure, tr("Incurred to date by line")) }}
   <div class="scroll"><table>
-    <thead><tr><th>Line</th><th>Reported claims</th><th>Open</th><th>Paid</th><th>Case reserve</th><th>Incurred</th><th>Reporting delay (days)</th><th>Settlement (days)</th><th>Large-loss share</th></tr></thead>
+    <thead><tr><th>{{ tr("Line") }}</th><th>{{ tr("Reported claims") }}</th><th>{{ tr("Open") }}</th><th>{{ tr("Paid") }}</th><th>{{ tr("Case reserve") }}</th><th>{{ tr("Incurred") }}</th><th>{{ tr("Reporting delay (days)") }}</th><th>{{ tr("Settlement (days)") }}</th><th>{{ tr("Large-loss share") }}</th></tr></thead>
     <tbody>{% for r in b.rows %}<tr title="{{ r.ref }}"><td>{{ r.line }}</td><td>{{ r.reported }}</td><td>{{ r.open }}</td><td>{{ r.paid }}</td><td>{{ r.case }}</td><td>{{ r.incurred }}</td><td>{{ r.delay }}</td><td>{{ r.settlement }}</td><td>{{ r.large_share }}</td></tr>{% endfor %}</tbody>
   </table></div>
-  <p class="footnote">{{ b.footnote }} Hover a row for the measure rows behind it (lineage.csv).</p>
+  <p class="footnote">{{ b.footnote }} {{ tr("Hover a row for the measure rows behind it (lineage.csv).") }}</p>
   {% elif p.module == "M05" %}
-  <div class="charts">{% for l in b.lines %}{{ figure(l.figure, "Ultimate loss ratio by origin, " ~ l.line) }}{% endfor %}</div>
+  <div class="charts">{% for l in b.lines %}{{ figure(l.figure, tr("Ultimate loss ratio by origin, {line}", line=l.line)) }}{% endfor %}</div>
   <p class="footnote">{{ b.figure_note }}</p>
   {% for l in b.lines %}
   <h4>{{ l.line }}</h4>
   <div class="scroll"><table>
-    <thead><tr><th>Origin</th><th>Earned premium</th><th>Incurred</th><th>Ultimate</th><th>Incurred loss ratio</th><th>Ultimate loss ratio</th><th>Combined ratio</th></tr></thead>
+    <thead><tr><th>{{ tr("Origin") }}</th><th>{{ tr("Earned premium") }}</th><th>{{ tr("Incurred") }}</th><th>{{ tr("Ultimate") }}</th><th>{{ tr("Incurred loss ratio") }}</th><th>{{ tr("Ultimate loss ratio") }}</th><th>{{ tr("Combined ratio") }}</th></tr></thead>
     <tbody>{% for r in l.rows %}<tr title="{{ r.ref }}"><td>{{ r.origin }}</td><td>{{ r.earned }}</td><td>{{ r.incurred }}</td><td>{{ r.ultimate }}</td><td>{{ r.incurred_ratio }}</td><td>{{ r.ultimate_ratio }}</td><td>{{ r.combined }}</td></tr>{% endfor %}</tbody>
   </table></div>
   {% endfor %}
-  {% if b.expenses %}<h3>Expenses, all business</h3>
+  {% if b.expenses %}<h3>{{ tr("Expenses, all business") }}</h3>
   <div class="scroll"><table><tbody>{{ values(b.expenses) }}</tbody></table></div>{% endif %}
   <p class="footnote">{{ b.footnote }}</p>
   {% elif p.module == "M06" %}
-  {{ figure(b.figure, "Share of values flagged by line") }}
+  {{ figure(b.figure, tr("Share of values flagged by line")) }}
   <div class="scroll"><table>
-    <thead><tr><th>Line</th><th>Values scored (MT08)</th><th>Flagged</th><th>Share flagged</th><th>Claims flagged (MT09)</th></tr></thead>
-    <tbody>{% for r in b.rows %}<tr><td>{{ r.line }}</td><td>{{ r.scored }}</td><td>{{ r.flagged }}</td><td{% if r.above %} class="negative"{% endif %}>{{ r.rate }}{% if r.above %} (above {{ b.limit }}){% endif %}</td><td>{{ r.isolation }}</td></tr>{% endfor %}</tbody>
+    <thead><tr><th>{{ tr("Line") }}</th><th>{{ tr("Values scored (MT08)") }}</th><th>{{ tr("Flagged") }}</th><th>{{ tr("Share flagged") }}</th><th>{{ tr("Claims flagged (MT09)") }}</th></tr></thead>
+    <tbody>{% for r in b.rows %}<tr><td>{{ r.line }}</td><td>{{ r.scored }}</td><td>{{ r.flagged }}</td><td{% if r.above %} class="negative"{% endif %}>{{ r.rate }}{% if r.above %} ({{ tr("above {limit}", limit=b.limit) }}){% endif %}</td><td>{{ r.isolation }}</td></tr>{% endfor %}</tbody>
   </table></div>
   <p class="footnote">{{ b.footnote }}</p>
-  {% if b.top %}<h3>Largest flags ({{ b.top|length }} of {{ b.total }})</h3>
+  {% if b.top %}<h3>{{ tr("Largest flags ({n} of {total})", n=b.top|length, total=b.total) }}</h3>
   <div class="scroll"><table>
-    <thead><tr><th>Method</th><th>Claim</th><th>Line</th><th>Date</th><th>What</th><th>Score</th><th class="text">Why</th><th class="text">Source rows</th></tr></thead>
+    <thead><tr><th>{{ tr("Method") }}</th><th>{{ tr("Claim") }}</th><th>{{ tr("Line") }}</th><th>{{ tr("Date") }}</th><th>{{ tr("What") }}</th><th>{{ tr("Score") }}</th><th class="text">{{ tr("Why") }}</th><th class="text">{{ tr("Source rows") }}</th></tr></thead>
     <tbody>{% for f in b.top %}<tr><td>{{ f.method }}</td><td>{{ f.claim }}</td><td>{{ f.line }}</td><td>{{ f.date }}</td><td>{{ f.variable }}</td><td>{{ f.score }}</td><td class="text">{{ f.reason }}</td><td class="text">{{ f.source }}</td></tr>{% endfor %}</tbody>
   </table></div>
-  <p class="footnote">Source rows are spreadsheet rows; anomalies.csv has every flag.</p>{% endif %}
+  <p class="footnote">{{ tr("Source rows are spreadsheet rows; anomalies.csv has every flag.") }}</p>{% endif %}
   {% endif %}
 </section>
 {% endfor %}
 
 {% set rv = m.reserving %}
 <section id="reserving" class="page">
-  <h2>Reserving{% if rv.module %} ({{ rv.module }}){% endif %}</h2>
+  <h2>{{ tr("Reserving") }}{% if rv.module %} ({{ rv.module }}){% endif %}</h2>
   {{ label() }}
-  {% if rv.question %}<p><em>{{ rv.question }}</em> State: {{ rv.state }}{% if rv.reasons %}: {{ rv.reasons|join("; ") }}{% endif %}.</p>{% endif %}
+  {% if rv.question %}<p><em>{{ rv.question }}</em> {{ tr("State") }}: {{ rv.state }}{% if rv.reasons %}: {{ rv.reasons|join("; ") }}{% endif %}.</p>{% endif %}
   <div class="scroll"><table>
-    <thead><tr><th>Segment · line</th><th>Paid</th><th>Incurred</th><th>Ultimate, paid CL</th><th>Ultimate, incurred CL</th><th>Ultimate, selected</th><th>IBNR, selected</th><th>Diagnostics</th></tr></thead>
+    <thead><tr><th>{{ tr("Segment · line") }}</th><th>{{ tr("Paid") }}</th><th>{{ tr("Incurred") }}</th><th>{{ tr("Ultimate, paid CL") }}</th><th>{{ tr("Ultimate, incurred CL") }}</th><th>{{ tr("Ultimate, selected") }}</th><th>{{ tr("IBNR, selected") }}</th><th>{{ tr("Diagnostics") }}</th></tr></thead>
     <tbody>{% for s in rv.summary %}<tr><td><a href="#{{ s.anchor }}">{{ s.line }}</a></td><td>{{ s.paid }}</td><td>{{ s.incurred }}</td><td>{{ s.ult_paid }}</td><td>{{ s.ult_incurred }}</td><td>{{ s.ult_selected }}</td><td>{{ s.ibnr_selected }}</td><td>{{ s.diagnostics }}</td></tr>{% endfor %}</tbody>
   </table></div>
   <p class="footnote">{{ rv.footnotes.summary }}</p>
-  <p class="legend-note">Colours: <span class="swatch" style="background: var(--basis-paid)"></span> paid, <span class="swatch" style="background: var(--basis-incurred)"></span> incurred, wherever they appear; the selected ultimate is drawn in ink.</p>
+  <p class="legend-note">{{ trh("Colours: <span class=\"swatch\" style=\"background: var(--basis-paid)\"></span> paid, <span class=\"swatch\" style=\"background: var(--basis-incurred)\"></span> incurred, wherever they appear; the selected ultimate is drawn in ink.") }}</p>
 </section>
 
 {% for l in rv.lines %}
 {% set mm = l.methods %}
 <section id="{{ l.anchor }}" class="page">
-  <h2>Reserving: {{ l.name }}</h2>
+  <h2>{{ tr("Reserving: {name}", name=l.name) }}</h2>
   {{ label() }}
-  {% if l.findings %}<ul>{% for f in l.findings %}<li>{{ f.text }} <span class="evidence">rule {{ f.rule }} · {{ f.files|join(", ") }}</span></li>{% endfor %}</ul>{% endif %}
+  {% if l.findings %}<ul>{% for f in l.findings %}<li>{{ f.text }} <span class="evidence">{{ tr("rule") }} {{ f.rule }} · {{ f.files|join(", ") }}</span></li>{% endfor %}</ul>{% endif %}
 
-  <h3>Development triangles</h3>
-  <div class="charts">{{ figure(l.figures.heatmap_paid, "Heatmap of the cumulative paid triangle, " ~ l.name) }}{{ figure(l.figures.heatmap_incurred, "Heatmap of the cumulative incurred triangle, " ~ l.name) }}</div>
-  <p class="footnote">{{ rv.footnotes.heatmaps }}{% if l.thin_cells %} {{ l.thin_cells }} paid cells have fewer than 5 claims (marked thin on hover).{% endif %}</p>
+  <h3>{{ tr("Development triangles") }}</h3>
+  <div class="charts">{{ figure(l.figures.heatmap_paid, tr("Heatmap of the cumulative paid triangle, {name}", name=l.name)) }}{{ figure(l.figures.heatmap_incurred, tr("Heatmap of the cumulative incurred triangle, {name}", name=l.name)) }}</div>
+  <p class="footnote">{{ rv.footnotes.heatmaps }}{% if l.thin_cells %} {{ tr("{n} paid cells have fewer than 5 claims (marked thin on hover).", n=l.thin_cells) }}{% endif %}</p>
   <details>
-    <summary>Triangle values</summary>
+    <summary>{{ tr("Triangle values") }}</summary>
     {% for measure in ["paid", "incurred"] %}<div class="scroll"><table>
-      <thead><tr><th>{{ measure|capitalize }}</th>{% for a in l.ages %}<th>{{ a }}</th>{% endfor %}</tr></thead>
+      <thead><tr><th>{{ tr(measure)|capitalize }}</th>{% for a in l.ages %}<th>{{ a }}</th>{% endfor %}</tr></thead>
       <tbody>{% for row in l.triangles[measure] %}<tr>{% for c in row %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
     </table></div>{% endfor %}
   </details>
 
-  <h3>Development factors and selection</h3>
-  <div class="charts">{{ figure(l.figures.factors_paid, "Link ratios and selected factor, paid") }}{{ figure(l.figures.factors_incurred, "Link ratios and selected factor, incurred") }}</div>
+  <h3>{{ tr("Development factors and selection") }}</h3>
+  <div class="charts">{{ figure(l.figures.factors_paid, tr("Link ratios and selected factor, paid")) }}{{ figure(l.figures.factors_incurred, tr("Link ratios and selected factor, incurred")) }}</div>
   <p class="footnote">{{ rv.footnotes.factors }}</p>
-  {% for t in mm.stability %}<div class="scroll"><table>
-    <thead><tr><th>{{ t.measure|capitalize }} column</th><th>Link ratios</th><th>Lowest</th><th>Highest</th><th>CV</th>{% for n in t.names %}<th>{{ n }}</th>{% endfor %}<th>Selected</th></tr></thead>
-    <tbody>{% for r in t.rows %}<tr><td>{{ r.column }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  {% for st in mm.stability %}<div class="scroll"><table>
+    <thead><tr><th>{{ tr("{measure} column", measure=tr(st.measure)|capitalize) }}</th><th>{{ tr("Link ratios") }}</th><th>{{ tr("Lowest") }}</th><th>{{ tr("Highest") }}</th><th>{{ tr("CV") }}</th>{% for n in st.names %}<th>{{ n }}</th>{% endfor %}<th>{{ tr("Selected") }}</th></tr></thead>
+    <tbody>{% for r in st.rows %}<tr><td>{{ r.column }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
   </table></div>{% endfor %}
 
-  <h3>Ultimates by method</h3>
-  {{ figure(l.figures.methods, "Ultimate by method, " ~ l.name) }}
+  <h3>{{ tr("Ultimates by method") }}</h3>
+  {{ figure(l.figures.methods, tr("Ultimate by method, {name}", name=l.name)) }}
   <p class="footnote">{{ rv.footnotes.methods }}</p>
   <div class="scroll"><table class="wide">
-    <thead><tr><th>Origin</th>{% for h in mm.ultimates.headers %}<th>{{ h }}</th>{% endfor %}<th>Selected</th><th class="text">Chosen</th></tr></thead>
+    <thead><tr><th>{{ tr("Origin") }}</th>{% for h in mm.ultimates.headers %}<th>{{ h }}</th>{% endfor %}<th>{{ tr("Selected") }}</th><th class="text">{{ tr("Chosen") }}</th></tr></thead>
     <tbody>{% for r in mm.ultimates.rows %}<tr{% if r.total %} class="total"{% endif %}><td>{{ r.origin }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}<td>{{ r.selected }}</td><td class="text nowrap">{{ r.chosen }}</td></tr>{% endfor %}</tbody>
   </table></div>
   <ul class="why">{% for r in mm.ultimates.rows if r.why %}<li>{{ r.origin }}: {{ r.why }}</li>{% endfor %}</ul>
   {% if mm.not_run %}<ul>{% for n in mm.not_run %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
 
-  <h3>Reserve range</h3>
-  {% if l.figures.range %}{{ figure(l.figures.range, "Selected reserve and its range, " ~ l.name) }}
+  <h3>{{ tr("Reserve range") }}</h3>
+  {% if l.figures.range %}{{ figure(l.figures.range, tr("Selected reserve and its range, {name}", name=l.name)) }}
   <p class="footnote">{{ rv.footnotes.range }}</p>{% endif %}
   {% if mm.mack %}<div class="scroll"><table>
-    <thead><tr><th>Total reserve (selected)</th><th>Reserve</th><th>75th percentile</th><th>95th percentile</th><th>99.5th percentile</th><th>VaR 99.5%</th><th>TVaR 99%</th></tr></thead>
-    <tbody>{% for r in mm.mack.ranges %}<tr><td>{{ r.measure }}</td><td>{{ r.reserve }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}{% if not r.cells %}<td class="text" colspan="5">not shown: the reserve is not positive or the standard error is zero</td>{% endif %}</tr>{% endfor %}</tbody>
-  </table></div>{% else %}<p>No range: the Mack standard error (MT06) did not run on this line, so no reserve range is given. A range needs more origin periods than are loaded.</p>{% endif %}
+    <thead><tr><th>{{ tr("Total reserve (selected)") }}</th><th>{{ tr("Reserve") }}</th><th>{{ tr("75th percentile") }}</th><th>{{ tr("95th percentile") }}</th><th>{{ tr("99.5th percentile") }}</th><th>{{ tr("VaR 99.5%") }}</th><th>{{ tr("TVaR 99%") }}</th></tr></thead>
+    <tbody>{% for r in mm.mack.ranges %}<tr><td>{{ tr(r.measure) }}</td><td>{{ r.reserve }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}{% if not r.cells %}<td class="text" colspan="5">{{ tr("not shown: the reserve is not positive or the standard error is zero") }}</td>{% endif %}</tr>{% endfor %}</tbody>
+  </table></div>{% else %}<p>{{ tr("No range: the Mack standard error (MT06) did not run on this line, so no reserve range is given. A range needs more origin periods than are loaded.") }}</p>{% endif %}
 
-  {% if mm.inflation %}<h3>Inflation-adjusted chain ladder</h3>
+  {% if mm.inflation %}<h3>{{ tr("Inflation-adjusted chain ladder") }}</h3>
   <div class="scroll"><table>
-    <thead><tr><th>Origin</th><th>Paid, value-date prices</th><th>Ultimate, value-date prices</th><th>Unpaid, value-date prices</th><th>Paid, nominal</th><th>Ultimate, nominal</th><th>Unpaid, nominal</th></tr></thead>
+    <thead><tr><th>{{ tr("Origin") }}</th><th>{{ tr("Paid, value-date prices") }}</th><th>{{ tr("Ultimate, value-date prices") }}</th><th>{{ tr("Unpaid, value-date prices") }}</th><th>{{ tr("Paid, nominal") }}</th><th>{{ tr("Ultimate, nominal") }}</th><th>{{ tr("Unpaid, nominal") }}</th></tr></thead>
     <tbody>{% for r in mm.inflation.rows %}<tr><td>{{ r.origin }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
   </table></div>
-  <p class="footnote">Paid chain ladder on triangles at the prices of {{ mm.inflation.value_date }} ({{ m.inflation_spec }}). {% if mm.inflation.future_inflation %}Future payments re-inflated with {{ mm.inflation.future_inflation }} a year (assumptions register).{% else %}No future inflation is stated, so the nominal ultimate and unpaid are empty.{% endif %}</p>{% endif %}
+  <p class="footnote">{{ tr("Paid chain ladder on triangles at the prices of {date} ({spec}).", date=mm.inflation.value_date, spec=m.inflation_spec) }} {% if mm.inflation.future_inflation %}{{ tr("Future payments re-inflated with {rate} a year (assumptions register).", rate=mm.inflation.future_inflation) }}{% else %}{{ tr("No future inflation is stated, so the nominal ultimate and unpaid are empty.") }}{% endif %}</p>{% endif %}
 
-  <h3>Diagnostics</h3>
+  <h3>{{ tr("Diagnostics") }}</h3>
   {% if mm.diagnostics %}<div class="scroll"><table>
-    <thead><tr><th>Triangle</th><th>Method</th><th>Diagnostic</th><th>Where</th><th class="text">What</th></tr></thead>
+    <thead><tr><th>{{ tr("Triangle") }}</th><th>{{ tr("Method") }}</th><th>{{ tr("Diagnostic") }}</th><th>{{ tr("Where") }}</th><th class="text">{{ tr("What") }}</th></tr></thead>
     <tbody>{% for d in mm.diagnostics %}<tr><td>{{ d.measure }}</td><td>{{ d.method }}</td><td>{{ d.code }}</td><td>{{ d.target }}</td><td class="text">{{ d.message }}</td></tr>{% endfor %}</tbody>
-  </table></div>{% else %}<p>No diagnostic was raised for this line.</p>{% endif %}
-  <p class="footnote">Rows of diagnostics.csv; thresholds in the manifest settings (methods.diagnostics).</p>
+  </table></div>{% else %}<p>{{ tr("No diagnostic was raised for this line.") }}</p>{% endif %}
+  <p class="footnote">{{ tr("Rows of diagnostics.csv; thresholds in the manifest settings (methods.diagnostics).") }}</p>
 </section>
 {% endfor %}
 
 <section id="not-run" class="page">
-  <h2>What did not run and why</h2>
+  <h2>{{ tr("What did not run and why") }}</h2>
   {% if m.not_run.modules %}
   {% for x in m.not_run.modules %}<h3>{{ x.module }}: {{ x.state }}</h3>
   {% if x.why %}<ul>{% for w in x.why %}<li>{{ w }}</li>{% endfor %}</ul>{% endif %}
-  {% if x.load %}<p><strong>What to load:</strong> {{ x.load }}</p>{% endif %}
-  {% if x.missing %}<details><summary>{{ x.missing|length }} measure views not available</summary><ul>{% for w in x.missing %}<li>{{ w }}</li>{% endfor %}</ul></details>{% endif %}
+  {% if x.load %}<p><strong>{{ tr("What to load") }}:</strong> {{ x.load }}</p>{% endif %}
+  {% if x.missing %}<details><summary>{{ tr("{n} measure views not available", n=x.missing|length) }}</summary><ul>{% for w in x.missing %}<li>{{ w }}</li>{% endfor %}</ul></details>{% endif %}
   {% endfor %}
-  {% else %}<p>Every phase 1 module ran in full.</p>{% endif %}
+  {% else %}<p>{{ tr("Every phase 1 module ran in full.") }}</p>{% endif %}
 </section>
 
 {{ quality_html|safe }}
 
 <section id="methods" class="page">
-  <h2>Methods and assumptions appendix</h2>
-  <p>Each method used in this run, in plain words, with its version and its stated assumptions. The settings of this run are in the reproducibility appendix.</p>
+  <h2>{{ tr("Methods and assumptions appendix") }}</h2>
+  <p>{{ tr("Each method used in this run, in plain words, with its version and its stated assumptions. The settings of this run are in the reproducibility appendix.") }}</p>
   {% for x in m.methods %}<h3>{{ x.title }} ({{ x.spec }})</h3>
   <p>{{ x.plain }}</p>
   {% if x.assumptions %}<ul>{% for a in x.assumptions %}<li>{{ a }}</li>{% endfor %}</ul>{% endif %}
-  {% if x.parameters %}<p class="footnote">Parameters and defaults: {% for p in x.parameters %}{{ p.name }} = {{ p.default or "none" }}{% if not loop.last %}; {% endif %}{% endfor %}.</p>{% endif %}
+  {% if x.parameters %}<p class="footnote">{{ tr("Parameters and defaults") }}: {% for p in x.parameters %}{{ p.name }} = {{ p.default or tr("none") }}{% if not loop.last %}; {% endif %}{% endfor %}.</p>{% endif %}
   {% endfor %}
-  <h3>Assumptions register</h3>
+  <h3>{{ tr("Assumptions register") }}</h3>
   {% set a = m.assumptions %}
-  <p>{{ a.total }} entries in force, written to <code>assumptions.csv</code> with who chose each, when, why and the default it replaces. {% if a.judgements %}{{ a.judgements|length }} are judgements of a user.{% else %}All are method defaults: no user judgement was registered for this run.{% endif %}</p>
+  <p>{{ trh("{n} entries in force, written to <code>assumptions.csv</code> with who chose each, when, why and the default it replaces.", n=a.total) }} {% if a.judgements %}{{ tr("{n} are judgements of a user.", n=a.judgements|length) }}{% else %}{{ tr("All are method defaults: no user judgement was registered for this run.") }}{% endif %}</p>
   <div class="scroll"><table>
-    <thead><tr><th>Method</th><th>Parameter</th><th>Entries</th></tr></thead>
+    <thead><tr><th>{{ tr("Method") }}</th><th>{{ tr("Parameter") }}</th><th>{{ tr("Entries") }}</th></tr></thead>
     <tbody>{% for x in a.by_kind %}<tr><td>{{ x.method }}</td><td class="text">{{ x.name }}</td><td>{{ x.entries }}</td></tr>{% endfor %}</tbody>
   </table></div>
   {% if a.judgements %}<div class="scroll"><table>
-    <thead><tr><th>Method</th><th>Parameter</th><th>Scope</th><th>Target</th><th>Value</th><th>Default</th><th>Who</th><th>When</th><th class="text">Why</th></tr></thead>
+    <thead><tr><th>{{ tr("Method") }}</th><th>{{ tr("Parameter") }}</th><th>{{ tr("Scope") }}</th><th>{{ tr("Target") }}</th><th>{{ tr("Value") }}</th><th>{{ tr("Default") }}</th><th>{{ tr("Who") }}</th><th>{{ tr("When") }}</th><th class="text">{{ tr("Why") }}</th></tr></thead>
     <tbody>{% for x in a.judgements %}<tr><td>{{ x.method }}</td><td>{{ x.name }}</td><td>{{ x.scope }}</td><td>{{ x.target }}</td><td>{{ x.value }}</td><td>{{ x.default }}</td><td>{{ x.who }}</td><td>{{ x.when }}</td><td class="text">{{ x.why }}</td></tr>{% endfor %}</tbody>
   </table></div>{% endif %}
-  <h3>Lineage</h3>
-  <p><code>lineage.csv</code> gives, for every value of {{ m.lineage.traced|length }} of {{ m.lineage.measures }} measures, the file, sheet and spreadsheet rows behind it, keyed by measure, view and row as in <code>measures.csv</code>; the rows named under each table of this report are those keys. Traced: {{ m.lineage.traced|join(", ") }}.{% if m.lineage.untraced %} Not traced to rows: {{ m.lineage.untraced|join(", ") }}; these are computed from other measures or from the quality report (quality.json).{% endif %}</p>
-  <h3>Rules applied to rows</h3>
+  <h3>{{ tr("Lineage") }}</h3>
+  <p>{{ trh("<code>lineage.csv</code> gives, for every value of {traced} of {measures} measures, the file, sheet and spreadsheet rows behind it, keyed by measure, view and row as in <code>measures.csv</code>; the rows named under each table of this report are those keys.", traced=m.lineage.traced|length, measures=m.lineage.measures) }}{% if m.lineage.format == 2 %} {{ trh("Lineage format 2: <code>lineage.csv</code> names, per value, the groups of rows (atoms) that make up its rows, and <code>lineage_atoms.csv</code> lists each atom once with its file, sheet and row ranges; {values} values cite {rows} source rows in all.", values=m.lineage.traced_values, rows=m.lineage.rows_cited) }}{% elif m.lineage.format == 1 %} {{ tr("Lineage format 1: one line per value, file and sheet with the row ranges; {values} values cite {rows} source rows in all.", values=m.lineage.traced_values, rows=m.lineage.rows_cited) }}{% endif %} {{ tr("Traced") }}: {{ m.lineage.traced|join(", ") }}.{% if m.lineage.untraced %} {{ tr("Not traced to rows: {list}; these are computed from other measures or from the quality report (quality.json).", list=m.lineage.untraced|join(", ")) }}{% endif %}</p>
+  <h3>{{ tr("Rules applied to rows") }}</h3>
   {% if m.data_findings %}<div class="scroll"><table>
-    <thead><tr><th>Rule</th><th>Concept</th><th>Severity</th><th>Rows</th><th class="text">What happened</th><th class="text">First source rows</th></tr></thead>
-    <tbody>{% for f in m.data_findings %}<tr><td>{{ f.rule }}</td><td>{{ f.concept }}</td><td>{{ f.severity }}</td><td>{{ f.count }}</td><td class="text">{{ f.message }}</td><td class="text">{{ f.rows }}</td></tr>{% endfor %}</tbody>
-  </table></div>{% else %}<p>No row was changed or left out.</p>{% endif %}
+    <thead><tr><th>{{ tr("Rule") }}</th><th>{{ tr("Concept") }}</th><th>{{ tr("Severity") }}</th><th>{{ tr("Rows") }}</th><th class="text">{{ tr("What happened") }}</th><th class="text">{{ tr("First source rows") }}</th></tr></thead>
+    <tbody>{% for f in m.data_findings %}<tr><td>{{ f.rule }}</td><td>{{ f.concept }}</td><td>{{ tr(f.severity) }}</td><td>{{ f.count }}</td><td class="text">{{ f.message }}</td><td class="text">{{ f.rows }}</td></tr>{% endfor %}</tbody>
+  </table></div>{% else %}<p>{{ tr("No row was changed or left out.") }}</p>{% endif %}
   {{ modules_html|safe }}
 </section>
 
 <section id="reproducibility" class="page">
   {% set rp = m.reproducibility %}
-  <h2>Reproducibility appendix</h2>
-  <p>Run id <code>{{ rp.run_id }}</code>, {{ rp.software }}. The run manifest <code>manifest.json</code> next to this page holds everything below in full; rerunning it on the same inputs must reproduce every output fingerprint.</p>
-  <h3>Inputs</h3>
+  <h2>{{ tr("Reproducibility appendix") }}</h2>
+  <p>{{ trh("Run id <code>{run}</code>, {software}. The run manifest <code>manifest.json</code> next to this page holds everything below in full; rerunning it on the same inputs must reproduce every output fingerprint.", run=rp.run_id, software=rp.software) }}</p>
+  <h3>{{ tr("Inputs") }}</h3>
   <div class="scroll"><table>
-    <thead><tr><th>File</th><th>Concept</th><th>Size (bytes)</th><th class="text">Sheets: rows</th><th class="text">SHA-256</th></tr></thead>
+    <thead><tr><th>{{ tr("File") }}</th><th>{{ tr("Concept") }}</th><th>{{ tr("Size (bytes)") }}</th><th class="text">{{ tr("Sheets: rows") }}</th><th class="text">SHA-256</th></tr></thead>
     <tbody>{% for i in rp.inputs %}<tr><td>{{ i.name }}</td><td>{{ i.concept }}</td><td>{{ i.size }}</td><td class="text">{{ i.sheets }}</td><td class="text"><code>{{ i.sha256 }}</code></td></tr>{% endfor %}</tbody>
   </table></div>
-  {% if rp.mappings %}<h3>Mappings applied</h3>
+  {% if rp.mappings %}<h3>{{ tr("Mappings applied") }}</h3>
   <div class="scroll"><table>
-    <thead><tr><th>File</th><th>Sheet</th><th>Concept</th><th>How</th><th>Columns used</th></tr></thead>
+    <thead><tr><th>{{ tr("File") }}</th><th>{{ tr("Sheet") }}</th><th>{{ tr("Concept") }}</th><th>{{ tr("How") }}</th><th>{{ tr("Columns used") }}</th></tr></thead>
     <tbody>{% for x in rp.mappings %}<tr><td>{{ x.file }}</td><td>{{ x.sheet }}</td><td>{{ x.concept }}</td><td>{{ x.source }}</td><td>{{ x.columns }}</td></tr>{% endfor %}</tbody>
   </table></div>{% endif %}
-  <h3>Settings</h3>
+  <h3>{{ tr("Settings") }}</h3>
   <div class="scroll"><table>
-    <thead><tr><th>Setting</th><th class="text">Value</th></tr></thead>
+    <thead><tr><th>{{ tr("Setting") }}</th><th class="text">{{ tr("Value") }}</th></tr></thead>
     <tbody>{% for x in rp.settings %}<tr><td>{{ x.name }}</td><td class="text">{{ x.value }}</td></tr>{% endfor %}</tbody>
   </table></div>
-  {% if rp.randomness %}<p>Seeds: {% for x in rp.randomness %}{{ x.method }} {{ x.seed }}{% if not loop.last %}, {% endif %}{% endfor %}.</p>{% endif %}
-  <h3>Specifications</h3>
+  {% if rp.randomness %}<p>{{ tr("Seeds") }}: {% for x in rp.randomness %}{{ x.method }} {{ x.seed }}{% if not loop.last %}, {% endif %}{% endfor %}.</p>{% endif %}
+  <h3>{{ tr("Specifications") }}</h3>
   <div class="scroll"><table>
-    <thead><tr><th>ID</th><th>Version</th><th class="text">Title</th></tr></thead>
+    <thead><tr><th>{{ tr("ID") }}</th><th>{{ tr("Version") }}</th><th class="text">{{ tr("Title") }}</th></tr></thead>
     <tbody>{% for s in rp.specs %}<tr><td>{{ s.id }}</td><td>{{ s.version }}</td><td class="text">{{ s.title }}</td></tr>{% endfor %}</tbody>
   </table></div>
-  <h3>Output files</h3>
+  <h3>{{ tr("Output files") }}</h3>
   <div class="scroll"><table>
-    <thead><tr><th>File</th><th>Size (bytes)</th><th class="text">SHA-256</th></tr></thead>
+    <thead><tr><th>{{ tr("File") }}</th><th>{{ tr("Size (bytes)") }}</th><th class="text">SHA-256</th></tr></thead>
     <tbody>{% for o in rp.outputs %}<tr><td>{{ o.name }}</td><td>{{ o.size }}</td><td class="text"><code>{{ o.sha256 }}</code></td></tr>{% endfor %}</tbody>
   </table></div>
-  <p class="footnote">This page and the manifest are written after the files above, so their own fingerprints are in manifest.json only.</p>
+  <p class="footnote">{{ tr("This page and the manifest are written after the files above, so their own fingerprints are in manifest.json only.") }}</p>
 </section>
 
 </main>

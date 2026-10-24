@@ -1,0 +1,75 @@
+id: MT29
+version: 0.2.0
+title_en: Explainability (feature attributions and partial dependence)
+title_tr: Açıklanabilirlik (özellik katkıları ve kısmi bağımlılık)
+status: draft
+implemented: false
+definition: >-
+  Explains what the data science models of MT24 to MT28 rely on: permutation importance,
+  partial dependence and individual conditional expectation curves, so that every
+  challenger's output can be read. Its explanations are checked against the GLM
+  relativities of MT23.
+tier: C
+champion: MT16
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+optional: [claims.line, policies.policy_id]
+uses: [MT23, MT24, MT25, MT26]
+assumptions:
+  - statement: Permutation importance assumes features can be shuffled independently; correlated features share importance.
+    check: Feature correlation table shown beside the importances.
+parameters:
+  - name: n_repeats
+    default: 10
+    description: Permutations per feature.
+  - name: grid_points
+    default: 20
+    description: Points of the partial dependence grid per feature (quantiles).
+  - name: seed
+    default: run seed
+    description: Seed, recorded in the manifest.
+algorithm:
+  - step: Permutation importance on the holdout - the drop of the model's score when a feature is shuffled, mean and standard deviation over repeats (scikit-learn inspection).
+    formula: 'I_j = s(\hat f, D) - \frac{1}{K}\sum_{k=1}^{K} s\big(\hat f, D^{(j,k)}\big)'
+  - step: Partial dependence and individual conditional expectation curves of the main features.
+    formula: '\mathrm{PD}_j(z) = \frac{1}{n}\sum_{i=1}^{n} \hat f\big(z, x_{i,-j}\big)'
+outputs:
+  - name: importances
+    description: Permutation importance per feature and model.
+  - name: partial_dependence
+    description: PD and ICE curves per main feature and model.
+diagnostics:
+  - Feature correlation table.
+failure_modes:
+  - condition: The model to explain did not run.
+    action: Not run, with that model's reason.
+validation:
+  - kind: fixture
+    description: A linear model with known coefficients; PD curves are straight lines with those slopes.
+    tolerance: 1e-9 relative
+  - kind: ground_truth
+    description: >-
+      Ground-truth metric - on the synthetic baseline (medium), the true rating factors are
+      among the top-ranked features of MT23's data fitted by MT24's learner, and the PD of
+      each true factor matches its true relativity; the champion's view is the line
+      grouping of MT16, with MT23's relativities as the reference.
+    tolerance: true factors in the top 5; PD relativity within 10 per cent of the truth for levels with at least 2,000 exposure years
+references:
+  - Breiman, L. (2001). Random forests. Machine Learning.
+  - Friedman, J. H. (2001). Greedy function approximation - a gradient boosting machine. Annals of Statistics.
+  - Goldstein, A., Kapelner, A., Bleich, J. and Pitkin, E. (2015). Peeking inside the black box. Journal of Computational and Graphical Statistics.
+notes: >-
+  SHAP values are not specified: they need the shap library, outside the toolchain, and
+  permutation importance with partial dependence answers the same question here.
+  Like every tier C method, MT29 names a champion (MT16, with the relativities of MT23 as
+  the reference) and its output is shown beside the champion's; the loader requires it
+  (record 0605).
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.3 (P20).
+  - version: 0.2.0
+    date: 2026-10-24
+    change: >-
+      Owner decision (record 0605): MT29 requires a champion like the other tier C methods.

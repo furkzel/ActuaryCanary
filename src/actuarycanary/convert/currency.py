@@ -23,6 +23,9 @@ from actuarycanary.convert.market import (
 )
 
 MAX_LOOKBACK_DAYS = 7  # CV01 max_lookback_days
+# The target of the ORIGINAL currency view: every rate is 1, because each line holds one currency
+# (record 0225).
+IDENTITY_TARGET = "orig."
 
 FLAG_EARLIER_SPOT = "earlier FX_SPOT rate"
 FLAG_AVERAGE = "FX_PERIOD_AVERAGE instead of FX_SPOT"
@@ -76,7 +79,7 @@ def lookup_rates(
         rows = part.with_columns(
             pl.lit(None, dtype=pl.Float64).alias("rate"), pl.lit("").alias("flag")
         )
-        if currency == target:
+        if currency == target or target == IDENTITY_TARGET:
             parts.append(rows.with_columns(pl.lit(1.0).alias("rate")))
             continue
         if market is None:

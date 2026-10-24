@@ -7,7 +7,7 @@ lines of one segment only (blueprint 10).
 """
 
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import date, timedelta
 
@@ -260,8 +260,11 @@ def run_facts(
     quality: QualityReport,
     anomalies: dict[tuple[str, str], tuple[int, int]],
     lines: dict[str, FactSet],
+    titles: Mapping[str, str] | None = None,
 ) -> FactSet:
-    """`lines`: the line facts by line name, which the run facts count over."""
+    """`lines`: the line facts by line name, which the run facts count over; `titles` the
+    module titles in the language of the report (default the English ones)."""
+    titles = titles or {}
     facts: FactSet = {}
     groups = reserving.groups
     _put(facts, "lines", len(groups), "count")
@@ -352,9 +355,19 @@ def run_facts(
     _put(facts, "modules_total", len(modules), "count")
     _put(facts, "modules_ran", len(modules) - len(skipped), "count")
     _put(facts, "modules_skipped", len(skipped), "count")
-    _put(facts, "skipped_list", _listing([f"{m.module} {m.title}" for m in skipped]), "text")
+    _put(
+        facts,
+        "skipped_list",
+        _listing([f"{m.module} {titles.get(m.module, m.title)}" for m in skipped]),
+        "text",
+    )
     _put(facts, "modules_limited", len(limited), "count")
-    _put(facts, "limited_list", _listing([f"{m.module} {m.title}" for m in limited]), "text")
+    _put(
+        facts,
+        "limited_list",
+        _listing([f"{m.module} {titles.get(m.module, m.title)}" for m in limited]),
+        "text",
+    )
     mack = [o for g in groups for o in g.mack.values()]
     _put(facts, "mack_triangles", len(mack), "count")
     _put(facts, "mack_not_run", sum(1 for o in mack if isinstance(o, Skipped)), "count")

@@ -1,0 +1,60 @@
+id: RC04
+version: 0.1.0
+title_en: Recovery development ratio
+title_tr: Tahsilat gelişim oranı
+status: draft
+implemented: false
+definition: >-
+  Cumulative recoveries as a share of cumulative paid by origin period and development age,
+  for each recovery type and in total: the recovery triangle that shows when money comes back.
+unit: ratio
+formula: 'RD_{i,j} = \frac{S^{\mathrm{rec}}_{i,j}}{C^{P}_{i,j}}'
+numerator: >-
+  Cumulative recoveries of origin i to development j (MT01 with the measure recoveries,
+  from recovery transactions or the to-date fields, CV04).
+denominator: Cumulative paid of origin i to development j (MT01 paid triangle).
+grain: origin period by development period
+breakdowns: [segment, line, recovery_type, origin_period, development_period]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL, FUNCTIONAL, REPORTING]
+  value: [NOMINAL, INFLATION_ADJUSTED]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+optional:
+  - recoveries.claim_id
+  - recoveries.booking_date
+  - recoveries.amount
+  - recoveries.type
+  - claim_valuations.subrogation_to_date
+  - claim_valuations.salvage_to_date
+  - claims.occurrence_date
+  - claims.segment
+  - claims.line
+uses: [MT01, CL01, CV03, CV04]
+edge_cases:
+  - case: Paid zero in a cell
+    handling: Not computed for that cell.
+  - case: No recovery data
+    handling: Not available, with the reason "no recovery data".
+  - case: RECOVERY_OTHER without transactions
+    handling: The total is subrogation plus salvage only, labelled.
+  - case: Missing valuation month
+    handling: Carry-forward per CV04; the cell takes the latest known cumulative amounts.
+interpretation: >-
+  The column where the ratio stops rising is when recoveries are complete; the final level
+  is the share of paid that comes back. A lower level in recent origins at the same age is
+  an early sign of weaker recovery.
+typical_range:
+  low: 0.0
+  high: 0.2
+  note: Motor own damage often ends at 5 to 15 per cent; liability lines near 0.
+test:
+  path: tests/measures/test_rc04_recovery_development.py
+  proves: A 3 x 3 paid and recovery triangle gives the hand-computed ratios; transactions and derived flows give the same triangle when they agree.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft for module M07 (P20).

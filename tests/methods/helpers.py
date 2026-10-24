@@ -1,8 +1,10 @@
 """Shared helpers of the method tests: triangles as arrays and labels of the hand fixture."""
 
 import numpy as np
+import polars as pl
 
 from actuarycanary.methods.chain_ladder import ChainLadder, chain_ladder
+from actuarycanary.methods.robust_z import RESERVE_VARIABLES, RobustZ
 from tests.benchmarks.load import Triangle, load_hand
 
 HAND = load_hand()
@@ -24,3 +26,12 @@ def fitted(cumulative: np.ndarray, **options) -> ChainLadder:
 def values(items: list[dict]) -> list[float]:
     """The `value` of each item of a hand-fixture list."""
     return [item["value"] for item in items]
+
+
+def reserve_flag_shares(result: RobustZ) -> dict[str, float]:
+    """Flagged share of the reserve movements of each line, over the groups that were scored."""
+    rates = result.flag_rates.filter(
+        pl.col("variable").is_in(RESERVE_VARIABLES) & (pl.col("status") == "scored")
+    )
+    by_line = rates.group_by("line").agg(pl.col("values").sum(), pl.col("flagged").sum())
+    return {r["line"]: r["flagged"] / r["values"] for r in by_line.iter_rows(named=True)}

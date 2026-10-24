@@ -1,0 +1,83 @@
+id: MT27
+version: 0.2.0
+title_en: Count and premium forecasting
+title_tr: Hasar adedi ve prim tahmini
+status: draft
+implemented: false
+definition: >-
+  Forecasts the next periods' reported claim counts and written premium per line with
+  exponential smoothing in state-space form (additive or multiplicative error, trend and
+  seasonality chosen by information criterion), with prediction intervals. A challenger to
+  the frequency trend of MT16 for counts and to a seasonal naive forecast for premium.
+tier: C
+champion: MT16
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.status
+optional: [claims.report_date, claims.line, premiums.amount, premiums.type, premiums.booking_date, policies.exposure_units]
+uses: [MT16, CL04, PR01]
+assumptions:
+  - statement: The series' level, trend and seasonality evolve smoothly; no structural break in the fitting window.
+    check: Residual autocorrelation (Ljung–Box) and a break test on the last two years.
+parameters:
+  - name: series
+    default: [reported_counts, written_premium]
+    description: Monthly series forecast per line.
+  - name: horizon_months
+    default: 12
+    description: Months forecast.
+  - name: holdout_months
+    default: 12
+    description: Last months held out to score the forecast.
+  - name: model_selection
+    default: aicc
+    description: Error, trend (none, additive, damped) and season (none, additive, multiplicative) chosen by corrected AIC.
+  - name: interval
+    default: 0.9
+    description: Level of the prediction intervals.
+algorithm:
+  - step: Monthly series per line (CL04 reported counts, PR01 written premium at value-date prices when the index is loaded).
+  - step: Fit the ETS candidates by maximum likelihood; select by AICc; forecast with intervals from the state-space model.
+  - step: >-
+      Champions - for counts, the frequency trend of MT16 times planned exposure (or the last
+      12 months' exposure carried forward); for premium, the seasonal naive forecast (the same
+      month a year earlier times the trailing 12-month growth).
+  - step: Out-of-time score of each over the holdout.
+    formula: 'MASE = \frac{\frac{1}{H}\sum_{h} |y_{T+h} - \hat y_{T+h}|}{\frac{1}{T-12}\sum_{t > 12} |y_t - y_{t-12}|}'
+outputs:
+  - name: forecasts
+    description: Point forecasts and prediction intervals per series and line.
+  - name: performance
+    description: MASE and interval coverage on the holdout, challenger against champion.
+diagnostics:
+  - Fitted components (level, trend, season) and residual autocorrelation.
+failure_modes:
+  - condition: Fewer than 36 monthly points.
+    action: Not run; reason gives the length.
+validation:
+  - kind: fixture
+    description: Simple exponential smoothing with a fixed smoothing weight on a short series, hand-computed.
+    tolerance: 1e-12 relative
+  - kind: ground_truth
+    description: >-
+      Ground-truth metric - MASE on the synthetic baseline (medium) holdout against the
+      champion, and the coverage of the 90 per cent interval; calibration on series drawn
+      from an ETS model with known parameters (behind ACTUARYCANARY_MONTE_CARLO=1).
+    tolerance: interval coverage within 80 to 97 per cent on the model's own series; MASE against the champion information only
+references:
+  - 'Hyndman, R. J., Koehler, A. B., Ord, J. K. and Snyder, R. D. (2008). Forecasting with Exponential Smoothing: The State Space Approach. Springer.'
+  - Hyndman, R. J. and Koehler, A. B. (2006). Another look at measures of forecast accuracy. International Journal of Forecasting.
+notes: >-
+  Implemented with numpy and scipy; statsmodels is not added (record 0600). Reference values
+  for the tests may be computed once with an external tool and stored in the fixture file
+  together with the tool name and version.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.3 (P20).
+  - version: 0.2.0
+    date: 2026-10-24
+    change: >-
+      Library decision of the owner (record 0600): implemented with numpy and scipy, no
+      statsmodels; the requires_decision entry is closed. Exponential smoothing by maximum likelihood with scipy.optimize; intervals by simulation.

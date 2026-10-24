@@ -1,0 +1,94 @@
+id: CV12
+version: 0.2.0
+title_en: Ledger account-mapping profile
+title_tr: Mizan hesap eşleme profili
+status: draft
+implemented: false
+definition: >-
+  How trial balance accounts are mapped to account classes and platform measures, how
+  ledger signs and year-to-date balances are turned into the platform's amounts, and how a
+  reconciliation gap is judged; the mapping is a profile the user confirms and reuses.
+rules:
+  - >-
+    The account-mapping profile is a small data file like a column mapping profile
+    (decision 0028): one row per rule with entity (empty means every entity), account
+    pattern, account class, sign, balance kind and an optional line. It is shown for
+    confirmation on first use, saved, reused for the same chart of accounts, and its
+    fingerprint enters the run manifest and the run id.
+  - >-
+    An account pattern is an exact account code or a prefix ending in "*" (600* matches
+    600.01.001). The longest matching pattern wins; two patterns of the same length that
+    both match are a profile error shown on the confirmation screen.
+  - >-
+    Accounts no rule matches stay unmapped and are listed with their balances (DV-LDG-09);
+    the platform proposes classes for them from account_class or from the account_name
+    tokens of AL04, and a person confirms.
+  - >-
+    Sign: the profile's sign (+1 or -1) turns the ledger balance into the platform's sign
+    (CV05), so that premium income, claims paid, reserves, commission and expenses become
+    positive magnitudes. Default: -1 for PREMIUM, OUTSTANDING, UPR and RI income accounts
+    (credit-normal), +1 for CLAIMS_PAID, COMMISSION and EXPENSE (debit-normal).
+  - >-
+    Balance kind: PERIOD balances are used as given; YEAR_TO_DATE balances of income and
+    expense accounts are turned into monthly movements by differencing within the fiscal
+    year (CV04 fiscal_year_start_month). Balance-sheet accounts (OUTSTANDING, UPR) are
+    stocks and compared at period end.
+  - >-
+    Class to measure: PREMIUM to PR01 written premium of the month; CLAIMS_PAID to the paid
+    flows of CL01; OUTSTANDING to CL02 case reserve at period end (a ledger outstanding that
+    includes IBNR is mapped with the class OTHER, or compared with case reserve plus the
+    selected IBNR when the profile says so); UPR to PR03; COMMISSION to the COMMISSION
+    premium rows; EXPENSE to the expenses feed; RI to the ceded measures (RI01); INVESTMENT
+    and OTHER are not reconciled.
+  - >-
+    Grain: entity, class and month; line or segment only when both the ledger and the
+    profile carry it. Platform amounts are converted to the ledger currency per CV01 (flows
+    at booking rates, stocks at the period-end rate) on the GROSS basis unless the class is
+    RI.
+  - >-
+    A gap is material when its absolute value exceeds both materiality_amount and
+    materiality_ratio times the absolute ledger amount; material gaps are findings with
+    their likely causes listed (cut-off timing, unmapped accounts, currency, IBNR in the
+    ledger outstanding).
+formulas:
+  - name: monthly movement from year-to-date
+    expression: 'm(t) = Y(t) - Y(t-1) \ \ (t \text{ not the first fiscal month}), \qquad m(t) = Y(t) \ \ \text{otherwise}'
+  - name: mapped ledger amount
+    expression: 'L_{e,c}(t) = \sum_{a \in \mathcal{A}_{e,c}} \sigma_a \, m_a(t)'
+    where: A(e,c) are the accounts of entity e mapped to class c, sigma the profile's sign.
+  - name: materiality
+    expression: '|G| > \max\big(M_{\mathrm{amount}},\ M_{\mathrm{ratio}} \cdot |L|\big)'
+defaults:
+  - name: balance_kind
+    default: PERIOD
+    description: Whether ledger balances of income and expense accounts are monthly or year to date.
+    allowed: [PERIOD, YEAR_TO_DATE]
+  - name: materiality_ratio
+    default: 0.005
+    description: Gaps up to half a per cent of the ledger amount are not material; a common audit-style tolerance, accepted by the owner (record 0603) and configurable.
+  - name: materiality_amount
+    default: 0
+    description: Absolute gap below which nothing is material, in the ledger currency; zero means only the ratio applies.
+requires:
+  - ledger.entity
+  - ledger.account
+  - ledger.period
+  - ledger.closing_balance
+optional:
+  - ledger.opening_balance
+  - ledger.debit
+  - ledger.credit
+  - ledger.currency
+  - ledger.account_name
+  - ledger.account_class
+  - ledger.line
+uses: [CV01, CV04, CV05]
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint sections 4.3 and 10 (P20).
+  - version: 0.2.0
+    date: 2026-10-24
+    change: >-
+      Owner decision (record 0603): the materiality threshold of 0.5 per cent is accepted and
+      stays configurable.

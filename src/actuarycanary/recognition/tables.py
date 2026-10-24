@@ -60,6 +60,10 @@ class TableRecognition:
     source: Source
     profile_sha256: str | None = None
     value_profiles: dict[str, ValueProfile] = field(default_factory=dict, repr=False)
+    # claim_valuations only: are the amounts cumulative to date or per period (record 0223)?
+    amounts: str = "to_date"
+    amounts_note: str = ""  # what the values showed
+    amounts_decided: bool = False  # set by a saved profile or by the user: not detected again
 
     @property
     def label(self) -> str:
@@ -147,8 +151,16 @@ def with_profile(
         else:
             mappings.append(ColumnMapping(header, target, Layer.SAVED, 1.0, evidence))
     checked = _personal_only(tuple(mappings), rec.value_profiles, dictionary)
+    decided = profile.concept == "claim_valuations" and profile.amounts is not None
     return replace(
-        rec, concept=profile.concept, mappings=checked, source=Source.SAVED, profile_sha256=sha256
+        rec,
+        concept=profile.concept,
+        mappings=checked,
+        source=Source.SAVED,
+        profile_sha256=sha256,
+        amounts=profile.amounts if decided and profile.amounts else "to_date",
+        amounts_note=f"saved profile {profile.fingerprint}" if decided else "",
+        amounts_decided=decided,
     )
 
 
@@ -163,7 +175,24 @@ def with_concept(
     names = (PurePath(rec.file).stem, rec.sheet)
     scores = score_concepts(table.frame, rec.headers, names, dictionary, rec.value_profiles)
     chosen = next(s for s in scores if s.concept == concept)
-    return replace(rec, concept=concept, mappings=chosen.mappings, source=Source.AUTOMATIC)
+    return replace(
+        rec,
+        concept=concept,
+        mappings=chosen.mappings,
+        source=Source.AUTOMATIC,
+        amounts="to_date",  # detect_amounts looks at the values again
+        amounts_note="",
+        amounts_decided=False,
+    )
+
+
+def with_amounts(rec: TableRecognition, kind: str) -> TableRecognition:
+    """The recognition with the amounts kind chosen by the user."""
+    if rec.concept != "claim_valuations":
+        raise ValueError("only claim_valuations amounts can be cumulative or per period")
+    if kind not in ("to_date", "incremental"):
+        raise ValueError(f"amounts are to_date or incremental, not {kind!r}")
+    return replace(rec, amounts=kind, amounts_note="set by user", amounts_decided=True)
 
 
 def with_field(
@@ -211,6 +240,7 @@ def to_profile(rec: TableRecognition, confirmed_on: date) -> MappingProfile:
         confirmed_on=confirmed_on,
         headers=list(rec.headers),
         columns=columns,
+        amounts=rec.amounts if rec.concept == "claim_valuations" else None,  # type: ignore[arg-type]
     )
 
 

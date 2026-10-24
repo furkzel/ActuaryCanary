@@ -1,35 +1,35 @@
 <section id="quality" class="page">
-  <h2>Data quality appendix</h2>
-  <p>Score <strong>{{ overall }}</strong> out of 100 ({{ spec("DQ01") }}): {{ rules }} rules evaluated; {{ counts.BLOCKING }} blocking, {{ counts.WARNING }} warning and {{ counts.INFO }} information findings. The score is a summary; read the findings before any result.</p>
-  <h3>What was loaded</h3>
+  <h2>{{ tr("Data quality appendix") }}</h2>
+  <p>{{ trh("Score <strong>{score}</strong> out of 100 ({spec}): {rules} rules evaluated; {blocking} blocking, {warning} warning and {info} information findings. The score is a summary; read the findings before any result.", score=overall, spec=spec("DQ01"), rules=rules, blocking=counts.BLOCKING, warning=counts.WARNING, info=counts.INFO) }}</p>
+  <h3>{{ tr("What was loaded") }}</h3>
   <div class="scroll"><table>
-    <thead><tr><th>Concept</th><th>Rows</th><th>First</th><th>Last</th><th>Score</th><th>Source</th></tr></thead>
+    <thead><tr><th>{{ tr("Concept") }}</th><th>{{ tr("Rows") }}</th><th>{{ tr("First") }}</th><th>{{ tr("Last") }}</th><th>{{ tr("Score") }}</th><th>{{ tr("Source") }}</th></tr></thead>
     <tbody>{% for c in coverage %}<tr><td>{{ c.concept }}</td><td>{{ c.rows }}</td><td>{{ c.first }}</td><td>{{ c.last }}</td><td>{{ c.score }}</td><td class="text">{{ c.sources }}</td></tr>{% endfor %}</tbody>
   </table></div>
-  <h3>Analyses</h3>
+  <h3>{{ tr("Analyses") }}</h3>
   <div class="scroll"><table>
-    <thead><tr><th>Module</th><th>Status</th><th>Why</th></tr></thead>
-    <tbody>{% for m in modules %}<tr><td class="text">{{ m.module }} {{ m.title }}</td><td class="text{% if m.status == 'unable' %} negative{% endif %}">{{ m.status }}</td><td class="text">{{ m.reasons }}</td></tr>{% endfor %}</tbody>
+    <thead><tr><th>{{ tr("Module") }}</th><th>{{ tr("Status") }}</th><th>{{ tr("Why") }}</th></tr></thead>
+    <tbody>{% for m in modules %}<tr><td class="text">{{ m.module }} {{ m.title }}</td><td class="text{% if m.status_code == 'unable' %} negative{% endif %}">{{ m.status }}</td><td class="text">{{ m.reasons }}</td></tr>{% endfor %}</tbody>
   </table></div>
-  <h3>Findings</h3>
+  <h3>{{ tr("Findings") }}</h3>
   {% if findings %}
   <div class="scroll"><table>
-    <thead><tr><th>Severity</th><th>Dimension</th><th>Rule</th><th>Count</th><th>What</th><th>Fields</th><th>Modules affected</th><th>First source rows</th></tr></thead>
-    <tbody>{% for f in findings %}<tr><td class="text{% if f.severity == 'BLOCKING' %} negative{% endif %}">{{ f.severity }}</td><td class="text">{{ f.dimension }}</td><td class="text">{{ f.rule }}</td><td>{{ f.count }} of {{ f.checked }}</td><td class="text">{{ f.message }}</td><td class="text">{{ f.fields }}</td><td class="text">{{ f.modules }}</td><td class="text">{{ f.refs }}</td></tr>{% endfor %}</tbody>
+    <thead><tr><th>{{ tr("Severity") }}</th><th>{{ tr("Dimension") }}</th><th>{{ tr("Rule") }}</th><th>{{ tr("Count") }}</th><th>{{ tr("What") }}</th><th>{{ tr("Fields") }}</th><th>{{ tr("Modules affected") }}</th><th>{{ tr("First source rows") }}</th></tr></thead>
+    <tbody>{% for f in findings %}<tr><td class="text{% if f.severity_code == 'BLOCKING' %} negative{% endif %}">{{ f.severity }}</td><td class="text">{{ f.dimension }}</td><td class="text">{{ f.rule }}</td><td>{{ tr("{count} of {checked}", count=f.count, checked=f.checked) }}</td><td class="text">{{ f.message }}</td><td class="text">{{ f.fields }}</td><td class="text">{{ f.modules }}</td><td class="text">{{ f.refs }}</td></tr>{% endfor %}</tbody>
   </table></div>
-  {% else %}<p>No finding.</p>{% endif %}
+  {% else %}<p>{{ tr("No finding.") }}</p>{% endif %}
   <details>
-    <summary>Scores by dimension, concept and field</summary>
+    <summary>{{ tr("Scores by dimension, concept and field") }}</summary>
     <div class="scroll"><table>
-      <thead><tr><th>Level</th><th>Name</th><th>Score</th><th>Rules</th></tr></thead>
+      <thead><tr><th>{{ tr("Level") }}</th><th>{{ tr("Name") }}</th><th>{{ tr("Score") }}</th><th>{{ tr("Rules") }}</th></tr></thead>
       <tbody>{% for r in scores %}<tr><td class="text">{{ r.level }}</td><td class="text">{{ r.name }}</td><td>{{ r.score }}</td><td>{{ r.rules }}</td></tr>{% endfor %}</tbody>
     </table></div>
   </details>
   {% if not_evaluated %}
   <details>
-    <summary>Rules not evaluated ({{ not_evaluated|length }})</summary>
+    <summary>{{ tr("Rules not evaluated ({n})", n=not_evaluated|length) }}</summary>
     <ul class="notes">{% for rule, reason in not_evaluated %}<li>{{ rule }}: {{ reason }}</li>{% endfor %}</ul>
   </details>
   {% endif %}
-  <p class="footnote">Rule IDs refer to the data concept specifications; row numbers are spreadsheet rows. The full list with every count is in quality.json.</p>
+  <p class="footnote">{{ tr("Rule IDs refer to the data concept specifications; row numbers are spreadsheet rows. The full list with every count is in quality.json.") }}</p>
 </section>

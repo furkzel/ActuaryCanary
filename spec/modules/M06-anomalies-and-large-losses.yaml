@@ -1,5 +1,5 @@
 id: M06
-version: 1.0.0
+version: 1.1.0
 title_en: Anomalies and large losses
 title_tr: Anomaliler ve büyük hasarlar
 status: reviewed
@@ -16,7 +16,11 @@ methods: [MT08, MT09]
 skip_reason: >-
   Anomalies and large losses did not run: no claim valuations were loaded. Load
   claim_valuations.xlsx to enable it; add claims.xlsx for lines and catastrophe codes.
-notes: Large-loss classes follow CV08.
+notes: >-
+  Large-loss classes follow CV08: the 99th percentile of claim sizes per segment and line
+  unless project.yaml sets another percentile or fixed thresholds. The extreme-value
+  threshold of MT18 is not used here; it is reported beside the CV08 threshold when MT18
+  runs (record 0601).
 change_log:
   - version: 0.1.0
     date: 2026-10-20
@@ -24,3 +28,8 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-10-24
+    change: >-
+      Owner decision (record 0601): the large-loss threshold of M06 is CV08's, overridable in
+      project.yaml; MT18's threshold is only reported beside it.

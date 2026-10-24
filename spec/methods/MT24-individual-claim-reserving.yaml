@@ -1,0 +1,92 @@
+id: MT24
+version: 0.1.0
+title_en: Individual claim reserving with gradient-boosted trees
+title_tr: Gradyan artırmalı ağaçlarla dosya bazlı karşılık
+status: draft
+implemented: false
+definition: >-
+  A claim-level challenger to the triangle methods: gradient-boosted trees learn, from
+  claims at earlier valuation dates, how much each reported claim still develops, and
+  predict the outstanding development (IBNER) of every open claim; IBNR of unreported claims
+  stays with the triangle.
+tier: C
+champion: MT10
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claim_valuations.status
+  - claims.occurrence_date
+  - claims.report_date
+optional: [claims.segment, claims.line, claims.cause, claims.event_code]
+uses: [MT01, MT02, MT10, CV04]
+assumptions:
+  - statement: The development of a claim after a valuation depends on what is known at it (age, paid, reserve, status, line, cause, report delay), in the same way for newer claims.
+    check: Error by origin year in the out-of-time test; drift in feature distributions.
+  - statement: Claims observed long enough give an unbiased target.
+    check: The target horizon is censored at the cut-off; only pairs whose horizon ends by the cut-off train the model.
+parameters:
+  - name: horizon_months
+    default: 12
+    description: The model predicts incurred development over this horizon and is chained to ultimate (chain of models).
+  - name: loss
+    default: poisson
+    description: Loss of the gradient-boosted regressor (scikit-learn HistGradientBoostingRegressor).
+    allowed: [poisson, gamma, squared_error]
+  - name: max_iter
+    default: 300
+    description: Boosting iterations.
+  - name: learning_rate
+    default: 0.05
+    description: Shrinkage.
+  - name: seed
+    default: run seed
+    description: Seed, recorded in the manifest.
+algorithm:
+  - step: >-
+      Training pairs - each claim at each valuation v with v + horizon at or before the
+      cut-off; features at v; target the incurred at v + horizon (the ratio to incurred at v
+      for the gamma loss).
+  - step: Fit the regressor; predict the development over one horizon for every open claim at the cut-off.
+  - step: Chain - apply the model repeatedly, with features rolled forward by the horizon, until the claim reaches the age where the triangle's development is below 0.1 per cent; the tail beyond comes from MT02.
+    formula: '\hat I_k(c + (m+1)h) = g\big(x_k(c + m h)\big), \qquad \hat R^{\mathrm{IBNER}} = \sum_k \hat I_k(\infty) - I_k(c)'
+  - step: Total per origin - reported incurred plus predicted IBNER plus IBNR of unreported claims from the champion's frequency (count triangle), shown beside the champion.
+outputs:
+  - name: claim_predictions
+    description: Predicted ultimate per open claim.
+  - name: ultimate_by_origin
+    description: Challenger ultimate per origin beside the champion MT10.
+  - name: back_test
+    description: Out-of-time error of challenger and champion (AE02).
+diagnostics:
+  - Feature importance (MT29) and partial dependence of the main features.
+  - Predicted against actual development on the out-of-time valuation.
+failure_modes:
+  - condition: Fewer than 2,000 training pairs.
+    action: Not run; reason gives the count.
+  - condition: Out-of-time error more than twice the champion's.
+    action: Shown, with a WARNING that the challenger is not credible on this data.
+validation:
+  - kind: property
+    description: Same seed, same predictions; row order does not matter.
+    tolerance: exact
+  - kind: ground_truth
+    description: >-
+      Calibration on data from a known claim-level model (incurred develops by a factor that
+      depends on line, age and reserve-to-paid ratio, plus noise), 20 datasets, fixed seed;
+      total IBNER against the truth (slow test, behind ACTUARYCANARY_MONTE_CARLO=1).
+    tolerance: total IBNER within 5 per cent in every dataset
+  - kind: ground_truth
+    description: >-
+      Ground-truth metric - absolute percentage error of the total reserve per line against
+      the simulated truth on the synthetic baseline and reserve_bias_change (medium), beside
+      the same error of the champion MT10, reported as information.
+    tolerance: none; information only
+references:
+  - Wüthrich, M. V. (2018). Machine learning in individual claims reserving. Scandinavian Actuarial Journal.
+  - Friedman, J. H. (2001). Greedy function approximation - a gradient boosting machine. Annals of Statistics.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.3 (P20).

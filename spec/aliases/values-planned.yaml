@@ -1,0 +1,488 @@
+id: AL04
+version: 0.1.0
+title_en: Value aliases of planned concepts
+title_tr: Planlanan kavramların değer eşleştirmeleri
+status: draft
+implemented: false
+definition: >-
+  Turkish and English labels for every class of every classified field of the data concepts
+  planned for a later version.
+notes: >-
+  Same rules as AL02; the loader checks AL02 and AL04 together. Kept apart so that AL02 and
+  the run id do not change before a concept is built; the item that builds a concept moves
+  its entries into AL02 (decision 0200).
+values:
+  - field: treaty_type
+    concepts: [reinsurance_treaties]
+    classes:
+      QUOTA_SHARE:
+        - KOTPAR
+        - KOTPAR ANLAŞMASI
+        - KOTA PAYLAŞIMLI
+        - QS
+        - QUOTA SHARE
+      SURPLUS:
+        - EKSEDAN
+        - EKSEDAN ANLAŞMASI
+        - SURPLUS
+        - SURPLUS TREATY
+      EXCESS_OF_LOSS:
+        - HASAR FAZLASI
+        - HASAR FAZLASI ANLAŞMASI
+        - XL
+        - XOL
+        - WXL
+        - CAT XL
+        - EXCESS OF LOSS
+      STOP_LOSS:
+        - HASAR ORANI FAZLASI
+        - STOP LOSS
+        - STOPLOSS
+        - AGGREGATE EXCESS OF LOSS
+      FACULTATIVE:
+        - İHTİYARİ
+        - İHTİYARİ REASÜRANS
+        - FAKÜLTATİF
+        - FAC
+        - FACULTATIVE
+  - field: attachment_basis
+    concepts: [reinsurance_treaties]
+    classes:
+      LOSSES_OCCURRING:
+        - HASAR TARİHİ ESASLI
+        - LOD
+        - LOSSES OCCURRING
+        - LOSSES OCCURRING DURING
+      RISKS_ATTACHING:
+        - POLİÇE BAŞLANGIÇ ESASLI
+        - RAD
+        - RISKS ATTACHING
+        - RISKS ATTACHING DURING
+  - field: loss_basis
+    concepts: [reinsurance_treaties]
+    classes:
+      RISK:
+        - RİSK BAŞINA
+        - HER BİR RİSK
+        - PER RISK
+      EVENT:
+        - OLAY BAŞINA
+        - HER BİR OLAY
+        - KATASTROF
+        - PER EVENT
+        - CAT
+      AGGREGATE:
+        - TOPLAM
+        - YILLIK TOPLAM
+        - ANNUAL AGGREGATE
+  - field: segment
+    concepts: [reinsurance_treaties, reinsurance_transactions, ledger, life_in_force]
+    classes:
+      NON_LIFE:
+        - ELEMENTER
+        - HAYAT DIŞI
+        - HAYATDIŞI
+        - ELMNTR
+        - NON LIFE
+        - NONLIFE
+        - P&C
+        - PROPERTY AND CASUALTY
+        - GENERAL INSURANCE
+        - GI
+      LIFE:
+        - HAYAT
+        - HAYAT SİGORTASI
+        - LIFE
+        - LIFE INSURANCE
+      PENSION:
+        - BES
+        - BİREYSEL EMEKLİLİK
+        - EMEKLİLİK
+        - OKS
+        - PENSION
+        - RETIREMENT
+      HEALTH:
+        - SAĞLIK
+        - SAĞLIK SİGORTASI
+        - ÖSS
+        - TSS
+        - HEALTH
+        - MEDICAL
+  - field: type
+    concepts: [reinsurance_transactions]
+    classes:
+      CEDED_PREMIUM:
+        - DEVREDİLEN PRİM
+        - REASÜRANS PRİMİ
+        - REASÜRÖR PAYI PRİM
+        - CEDED PREMIUM
+        - RI PREMIUM
+        - OUTWARD PREMIUM
+      CEDED_CLAIM_PAID:
+        - DEVREDİLEN ÖDENEN HASAR
+        - REASÜRÖR PAYI ÖDENEN HASAR
+        - REASÜRANS HASAR TAHSİLATI
+        - CEDED PAID
+        - CEDED CLAIMS PAID
+        - REINSURANCE RECOVERY
+      CEDED_CASE_RESERVE:
+        - DEVREDİLEN MUALLAK
+        - REASÜRÖR PAYI MUALLAK
+        - CEDED RESERVE
+        - CEDED OUTSTANDING
+        - CEDED CASE RESERVE
+      RI_COMMISSION:
+        - REASÜRANS KOMİSYONU
+        - KOMİSYON
+        - RI COMMISSION
+        - REINSURANCE COMMISSION
+        - CEDING COMMISSION
+      REINSTATEMENT_PREMIUM:
+        - İHYA PRİMİ
+        - REINSTATEMENT
+        - REINSTATEMENT PREMIUM
+  - field: type
+    concepts: [recoveries]
+    classes:
+      RECOVERY_SUBROGATION:
+        - RÜCU
+        - RÜCU TAHSİLATI
+        - RÜCU GELİRİ
+        - SUBROGATION
+        - SUBRO
+      RECOVERY_SALVAGE:
+        - SOVTAJ
+        - SOVTAJ GELİRİ
+        - SOVTAJ SATIŞI
+        - HURDA SATIŞI
+        - SALVAGE
+      RECOVERY_OTHER:
+        - DİĞER
+        - DİĞER TAHSİLAT
+        - OTHER
+        - OTHER RECOVERY
+  - field: counterparty_type
+    concepts: [recoveries]
+    classes:
+      INSURER:
+        - SİGORTA ŞİRKETİ
+        - KARŞI SİGORTA ŞİRKETİ
+        - ŞİRKET
+        - INSURER
+        - INSURANCE COMPANY
+      OTHER_PARTY:
+        - KUSURLU TARAF
+        - ŞAHIS
+        - DİĞER
+        - THIRD PARTY
+        - OTHER
+        - OTHER PARTY
+      SALVAGE_BUYER:
+        - ALICI
+        - HURDA ALICISI
+        - SOVTAJ ALICISI
+        - BUYER
+        - SALVAGE BUYER
+  - field: account_class
+    concepts: [ledger]
+    classes:
+      PREMIUM:
+        - PRİM
+        - PRİM GELİRİ
+        - YAZILAN PRİM
+        - PREMIUM
+        - PREMIUM INCOME
+        - WRITTEN PREMIUM
+      CLAIMS_PAID:
+        - ÖDENEN HASAR
+        - ÖDENEN TAZMİNAT
+        - HASAR ÖDEMESİ
+        - CLAIMS PAID
+        - PAID CLAIMS
+      OUTSTANDING:
+        - MUALLAK
+        - MUALLAK HASAR
+        - MUALLAK TAZMİNAT KARŞILIĞI
+        - OUTSTANDING
+        - OUTSTANDING CLAIMS
+        - CLAIMS RESERVE
+      UPR:
+        - KAZANILMAMIŞ PRİMLER KARŞILIĞI
+        - KPK
+        - UPR
+        - UNEARNED PREMIUM
+        - UNEARNED PREMIUM RESERVE
+      COMMISSION:
+        - KOMİSYON
+        - KOMİSYON GİDERİ
+        - ÜRETİM KOMİSYONU
+        - COMMISSION
+        - ACQUISITION COMMISSION
+      EXPENSE:
+        - GİDER
+        - GENEL GİDER
+        - FAALİYET GİDERİ
+        - EXPENSE
+        - OPERATING EXPENSE
+      RI:
+        - REASÜRANS
+        - REASÜRÖR PAYI
+        - DEVREDİLEN
+        - REINSURANCE
+        - CEDED
+      INVESTMENT:
+        - YATIRIM
+        - YATIRIM GELİRİ
+        - MALİ GELİR
+        - INVESTMENT
+        - INVESTMENT INCOME
+      OTHER:
+        - DİĞER
+        - OTHER
+  - field: rate_type
+    concepts: [interest_rates]
+    classes:
+      SPOT:
+        - SIFIR KUPON
+        - SPOT FAİZ
+        - ZERO
+        - ZERO COUPON
+        - SPOT RATE
+      PAR:
+        - PAR GETİRİ
+        - KUPONLU
+        - PAR YIELD
+        - PAR RATE
+        - SWAP RATE
+      FORWARD:
+        - VADELİ
+        - İLERİ VADELİ
+        - FORWARD RATE
+  - field: compounding
+    concepts: [interest_rates]
+    classes:
+      ANNUAL:
+        - YILLIK
+        - YILLIK BİLEŞİK
+        - ANNUALLY
+        - EFFECTIVE ANNUAL
+      CONTINUOUS:
+        - SÜREKLİ
+        - SÜREKLİ BİLEŞİK
+        - CONTINUOUSLY COMPOUNDED
+      SIMPLE:
+        - BASİT
+        - BASİT FAİZ
+        - MONEY MARKET
+  - field: status
+    concepts: [life_in_force]
+    classes:
+      IN_FORCE:
+        - YÜRÜRLÜKTE
+        - AKTİF
+        - GEÇERLİ
+        - IN FORCE
+        - INFORCE
+        - ACTIVE
+      PAID_UP:
+        - TENZİLATLI
+        - PRİMİ ÖDENMİŞ
+        - ÖDEMESİZ DEVAM
+        - PAID UP
+        - REDUCED PAID UP
+      LAPSED:
+        - İPTAL
+        - PRİM ÖDEMEME İPTALİ
+        - ÖDENMEDİĞİNDEN İPTAL
+        - LAPSE
+      SURRENDERED:
+        - İŞTİRA
+        - İŞTİRA EDİLDİ
+        - GERİ SATIN ALMA
+        - AYRILMA
+        - AYRILDI
+        - SURRENDER
+      MATURED:
+        - VADE SONU
+        - VADESİ DOLDU
+        - SONA ERDİ
+        - MATURITY
+        - EXPIRED
+      DEATH_CLAIM:
+        - VEFAT
+        - ÖLÜM
+        - VEFAT TAZMİNATI
+        - DEATH
+        - DECEASED
+      TRANSFERRED_OUT:
+        - AKTARIM
+        - AKTARILDI
+        - BAŞKA ŞİRKETE AKTARIM
+        - TRANSFERRED
+        - TRANSFER OUT
+  - field: policy_type
+    concepts: [life_in_force]
+    classes:
+      INDIVIDUAL:
+        - BİREYSEL
+        - FERDİ
+        - RETAIL
+      GROUP:
+        - GRUP
+        - TOPLU
+        - İŞVEREN GRUP
+        - CORPORATE
+        - EMPLOYER
+  - field: channel
+    concepts: [life_in_force]
+    classes:
+      AGENCY:
+        - ACENTE
+        - ACENTA
+        - ACENTELİK
+        - AGENT
+        - TIED AGENT
+      BROKER:
+        - BROKERLIK
+        - SİGORTA BROKERİ
+        - BROKERAGE
+      BANK:
+        - BANKA
+        - BANKASÜRANS
+        - BANCASSURANCE
+      DIRECT:
+        - DOĞRUDAN
+        - DİREKT
+        - MERKEZ
+        - HEAD OFFICE
+      DIGITAL:
+        - DİJİTAL
+        - İNTERNET
+        - ONLINE
+        - WEB
+        - MOBİL
+      PARTNER:
+        - İŞ ORTAĞI
+        - ANLAŞMALI KURUM
+        - AFFINITY
+  - field: premium_frequency
+    concepts: [life_in_force]
+    classes:
+      MONTHLY:
+        - AYLIK
+        - 1 AYLIK
+      QUARTERLY:
+        - 3 AYLIK
+        - ÜÇ AYLIK
+      HALF_YEARLY:
+        - 6 AYLIK
+        - ALTI AYLIK
+        - HALF YEARLY
+        - SEMI ANNUAL
+      YEARLY:
+        - YILLIK
+        - ANNUAL
+      SINGLE:
+        - TEK ÖDEMELİ
+        - TEK PRİM
+        - PEŞİN
+        - SINGLE PREMIUM
+  - field: sex
+    concepts: [life_in_force]
+    classes:
+      FEMALE:
+        - KADIN
+        - K
+        - F
+      MALE:
+        - ERKEK
+        - E
+        - M
+  - field: event_type
+    concepts: [life_events]
+    classes:
+      DEATH:
+        - VEFAT
+        - ÖLÜM
+      DISABILITY:
+        - MALULİYET
+        - SAKATLIK
+        - DAİMİ SAKATLIK
+        - TPD
+      SURRENDER:
+        - İŞTİRA
+        - GERİ SATIN ALMA
+        - AYRILMA
+      PARTIAL_WITHDRAWAL:
+        - KISMİ ÇEKİM
+        - KISMİ İŞTİRA
+        - PARTIAL SURRENDER
+      LAPSE:
+        - İPTAL
+        - PRİM ÖDEMEME
+        - ÖDENMEDİĞİNDEN İPTAL
+        - LAPSED
+      MATURITY:
+        - VADE SONU
+        - VADE BİTİMİ
+        - MATURED
+      ANNUITY_START:
+        - YILLIK GELİR BAŞLANGICI
+        - EMEKLİLİĞE HAK KAZANMA
+        - EMEKLİLİK
+        - RETIREMENT
+        - ANNUITISATION
+      TRANSFER_IN:
+        - GELEN AKTARIM
+        - AKTARIM GİRİŞ
+        - TRANSFER INWARD
+      TRANSFER_OUT:
+        - GİDEN AKTARIM
+        - AKTARIM ÇIKIŞ
+        - BAŞKA ŞİRKETE AKTARIM
+      REINSTATEMENT:
+        - YENİDEN YÜRÜRLÜK
+        - İHYA
+        - REINSTATED
+  - field: flow_type
+    concepts: [fund_flows]
+    classes:
+      CONTRIBUTION:
+        - KATKI PAYI
+        - KATILIMCI KATKI PAYI
+        - PRİM
+        - MEMBER CONTRIBUTION
+      EMPLOYER_CONTRIBUTION:
+        - İŞVEREN KATKI PAYI
+        - İŞVEREN KATKISI
+      STATE_CONTRIBUTION:
+        - DEVLET KATKISI
+        - DEVLET KATKI PAYI
+        - DK
+        - GOVERNMENT CONTRIBUTION
+      FEE:
+        - KESİNTİ
+        - YÖNETİM GİDER KESİNTİSİ
+        - GİRİŞ AİDATI
+        - FON İŞLETİM GİDERİ
+        - CHARGE
+        - MANAGEMENT FEE
+      BENEFIT_PAYMENT:
+        - FAYDA ÖDEMESİ
+        - EMEKLİLİK ÖDEMESİ
+        - YILLIK GELİR ÖDEMESİ
+        - BENEFIT
+      FUND_SWITCH:
+        - FON DEĞİŞİKLİĞİ
+        - FON DAĞILIM DEĞİŞİKLİĞİ
+        - SWITCH
+      TRANSFER_IN:
+        - GELEN AKTARIM
+        - AKTARIM GİRİŞ
+      TRANSFER_OUT:
+        - GİDEN AKTARIM
+        - AKTARIM ÇIKIŞ
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First seed for the concepts planned in P20.

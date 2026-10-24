@@ -23,11 +23,14 @@ class Timing:
 
     steps: tuple[tuple[str, float], ...]
     total: float
+    lineage_bytes: tuple[tuple[str, int], ...] = ()  # size of each lineage file the run wrote
 
 
-def time_run(folder: Path, cache_dir: Path, out_root: Path) -> Timing:
+def time_run(
+    folder: Path, cache_dir: Path, out_root: Path, lineage_format: int | None = None
+) -> Timing:
     """One run of the whole pipeline on `folder` with the settings of ``canary run --yes``
-    (no saved profiles, no questions)."""
+    (no saved profiles, no questions); `lineage_format` None keeps the default."""
     started = time.perf_counter()
     pipeline = importlib.import_module("actuarycanary.pipeline")
     imported = time.perf_counter()
@@ -36,8 +39,14 @@ def time_run(folder: Path, cache_dir: Path, out_root: Path) -> Timing:
     def step(description: str) -> None:
         marks.append((description, time.perf_counter()))
 
-    pipeline.run(folder, out_root, cache_dir=cache_dir, progress=step)
+    settings = (
+        None if lineage_format is None else pipeline.RunSettings(lineage_format=lineage_format)
+    )
+    result = pipeline.run(folder, out_root, settings, cache_dir=cache_dir, progress=step)
     finished = time.perf_counter()
+    lineage = tuple(
+        (path.name, path.stat().st_size) for path in sorted(result.folder.glob("lineage*.csv"))
+    )
     # the first step also holds loading the specifications, which comes before it is announced
     begins = [imported] + [at for _, at in marks[1:]]
     ends = begins[1:] + [finished]
@@ -45,7 +54,7 @@ def time_run(folder: Path, cache_dir: Path, out_root: Path) -> Timing:
     steps += [
         (name, end - begin) for (name, _), begin, end in zip(marks, begins, ends, strict=True)
     ]
-    return Timing(tuple(steps), finished - started)
+    return Timing(tuple(steps), finished - started, lineage)
 
 
 def format_report(folder: Path, cold: Timing, warm: Timing) -> str:
@@ -57,17 +66,21 @@ def format_report(folder: Path, cold: Timing, warm: Timing) -> str:
     for name, seconds in cold.steps:
         lines.append(f"{name:<{width}}  {seconds:>8.1f}  {lookup.get(name, 0.0):>8.1f}")
     lines.append(f"{ENDED:<{width}}  {cold.total:>8.1f}  {warm.total:>8.1f}")
+    lines += [f"{name}: {size / 1e6:.1f} MB" for name, size in cold.lineage_bytes]
     return "\n".join(lines)
 
 
 def main(
     folder: Annotated[Path, typer.Argument(help="Folder with claim_valuations.xlsx.")],
+    lineage_format: Annotated[
+        int | None, typer.Option("--lineage-format", help="1 or 2; default the run default.")
+    ] = None,
 ) -> None:
     """Run the pipeline on FOLDER twice (cold, then warm) and print the time of each step."""
     with tempfile.TemporaryDirectory(prefix="canary-bench-") as work:
         root = Path(work)
-        cold = time_run(folder, root / "cache", root / "cold")
-        warm = time_run(folder, root / "cache", root / "warm")
+        cold = time_run(folder, root / "cache", root / "cold", lineage_format)
+        warm = time_run(folder, root / "cache", root / "warm", lineage_format)
     typer.echo(format_report(folder, cold, warm))
 
 

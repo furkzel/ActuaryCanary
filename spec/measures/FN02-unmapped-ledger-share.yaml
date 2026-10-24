@@ -1,0 +1,48 @@
+id: FN02
+version: 0.1.0
+title_en: Unmapped ledger share
+title_tr: Eşlenmemiş mizan payı
+status: draft
+implemented: false
+definition: >-
+  Absolute balances of accounts that the mapping profile does not map, as a share of all
+  absolute balances of the entity and month: how much of the books the reconciliation
+  cannot see.
+unit: ratio
+formula: 'U_e(t) = \frac{\sum_{a \notin \mathcal{A}^{\mathrm{mapped}}_e} |B_a(t)|}{\sum_{a} |B_a(t)|}'
+numerator: Absolute closing balances of unmapped accounts of entity e in month t.
+denominator: Absolute closing balances of all accounts of e in t.
+grain: entity and month
+breakdowns: [entity, calendar_period]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL]
+  value: [NOMINAL]
+requires:
+  - ledger.entity
+  - ledger.account
+  - ledger.period
+  - ledger.closing_balance
+optional: [ledger.account_class, ledger.currency]
+uses: [CV12]
+edge_cases:
+  - case: All balances zero
+    handling: Not computed.
+  - case: Accounts mapped to INVESTMENT or OTHER
+    handling: Count as mapped; they are known and deliberately not reconciled.
+  - case: Month missing in the ledger
+    handling: Not computed for that month (DV-LDG-10).
+interpretation: >-
+  Close to zero means every account was considered. A high share usually means a new
+  chart of accounts or new accounts that the profile does not cover yet.
+typical_range:
+  low: 0.0
+  high: 0.05
+  note: After the first confirmation the share should stay near zero.
+test:
+  path: tests/measures/test_fn02_unmapped_ledger_share.py
+  proves: Balances 100, -50 and 50 with the last account unmapped give 0.25.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft for module M10 (P20).

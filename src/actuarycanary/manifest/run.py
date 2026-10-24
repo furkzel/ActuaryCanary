@@ -14,6 +14,7 @@ from typing import Any
 
 MANIFEST_NAME = "manifest.json"
 MANIFEST_VERSION = 1
+LINEAGE_FORMAT_KEY = "lineage_format"  # added in 1.1: how lineage.csv is written (decision 0222)
 RUN_ID_LENGTH = 16
 
 
@@ -86,6 +87,7 @@ def write_manifest(
     settings: dict[str, Any],
     outputs: list[OutputRecord],
     findings: list[dict[str, Any]],
+    lineage_format: int | None = None,
     mapping_profiles: list[dict[str, Any]] | None = None,
     tables_not_used: list[dict[str, Any]] | None = None,
     assumptions: list[dict[str, Any]] | None = None,
@@ -106,6 +108,8 @@ def write_manifest(
         "data_findings": findings,
         "outputs": [asdict(o) for o in outputs],
     }
+    if lineage_format is not None:
+        manifest[LINEAGE_FORMAT_KEY] = lineage_format
     path = folder / MANIFEST_NAME
     text = json.dumps(manifest, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
     path.write_text(text, encoding="utf-8", newline="\n")

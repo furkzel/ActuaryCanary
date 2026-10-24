@@ -1,5 +1,5 @@
 id: market
-version: 1.0.0
+version: 1.1.0
 title_en: Market series
 title_tr: Piyasa serileri
 status: reviewed
@@ -74,7 +74,11 @@ validation:
     dimension: coverage
     severity: WARNING
     fields: [market.series_id, market.date]
-    rule: Monthly kinds have a value for every month between their first and last month.
+    rule: >-
+      Monthly kinds (FX_PERIOD_AVERAGE, FX_PERIOD_END, PRICE_INDEX) have a value for every
+      month between the first and the last month of each series and kind. Daily FX_SPOT is
+      not checked. Rows are counted as months: months expected from the first to the last,
+      months without a value.
     action: Missing months are listed; lookups follow the fallbacks in CV01 and CV02.
   - id: DV-MKT-07
     dimension: coverage
@@ -82,7 +86,13 @@ validation:
     fields: [market.series_id, market.date]
     rule: >-
       Each series needed by a conversion or adjustment covers every month from the earliest
-      date it is applied to until the cut-off.
+      date it is applied to until the cut-off. Needed are, for every currency other than the
+      reporting currency (and not UNKNOWN) that has amounts in claim valuations, premiums or
+      expenses, the pair with the reporting currency (direct or inverse, any FX kind; a month
+      is covered when one of them has a value in it), starting at the earliest date of an
+      amount in that currency; and the price index series, starting at the earliest date of
+      any amount, when the run uses the INFLATION_ADJUSTED value basis or the data holds that
+      series. Months are counted, expected against uncovered.
     action: Amounts that cannot be converted or adjusted follow CV01 and CV02; listed.
   - id: DV-MKT-08
     dimension: reasonableness
@@ -90,7 +100,9 @@ validation:
     fields: [market.value]
     rule: >-
       The month-on-month log change of a series has a robust z-score (MT08 formula) of at
-      most 3.5 within that series.
+      most 3.5 within that series. A series is a series_id and kind; for each month the value
+      of the latest date (then the latest source row) stands for the month, and only changes
+      between consecutive months are scored.
     action: Listed only.
 change_log:
   - version: 0.1.0
@@ -99,3 +111,9 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-10-23
+    change: >-
+      DV-MKT-06, DV-MKT-07 and DV-MKT-08 are built (record 0220); their rule text now says
+      what is counted, which series a run needs and how a series is reduced to months. No
+      rule changes meaning.

@@ -2,7 +2,8 @@
 
 Edits are typed as short commands: ``3=claim_id`` maps column 3 to a field, ``3=-`` leaves
 column 3 unused, ``concept=claims`` maps the sheet again as another concept, ``concept=-``
-skips the sheet. An empty line ends editing.
+skips the sheet, ``amounts=incremental`` or ``amounts=to_date`` says whether claim amounts are
+per period or cumulative. An empty line ends editing.
 """
 
 from rich.console import Console
@@ -10,10 +11,17 @@ from rich.markup import escape
 from rich.prompt import Prompt
 from rich.table import Table
 
+from actuarycanary.canonical.amounts import INCREMENTAL
 from actuarycanary.io.excel import RawTable
+from actuarycanary.recognition.amounts import detect_amounts
 from actuarycanary.recognition.columns import Layer
 from actuarycanary.recognition.dictionary import Dictionary
-from actuarycanary.recognition.tables import TableRecognition, with_concept, with_field
+from actuarycanary.recognition.tables import (
+    TableRecognition,
+    with_amounts,
+    with_concept,
+    with_field,
+)
 
 _LAYER_STYLE = {
     Layer.CANONICAL: "green",
@@ -62,10 +70,22 @@ def _describe(rec: TableRecognition, dictionary: Dictionary) -> list[str]:
     others = [c for c in rec.candidates if c.concept != rec.concept]
     if others:
         lines.append("Other candidates: " + escape("; ".join(c.describe() for c in others)))
+    if rec.concept == "claim_valuations":
+        lines += _amounts_lines(rec)
     missing = rec.missing(dictionary)
     if missing:
         lines.append(f"[red]Required fields not found: {', '.join(missing)}[/red]")
     return lines
+
+
+def _amounts_lines(rec: TableRecognition) -> list[str]:
+    note = f" ({escape(rec.amounts_note)})" if rec.amounts_note else ""
+    if rec.amounts == INCREMENTAL:
+        return [
+            f"[yellow]Amounts: per period, not cumulative{note}. They will be added up per "
+            "claim; type amounts=to_date if they are already cumulative.[/yellow]"
+        ]
+    return [f"Amounts: cumulative to the valuation date{note}"]
 
 
 def show(console: Console, rec: TableRecognition, dictionary: Dictionary) -> None:
@@ -82,7 +102,8 @@ def _edit(
     )
     console.print(
         "Edit: [bold]n=field[/bold] maps column n, [bold]n=-[/bold] leaves it unused, "
-        "[bold]concept=name[/bold] or [bold]concept=-[/bold]; empty line to finish."
+        "[bold]concept=name[/bold] or [bold]concept=-[/bold], [bold]amounts=incremental[/bold] or "
+        "[bold]amounts=to_date[/bold]; empty line to finish."
     )
     while True:
         if rec.concept:
@@ -95,11 +116,14 @@ def _edit(
         try:
             if key == "concept":
                 rec = with_concept(rec, None if value in ("", "-") else value, table, dictionary)
+                rec = detect_amounts(rec, table)
                 fields = (
                     ", ".join(f.name for f in dictionary.concepts[rec.concept].fields)
                     if rec.concept
                     else ""
                 )
+            elif key == "amounts":
+                rec = with_amounts(rec, value)
             elif key.isdigit() and 1 <= int(key) <= len(rec.headers):
                 header = rec.mappings[int(key) - 1].source
                 rec = with_field(rec, header, None if value in ("", "-") else value, dictionary)

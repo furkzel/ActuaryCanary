@@ -17,7 +17,8 @@ import numpy as np
 from actuarycanary.methods.chain_ladder import ChainLadder
 from actuarycanary.methods.mack import Mack, applied_to_selected
 from actuarycanary.modules.reserving import SELECTION_MEASURE, GroupReserving
-from actuarycanary.report import numbers
+from actuarycanary.report import language, numbers
+from actuarycanary.report.language import t
 from actuarycanary.structures.triangles import THIN_CELL_CLAIMS, Triangle
 
 INK = "var(--text-primary)"
@@ -60,6 +61,8 @@ def _layout(title: str, x: str, y: str, **extra: Any) -> dict[str, Any]:
         "yaxis": {"title": {"text": y}},
         "showlegend": False,
     }
+    if language.current() == language.TURKISH:
+        layout["separators"] = ",."  # decimal comma, thousands point
     layout.update(extra)
     return layout
 
@@ -70,8 +73,13 @@ def heatmap(triangle: Triangle, currency: str) -> dict[str, Any]:
         [
             ""
             if not math.isfinite(value)
-            else f"{numbers.amount(value)} {currency} · {numbers.count(claims)} claims"
-            + (" · thin" if claims < THIN_CELL_CLAIMS else "")
+            else t(
+                "{amount} {currency} · {claims} claims",
+                amount=numbers.amount(value),
+                currency=currency,
+                claims=numbers.count(claims),
+            )
+            + (f" · {t('thin')}" if claims < THIN_CELL_CLAIMS else "")
             for value, claims in zip(row, counts, strict=True)
         ]
         for row, counts in zip(triangle.cumulative, triangle.claim_counts, strict=True)
@@ -84,7 +92,7 @@ def heatmap(triangle: Triangle, currency: str) -> dict[str, Any]:
                 "y": list(triangle.origins),
                 "z": [[_round(v) for v in row] for row in triangle.cumulative],
                 "text": text,
-                "hovertemplate": "Origin %{y} · age %{x} months<br>%{text}<extra></extra>",
+                "hovertemplate": t("Origin %{y} · age %{x} months<br>%{text}<extra></extra>"),
                 "xgap": 2,
                 "ygap": 2,
                 "showscale": False,
@@ -92,11 +100,11 @@ def heatmap(triangle: Triangle, currency: str) -> dict[str, Any]:
             }
         ],
         "layout": _layout(
-            f"Cumulative {triangle.measure}, {currency}",
-            "Development age (months)",
-            "Origin",
-            xaxis={"title": {"text": "Development age (months)"}, "type": "category"},
-            yaxis={"title": {"text": "Origin"}, "type": "category", "autorange": "reversed"},
+            t("Cumulative {measure}, {currency}", measure=t(triangle.measure), currency=currency),
+            t("Development age (months)"),
+            t("Origin"),
+            xaxis={"title": {"text": t("Development age (months)")}, "type": "category"},
+            yaxis={"title": {"text": t("Origin")}, "type": "category", "autorange": "reversed"},
         ),
     }
 
@@ -119,14 +127,17 @@ def factors(group: GroupReserving, measure: str) -> dict[str, Any] | None:
                 continue
             xs.append(column)
             ys.append(_round(ratio, 4))
-            labels.append(f"origin {origin}" + ("" if result.used[i, j] else " · excluded"))
+            labels.append(
+                t("origin {origin}", origin=origin)
+                + ("" if result.used[i, j] else f" · {t('excluded')}")
+            )
     colour = basis_colour(measure)
     return {
         "data": [
             {
                 "type": "scatter",
                 "mode": "markers",
-                "name": "Link ratio of one origin",
+                "name": t("Link ratio of one origin"),
                 "x": xs,
                 "y": ys,
                 "text": labels,
@@ -136,7 +147,7 @@ def factors(group: GroupReserving, measure: str) -> dict[str, Any] | None:
             {
                 "type": "scatter",
                 "mode": "markers",
-                "name": "Selected factor",
+                "name": t("Selected factor"),
                 "x": columns,
                 "y": [_round(float(f), 4) for f in result.factors],
                 "marker": {
@@ -145,15 +156,15 @@ def factors(group: GroupReserving, measure: str) -> dict[str, Any] | None:
                     "size": 26,
                     "line": {"width": 3},
                 },
-                "hovertemplate": "%{x}: selected %{y:.3f}<extra></extra>",
+                "hovertemplate": t("%{x}: selected %{y:.3f}<extra></extra>"),
             },
         ],
         "layout": _layout(
-            f"Link ratios and the selected factor, {measure}",
-            "Development (months)",
-            "Factor",
+            t("Link ratios and the selected factor, {measure}", measure=t(measure)),
+            t("Development (months)"),
+            t("Factor"),
             showlegend=True,
-            xaxis={"title": {"text": "Development (months)"}, "type": "category"},
+            xaxis={"title": {"text": t("Development (months)")}, "type": "category"},
         ),
     }
 
@@ -174,11 +185,15 @@ def methods(group: GroupReserving, currency: str) -> dict[str, Any] | None:
             {
                 "type": "scatter",
                 "mode": "markers",
-                "name": label,
+                "name": t(label),
                 "x": [_round(float(v)) for v in values],
                 "y": origins,
                 "marker": {"color": colour, "symbol": symbol, "size": 9, "opacity": 0.85},
-                "hovertemplate": f"{label}, origin %{{y}}: %{{x:,.0f}} {currency}<extra></extra>",
+                "hovertemplate": t(
+                    "{label}, origin %{y}: %{x:,.0f} {currency}<extra></extra>",
+                    label=t(label),
+                    currency=currency,
+                ),
             }
         )
     selected = group.selected_ultimates()
@@ -187,7 +202,7 @@ def methods(group: GroupReserving, currency: str) -> dict[str, Any] | None:
             {
                 "type": "scatter",
                 "mode": "markers",
-                "name": "Selected",
+                "name": t("Selected"),
                 "x": [_round(v) for v in selected],
                 "y": origins,
                 "marker": {
@@ -196,17 +211,23 @@ def methods(group: GroupReserving, currency: str) -> dict[str, Any] | None:
                     "size": 15,
                     "line": {"width": 2},
                 },
-                "hovertemplate": f"Selected, origin %{{y}}: %{{x:,.0f}} {currency}<extra></extra>",
+                "hovertemplate": t(
+                    "Selected, origin %{y}: %{x:,.0f} {currency}<extra></extra>", currency=currency
+                ),
             }
         )
     return {
         "data": data,
         "layout": _layout(
-            f"Ultimate by method, {SELECTION_MEASURE}, {currency}",
-            f"Ultimate ({currency})",
-            "Origin",
+            t(
+                "Ultimate by method, {measure}, {currency}",
+                measure=t(SELECTION_MEASURE),
+                currency=currency,
+            ),
+            t("Ultimate ({currency})", currency=currency),
+            t("Origin"),
             showlegend=True,
-            yaxis={"title": {"text": "Origin"}, "type": "category", "autorange": "reversed"},
+            yaxis={"title": {"text": t("Origin")}, "type": "category", "autorange": "reversed"},
         ),
     }
 
@@ -234,18 +255,22 @@ def reserve_range(group: GroupReserving, currency: str) -> dict[str, Any] | None
     for measure, reserve, p in rows:
         colour = basis_colour(measure)
         for low, high, width, opacity, label in (
-            (0.05, 0.95, 8, 0.35, "5th to 95th percentile"),
-            (0.25, 0.75, 14, 0.9, "25th to 75th percentile"),
+            (0.05, 0.95, 8, 0.35, t("5th to 95th percentile")),
+            (0.25, 0.75, 14, 0.9, t("25th to 75th percentile")),
         ):
             data.append(
                 {
                     "type": "scatter",
                     "mode": "lines",
                     "x": [_round(p[low]), _round(p[high])],
-                    "y": [measure, measure],
+                    "y": [t(measure), t(measure)],
                     "line": {"color": colour, "width": width},
                     "opacity": opacity,
-                    "hovertemplate": f"{label}: %{{x:,.0f}} {currency}<extra></extra>",
+                    "hovertemplate": t(
+                        "{label}: %{x:,.0f} {currency}<extra></extra>",
+                        label=label,
+                        currency=currency,
+                    ),
                 }
             )
         data.append(
@@ -253,18 +278,20 @@ def reserve_range(group: GroupReserving, currency: str) -> dict[str, Any] | None
                 "type": "scatter",
                 "mode": "markers",
                 "x": [_round(reserve)],
-                "y": [measure],
+                "y": [t(measure)],
                 "marker": {"color": INK, "symbol": "diamond", "size": 11},
-                "hovertemplate": f"Selected reserve: %{{x:,.0f}} {currency}<extra></extra>",
+                "hovertemplate": t(
+                    "Selected reserve: %{x:,.0f} {currency}<extra></extra>", currency=currency
+                ),
             }
         )
     return {
         "data": data,
         "layout": _layout(
-            f"Selected reserve and its range, {currency}",
-            f"Reserve ({currency})",
-            "Triangle",
-            yaxis={"title": {"text": "Triangle"}, "type": "category"},
+            t("Selected reserve and its range, {currency}", currency=currency),
+            t("Reserve ({currency})", currency=currency),
+            t("Triangle"),
+            yaxis={"title": {"text": t("Triangle")}, "type": "category"},
             height=200,
         ),
     }
@@ -331,15 +358,15 @@ def ratio_by_origin(
                 "y": [_round(v, 6) for _, v in shown],
                 "line": {"color": segment_colour(segment), "width": 2},
                 "marker": {"color": segment_colour(segment), "size": 8},
-                "hovertemplate": "Origin %{x}: %{y:.1%}<extra></extra>",
+                "hovertemplate": t("Origin %{x}: %{y:.1%}<extra></extra>"),
             }
         ],
         "layout": _layout(
             title,
-            "Origin",
-            "Ratio",
-            xaxis={"title": {"text": "Origin"}, "type": "category"},
-            yaxis={"title": {"text": "Ratio"}, "tickformat": ".0%", "rangemode": "tozero"},
+            t("Origin"),
+            t("Ratio"),
+            xaxis={"title": {"text": t("Origin")}, "type": "category"},
+            yaxis={"title": {"text": t("Ratio")}, "tickformat": ".0%", "rangemode": "tozero"},
             height=240,
         ),
     }

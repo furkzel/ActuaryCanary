@@ -1,5 +1,5 @@
 id: premiums
-version: 1.0.0
+version: 1.1.0
 title_en: Premium transactions
 title_tr: Prim hareketleri
 status: reviewed
@@ -91,7 +91,10 @@ validation:
     dimension: consistency
     severity: INFO
     fields: [premiums.effective_date, policies.start_date, policies.end_date]
-    rule: effective_date lies within the policy's cover period.
+    rule: >-
+      effective_date lies within the policy's cover period (start_date to end_date, both
+      included); an empty effective_date means booking_date. Checked on the premiums whose
+      policy is in policies, and only when the feed has an effective_date column.
     action: Earning is clipped to the cover period as PR02 describes; listed.
   - id: DV-PRM-08
     dimension: reasonableness
@@ -112,3 +115,8 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-10-23
+    change: >-
+      DV-PRM-07 is built (record 0220); its rule text now says which rows are checked. No
+      rule changes meaning.

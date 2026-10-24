@@ -1,0 +1,69 @@
+id: MT26
+version: 0.1.0
+title_en: Settlement-time prediction
+title_tr: Kapanma süresi tahmini
+status: draft
+implemented: false
+definition: >-
+  Predicts when each open claim will close, with censoring handled properly: a
+  discrete-time hazard model (a classifier on claim-months) gives each open claim its own
+  survival curve. A challenger to the Kaplan–Meier curves by line of MT19.
+tier: C
+champion: MT19
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+  - claim_valuations.case_reserve
+  - claim_valuations.status
+optional: [claims.report_date, claims.close_date, claims.segment, claims.line, claims.cause]
+uses: [MT19, CV04]
+assumptions:
+  - statement: The monthly closing hazard depends on what is known at the start of the month, the same way for newer claims.
+    check: Out-of-time concordance by report year.
+  - statement: Censoring at the cut-off is independent of closing.
+    check: As for MT19.
+parameters:
+  - name: model
+    default: gradient_boosting
+    description: Classifier of closing in the month (scikit-learn HistGradientBoostingClassifier, or logistic regression).
+    allowed: [gradient_boosting, logistic]
+  - name: holdout_months
+    default: 12
+    description: The last months before the cut-off are the out-of-time test.
+  - name: seed
+    default: run seed
+    description: Seed, recorded in the manifest.
+algorithm:
+  - step: Person-period data - one row per open claim and month, features at the month start (age, paid, reserve, status, line, cause), label closed in the month.
+  - step: Fit the classifier; the predicted monthly hazard h(k, m) gives each open claim's survival and expected closing month.
+    formula: '\hat S_k(m) = \prod_{l \le m} \big(1 - \hat h_{k,l}\big), \qquad E[T_k] = \sum_{m \ge 0} \hat S_k(m)'
+  - step: Score on the holdout against the champion (Kaplan–Meier by line, MT19).
+outputs:
+  - name: closing_predictions
+    description: Survival curve, median and expected closing month per open claim.
+  - name: open_count_forecast
+    description: Expected number of open claims by future month, per line.
+  - name: performance
+    description: Harrell's concordance and integrated Brier score of challenger and champion.
+diagnostics:
+  - Calibration of predicted against observed closings by month on the holdout.
+failure_modes:
+  - condition: Fewer than 500 closings in the training months.
+    action: Not run; reason gives the count.
+validation:
+  - kind: fixture
+    description: Survival and expected time from a given hazard sequence, hand-computed.
+    tolerance: 1e-12 relative
+  - kind: ground_truth
+    description: >-
+      Ground-truth metric - integrated Brier score and concordance on the synthetic baseline
+      (medium) holdout, using the generator's true closing dates, against the champion MT19.
+    tolerance: integrated Brier score no worse than the champion's plus 0.01
+references:
+  - Singer, J. D. and Willett, J. B. (1993). It's about time - using discrete-time survival analysis to study duration and the timing of events. Journal of Educational Statistics.
+  - Graf, E., Schmoor, C., Sauerbrei, W. and Schumacher, M. (1999). Assessment and comparison of prognostic classification schemes for survival data. Statistics in Medicine.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft from blueprint section 9.3 (P20).

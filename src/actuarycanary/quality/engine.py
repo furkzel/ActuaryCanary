@@ -197,13 +197,17 @@ def evaluate(
     sources: Mapping[str, Sequence[str]] | None = None,
     cut_off: date | None = None,
     unreadable: Mapping[str, str] | None = None,
+    reporting_currency: str | None = None,
+    price_index: str | None = None,
+    adjusted: bool = False,
 ) -> QualityReport:
     """The quality report of the loaded feeds. `raw` holds each concept's table as read, before
-    the canonical rules, so that rows read and source references are complete."""
+    the canonical rules, so that rows read and source references are complete. The reporting
+    currency, price index and value basis tell DV-MKT-07 which series the run needs."""
     frames = {c: feed.frame for c, feed in feeds.items()}
     if cut_off is None and "claim_valuations" in frames:
         cut_off = _range(frames["claim_valuations"], "valuation_date")[1]
-    ctx = Context(frames, catalogue.data, cut_off)
+    ctx = Context(frames, catalogue.data, cut_off, reporting_currency, price_index, adjusted)
     outcomes: list[Outcome] = []
     not_evaluated: list[tuple[str, str]] = []
     for concept, feed in feeds.items():

@@ -10,7 +10,7 @@ drawn from this dictionary alone, and the golden test compares it (decision 0074
 
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from typing import Any
 
@@ -18,6 +18,7 @@ import numpy as np
 import polars as pl
 
 from actuarycanary.canonical.feeds import Finding
+from actuarycanary.convert.views import ORIGINAL, UNIT_LABEL, currency_of
 from actuarycanary.manifest.metadata import ProjectMetadata
 from actuarycanary.manifest.run import InputRecord, OutputRecord, SpecRecord
 from actuarycanary.methods.assumptions import Assumption
@@ -26,7 +27,7 @@ from actuarycanary.modules.reserving import SELECTION_MEASURE, GroupReserving, R
 from actuarycanary.modules.runner import AnalysisResult, ModuleOutcome, ModuleState
 from actuarycanary.quality.model import QualityReport
 from actuarycanary.quality.output import show_score
-from actuarycanary.report import charts, numbers
+from actuarycanary.report import charts, language, numbers
 from actuarycanary.report.facts import (
     FactSet,
     anomaly_rates,
@@ -41,6 +42,7 @@ from actuarycanary.report.facts import (
     selected_reserve,
 )
 from actuarycanary.report.findings import KEY_FINDINGS, Facts, KeyFinding, evaluate
+from actuarycanary.report.language import t
 from actuarycanary.report.methods_section import assumption_rows, group_methods
 from actuarycanary.spec.catalogue import SpecCatalogue
 from actuarycanary.structures.triangles import MEASURES, THIN_CELL_CLAIMS
@@ -74,6 +76,7 @@ class ReportInputs:
     outputs: tuple[OutputRecord, ...]  # the files written before the report
     randomness: tuple[Mapping[str, Any], ...] = ()
     mappings: tuple[Mapping[str, Any], ...] = ()
+    lineage: Mapping[str, int] = field(default_factory=dict)  # Lineage.summary(), either format
 
 
 class _Specs:
@@ -91,6 +94,46 @@ def _rows(frame: pl.DataFrame | None) -> pl.DataFrame:
     if frame is None:
         return pl.DataFrame()
     return frame.with_row_index("_row")
+
+
+def basis_text(label: str) -> str:
+    """A basis label such as "GROSS, REPORTING, NOMINAL" in the language of the report."""
+    return ", ".join(t(part) for part in label.split(", "))
+
+
+def _business(
+    found: Any, measure: str, title: str, by: Sequence[str] = ("calendar_period",)
+) -> list[dict[str, Any]]:
+    """The last two periods of an all-business measure: one entry, or in the ORIGINAL currency
+    view one per currency, because amounts of different currencies are never added."""
+    if found is None or found.frame is None:
+        return []
+    frame = _rows(found.frame).sort("calendar_period")
+    if "currency" in frame.columns:
+        parts = [
+            (f" [{c}]", frame.filter(pl.col("currency") == c))
+            for c in sorted(set(frame["currency"]))
+        ]
+    else:
+        parts = [("", frame)]
+    out = []
+    for suffix, part in parts:
+        tail = part.tail(2).to_dicts()
+        out.append(
+            {
+                "measure": f"{measure} {title}{suffix}",
+                "basis": basis_text(found.request.basis.label()),
+                "points": [
+                    {
+                        "period": str(x["calendar_period"]),
+                        "value": numbers.ratio(_value(x["value"])),
+                    }
+                    for x in tail
+                ],
+                "ref": _ref(measure, by, [x["_row"] for x in tail]),
+            }
+        )
+    return out
 
 
 def _ref(measure: str, breakdowns: Sequence[str], rows: Iterable[int]) -> str:
@@ -115,44 +158,71 @@ def _cover(r: ReportInputs) -> dict[str, Any]:
     settings = triangles.settings
     segments = sorted({g.group[0] for g in r.reserving.groups})
     bases = (
-        f"{settings.reinsurance_basis.value}, {triangles.reporting_currency}, "
-        f"{settings.value_basis.value.replace('_', ' ')}"
+        f"{t(settings.reinsurance_basis.value)}, {shown_currency(triangles.reporting_currency)}, "
+        f"{t(settings.value_basis.value.replace('_', ' '))}"
     )
     rows = [
-        ("Run id", r.run_id),
-        ("Valuation date", triangles.cut_off.isoformat()),
-        ("Segments", ", ".join(segments) or numbers.EMPTY),
-        ("Lines", str(len(r.reserving.groups))),
-        ("Bases", bases),
+        (t("Run id"), r.run_id),
+        (t("Valuation date"), triangles.cut_off.isoformat()),
+        (t("Segments"), ", ".join(segments) or numbers.EMPTY),
+        (t("Lines"), str(len(r.reserving.groups))),
+        (t("Bases"), bases),
         (
-            "Origins",
-            f"{settings.origin_period.value.lower()} periods on the "
-            f"{settings.origin_axis.value} axis, development "
-            f"{settings.development_period.value.lower()}",
+            t("Origins"),
+            t(
+                "{period} periods on the {axis} axis, development {development}",
+                period=t(settings.origin_period.value.lower()),
+                axis=t(settings.origin_axis.value),
+                development=t(settings.development_period.value.lower()),
+            ),
         ),
-        ("Claims used", numbers.count(triangles.claims_used)),
-        ("Inputs", ", ".join(i.name for i in r.inputs)),
-        ("Software", f"{r.metadata.name} {r.package_version}"),
+        (t("Claims used"), numbers.count(triangles.claims_used)),
+        (t("Inputs"), ", ".join(i.name for i in r.inputs)),
+        (t("Software"), f"{r.metadata.name} {r.package_version}"),
     ]
+    if original_view(r):
+        rows.append(
+            (
+                t("Currency view"),
+                t("ORIGINAL: nothing is converted; every line is kept apart per currency"),
+            )
+        )
     if triangles.value_date is not None:
         rows.append(
             (
-                "Value basis",
-                f"inflation-adjusted, at the prices of {triangles.value_date.isoformat()} "
-                f"({triangles.price_index})",
+                t("Value basis"),
+                t(
+                    "inflation-adjusted, at the prices of {date} ({index})",
+                    date=triangles.value_date.isoformat(),
+                    index=triangles.price_index,
+                ),
             )
         )
-    for label, value in (("Author", r.metadata.author), ("Contact", r.metadata.contact)):
+    for label, value in ((t("Author"), r.metadata.author), (t("Contact"), r.metadata.contact)):
         if value:
             rows.append((label, value))
     return {
         "title": r.metadata.name,
-        "tagline": r.metadata.tagline,
+        "tagline": t(r.metadata.tagline),
         "rows": [{"label": k, "value": v} for k, v in rows],
     }
 
 
 # --- tiles ----------------------------------------------------------------------------
+
+
+def shown_currency(currency: str) -> str:
+    """The currency as the report names it: the code, or "orig." in the ORIGINAL view."""
+    return t(currency) if currency == UNIT_LABEL else currency
+
+
+def original_view(r: "ReportInputs") -> bool:
+    return str(r.settings.get("bases", {}).get("currency", "")) == ORIGINAL
+
+
+def mixed_currencies(groups: Sequence[GroupReserving], r: "ReportInputs") -> bool:
+    """The ORIGINAL view with lines of more than one currency: their amounts are not added."""
+    return original_view(r) and len({currency_of(g.group[1]) for g in groups}) > 1
 
 
 def _tile(
@@ -179,11 +249,11 @@ def _earlier_groups(r: ReportInputs) -> dict[tuple[str, ...], GroupReserving]:
 
 def _tiles(r: ReportInputs, spec: _Specs, segment_sets: dict[str, FactSet]) -> list[dict[str, Any]]:
     triangles = r.reserving.triangles
-    currency = triangles.reporting_currency
+    currency = shown_currency(triangles.reporting_currency)
     earlier = _earlier_groups(r)
     earlier_date = r.earlier.triangles.cut_off.isoformat() if r.earlier is not None else ""
     settings = triangles.settings
-    basis = f"{settings.reinsurance_basis.value}, {currency}, {settings.value_basis.value}"
+    basis = f"{t(settings.reinsurance_basis.value)}, {currency}, {t(settings.value_basis.value)}"
     premium = segment_premium(r.analysis)
     ratios = segment_loss_ratios(r.analysis)
     complete = period_complete(
@@ -196,6 +266,20 @@ def _tiles(r: ReportInputs, spec: _Specs, segment_sets: dict[str, FactSet]) -> l
         groups = [g for g in r.reserving.groups if g.group[0] == segment]
         facts = segment_sets.get(segment, {})
         tiles: list[dict[str, str]] = []
+        if mixed_currencies(groups, r):
+            note = t(
+                "the lines of this segment are in different currencies and are not added: see "
+                "the lines on the reserving page"
+            )
+            tiles.append(_tile(t("Amounts in several currencies"), numbers.EMPTY, "", "", "", note))
+            out.append(
+                {
+                    "segment": segment,
+                    "colour": charts.SEGMENT_TOKENS.get(segment, ""),
+                    "tiles": tiles,
+                }
+            )
+            continue
         series = premium.get(segment, [])
         if series:
             period, latest = series[-1]
@@ -203,12 +287,12 @@ def _tiles(r: ReportInputs, spec: _Specs, segment_sets: dict[str, FactSet]) -> l
             if len(series) >= 2 and complete:
                 before, previous = series[-2]
                 change = numbers.change_ratio(latest / previous - 1 if previous else None)
-                against = f"against {before}"
+                against = t("against {period}", period=before)
             elif not complete:
-                note = f"{period} is open at the valuation date: no comparison"
+                note = t("{period} is open at the valuation date: no comparison", period=period)
             tiles.append(
                 _tile(
-                    f"Written premium {period}",
+                    t("Written premium {period}", period=period),
                     f"{numbers.amount(latest)} {currency}",
                     change,
                     against,
@@ -225,12 +309,12 @@ def _tiles(r: ReportInputs, spec: _Specs, segment_sets: dict[str, FactSet]) -> l
         )
         tiles.append(
             _tile(
-                "Incurred to date",
+                t("Incurred to date"),
                 f"{numbers.amount(incurred)} {currency}",
                 numbers.change_amount(
                     None if earlier_incurred is None else incurred - earlier_incurred
                 ),
-                f"against {earlier_date}" if earlier_incurred is not None else "",
+                t("against {period}", period=earlier_date) if earlier_incurred is not None else "",
                 f"{spec('CL03', 'MT01')} · {basis}",
             )
         )
@@ -240,10 +324,10 @@ def _tiles(r: ReportInputs, spec: _Specs, segment_sets: dict[str, FactSet]) -> l
             change, against = numbers.EMPTY, ""
             if len(points) >= 2:
                 change = numbers.change_points(latest_ratio - points[-2][1])
-                against = f"against origin {points[-2][0]}"
+                against = t("against origin {origin}", origin=points[-2][0])
             tiles.append(
                 _tile(
-                    f"Ultimate loss ratio, origin {origin}",
+                    t("Ultimate loss ratio, origin {origin}", origin=origin),
                     numbers.ratio(latest_ratio),
                     change,
                     against,
@@ -258,18 +342,18 @@ def _tiles(r: ReportInputs, spec: _Specs, segment_sets: dict[str, FactSet]) -> l
                 earlier_ibnr = float(sum(x.ibnr for x in reserves if x.ibnr is not None))
         ranged = [g for g in groups if charts.reserve_range(g, currency) is not None]
         range_note = (
-            "range per line on the reserving page; ranges of lines do not add up"
+            t("range per line on the reserving page; ranges of lines do not add up")
             if ranged
-            else "no range: the Mack standard error did not run"
+            else t("no range: the Mack standard error did not run")
         )
         tiles.append(
             _tile(
-                "Reserve estimate (IBNR, selected)",
+                t("Reserve estimate (IBNR, selected)"),
                 f"{numbers.amount(ibnr)} {currency}",
                 numbers.change_amount(
                     None if ibnr is None or earlier_ibnr is None else ibnr - earlier_ibnr
                 ),
-                f"against {earlier_date}" if earlier_ibnr is not None else "",
+                t("against {period}", period=earlier_date) if earlier_ibnr is not None else "",
                 f"{spec('RS02', 'MT10', 'RS03')} · {basis}",
                 range_note,
             )
@@ -282,16 +366,28 @@ def _tiles(r: ReportInputs, spec: _Specs, segment_sets: dict[str, FactSet]) -> l
 
 def _quality_tile(r: ReportInputs, spec: _Specs) -> dict[str, str]:
     return _tile(
-        "Data quality score",
+        t("Data quality score"),
         f"{show_score(r.quality.overall)} / 100",
         numbers.EMPTY,
-        "no earlier run to compare",
-        f"{spec('DQ01')} · {r.quality.overall.rules} rules",
-        f"{r.quality.count('BLOCKING')} blocking, {r.quality.count('WARNING')} warning findings",
+        t("no earlier run to compare"),
+        t("{spec} · {rules} rules", spec=spec("DQ01"), rules=r.quality.overall.rules),
+        t(
+            "{blocking} blocking, {warning} warning findings",
+            blocking=r.quality.count("BLOCKING"),
+            warning=r.quality.count("WARNING"),
+        ),
     )
 
 
 # --- module pages ---------------------------------------------------------------------
+
+
+def module_title(catalogue: SpecCatalogue, outcome: ModuleOutcome) -> str:
+    """The module's title in the language of the report (the specification has both)."""
+    found = catalogue.modules.get(outcome.module)
+    if found is not None and language.current() == language.TURKISH:
+        return found.title_tr
+    return outcome.title
 
 
 def _module_header(
@@ -299,10 +395,10 @@ def _module_header(
 ) -> dict[str, Any]:
     return {
         "module": outcome.module,
-        "title": outcome.title,
-        "question": outcome.question,
-        "state": outcome.state.value,
-        "reasons": list(outcome.reasons),
+        "title": module_title(catalogue, outcome),
+        "question": t(outcome.question),
+        "state": t(outcome.state.value),
+        "reasons": [t(x) for x in outcome.reasons],
         "anchor": MODULE_ANCHORS.get(outcome.module, outcome.module.lower()),
         "spec": spec(outcome.module),
     }
@@ -338,7 +434,9 @@ def _data_page(r: ReportInputs, spec: _Specs) -> dict[str, Any]:
     return {
         "score": show_score(r.quality.overall),
         "coverage": coverage,
-        "footnote": f"{spec('DQ01')}; rows as read from the spreadsheets; scores out of 100.",
+        "footnote": t(
+            "{spec}; rows as read from the spreadsheets; scores out of 100.", spec=spec("DQ01")
+        ),
     }
 
 
@@ -385,46 +483,38 @@ def _portfolio_page(r: ReportInputs, spec: _Specs, figures: dict[str, Any]) -> d
             }
         )
         bars.append((key[0], key[1], last_value))
-    currency = r.reserving.triangles.reporting_currency
+    currency = shown_currency(r.reserving.triangles.reporting_currency)
     figure = charts.bars_by_line(
-        f"Written premium {latest_period} by line, {currency}",
-        f"Written premium ({currency})",
+        t("Written premium {period} by line, {currency}", period=latest_period, currency=currency),
+        t("Written premium ({currency})", currency=currency),
         bars,
         f"%{{y}}: %{{x:,.0f}} {currency}<extra></extra>",
     )
     if figure is not None:
         figures["portfolio-written"] = figure
     business = []
-    for measure, title in (("PR04", "Cancellation rate"), ("PR05", "Retention ratio")):
-        found = find_result(r.analysis, measure, ("calendar_period",))
-        if found is None or found.frame is None:
-            continue
-        frame = _rows(found.frame).sort("calendar_period")
-        tail = frame.tail(2).to_dicts()
-        business.append(
-            {
-                "measure": f"{measure} {title}",
-                "basis": found.request.basis.label(),
-                "points": [
-                    {
-                        "period": str(x["calendar_period"]),
-                        "value": numbers.ratio(_value(x["value"])),
-                    }
-                    for x in tail
-                ],
-                "ref": _ref(measure, ("calendar_period",), [x["_row"] for x in tail]),
-            }
+    for measure, title in (
+        ("PR04", t("Cancellation rate")),
+        ("PR05", t("Retention ratio")),
+    ):
+        business += _business(
+            find_result(r.analysis, measure, ("calendar_period",)), measure, title
         )
     return {
         "period": latest_period,
         "rows": rows,
         "business": business,
         "figure": "portfolio-written" if figure is not None else "",
-        "footnote": (
-            f"{currency}, {pr01.request.basis.label() if pr01 else ''}. Written premium "
-            f"{spec('PR01')} by calendar period; earned {spec('PR02')} in the latest period; "
-            f"unearned at the valuation date {spec('PR03')}; average premium {spec('PR06')}. "
-            "Each line's colour is its segment."
+        "footnote": t(
+            "{currency}, {basis}. Written premium {pr01} by calendar period; earned {pr02} in "
+            "the latest period; unearned at the valuation date {pr03}; average premium {pr06}. "
+            "Each line's colour is its segment.",
+            currency=currency,
+            basis=basis_text(pr01.request.basis.label()) if pr01 else "",
+            pr01=spec("PR01"),
+            pr02=spec("PR02"),
+            pr03=spec("PR03"),
+            pr06=spec("PR06"),
         ),
     }
 
@@ -489,25 +579,33 @@ def _claims_page(r: ReportInputs, spec: _Specs, figures: dict[str, Any]) -> dict
             }
         )
         bars.append((key[0], key[1], incurred))
-    currency = r.reserving.triangles.reporting_currency
+    currency = shown_currency(r.reserving.triangles.reporting_currency)
     figure = charts.bars_by_line(
-        f"Incurred to date by line, {currency}",
-        f"Incurred ({currency})",
+        t("Incurred to date by line, {currency}", currency=currency),
+        t("Incurred ({currency})", currency=currency),
         bars,
         f"%{{y}}: %{{x:,.0f}} {currency}<extra></extra>",
     )
     if figure is not None:
         figures["claims-incurred"] = figure
-    basis = results["CL03"].request.basis.label() if results["CL03"] else ""
+    basis = basis_text(results["CL03"].request.basis.label()) if results["CL03"] else ""
     return {
         "rows": rows,
         "figure": "claims-incurred" if figure is not None else "",
-        "footnote": (
-            f"{currency}, {basis}; all origin periods to the valuation date. Claim counts "
-            f"{spec('CL04')}; paid {spec('CL01')}, case reserve {spec('CL02')}, incurred "
-            f"{spec('CL03')}; mean reporting delay in days {spec('CL07')} weighted by claims; "
-            f"mean settlement time in days {spec('CL08')}; large-loss share of incurred "
-            f"{spec('CL12')}. Each line's colour is its segment."
+        "footnote": t(
+            "{currency}, {basis}; all origin periods to the valuation date. Claim counts "
+            "{cl04}; paid {cl01}, case reserve {cl02}, incurred {cl03}; mean reporting delay "
+            "in days {cl07} weighted by claims; mean settlement time in days {cl08}; "
+            "large-loss share of incurred {cl12}. Each line's colour is its segment.",
+            currency=currency,
+            basis=basis,
+            cl04=spec("CL04"),
+            cl01=spec("CL01"),
+            cl02=spec("CL02"),
+            cl03=spec("CL03"),
+            cl07=spec("CL07"),
+            cl08=spec("CL08"),
+            cl12=spec("CL12"),
         ),
     }
 
@@ -543,7 +641,7 @@ def _profitability_page(r: ReportInputs, spec: _Specs, figures: dict[str, Any]) 
             )
         figure_id = f"profitability-{n}"
         figure = charts.ratio_by_origin(
-            f"Ultimate loss ratio by origin, {key[1]}",
+            t("Ultimate loss ratio by origin, {line}", line=key[1]),
             key[0],
             [(str(x["origin_period"]), _value(x.get("ultimate_ratio"))) for x in rows],
         )
@@ -558,43 +656,35 @@ def _profitability_page(r: ReportInputs, spec: _Specs, figures: dict[str, Any]) 
         )
     expenses = []
     for measure, title in (
-        ("EX01", "Commission ratio"),
-        ("EX02", "Expense ratio"),
-        ("EX03", "Claims handling ratio"),
+        ("EX01", t("Commission ratio")),
+        ("EX02", t("Expense ratio")),
+        ("EX03", t("Claims handling ratio")),
     ):
-        found = find_result(r.analysis, measure, ("calendar_period",))
-        if found is None or found.frame is None:
-            continue
-        frame = _rows(found.frame).sort("calendar_period")
-        tail = frame.tail(2).to_dicts()
-        expenses.append(
-            {
-                "measure": f"{measure} {title}",
-                "basis": found.request.basis.label(),
-                "points": [
-                    {
-                        "period": str(x["calendar_period"]),
-                        "value": numbers.ratio(_value(x["value"])),
-                    }
-                    for x in tail
-                ],
-                "ref": _ref(measure, ("calendar_period",), [x["_row"] for x in tail]),
-            }
+        expenses += _business(
+            find_result(r.analysis, measure, ("calendar_period",)), measure, title
         )
-    currency = r.reserving.triangles.reporting_currency
+    currency = shown_currency(r.reserving.triangles.reporting_currency)
+    basis = basis_text(rt01.request.basis.label()) if rt01 else ""
     return {
         "lines": lines,
         "expenses": expenses,
-        "figure_note": (
-            f"Ultimate loss ratio per origin: selected ultimate over earned premium "
-            f"({spec('RT01', 'MT10', 'PR02')}), {rt01.request.basis.label() if rt01 else ''}; "
-            "one chart per line in the colour of its segment, each starting at zero."
+        "figure_note": t(
+            "Ultimate loss ratio per origin: selected ultimate over earned premium "
+            "({specs}), {basis}; one chart per line in the colour of its segment, each "
+            "starting at zero.",
+            specs=spec("RT01", "MT10", "PR02"),
+            basis=basis,
         ),
-        "footnote": (
-            f"{currency}, {rt01.request.basis.label() if rt01 else ''}. Loss ratios "
-            f"{spec('RT01')} over earned premium {spec('PR02')}; the ultimate is the selected "
-            f"ultimate {spec('MT10')}; combined ratio {spec('RT02')}. Expense ratios are for all "
-            "business together, the one combined view the blueprint allows (section 10)."
+        "footnote": t(
+            "{currency}, {basis}. Loss ratios {rt01} over earned premium {pr02}; the ultimate "
+            "is the selected ultimate {mt10}; combined ratio {rt02}. Expense ratios are for "
+            "all business together, the one combined view the blueprint allows (section 10).",
+            currency=currency,
+            basis=basis,
+            rt01=spec("RT01"),
+            pr02=spec("PR02"),
+            mt10=spec("MT10"),
+            rt02=spec("RT02"),
         ),
     }
 
@@ -622,7 +712,7 @@ def _anomalies_page(
         rows.append(
             {
                 "line": f"{key[0]} · {key[1]}",
-                "scored": numbers.count(values) if values else "not scored",
+                "scored": numbers.count(values) if values else t("not scored"),
                 "flagged": numbers.count(flagged) if values else numbers.EMPTY,
                 "rate": numbers.ratio(rate),
                 "above": rate is not None and rate > robust_z.MAX_FLAG_RATE,
@@ -631,8 +721,8 @@ def _anomalies_page(
         )
         bars.append((key[0], key[1], rate))
     figure = charts.bars_by_line(
-        "Share of values flagged by the robust z-score, by line",
-        "Share flagged",
+        t("Share of values flagged by the robust z-score, by line"),
+        t("Share flagged"),
         bars,
         "%{y}: %{x:.1%}<extra></extra>",
         limit=robust_z.MAX_FLAG_RATE,
@@ -658,18 +748,20 @@ def _anomalies_page(
                 "claim": x["claim_id"],
                 "line": f"{x['segment']} · {x['line']}",
                 "date": x["valuation_date"].isoformat() if x["valuation_date"] else "",
-                "variable": x["variable"].replace("_", " "),
+                "variable": t(x["variable"].replace("_", " ")),
                 "score": numbers.factor(_value(x["score"])),
                 "reason": x["reason"],
                 "source": f"{x['file']} [{x['sheet']}] rows {x['rows']}",
             }
             for x in top.to_dicts()
         ],
-        "footnote": (
-            f"Robust z-score {spec('MT08')} on payments and case-reserve movements per line, "
-            f"isolation forest {spec('MT09')} on claims per segment; the dashed line is the "
-            "flag rate above which MT08 warns that a group may mix populations. Flags are "
-            "leads for a reviewer, not errors; anomalies.csv lists every flag with its rows."
+        "footnote": t(
+            "Robust z-score {mt08} on payments and case-reserve movements per line, isolation "
+            "forest {mt09} on claims per segment; the dashed line is the flag rate above which "
+            "MT08 warns that a group may mix populations. Flags are leads for a reviewer, not "
+            "errors; anomalies.csv lists every flag with its rows.",
+            mt08=spec("MT08"),
+            mt09=spec("MT09"),
         ),
     }
 
@@ -688,10 +780,10 @@ def _reserving(
     line_findings: dict[str, list[dict[str, Any]]],
 ) -> dict[str, Any]:
     triangles = r.reserving.triangles
-    currency = triangles.reporting_currency
+    currency = shown_currency(triangles.reporting_currency)
     basis = (
-        f"{triangles.settings.reinsurance_basis.value}, "
-        f"{triangles.settings.value_basis.value}, {currency}"
+        f"{t(triangles.settings.reinsurance_basis.value)}, "
+        f"{t(triangles.settings.value_basis.value)}, {currency}"
     )
     summary = []
     lines = []
@@ -768,32 +860,45 @@ def _reserving(
         "lines": lines,
         "selection_measure": SELECTION_MEASURE,
         "footnotes": {
-            "summary": (
-                f"{currency}, {basis}. Chain ladder {spec('MT02')} on paid and incurred "
-                f"triangles {spec('MT01')}; selected ultimate {spec('MT10')}; IBNR = ultimate − "
-                f"incurred at the valuation date {spec('RS02')}. Rounded per {spec('CV06')}; "
-                "totals from unrounded values. Rows of ultimates.csv and lineage.csv (RS02)."
+            "summary": t(
+                "{currency}, {basis}. Chain ladder {mt02} on paid and incurred triangles "
+                "{mt01}; selected ultimate {mt10}; IBNR = ultimate − incurred at the valuation "
+                "date {rs02}. Rounded per {cv06}; totals from unrounded values. Rows of "
+                "ultimates.csv and lineage.csv (RS02).",
+                currency=currency,
+                basis=basis,
+                mt02=spec("MT02"),
+                mt01=spec("MT01"),
+                mt10=spec("MT10"),
+                rs02=spec("RS02"),
+                cv06=spec("CV06"),
             ),
-            "heatmaps": (
-                f"Cumulative cells by origin and development age, {basis}; paid on its own "
+            "heatmaps": t(
+                "Cumulative cells by origin and development age, {basis}; paid on its own "
                 "one-hue ramp, incurred on another; the further a cell stands from the page "
-                f"colour, the larger it is ({spec('MT01', 'CV04')})."
+                "colour, the larger it is ({specs}).",
+                basis=basis,
+                specs=spec("MT01", "CV04"),
             ),
-            "factors": (
-                f"Link ratio of every origin (dots) and the factor selected (bar), "
-                f"{spec('RS01', 'MT02')}; the tail factor is in the table. Rows of factors.csv."
+            "factors": t(
+                "Link ratio of every origin (dots) and the factor selected (bar), {specs}; the "
+                "tail factor is in the table. Rows of factors.csv.",
+                specs=spec("RS01", "MT02"),
             ),
-            "methods": (
-                f"Ultimate per origin by method on the {SELECTION_MEASURE} triangle "
-                f"({spec('MT02', 'MT03', 'MT04', 'MT05')}), and the selected ultimate "
-                f"(diamond, {spec('MT10')}). The spread between methods shows how much the "
-                "answer depends on the method; it is not a confidence interval."
+            "methods": t(
+                "Ultimate per origin by method on the {measure} triangle ({specs}), and the "
+                "selected ultimate (diamond, {mt10}). The spread between methods shows how much "
+                "the answer depends on the method; it is not a confidence interval.",
+                measure=t(SELECTION_MEASURE),
+                specs=spec("MT02", "MT03", "MT04", "MT05"),
+                mt10=spec("MT10"),
             ),
-            "range": (
+            "range": t(
                 "Selected reserve (diamond) with the 25th to 75th percentile (dark bar) and the "
                 "5th to 95th percentile (light bar); the Mack coefficient of variation applied "
-                f"to the selected reserve, lognormal approximation ({spec('MT06', 'RS03')}). "
-                "The upper percentiles are in the table."
+                "to the selected reserve, lognormal approximation ({specs}). The upper "
+                "percentiles are in the table.",
+                specs=spec("MT06", "RS03"),
             ),
         },
     }
@@ -810,10 +915,12 @@ def _not_run(r: ReportInputs) -> dict[str, Any]:
         spec = r.catalogue.modules.get(outcome.module)
         modules.append(
             {
-                "module": f"{outcome.module} {outcome.title}",
-                "state": outcome.state.value,
-                "why": list(outcome.reasons),
-                "load": spec.skip_reason if spec and outcome.state is ModuleState.SKIPPED else "",
+                "module": f"{outcome.module} {module_title(r.catalogue, outcome)}",
+                "state": t(outcome.state.value),
+                "why": [t(x) for x in outcome.reasons],
+                "load": t(spec.skip_reason)
+                if spec and outcome.state is ModuleState.SKIPPED
+                else "",
                 "missing": [f"{m.measure}: {m.reason}" for m in outcome.unavailable],
             }
         )
@@ -830,7 +937,9 @@ def _methods_appendix(r: ReportInputs, spec: _Specs) -> list[dict[str, Any]]:
             {
                 "id": method.id,
                 "spec": spec(method.id),
-                "title": method.title_en,
+                "title": method.title_tr
+                if language.current() == language.TURKISH
+                else method.title_en,
                 "plain": " ".join(method.definition.split()),
                 "assumptions": [" ".join(a.statement.split()) for a in method.assumptions],
                 "parameters": [
@@ -847,13 +956,13 @@ def _assumptions(entries: list[Assumption]) -> dict[str, Any]:
     by_who: dict[str, int] = defaultdict(int)
     by_kind: dict[tuple[str, str], int] = defaultdict(int)
     for row in rows:
-        by_who[row["who"] or "default"] += 1
+        by_who[row["who"] or t("default")] += 1
         by_kind[(row["method"], row["name"])] += 1
     return {
         "total": len(rows),
         "by_who": [{"who": k, "entries": v} for k, v in sorted(by_who.items())],
         "by_kind": [
-            {"method": m, "name": n.replace("_", " "), "entries": v}
+            {"method": m, "name": t(n.replace("_", " ")), "entries": v}
             for (m, n), v in sorted(by_kind.items())
         ],
         "judgements": [row for row in rows if row["who"] != "default"],
@@ -867,7 +976,16 @@ def _lineage_summary(r: ReportInputs) -> dict[str, Any]:
         "measures": len(measures),
         "traced": traced,
         "untraced": [m for m in measures if m not in traced],
+        **{k: int(v) for k, v in r.lineage.items()},
     }
+
+
+def _spec_title(catalogue: SpecCatalogue, spec_id: str, english: str) -> str:
+    """A specification's title in the language of the report (every specification has both)."""
+    found = next((f.spec for f in catalogue.files if f.spec.id == spec_id), None)
+    if found is not None and language.current() == language.TURKISH:
+        return found.title_tr
+    return english
 
 
 def _reproducibility(r: ReportInputs) -> dict[str, Any]:
@@ -894,7 +1012,10 @@ def _reproducibility(r: ReportInputs) -> dict[str, Any]:
             }
             for m in r.mappings
         ],
-        "specs": [{"id": s.id, "version": s.version, "title": s.title} for s in r.specs],
+        "specs": [
+            {"id": s.id, "version": s.version, "title": _spec_title(r.catalogue, s.id, s.title)}
+            for s in r.specs
+        ],
         "settings": _flatten(r.settings),
         "randomness": [
             {"method": str(x.get("method", "")), "seed": str(x.get("seed", ""))}
@@ -927,9 +1048,11 @@ def scoped_facts(
     analysis: AnalysisResult,
     quality: QualityReport,
     rates: dict[tuple[str, str], tuple[int, int]],
+    titles: Mapping[str, str] | None = None,
+    skip_segments: frozenset[str] | None = None,
 ) -> tuple[dict[str, list[tuple[str, str, Facts]]], dict[str, FactSet]]:
     """The fact sets of every scope as (key, anchor, facts), and the segment facts."""
-    currency = reserving.triangles.reporting_currency
+    currency = shown_currency(reserving.triangles.reporting_currency)
     lines = {line_name(g.group): line_facts(g, rates, currency) for g in reserving.groups}
     premium = segment_premium(analysis)
     ratios = segment_loss_ratios(analysis)
@@ -940,7 +1063,9 @@ def scoped_facts(
         triangles.settings.fiscal_year_start_month,
     )
     segments = {
-        s: segment_facts(
+        s: {}
+        if skip_segments and s in skip_segments
+        else segment_facts(
             s,
             [g for g in reserving.groups if g.group[0] == s],
             premium.get(s, []),
@@ -950,7 +1075,7 @@ def scoped_facts(
         )
         for s in sorted({g.group[0] for g in reserving.groups})
     }
-    run = run_facts(reserving, analysis, quality, rates, lines)
+    run = run_facts(reserving, analysis, quality, rates, lines, titles)
     scoped: dict[str, list[tuple[str, str, Facts]]] = {
         "run": [("", "", run)],
         "segment": [(s, "glance", f) for s, f in segments.items()],
@@ -970,7 +1095,13 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
     spec = _Specs(r.catalogue)
     figures: dict[str, Any] = {}
     rates = anomaly_rates(r.anomalies)
-    scoped, segment_sets = scoped_facts(r.reserving, r.analysis, r.quality, rates)
+    titles = {o.module: module_title(r.catalogue, o) for o in r.analysis.modules}
+    mixed = frozenset(
+        s
+        for s in {g.group[0] for g in r.reserving.groups}
+        if mixed_currencies([g for g in r.reserving.groups if g.group[0] == s], r)
+    )
+    scoped, segment_sets = scoped_facts(r.reserving, r.analysis, r.quality, rates, titles, mixed)
     fired = evaluate(r.catalogue.finding_rules.rules, scoped)
     headline = [f for f in fired if f.scope != "line"]
     line_findings: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -993,8 +1124,9 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
         )
     reserving_outcome = next((m for m in r.analysis.modules if m.module == "M04"), None)
     return {
-        "disclaimer": " ".join(r.metadata.report.disclaimer.split()),
-        "label": "Indicative — not an official reserve or price",
+        "language": language.current(),
+        "disclaimer": t(" ".join(r.metadata.report.disclaimer.split())),
+        "label": t("Indicative — not an official reserve or price"),
         "findings_spec": spec(r.catalogue.finding_rules.id),
         "inflation_spec": spec("MT07"),
         "cover": _cover(r),

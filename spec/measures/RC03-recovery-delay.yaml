@@ -1,0 +1,63 @@
+id: RC03
+version: 0.1.0
+title_en: Recovery delay
+title_tr: Rücu ve sovtaj tahsil süresi
+status: draft
+implemented: false
+definition: >-
+  Time from a claim's first payment to each recovery booked on it, in days: mean, median
+  and percentiles, by recovery type.
+unit: days
+formula: 'D_r = b_r - p^{(1)}_{k(r)}, \qquad \mathrm{median}\{D_r\},\ \mathrm{mean}\{D_r\},\ Q_{0.9}\{D_r\}'
+numerator: >-
+  Days from the first payment of claim k (the valuation month end in which paid_to_date
+  first rose above zero, CV04) to the booking date b of recovery r (recoveries, or the month
+  end of a derived recovery flow).
+denominator: null
+grain: recovery booking, summarised by recovery type and group
+breakdowns: [segment, line, recovery_type, origin_period, calendar_period]
+bases:
+  reinsurance: [GROSS]
+  currency: [ORIGINAL]
+  value: [NOMINAL]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+optional:
+  - recoveries.claim_id
+  - recoveries.booking_date
+  - recoveries.type
+  - claim_valuations.subrogation_to_date
+  - claim_valuations.salvage_to_date
+  - claims.segment
+  - claims.line
+uses: [CV04]
+edge_cases:
+  - case: Neither recoveries nor a to-date recovery column
+    handling: Not available, with the reason "no recovery data".
+  - case: Recovery booked before the first payment (or on a claim never paid)
+    handling: Delay negative or undefined; kept out of the statistics and counted in a note.
+  - case: Derived recoveries (no transactions)
+    handling: Delays are in whole months between month ends and labelled as such.
+  - case: Recent origins
+    handling: Late recoveries are not yet known; the view by origin shows development age, as RC01.
+  - case: Month without valuation rows of a claim
+    handling: The claim's previous row is carried forward (CV04), so a derived recovery is dated at the next month with a row.
+interpretation: >-
+  How long the money takes to come back. Subrogation from other insurers usually takes
+  months; salvage follows the total-loss settlement closely. A lengthening delay points at
+  a slower recovery process.
+typical_range:
+  low: 0
+  high: 720
+  note: Motor subrogation commonly 3 to 12 months after payment; salvage 1 to 3 months.
+test:
+  path: tests/measures/test_rc03_recovery_delay.py
+  proves: >-
+    A claim first paid in January and recovered on 15 April has a delay of the days between
+    the January month end and 15 April; derived flows give month-end differences.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft for module M07 (P20).

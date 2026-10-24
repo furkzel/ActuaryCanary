@@ -1,0 +1,50 @@
+id: RS05
+version: 0.1.0
+title_en: Simulated reserve distribution and risk measures
+title_tr: Simüle edilmiş karşılık dağılımı ve risk ölçüleri
+status: draft
+implemented: false
+definition: >-
+  Mean, standard deviation, coefficient of variation, percentiles, value at risk and tail
+  value at risk of the reserve from the bootstrap simulations (MT11), per origin and in
+  total, beside the Mack approximation of RS03.
+unit: amount
+formula: 'q_p = \mathrm{quantile}_p\{R^*_b\}, \quad \mathrm{VaR}_p = q_p, \quad \mathrm{TVaR}_p = \mathrm{mean}\{R^*_b : R^*_b \ge q_p\}, \quad cv = \mathrm{sd}\{R^*_b\} / \mathrm{mean}\{R^*_b\}'
+numerator: Simulated reserves R*(b) of MT11, per origin and in total; discounted per simulation on the DISCOUNTED basis (CV10).
+denominator: null
+grain: origin period and total, by segment and line
+breakdowns: [segment, line, entity, origin_period]
+bases:
+  reinsurance: [GROSS, NET]
+  currency: [REPORTING]
+  value: [NOMINAL, DISCOUNTED]
+requires:
+  - claim_valuations.claim_id
+  - claim_valuations.valuation_date
+  - claim_valuations.paid_to_date
+optional: [claims.occurrence_date, claims.segment, claims.line, interest_rates.curve_id]
+uses: [MT11, RS03, CV10]
+edge_cases:
+  - case: MT11 did not run
+    handling: Not available, with MT11's reason; RS03 is still shown.
+  - case: Selected reserve differs from the chain-ladder reserve
+    handling: The simulated distribution is shifted multiplicatively to the selected mean and labelled "bootstrap CV applied to the selected reserve", as RS03 does.
+  - case: Negative simulated totals
+    handling: Kept in the distribution; their share is noted.
+  - case: Origin with no future cash flow (fully developed)
+    handling: Its simulated reserve is zero in every simulation and it is shown as such.
+interpretation: >-
+  The bootstrap range includes parameter and process error and is usually wider than the
+  Mack lognormal range on lines with calendar effects; VaR and TVaR are indicative, not
+  capital requirements.
+typical_range:
+  low: null
+  high: null
+  note: Total coefficient of variation commonly 5 to 25 per cent for non-life lines.
+test:
+  path: tests/measures/test_rs05_simulated_reserve_distribution.py
+  proves: Ten given simulated reserves give the hand-computed empirical percentiles, VaR and TVaR.
+change_log:
+  - version: 0.1.0
+    date: 2026-10-23
+    change: First draft for module M12 (P20).
