@@ -71,6 +71,7 @@ def test_the_new_scenarios_are_listed_and_valid():
     assert not load_scenario("baseline").phase2.life_book.enabled
 
 
+@pytest.mark.slow  # simulates four scenarios once for the module (0.75 s)
 @pytest.mark.parametrize("name", ["baseline", "reinsurance_heavy", "life_book", "messy_headers"])
 def test_tiny_stays_under_two_thousand_rows_per_later_feed(name, tiny_sims):
     sim = tiny_sims[name]
@@ -79,6 +80,7 @@ def test_tiny_stays_under_two_thousand_rows_per_later_feed(name, tiny_sims):
             assert _frames(sim, feed).height < 2000, (name, feed)
 
 
+@pytest.mark.slow  # shares the four simulations above
 def test_every_scenario_has_the_non_life_later_feeds_and_only_the_life_book_the_life_ones(
     tiny_sims,
 ):
