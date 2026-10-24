@@ -74,11 +74,14 @@ MONEY_COLUMNS: dict[str, dict[str, tuple[str, str]]] = {
 }
 
 
-def money_columns_table() -> pl.DataFrame:
-    """Which currency each money column of each truth file is in (truth/money_columns.csv)."""
+def money_columns_table(
+    columns_by_file: dict[str, dict[str, tuple[str, str]]] | None = None,
+) -> pl.DataFrame:
+    """Which currency each money column of each truth file is in (truth/money_columns.csv; the
+    files of the later feeds are in truth/money_columns_phase2.csv)."""
     rows = [
         {"file": f"{name}.csv", "column": column, "currency": basis, "conversion": how}
-        for name, columns in MONEY_COLUMNS.items()
+        for name, columns in (MONEY_COLUMNS if columns_by_file is None else columns_by_file).items()
         for column, (basis, how) in columns.items()
     ]
     return pl.DataFrame(

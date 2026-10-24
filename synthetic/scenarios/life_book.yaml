@@ -1,0 +1,92 @@
+# The baseline insurer plus a life and pension book with a known mortality and lapse model:
+# individual term life, a group term line, savings with a fund, and a personal pension.
+# Mortality is a Gompertz-Makeham table (the reference table) times a multiplier per product;
+# lapse and surrender follow a table by policy year times a multiplier. truth/ says which.
+extends: baseline
+
+phase2:
+  life_book:
+    enabled: true
+    opening_years: 4
+    opening_share: 0.7
+    count_scale_by_size: {tiny: 0.7, medium: 1.0, large: 1.0}
+    products:
+      - key: TERM_LIFE
+        line: TERM_LIFE
+        segment: LIFE
+        policy_type: INDIVIDUAL
+        channel: AGENCY
+        contracts_first_year: 10000
+        growth_per_year: 0.05
+        entry_age_mean: 42
+        entry_age_sd: 9
+        term_years: 20
+        sum_assured: {dist: lognormal, median: 400000, sigma: 0.6}
+        premium_rate: 0.0016
+        premium_frequency: MONTHLY
+        mortality_multiplier: 0.85
+        lapse_by_policy_year: [0.14, 0.10, 0.08, 0.06, 0.05, 0.04]
+        lapse_multiplier: 1.0
+        lapse_decrement: LAPSE
+        reinstatement_probability: 0.05
+      - key: GROUP_TERM
+        line: GROUP_TERM_LIFE
+        segment: LIFE
+        policy_type: GROUP
+        channel: BROKER
+        contracts_first_year: 14000
+        growth_per_year: 0.06
+        entry_age_mean: 45
+        entry_age_sd: 10
+        entry_age_min: 20
+        entry_age_max: 64
+        age_band_width: 5
+        sum_assured: {dist: lognormal, median: 250000, sigma: 0.5}
+        premium_rate: 0.0035
+        premium_frequency: YEARLY
+        mortality_multiplier: 1.10
+        lapse_by_policy_year: [0.25, 0.18, 0.15, 0.12]
+        lapse_multiplier: 1.0
+        lapse_decrement: LAPSE
+      - key: ENDOWMENT_SAVINGS
+        line: ENDOWMENT
+        segment: LIFE
+        policy_type: INDIVIDUAL
+        channel: BANK
+        contracts_first_year: 4000
+        growth_per_year: 0.03
+        entry_age_mean: 34
+        entry_age_sd: 8
+        term_years: 15
+        sum_assured: {dist: lognormal, median: 150000, sigma: 0.5}
+        annual_contribution: {dist: lognormal, median: 12000, sigma: 0.5}
+        premium_frequency: YEARLY
+        mortality_multiplier: 0.95
+        lapse_by_policy_year: [0.05, 0.12, 0.10, 0.08, 0.06]
+        lapse_multiplier: 1.20
+        lapse_decrement: SURRENDER
+        partial_withdrawal_rate: 0.02
+        fund_fee_rate: 0.010
+        has_fund: true
+      - key: PERSONAL_PENSION
+        line: PERSONAL_PENSION
+        segment: PENSION
+        policy_type: INDIVIDUAL
+        channel: BANK
+        contracts_first_year: 7000
+        growth_per_year: 0.08
+        entry_age_mean: 36
+        entry_age_sd: 9
+        term_years: 25
+        annual_contribution: {dist: lognormal, median: 18000, sigma: 0.6}
+        premium_frequency: QUARTERLY
+        mortality_multiplier: 0.75
+        lapse_by_policy_year: [0.12, 0.09, 0.07, 0.05]
+        lapse_decrement: SURRENDER
+        transfer_out_rate: 0.03
+        transfer_in_share: 0.12
+        partial_withdrawal_rate: 0.01
+        fund_fee_rate: 0.012
+        state_contribution_rate: 0.25
+        employer_contribution_share: 0.20
+        has_fund: true

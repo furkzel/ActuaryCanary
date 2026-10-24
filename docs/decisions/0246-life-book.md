@@ -1,0 +1,18 @@
+# 0246 — The life and pension book: a known model, simulated exactly
+
+## Context
+The life feeds (P20 drafts: life_in_force, life_events, fund_flows) and the experience studies (MT20, LF01–LF04) need data whose mortality and lapse rates are known, and tables to compare against.
+
+## Decision
+- **Model.** The force of mortality of a contract at age x is `multiplier(product) × factor(sex) × (a + b·c^x)` (Gompertz–Makeham, a = 0.0006, b = 0.00003, c = 1.10; male factor 1.10, female 0.90). The annual lapse or surrender rate in policy year k is the reference rate of the product times `lapse_multiplier` (at most 0.95), turned into a force `−ln(1 − rate)`. The forces are constant between policy anniversaries, so the exit time is drawn exactly (exponential, competing causes). Age moves on policy anniversaries, as CV11 reads it: age = entry age + whole policy years.
+- **Products** (`synthetic/scenarios/life_book.yaml`): individual term life, a group term line (group members, age bands of five years, lapse means leaving the scheme), savings with a fund and surrender, a personal pension with quarterly contributions, state and employer contributions, fees, transfers in and out, withdrawals and fund switches. The group term line of the life book is a population of its own and is not the `GROUP_TERM_LIFE` claims line of the non-life world.
+- **Time.** Contracts enter over the accident years and over the four years before them (70 per cent of those still in force on the first day); a contract that left before the first year is not in the data. Valuation dates are the year ends. A contract has a row at every valuation date from the first one until its exit is known (a death when it is reported, other exits when they happen), and a death reported after the cut-off is not known. Reinstatement: 5 per cent of the lapses of the term product come back 20 to 80 days later, with a REINSTATEMENT event and rows IN_FORCE again.
+- **Funds.** A fund grows monthly at the one-year TRY rate (record 0245) less 1 per cent; contributions, fees on the anniversary, partial withdrawals and switches change it; the fund is paid out in the month of the exit (BENEFIT_PAYMENT, or TRANSFER_OUT).
+- **Reference tables**, written as files: `reference_tables/reference_mortality.csv` (age, rate kind q, rate: the model before the multipliers, unisex) and `reference_tables/reference_lapse.csv` (product, policy year, rate before `lapse_multiplier`).
+- **Truth.** `life_contracts.csv` (every contract's timeline: entry, first exit, reinstatement, final exit, report date of a death, whether it is in the data), `life_mortality_truth.csv` and `life_lapse_truth.csv` (the true rates by age and sex, and by policy year, with their multipliers), `life_expected_decrements.csv` (central exposure, expected and actual deaths and lapses by calendar year, product, age and policy year, over the observed years). The exposure of the cells equals the sum of the individual exposures (test, to 1e-6 years); on a book ten times the size of tiny the actual deaths and lapses of each product are within four standard errors of the expected ones.
+- **Sizes.** Tiny uses 0.7 of the usual scale, so that every life feed stays under 2,000 rows (840, 101 and 1,529). The large size has about one million valuation rows and splits into workbooks by record 0081.
+- **Not generated:** PAID_UP contracts, DISABILITY events, annuity starts, health contracts (record 0602), exact birth dates or any personal data.
+
+## Consequences
+- The life experience item can score the total A/E per product against the generator's multiplier and the lapse rates by policy year against the table, as MT20 asks.
+- Amounts are in the reporting currency; the sum assured and the fund value do not move with prices.

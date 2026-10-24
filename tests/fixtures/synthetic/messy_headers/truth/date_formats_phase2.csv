@@ -1,0 +1,13 @@
+file,field,text_format,text_share
+interest_rates,date,%d.%m.%Y,0.35
+reinsurance_treaties,inception_date,%d.%m.%Y,0.35
+reinsurance_treaties,expiry_date,%d.%m.%Y,0.35
+reinsurance_transactions,booking_date,%Y-%m-%d,0.35
+reinsurance_transactions,effective_date,%Y-%m-%d,0.35
+recoveries,booking_date,%Y-%m-%d,0.35
+ledger,period,%d.%m.%Y,0.35
+life_in_force,valuation_date,%Y-%m-%d,0.35
+life_in_force,entry_date,%d/%m/%Y,0.35
+life_events,event_date,%Y-%m-%d,0.35
+life_events,report_date,%Y-%m-%d,0.35
+fund_flows,flow_date,%d/%m/%Y,0.35

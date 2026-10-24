@@ -1,0 +1,15 @@
+# 0244 — Ledger: a compact chart, derived from the feeds, with differences written in
+
+## Context
+The ledger concept (P20) is a trial balance per entity, account and month, reconciled with the platform's measures through an account-mapping profile (CV12). Tiny must stay under 2,000 rows per feed.
+
+## Decision
+- **Chart.** Twelve accounts per entity, none split by line, because CV12 reconciles per entity, class and month: bank 100, unearned premium 340, outstanding 360, result of earlier years 590, written premium 600, commission 632, reinsurance net cost 650, investment income 660, change in provisions 690, claims paid 700, operating expenses 770, and a suspense account 297. Classes, signs and balance kinds are in `ledger.chart()` and in `truth/ledger_mapping_profile.csv` (entity, account pattern, class, sign, balance kind, line). The suspense account is left out of the profile on purpose.
+- **Books.** Every journal posts equal debit and credit, so the closing balances of an entity add up to zero in every month. Income and expense accounts are year to date (`opening_balance` is 0 in January and the result of a year moves to account 590 in the next January); balance sheet accounts are stocks. The ledger currency is the reporting currency.
+- **Derived from the feeds.** Premium and commission are monthly flows converted at the average rate of the booking month (the `FX_PERIOD_AVERAGE` the market file writes). Outstanding and unearned premium are stocks at the month-end rate. Claims paid is the month's change of `paid_to_date`, expenses are the expenses feed, reinsurance is ceded premium less commission less ceded paid. Investment income is the one-year rate of the month before, over twelve, on the provisions of the month before. Without differences the ledger equals the platform's amounts in every class (test: an independent computation from the feeds and the market file, largest difference 0.011).
+- **Differences written in** (`phase2.ledger.differences`, counts by default): premium of a month booked in the next month (twice); foreign-currency premium translated at the month-end instead of the average rate (once); an IBNR loading of 8 per cent in one entity's outstanding from 60 per cent of the months on; an amount of 1.5 per cent of a month's premium on the suspense account; one account row missing for one month. They are in `truth/ledger_differences.csv` (ledger minus platform, with the cause). `truth/ledger_gaps.csv` has platform amount, ledger amount, gap and cause per entity, class and month, and is non-zero exactly where a difference was written (test).
+- **Not generated:** a ledger in several currencies, accounts that mix year-to-date and period balances, accounts split by line or segment, personal sub-ledgers.
+
+## Consequences
+- The ledger item (CV12, FN01, FN02, M10) can score the reconciliation against `ledger_gaps.csv` and the unmapped share against `ledger_differences.csv`. The checker rules DV-LDG-07, -08 and -09 find the missing row and the suspense account and nothing else.
+- The classes OTHER and INVESTMENT are present and not reconciled.

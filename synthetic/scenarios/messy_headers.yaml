@@ -1,8 +1,9 @@
 # Same insurer as the baseline, delivered the way real files arrive: headers renamed, misspelt
 # and in Turkish, title rows above the header, dates partly as text, labels as local aliases,
 # repeated rows and personal-data columns. The data underneath is identical in meaning to the
-# baseline's; truth/ says how each header, label and date was changed.
-extends: baseline
+# baseline's; truth/ says how each header, label and date was changed. It starts from life_book,
+# whose life feeds (and the baseline's later feeds) are delivered in the same mess.
+extends: life_book
 
 messiness:
   headers: {style: aliases, canonical_share: 0.15, misspell_share: 0.2}

@@ -12,6 +12,10 @@ import xlsxwriter
 from actuarycanary.synthetic.messy import SheetPlan
 
 EXCEL_MAX_ROWS = 1_048_576
+# the workbooks of the feeds added after version 1.0 go into this subfolder of a scenario folder: a
+# run reads the spreadsheets directly in a folder and recognises a table by its columns, so the
+# new files beside the six would change what it reads (decision 0243)
+LATER_FOLDER = "phase2"
 FIXED_TIMESTAMP = datetime(2026, 1, 1)  # workbook properties would otherwise carry the clock
 
 

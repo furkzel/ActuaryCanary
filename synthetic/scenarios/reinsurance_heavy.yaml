@@ -1,0 +1,27 @@
+# The baseline insurer with a heavy reinsurance programme: high cessions and excess-of-loss
+# layers that are hit often, so that cession, net results and treaty allocation have something
+# to show. Everything else, the claims included, is the baseline's (same seed, same streams),
+# so a claim has the same gross amounts here as there and only what is ceded differs.
+extends: baseline
+
+reinsurance:
+  - {treaty_id: QS_MOTOR_OD, type: QUOTA_SHARE, lines: [MOTOR_OD], cession: 0.40, commission: 0.22,
+     inception: 2016-01-01, renewal: annual}
+  - {treaty_id: QS_PROPERTY, type: QUOTA_SHARE, lines: [PROPERTY], cession: 0.30, commission: 0.25,
+     inception: 2016-01-01, renewal: annual}
+  - {treaty_id: XL_OD_RISK, type: EXCESS_OF_LOSS, lines: [MOTOR_OD], retention: 60000, limit: 240000,
+     retention_indexed_to: CPI_TR, rate_on_gross_premium: 0.015, inception: 2016-01-01, renewal: annual}
+  - {treaty_id: XL_TPL_L1, type: EXCESS_OF_LOSS, lines: [MOTOR_TPL], retention: 100000, limit: 200000,
+     retention_indexed_to: CPI_TR, rate_on_gross_premium: 0.045, inception: 2016-01-01, renewal: annual}
+  - {treaty_id: XL_TPL_L2, type: EXCESS_OF_LOSS, lines: [MOTOR_TPL], retention: 300000, limit: 700000,
+     retention_indexed_to: CPI_TR, rate_on_gross_premium: 0.030, inception: 2016-01-01, renewal: annual}
+  - {treaty_id: XL_TPL_L3, type: EXCESS_OF_LOSS, lines: [MOTOR_TPL], retention: 1000000, limit: 9000000,
+     retention_indexed_to: CPI_TR, rate_on_gross_premium: 0.012, inception: 2016-01-01, renewal: annual}
+  - {treaty_id: XL_PROPERTY_CAT, type: EXCESS_OF_LOSS, lines: [PROPERTY], basis: event, retention: 2000000,
+     limit: 60000000, retention_indexed_to: CPI_TR, rate_on_gross_premium: 0.06, inception: 2016-01-01,
+     renewal: annual}
+
+phase2:
+  surplus:
+    - {treaty_id: SURPLUS_PROPERTY, lines: [PROPERTY], retained_line: 800000, number_of_lines: 9,
+       retention_indexed_to: CPI_TR, commission: 0.28, inception: 2016-01-01, renewal: annual}
