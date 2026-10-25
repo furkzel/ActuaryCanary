@@ -3,7 +3,7 @@
 no_reference: {}
 open_items:
   MT11:
-    - The process-error draws are made by the freeze script with numpy (the gamma form of the spec); the package samples parameter error only. Percentiles with process error are therefore a reference of this repository, not of the package (decisions 0271 and 0609). The acceptance statistics are the median, 75th and 95th percentile; the standard deviation is not a pass criterion on its own.
+    - The package resamples unscaled residuals and, fitted on all simulations as one batch, mixes them; the re-frozen rows apply the adjustment of the spec on top of the package output and fit each pseudo-triangle alone, so they are not independent of the spec (decision 0282). Pass criteria are the scale parameter and the mean within 5 per cent of the chain-ladder reserve; percentiles and the standard deviation are information.
   MT17:
     - Standard errors, Kolmogorov-Smirnov and Anderson-Darling statistics, bootstrap p-values and layer costs have no frozen reference; only the estimates and the AIC ranking do.
   MT18:
