@@ -41,7 +41,7 @@ class MethodEntry:
 
 ENTRIES: tuple[MethodEntry, ...] = (
     MethodEntry(
-        "MT11", "1.0.0", odp_bootstrap.odp_bootstrap,
+        "MT11", "1.1.0", odp_bootstrap.odp_bootstrap,
         "cumulative paid triangle; the group's stream seeding.generator(seed, *group)",
         random="residual resampling and process error, one stream per group", measure="paid",
     ),

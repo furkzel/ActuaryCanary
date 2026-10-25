@@ -94,7 +94,9 @@ class NotSummarised:
     reason: str
 
 
-def ae02_errors(estimate: np.ndarray, reference: np.ndarray) -> np.ndarray:
+def ae02_errors(
+    estimate: Sequence[float] | np.ndarray, reference: Sequence[float] | np.ndarray
+) -> np.ndarray:
     """e = (U(c - h) - U_ref(c)) / U_ref(c); NaN where the reference is zero or missing."""
     estimate = np.asarray(estimate, dtype=float)
     reference = np.asarray(reference, dtype=float)
@@ -102,7 +104,9 @@ def ae02_errors(estimate: np.ndarray, reference: np.ndarray) -> np.ndarray:
         return np.where(np.isfinite(reference) & (reference != 0), estimate / reference - 1, np.nan)
 
 
-def weighted_errors(errors: np.ndarray, reference: np.ndarray) -> tuple[float, float, float]:
+def weighted_errors(
+    errors: Sequence[float] | np.ndarray, reference: Sequence[float] | np.ndarray
+) -> tuple[float, float, float]:
     """Bias, MAE and RMSE weighted by the reference, over the origins with an error (AE02;
     RMSE = sqrt(sum w e^2 / sum w), decision 0275)."""
     e = np.asarray(errors, dtype=float)
