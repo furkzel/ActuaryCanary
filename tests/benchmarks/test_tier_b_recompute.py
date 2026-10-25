@@ -117,8 +117,9 @@ def test_mt11_simulation_summaries_are_consistent(name: str) -> None:
     phi = _value(values, "deterministic", "scale_parameter_phi")
     for kind in ("parameter_error_only", "with_process_error"):
         q = f"simulation_{kind}_total_reserve"
-        # spec benchmark: simulated mean within 2 per cent of the chain-ladder reserve
-        assert _value(values, q, "mean") == pytest.approx(reserve, rel=0.02)
+        # MT11 1.1.0: simulated mean within 5 per cent of the chain-ladder reserve (decision 0282)
+        assert _value(values, q, "mean") == pytest.approx(reserve, rel=0.05)
+        assert "not a pass criterion" in values[(q, "p95")]["note"]
         assert _value(values, q, "p50") < _value(values, q, "p75")
         assert _value(values, q, "p75") < _value(values, q, "p95") < _value(values, q, "p99.5")
     q_param = "simulation_parameter_error_only_total_reserve"

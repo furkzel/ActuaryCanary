@@ -1,4 +1,4 @@
-produced_on: '2026-10-24'
+produced_on: '2026-10-25'
 id: MT11-odp-bootstrap-raa
 spec_ids:
 - MT11
@@ -10,30 +10,36 @@ source:
   data: chainladder.load_sample('raa')
   calls:
   - tri = chainladder.load_sample('raa')
-  - boot = chainladder.BootstrapODPSample(n_sims=10000, hat_adj=False, random_state=42)
-  - model = chainladder.Chainladder().fit(boot.fit_transform(tri))
-how_produced: 'Run tests/benchmarks/tools/freeze_chainladder.py. Deterministic rows are computed with
-  numpy from the spec formulas and agree with the package scale_ to 1e-9. Simulation rows: the package
-  gives the parameter-error-only totals; process error (gamma, mean m, variance phi m, sign kept) is added
-  by the script with numpy default_rng(seed).'
+  - sims = chainladder.BootstrapODPSample(n_sims=10000, hat_adj=False, random_state=42).fit_transform(tri)
+  - each simulated increment X* replaced by mu + sqrt(n / (n - p)) (X* - mu)
+  - chainladder.Chainladder().fit(one) for each adjusted pseudo-triangle alone
+how_produced: 'Run tests/benchmarks/tools/freeze_chainladder.py odp raa. Deterministic rows are computed
+  with numpy from the spec formulas and agree with the package scale_ to 1e-9. Simulation rows: the package
+  resamples the residuals; the script applies the spec''s degrees-of-freedom adjustment sqrt(n / (n -
+  p)) on top of the package output, fits the package''s chain ladder on each adjusted pseudo-triangle
+  alone and adds gamma process error (mean m, variance phi m, sign kept) with numpy default_rng(seed).
+  The adjustment is the spec''s, applied by this script: the simulation rows are not independent of the
+  spec (decision 0282).'
 seed: 42
 n_simulations: 10000
 files:
   triangle: triangle.csv
   residuals: residuals.csv
   values: values.csv
-tolerance_note: 'Deterministic rows 1e-9 relative. Simulation rows carry their Monte Carlo tolerance in
-  rel_tol: three times the relative standard deviation of the statistic over 30 other seeds of the same
-  size. A test of a different sampler compares against it as a bound, two independent samplers differ
-  by about 1.5 times that.'
+tolerance_note: 'Deterministic rows 1e-9 relative. Simulation rows are information; their rel_tol is the
+  Monte Carlo spread of the statistic: three times its relative standard deviation over 30 other seeds
+  of the same size, with a numpy refit that equals the package fitted on each pseudo-triangle alone (checked
+  to 1e-9 on the seed of the frozen rows).'
 notes:
-- The package samples parameter error only, uses hat_adj=False (the degrees-of-freedom adjustment sqrt(n/(n-p))
-  of the spec), centres the pool of residuals and projects the future cells from the cumulative of the
-  pseudo-triangle on its latest diagonal; the spec does so too since MT11 0.3.0 (decision 0612). Its residual
-  pool differs slightly from residuals.csv, which is not centred.
-- Acceptance statistics are the median (p50), p75 and p95 of the total reserve; the standard deviation
-  is reported and compared only with its wide Monte Carlo tolerance, it is not a pass criterion on its
-  own (decision 0609). Process error is gamma with shape |m| / phi and scale phi, sign kept, as in the
-  spec.
+- With hat_adj=False the package resamples the unscaled residuals (centred, the zero residuals of the
+  two cells fitted exactly dropped); it does not apply the spec's degrees-of-freedom adjustment sqrt(n/(n-p)),
+  which this script applies on top (decision 0282). The former reference (2026-10-24) said otherwise and
+  was wrong.
+- chainladder 0.10.1 fitted on all simulated triangles as one batch gives other reserves than fitted on
+  each alone (it mixes the simulations), which widened the former reference; each pseudo-triangle is now
+  fitted alone (decision 0282).
+- 'Pass criteria of MT11 1.1.0: the scale parameter phi against deterministic scale_parameter_phi, and
+  the mean of the simulated total reserve within 5 per cent of the chain-ladder reserve. Percentile and
+  standard-deviation rows are information, not pass criteria (decision 0282).'
 - 'Published scale parameter of GenIns (England and Verrall) not opened: UNVERIFIED.'
-checked_by_owner: true
+checked_by_owner: false

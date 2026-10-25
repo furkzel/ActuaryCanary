@@ -1,5 +1,5 @@
 id: MT11
-version: 1.0.0
+version: 1.1.0
 title_en: Over-dispersed Poisson bootstrap
 title_tr: Aşırı yayılımlı Poisson bootstrap
 status: reviewed
@@ -135,15 +135,15 @@ validation:
     tolerance: 1e-9 relative
   - kind: benchmark
     description: >-
-      On GenIns and RAA with 10,000 simulations: mean total reserve against the chain-ladder
-      reserve, and the median, the 75th and the 95th percentile of the total reserve against
-      the chainladder package's BootstrapODPSample run with 10,000 samples (process error
-      added in the gamma form above), frozen in tests/benchmarks as in decision 0007 (two
-      independent simulations, so each statistic carries the Monte Carlo tolerance of its row
-      in the reference). The standard deviation is reported and compared only with the wide
-      tolerance of its row (0.56 on RAA, where it is heavy tailed); it is not a pass criterion
-      on its own (decision 0609).
-    tolerance: mean within 3 per cent of the chain-ladder reserve (decision 0612); median, 75th and 95th percentile within the Monte Carlo tolerance of the reference rows
+      On GenIns and RAA with 10,000 simulations: the scale parameter phi against its frozen
+      value, and the mean total reserve against the chain-ladder reserve. The reference
+      resamples with the chainladder package's BootstrapODPSample, applies the adjustment
+      sqrt(n / (n - p)) of this spec on top of the package output (the package does not apply
+      it with hat_adj=False), fits the package's chain ladder on each pseudo-triangle alone
+      and adds the gamma process error above; frozen in tests/benchmarks as in decision 0007.
+      The reference is therefore not independent of this spec. The median, percentiles and
+      standard deviation of the reference are information, not pass criteria (decision 0282).
+    tolerance: scale parameter 1e-9 relative; mean within 5 per cent of the chain-ladder reserve (decision 0282)
   - kind: ground_truth
     description: >-
       Calibration on triangles drawn from the model itself: row and column parameters and
@@ -179,3 +179,11 @@ change_log:
   - version: 1.0.0
     date: 2026-10-25
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-10-25
+    change: >-
+      Benchmark pass criteria are the scale parameter and the mean within 5 per cent of the
+      chain-ladder reserve; percentiles and the standard deviation of the re-frozen reference
+      are information, because the package applies no degrees-of-freedom adjustment and mixed
+      the simulations when fitted as one batch (owner decision, decision 0282). The algorithm
+      is unchanged.
