@@ -1,0 +1,18 @@
+quantity,key,value,rel_tol,note
+quantile_xi_0.25,p0.99,199.06975624424405,1e-12,u + sigma/xi x ((n/N_u (1-p))^-xi - 1) with n/N_u (1-p) = 0.2
+expected_shortfall_xi_0.25,p0.99,298.75967499232536,1e-12,x_p/(1-xi) + (sigma - xi u)/(1-xi)
+quantile_xi_0.25,p0.995,255.65588200778447,1e-12,u + sigma/xi x ((n/N_u (1-p))^-xi - 1) with n/N_u (1-p) = 0.1
+expected_shortfall_xi_0.25,p0.995,374.20784267704596,1e-12,x_p/(1-xi) + (sigma - xi u)/(1-xi)
+return_level_xi_0.25,T10,532.4555320336759,1e-12,u + sigma/xi x ((N_u/h T)^xi - 1) with N_u/h T = 100
+return_level_xi_0.25,T50,845.7416090031759,1e-12,u + sigma/xi x ((N_u/h T)^xi - 1) with N_u/h T = 500
+quantile_xi_0,p0.99,180.47189562170496,1e-12,u + sigma/xi x ((n/N_u (1-p))^-xi - 1) with n/N_u (1-p) = 0.2
+expected_shortfall_xi_0,p0.99,230.47189562170496,1e-12,x_p/(1-xi) + (sigma - xi u)/(1-xi)
+quantile_xi_0,p0.995,215.12925464970226,1e-12,u + sigma/xi x ((n/N_u (1-p))^-xi - 1) with n/N_u (1-p) = 0.1
+expected_shortfall_xi_0,p0.995,265.12925464970226,1e-12,x_p/(1-xi) + (sigma - xi u)/(1-xi)
+return_level_xi_0,T10,330.2585092994046,1e-12,u + sigma/xi x ((N_u/h T)^xi - 1) with N_u/h T = 100
+return_level_xi_0,T50,410.7304049211096,1e-12,u + sigma/xi x ((N_u/h T)^xi - 1) with N_u/h T = 500
+forward_stop_rejects_first_three,k_hat,3.0,0.0,"p-values [0.001, 0.02, 0.05, 0.3, 0.6, 0.8], fdr level 0.1; running means of -ln(1 - p): 0.0010005, 0.0106016, 0.0241655, 0.107293, 0.269092, 0.492483"
+forward_stop_rejects_first_three,threshold_index_1_based,4.0,0.0,next candidate after the rejected ones (lowest when none)
+forward_stop_rejects_none,k_hat,0.0,0.0,"p-values [0.2, 0.3, 0.4], fdr level 0.1; running means of -ln(1 - p): 0.223144, 0.289909, 0.363548"
+forward_stop_rejects_none,threshold_index_1_based,1.0,0.0,next candidate after the rejected ones (lowest when none)
+xi_zero_scale,mean_excess,10.0,1e-12,"scale equals the mean excess of 3, 7, 11, 19 when xi is fixed at 0"

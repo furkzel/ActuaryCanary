@@ -1,0 +1,38 @@
+produced_on: '2026-10-24'
+id: MT11-odp-bootstrap-raa
+spec_ids:
+- MT11
+kind: library_reference
+title: Over-dispersed Poisson bootstrap on raa
+source:
+  tool: chainladder
+  version: 0.10.1
+  data: chainladder.load_sample('raa')
+  calls:
+  - tri = chainladder.load_sample('raa')
+  - boot = chainladder.BootstrapODPSample(n_sims=10000, hat_adj=False, random_state=42)
+  - model = chainladder.Chainladder().fit(boot.fit_transform(tri))
+how_produced: 'Run tests/benchmarks/tools/freeze_chainladder.py. Deterministic rows are computed with
+  numpy from the spec formulas and agree with the package scale_ to 1e-9. Simulation rows: the package
+  gives the parameter-error-only totals; process error (gamma, mean m, variance phi m, sign kept) is added
+  by the script with numpy default_rng(seed).'
+seed: 42
+n_simulations: 10000
+files:
+  triangle: triangle.csv
+  residuals: residuals.csv
+  values: values.csv
+tolerance_note: 'Deterministic rows 1e-9 relative. Simulation rows carry their Monte Carlo tolerance in
+  rel_tol: three times the relative standard deviation of the statistic over 30 other seeds of the same
+  size. A test of a different sampler compares against it as a bound, two independent samplers differ
+  by about 1.5 times that.'
+notes:
+- The package samples parameter error only, uses hat_adj=False (the degrees-of-freedom adjustment sqrt(n/(n-p))
+  of the spec) and centres the pool of residuals; the spec does not centre. Its residual pool differs
+  slightly from residuals.csv.
+- Acceptance statistics are the median (p50), p75 and p95 of the total reserve; the standard deviation
+  is reported and compared only with its wide Monte Carlo tolerance, it is not a pass criterion on its
+  own (decision 0609). Process error is gamma with shape |m| / phi and scale phi, sign kept, as in the
+  spec.
+- 'Published scale parameter of GenIns (England and Verrall) not opened: UNVERIFIED.'
+checked_by_owner: false

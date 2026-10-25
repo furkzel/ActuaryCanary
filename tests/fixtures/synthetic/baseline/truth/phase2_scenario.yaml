@@ -1,0 +1,77 @@
+phase2:
+  surplus: []
+  rates:
+    curves:
+    - curve_id: TRY_GOV
+      currency: TRY
+    - curve_id: USD_TSY
+      currency: USD
+    - curve_id: EUR_SWAP
+      currency: EUR
+    tenors_months:
+    - 3
+    - 12
+    - 24
+    - 36
+    - 60
+    - 84
+    - 120
+    real_rate: 0.015
+    term_premium: 0.01
+    term_premium_scale_years: 5.0
+    noise_sd: 0.002
+    noise_persistence: 0.9
+    source: SYNTHETIC
+  ledger:
+    fiscal_year_start_month: 1
+    differences:
+      premium_timing_months: 2
+      unmapped_account: true
+      outstanding_with_ibnr_share: 0.08
+      translation_months: 1
+      missing_months: 1
+    other_income_share_of_written: 0.002
+  life_book:
+    enabled: false
+    opening_years: 4
+    opening_share: 0.7
+    count_scale_by_size:
+      tiny: 1.0
+      medium: 1.0
+      large: 1.0
+    mortality:
+      a: 0.0006
+      b: 3.0e-05
+      c: 1.1
+      male_factor: 1.1
+      female_factor: 0.9
+      reporting_lag_days:
+        dist: lognormal
+        median: 12.0
+        sigma: 0.8
+        mean: null
+        cv: null
+        value: null
+        min: null
+        share: null
+      table_max_age: 110
+    fund_return_spread: 0.01
+    funds:
+    - EQUITY
+    - BOND
+    - MONEY_MARKET
+    switch_probability_per_year: 0.05
+    products: []
+truth_users:
+  reinsurance_by_claim: reinsurance item (CV09 allocation, MT21)
+  reinsurance_by_treaty: reinsurance item (RI03, RI04, RI05, M08)
+  recoveries_truth: recoveries and expenses item (RC03, RC04, M07)
+  ledger_gaps: ledger item (FN01, FN02, M10)
+  ledger_differences: ledger item (FN01, M10)
+  interest_rates_truth: uncertainty and discounting item (CV10, RS04)
+  severity_truth: severity and extremes item (MT17, MT18)
+  severity_tail_truth: severity and extremes item (MT18)
+  life_contracts: life experience item (MT20, LF01-LF04)
+  life_mortality_truth: life experience item (MT20, LF02)
+  life_lapse_truth: life experience item (MT20, LF01)
+  life_expected_decrements: life experience item (MT20, MT19)

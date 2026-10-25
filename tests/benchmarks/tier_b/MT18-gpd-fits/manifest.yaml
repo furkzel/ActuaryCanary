@@ -1,0 +1,26 @@
+produced_on: '2026-10-24'
+id: MT18-gpd-fits
+spec_ids:
+- MT18
+kind: library_reference
+title: Generalised Pareto maximum likelihood above a stated threshold
+source:
+  tool: scipy.stats
+  version: 1.18.1
+  numpy_version: 2.5.4
+  calls:
+  - genpareto.fit(excess, floc=0)
+how_produced: Run tests/benchmarks/tools/freeze_scipy.py. Samples drawn with numpy default_rng(20261025).
+seed: 20261025
+files:
+  lognormal_sample: sample_lognormal.csv
+  gpd_excesses: sample_gpd_excesses.csv
+  values: values.csv
+tolerance_note: 1e-4 relative (spec MT18 benchmark).
+notes:
+- The first sample is lognormal (3000 sizes, threshold at the empirical 90th percentile); the second is
+  400 excesses drawn from a generalised Pareto with xi 0.3 and sigma 20000 above 100000.
+- 'The automatic threshold rule (ForwardStop with bootstrap Anderson-Darling p-values) has no frozen reference
+  here: it rests on random p-values. Its ForwardStop index for given p-values is a hand case for the P25
+  tests.'
+checked_by_owner: false

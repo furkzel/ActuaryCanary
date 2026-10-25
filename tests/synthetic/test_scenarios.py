@@ -156,6 +156,7 @@ def test_large_events_are_listed_in_the_truth_and_touch_no_other_line():
     assert (listed["line"] == "PROPERTY").all()
 
 
+@pytest.mark.slow
 def test_messy_headers_has_the_same_world_as_the_baseline_and_only_the_layout_differs():
     base, messy = simulate("baseline", "tiny"), simulate("messy_headers", "tiny")
     assert (base.world.p_amount == messy.world.p_amount).all()

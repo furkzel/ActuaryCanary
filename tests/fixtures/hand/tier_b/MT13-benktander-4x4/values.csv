@@ -1,0 +1,65 @@
+quantity,key,value,rel_tol,note
+paid_reported_share_p,2021,1.0,1e-12,1 / cdf = 1 / 1
+paid_chain_ladder_ultimate,2021,220.0,1e-12,220 x 1
+paid_bornhuetter_ferguson_ultimate,2021,220.0,1e-12,220 + 0 x 240
+paid_benktander_k1_ultimate,2021,220.0,1e-12,220 + 0 x BF 220
+paid_benktander_k2_ultimate,2021,220.0,1e-12,220 + 0 x GB1 220
+paid_benktander_weight_on_chain_ladder_k1,2021,1.0,1e-12,1 - q (closed form: (1 - q) CL + q BF)
+paid_mack_weight_Z,2021,0.5,1e-12,p / (p + sqrt p) with p = 1 (float)
+paid_mack_credibility_ultimate,2021,220.0,1e-12,0.5 x 220 + (1 - 0.5) x 220 (float)
+paid_reported_share_p,2022,0.9090909090909091,1e-12,1 / cdf = 1 / 1.1
+paid_chain_ladder_ultimate,2022,281.6,1e-12,256 x 1.1
+paid_bornhuetter_ferguson_ultimate,2022,280.0,1e-12,256 + 0.0909091 x 264
+paid_benktander_k1_ultimate,2022,281.45454545454544,1e-12,256 + 0.0909091 x BF 280
+paid_benktander_k2_ultimate,2022,281.58677685950414,1e-12,256 + 0.0909091 x GB1 281.455
+paid_benktander_weight_on_chain_ladder_k1,2022,0.9090909090909091,1e-12,1 - q (closed form: (1 - q) CL + q BF)
+paid_mack_weight_Z,2022,0.4880884817015154,1e-12,p / (p + sqrt p) with p = 0.909091 (float)
+paid_mack_credibility_ultimate,2022,280.78094157072246,1e-12,0.488088 x 281.6 + (1 - 0.488088) x 280 (float)
+paid_reported_share_p,2023,0.7575757575757576,1e-12,1 / cdf = 1 / 1.32
+paid_chain_ladder_ultimate,2023,250.8,1e-12,190 x 1.32
+paid_bornhuetter_ferguson_ultimate,2023,259.8181818181818,1e-12,190 + 0.242424 x 288
+paid_benktander_k1_ultimate,2023,252.9862258953168,1e-12,190 + 0.242424 x BF 259.818
+paid_benktander_k2_ultimate,2023,251.32999415644045,1e-12,190 + 0.242424 x GB1 252.986
+paid_benktander_weight_on_chain_ladder_k1,2023,0.7575757575757576,1e-12,1 - q (closed form: (1 - q) CL + q BF)
+paid_mack_weight_Z,2023,0.4653516540862679,1e-12,p / (p + sqrt p) with p = 0.757576 (float)
+paid_mack_credibility_ultimate,2023,255.62155599224022,1e-12,0.465352 x 250.8 + (1 - 0.465352) x 259.818 (float)
+paid_reported_share_p,2024,0.39872408293460926,1e-12,1 / cdf = 1 / 2.508
+paid_chain_ladder_ultimate,2024,326.04,1e-12,130 x 2.508
+paid_bornhuetter_ferguson_ultimate,2024,317.5980861244019,1e-12,130 + 0.601276 x 312
+paid_benktander_k1_ultimate,2024,320.96408049266273,1e-12,130 + 0.601276 x BF 317.598
+paid_benktander_k2_ultimate,2024,322.98797184327566,1e-12,130 + 0.601276 x GB1 320.964
+paid_benktander_weight_on_chain_ladder_k1,2024,0.39872408293460926,1e-12,1 - q (closed form: (1 - q) CL + q BF)
+paid_mack_weight_Z,2024,0.38704683792197103,1e-12,p / (p + sqrt p) with p = 0.398724 (float)
+paid_mack_credibility_ultimate,2024,320.86550219596177,1e-12,0.387047 x 326.04 + (1 - 0.387047) x 317.598 (float)
+incurred_reported_share_p,2021,1.0,1e-12,1 / cdf = 1 / 1
+incurred_chain_ladder_ultimate,2021,286.0,1e-12,286 x 1
+incurred_bornhuetter_ferguson_ultimate,2021,286.0,1e-12,286 + 0 x 240
+incurred_benktander_k1_ultimate,2021,286.0,1e-12,286 + 0 x BF 286
+incurred_benktander_k2_ultimate,2021,286.0,1e-12,286 + 0 x GB1 286
+incurred_benktander_weight_on_chain_ladder_k1,2021,1.0,1e-12,1 - q (closed form: (1 - q) CL + q BF)
+incurred_mack_weight_Z,2021,0.5,1e-12,p / (p + sqrt p) with p = 1 (float)
+incurred_mack_credibility_ultimate,2021,286.0,1e-12,0.5 x 286 + (1 - 0.5) x 286 (float)
+incurred_reported_share_p,2022,0.9615384615384616,1e-12,1 / cdf = 1 / 1.04
+incurred_chain_ladder_ultimate,2022,297.44,1e-12,286 x 1.04
+incurred_bornhuetter_ferguson_ultimate,2022,296.15384615384613,1e-12,286 + 0.0384615 x 264
+incurred_benktander_k1_ultimate,2022,297.3905325443787,1e-12,286 + 0.0384615 x BF 296.154
+incurred_benktander_k2_ultimate,2022,297.43809740555304,1e-12,286 + 0.0384615 x GB1 297.391
+incurred_benktander_weight_on_chain_ladder_k1,2022,0.9615384615384616,1e-12,1 - q (closed form: (1 - q) CL + q BF)
+incurred_mack_weight_Z,2022,0.4950975679639241,1e-12,p / (p + sqrt p) with p = 0.961538 (float)
+incurred_mack_credibility_ultimate,2022,296.79061779510437,1e-12,0.495098 x 297.44 + (1 - 0.495098) x 296.154 (float)
+incurred_reported_share_p,2023,0.8741258741258742,1e-12,1 / cdf = 1 / 1.144
+incurred_chain_ladder_ultimate,2023,240.24,1e-12,210 x 1.144
+incurred_bornhuetter_ferguson_ultimate,2023,246.25174825174824,1e-12,210 + 0.125874 x 288
+incurred_benktander_k1_ultimate,2023,240.9967235561641,1e-12,210 + 0.125874 x BF 246.252
+incurred_benktander_k2_ultimate,2023,240.33525191616053,1e-12,210 + 0.125874 x GB1 240.997
+incurred_benktander_weight_on_chain_ladder_k1,2023,0.8741258741258742,1e-12,1 - q (closed form: (1 - q) CL + q BF)
+incurred_mack_weight_Z,2023,0.48318997617829873,1e-12,p / (p + sqrt p) with p = 0.874126 (float)
+incurred_mack_credibility_ultimate,2023,243.3469317571961,1e-12,0.48319 x 240.24 + (1 - 0.48319) x 246.252 (float)
+incurred_reported_share_p,2024,0.7284382284382285,1e-12,1 / cdf = 1 / 1.3728
+incurred_chain_ladder_ultimate,2024,260.832,1e-12,190 x 1.3728
+incurred_bornhuetter_ferguson_ultimate,2024,274.72727272727275,1e-12,190 + 0.271562 x 312
+incurred_benktander_k1_ultimate,2024,264.6054248781522,1e-12,190 + 0.271562 x BF 274.727
+incurred_benktander_k2_ultimate,2024,261.8567179447663,1e-12,190 + 0.271562 x GB1 264.605
+incurred_benktander_weight_on_chain_ladder_k1,2024,0.7284382284382285,1e-12,1 - q (closed form: (1 - q) CL + q BF)
+incurred_mack_weight_Z,2024,0.46047607636841414,1e-12,p / (p + sqrt p) with p = 0.728438 (float)
+incurred_mack_credibility_ultimate,2024,268.32883206174915,1e-12,0.460476 x 260.832 + (1 - 0.460476) x 274.727 (float)

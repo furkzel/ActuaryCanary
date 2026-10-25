@@ -1,0 +1,21 @@
+produced_on: '2026-10-24'
+id: MT13-benktander-4x4
+spec_ids:
+- MT13
+kind: hand_worked
+title: Benktander (k = 1, 2) and Mack credibility blend on the 4 x 4 fixture
+source:
+  tool: exact fractions in Python
+  data: tests/fixtures/hand/*.csv (copied here), prior loss ratio 0.6 as in decision 0007
+how_produced: Run tests/benchmarks/tools/build_hand_fixtures.py. Extends tests/fixtures/hand/expected.yaml;
+  the iterated and the closed form agree exactly (checked).
+files:
+  paid: paid_triangle.csv
+  incurred: incurred_triangle.csv
+  premium: premium.csv
+  values: values.csv
+tolerance_note: 1e-12 relative.
+notes:
+- Volume-weighted factors, tail 1.0. Benktander k=1 is U = C + q x BF; k=2 iterates once more.
+- Mack weight Z = p / (p + sqrt p) uses a square root, so those rows are floats.
+checked_by_owner: false

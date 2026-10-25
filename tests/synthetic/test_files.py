@@ -110,6 +110,7 @@ def test_reading_through_the_truth_gives_the_canonical_table(folder, feed):
             assert read[column].to_list() == canonical[column].to_list(), column
 
 
+@pytest.mark.slow
 def test_the_messy_files_have_title_rows_extra_columns_and_text_dates():
     folder = FIXTURES / "messy_headers"
     layout = pl.read_csv(folder / "truth" / "layout.csv")

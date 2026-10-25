@@ -1,0 +1,38 @@
+produced_on: '2026-10-24'
+id: MT14-tail-curves-genins
+spec_ids:
+- MT14
+kind: library_reference
+title: Exponential decay and inverse power tails on genins
+source:
+  tool: chainladder
+  version: 0.10.1
+  data: chainladder.load_sample('genins')
+  calls:
+  - tri = chainladder.load_sample('genins')
+  - dev = chainladder.Development(average='volume').fit_transform(tri)
+  - chainladder.TailCurve(curve='exponential', extrap_periods=100).fit(dev)
+  - chainladder.TailCurve(curve='inverse_power', extrap_periods=100).fit(dev)
+how_produced: Run tests/benchmarks/tools/freeze_chainladder.py; the fit rows are checked against a numpy
+  straight-line fit.
+files:
+  triangle: triangle.csv
+  values: values.csv
+tolerance_note: 1e-6 relative (spec MT14 benchmark).
+information:
+- quantity: exponential_tail
+  key: stop_below_1e-4
+  value: 1.029344025091036
+  note: 'dropped variant (decision 0608): extension stops when f - 1 < 1e-4, 10 periods; derived from
+    a and b'
+- quantity: inverse_power_tail
+  key: stop_below_1e-4
+  value: 1.292430311543694
+  note: 'dropped variant (decision 0608): extension stops when f - 1 < 1e-4, 100 periods; derived from
+    a and b'
+notes:
+- x is the link number (1 for 12-24 months, annual grain), which is the age at the start of the link in
+  years (spec MT14, CV04).
+- The extension runs to a fixed number of development periods, default 100, as in the package (decisions
+  0276 and 0608). The tail with the old stopping rule (f - 1 below 1e-4) is information only, see `information`.
+checked_by_owner: false

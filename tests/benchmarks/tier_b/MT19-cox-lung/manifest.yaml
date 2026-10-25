@@ -1,0 +1,24 @@
+produced_on: '2026-10-24'
+id: MT19-cox-lung
+spec_ids:
+- MT19
+kind: external_reference
+title: Cox proportional hazards on the lung data (227 complete rows, many tied event times)
+source:
+  tool: R survival
+  version: 3.8.3
+  r_version: R version 4.5.1 (2025-06-13 ucrt)
+  data: survival::lung, rows with missing age, sex or ph.ecog dropped; event = (status == 2)
+  calls:
+  - coxph(Surv(time, event) ~ age + sex + ph.ecog, ties = 'efron')
+  - coxph(Surv(time, event) ~ age + sex + ph.ecog, ties = 'breslow')
+how_produced: Run tests/benchmarks/tools/freeze_survival.R through freeze_survival.py; values.csv holds
+  the R output unchanged.
+files:
+  data: data.csv
+  values: values.csv
+tolerance_note: 1e-5 relative (spec MT19 benchmark).
+notes:
+- Tied event times separate Efron from Breslow.
+- R is not a dependency of the platform and no test runs it (record 0600).
+checked_by_owner: false

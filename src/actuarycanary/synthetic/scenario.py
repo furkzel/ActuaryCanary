@@ -302,6 +302,159 @@ class SizeSpec(_Strict):
     fault_scale: float = Field(default=1.0, gt=0)  # injected fault counts are multiplied by this
 
 
+# --- phase 2 feeds -------------------------------------------------------------------------
+# Parameters of the feeds added after version 1.0 live under one key, ``phase2``. The key is left
+# out of ``truth/scenario.yaml`` (the file of earlier scenarios stays byte for byte the same) and
+# written to ``truth/phase2_scenario.yaml`` instead.
+
+
+class SurplusTreaty(_Strict):
+    """A surplus treaty: the insurer keeps a line per risk, reinsurers take up to
+    ``number_of_lines`` further lines. The ceded share of a policy is fixed by its sum insured
+    at the policy start."""
+
+    treaty_id: str
+    lines: list[str] = Field(min_length=1)
+    retained_line: float = Field(gt=0)  # TRY at base-date prices
+    number_of_lines: float = Field(gt=0)
+    retention_indexed_to: str | None = None
+    commission: float | None = None
+    inception: date
+    renewal: Literal["annual"] = "annual"
+
+
+class CurveSpec(_Strict):
+    curve_id: str
+    currency: str
+
+
+class Rates(_Strict):
+    """Yield curves consistent with each scenario's inflation path: the spot rate to tenor T is the
+    real rate, plus the inflation expected over the next T years (the scenario's own path), plus a
+    term premium that grows with the tenor, plus a slowly moving shock."""
+
+    curves: list[CurveSpec] = [
+        CurveSpec(curve_id="TRY_GOV", currency="TRY"),
+        CurveSpec(curve_id="USD_TSY", currency="USD"),
+        CurveSpec(curve_id="EUR_SWAP", currency="EUR"),
+    ]
+    tenors_months: list[int] = [3, 12, 24, 36, 60, 84, 120]
+    real_rate: float = 0.015
+    term_premium: float = 0.01
+    term_premium_scale_years: float = 5.0
+    noise_sd: float = 0.002
+    noise_persistence: float = Field(default=0.9, ge=0, lt=1)
+    source: str = "SYNTHETIC"
+
+    @model_validator(mode="after")
+    def _one_year_tenor(self) -> "Rates":
+        if 12 not in self.tenors_months:
+            raise ValueError("the tenors must include 12 months (the life book credits at it)")
+        return self
+
+
+class LedgerDifferences(_Strict):
+    """Reconciliation differences written into the ledger on purpose (and into the truth)."""
+
+    premium_timing_months: int = Field(default=2, ge=0)  # a month of premium booked a month late
+    unmapped_account: bool = True  # an account with a balance that the mapping profile lacks
+    outstanding_with_ibnr_share: float = Field(default=0.08, ge=0)  # one entity books IBNR too
+    translation_months: int = Field(default=1, ge=0)  # foreign premium at a wrong rate
+    missing_months: int = Field(default=1, ge=0)  # an account row left out for one month
+
+
+class LedgerParams(_Strict):
+    fiscal_year_start_month: int = Field(default=1, ge=1, le=12)
+    differences: LedgerDifferences = LedgerDifferences()
+    other_income_share_of_written: float = Field(default=0.002, ge=0)
+
+
+class LifeProduct(_Strict):
+    """One life or pension product. Counts are per accident year at portfolio_scale 1."""
+
+    key: str
+    line: str
+    segment: Literal["LIFE", "PENSION"] = "LIFE"
+    policy_type: Literal["INDIVIDUAL", "GROUP"] = "INDIVIDUAL"
+    channel: Literal["AGENCY", "BROKER", "BANK", "DIRECT", "DIGITAL", "PARTNER"] = "AGENCY"
+    contracts_first_year: int = Field(ge=1)
+    growth_per_year: float = 0.0
+    entry_age_mean: float = Field(gt=0)
+    entry_age_sd: float = Field(gt=0)
+    entry_age_min: int = 18
+    entry_age_max: int = 70
+    term_years: int | None = None  # None: runs until a decrement (whole life, group renewal)
+    age_band_width: int = Field(default=1, ge=1)  # 1: the exact age; 5: a band such as 40-44
+    sum_assured: Dist | None = None
+    premium_rate: float = Field(default=0.0, ge=0)  # annual premium as a share of sum assured
+    annual_contribution: Dist | None = None  # savings and pension products
+    premium_frequency: Literal["MONTHLY", "QUARTERLY", "HALF_YEARLY", "YEARLY", "SINGLE"] = "YEARLY"
+    mortality_multiplier: float = Field(gt=0)
+    lapse_by_policy_year: list[float]  # annual rate of the reference table; the last holds on
+    lapse_multiplier: float = Field(default=1.0, gt=0)  # true rate = reference rate times this
+    lapse_decrement: Literal["LAPSE", "SURRENDER"] = "LAPSE"
+    reinstatement_probability: float = Field(default=0.0, ge=0, le=1)
+    partial_withdrawal_rate: float = Field(default=0.0, ge=0)  # per contract-year, savings
+    transfer_out_rate: float = Field(default=0.0, ge=0)  # per contract-year, pension
+    transfer_in_share: float = Field(default=0.0, ge=0, le=1)  # of new pension contracts
+    fund_fee_rate: float = Field(default=0.0, ge=0)  # annual, on the fund value
+    state_contribution_rate: float = Field(default=0.0, ge=0)  # on the member contribution
+    employer_contribution_share: float = Field(default=0.0, ge=0, le=1)  # contracts with one
+    has_fund: bool = False
+
+
+class LifeMortality(_Strict):
+    """Gompertz-Makeham force of mortality mu_x = a + b * c**x for the reference table."""
+
+    a: float = Field(default=0.0006, ge=0)
+    b: float = Field(default=0.00003, ge=0)
+    c: float = Field(default=1.1, gt=1)
+    male_factor: float = Field(default=1.10, gt=0)  # sex relative to the table; female is the rest
+    female_factor: float = Field(default=0.90, gt=0)
+    reporting_lag_days: Dist = Dist(dist="lognormal", median=12.0, sigma=0.8)
+    table_max_age: int = 110
+
+
+class LifeBook(_Strict):
+    enabled: bool = False
+    opening_years: int = Field(default=4, ge=0)  # years of entries before the first valuation
+    opening_share: float = Field(default=0.7, ge=0, le=1)  # of those entries still in force then
+    count_scale_by_size: dict[str, float] = {"tiny": 1.0, "medium": 1.0, "large": 1.0}
+    mortality: LifeMortality = LifeMortality()
+    fund_return_spread: float = 0.01  # fund return = one-year TRY rate minus this
+    funds: list[str] = ["EQUITY", "BOND", "MONEY_MARKET"]
+    switch_probability_per_year: float = Field(default=0.05, ge=0)
+    products: list[LifeProduct] = []
+
+    @model_validator(mode="after")
+    def _products(self) -> "LifeBook":
+        keys = [p.key for p in self.products]
+        if len(set(keys)) != len(keys):
+            raise ValueError("life product keys must be unique")
+        if self.enabled and not self.products:
+            raise ValueError("an enabled life book needs products")
+        problems = [
+            f"life product {p.key}: a reinstated contract cannot have a fund"
+            for p in self.products
+            if p.has_fund and p.reinstatement_probability > 0
+        ]
+        problems += [
+            f"life product {p.key}: a fund product needs annual_contribution"
+            for p in self.products
+            if p.has_fund and p.annual_contribution is None
+        ]
+        if problems:
+            raise ValueError("; ".join(problems))
+        return self
+
+
+class Phase2(_Strict):
+    surplus: list[SurplusTreaty] = []
+    rates: Rates = Rates()
+    ledger: LedgerParams = LedgerParams()
+    life_book: LifeBook = LifeBook()
+
+
 class Scenario(_Strict):
     name: str = ""
     meta: Meta
@@ -316,6 +469,7 @@ class Scenario(_Strict):
     injected_faults: Faults
     messiness: Messiness = Messiness()
     personal_data_columns: list[PersonalColumn] = []
+    phase2: Phase2 = Phase2()
     sizes: dict[str, SizeSpec]
 
     @model_validator(mode="after")
@@ -330,6 +484,12 @@ class Scenario(_Strict):
             problems += [
                 f"treaty {treaty.treaty_id}: unknown line {n}"
                 for n in treaty.lines
+                if n not in self.lines
+            ]
+        for surplus in self.phase2.surplus:
+            problems += [
+                f"surplus {surplus.treaty_id}: unknown line {n}"
+                for n in surplus.lines
                 if n not in self.lines
             ]
         problems += [

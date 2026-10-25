@@ -191,7 +191,9 @@ def _weights(values: list[float]) -> np.ndarray:
     return weights / weights.sum()
 
 
-def build_premiums(scenario: Scenario, policies: Policies, streams: Streams) -> PremiumRows:
+def build_premiums(
+    scenario: Scenario, policies: Policies, streams: Streams, market: Market | None = None
+) -> PremiumRows:
     """Written, commission, endorsement, cancellation and refund rows, then the ceded rows."""
     cut_off = to_day(scenario.meta.valuation.last)
     n = len(policies)
@@ -308,6 +310,28 @@ def build_premiums(scenario: Scenario, policies: Policies, streams: Streams) -> 
                     np.round(amount, 2),
                     np.full(len(amount), kind, dtype=object),
                     np.full(len(amount), treaty.treaty_id, dtype=object),
+                )
+            )
+    for surplus in scenario.phase2.surplus:
+        from actuarycanary.synthetic.reinsurance import surplus_policy_share
+
+        assert market is not None, "a surplus treaty needs the market for exchange rates and prices"
+        share = surplus_policy_share(policies, market, surplus)
+        covered = np.isin(policies.line[gross.policy], surplus.lines) & written
+        covered &= (gross.booking >= to_day(surplus.inception)) & (share[gross.policy] > 0)
+        ceded = share[gross.policy[covered]] * gross.amount[covered]
+        parts = [(ceded, "CEDED_PREMIUM")]
+        if surplus.commission:
+            parts.append((ceded * surplus.commission, "RI_COMMISSION"))
+        for amount, kind in parts:
+            chunks.append(
+                PremiumRows(
+                    gross.policy[covered],
+                    gross.booking[covered],
+                    gross.effective[covered],
+                    np.round(amount, 2),
+                    np.full(len(amount), kind, dtype=object),
+                    np.full(len(amount), surplus.treaty_id, dtype=object),
                 )
             )
     rows = _concat(chunks)

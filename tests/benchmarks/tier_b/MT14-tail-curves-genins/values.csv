@@ -1,0 +1,38 @@
+quantity,key,value,rel_tol,note
+selected_factor,12_24,3.4906065479322863,1e-09,"package, volume weighted"
+selected_factor,24_36,1.7473326421004893,1e-09,"package, volume weighted"
+selected_factor,36_48,1.4574128360182361,1e-09,"package, volume weighted"
+selected_factor,48_60,1.1738517093997867,1e-09,"package, volume weighted"
+selected_factor,60_72,1.103823532244344,1e-09,"package, volume weighted"
+selected_factor,72_84,1.0862693644363943,1e-09,"package, volume weighted"
+selected_factor,84_96,1.0538743555048127,1e-09,"package, volume weighted"
+selected_factor,96_108,1.0765551783529383,1e-09,"package, volume weighted"
+selected_factor,108_120,1.017724725219544,1e-09,"package, volume weighted"
+exponential_fit,a,0.8385673542598382,1e-06,package intercept
+exponential_fit,b,-0.5265895244477167,1e-06,package slope
+exponential_fit,r_squared_log_scale,0.9168709639766053,1e-06,derived by numpy
+exponential_fit,n_points,9.0,0.0,factors above 1.00001 (package threshold)
+exponential_tail,package_100_periods,1.0294991710529173,1e-06,"package TailCurve(extrap_periods=100); x = link number 1, 2, ...; 100 periods is the spec default (decision 0608)"
+exponential_fitted_factor,12_24,2.366124405459006,1e-06,derived from a and b
+exponential_fitted_factor,24_36,1.8068546853586187,1e-06,derived from a and b
+exponential_fitted_factor,36_48,1.476541141263354,1e-06,derived from a and b
+exponential_fitted_factor,48_60,1.28145273670394,1e-06,derived from a and b
+exponential_fitted_factor,60_72,1.1662304387573539,1e-06,derived from a and b
+exponential_fitted_factor,72_84,1.0981783268234093,1e-06,derived from a and b
+exponential_fitted_factor,84_96,1.0579856729603785,1e-06,derived from a and b
+exponential_fitted_factor,96_108,1.0342472557585518,1e-06,derived from a and b
+exponential_fitted_factor,108_120,1.0202269710277068,1e-06,derived from a and b
+inverse_power_fit,a,1.1062841999294624,1e-06,package intercept
+inverse_power_fit,b,2.039238558072471,1e-06,spec b is minus the package slope (ln(f - 1) = a - b ln t)
+inverse_power_fit,r_squared_log_scale,0.9484465012493182,1e-06,derived by numpy
+inverse_power_fit,n_points,9.0,0.0,factors above 1.00001 (package threshold)
+inverse_power_tail,package_100_periods,1.2924303115436933,1e-06,"package TailCurve(extrap_periods=100); x = link number 1, 2, ...; 100 periods is the spec default (decision 0608)"
+inverse_power_fitted_factor,12_24,4.0231042473288925,1e-06,derived from a and b
+inverse_power_fitted_factor,24_36,1.735497412407467,1e-06,derived from a and b
+inverse_power_fitted_factor,36_48,1.3217281516681603,1e-06,derived from a and b
+inverse_power_fitted_factor,48_60,1.1789407176864803,1e-06,derived from a and b
+inverse_power_fitted_factor,60_72,1.1135237006080403,1e-06,derived from a and b
+inverse_power_fitted_factor,72_84,1.0782739210067422,1e-06,derived from a and b
+inverse_power_fitted_factor,84_96,1.0571605784250748,1e-06,derived from a and b
+inverse_power_fitted_factor,96_108,1.043534864849278,1e-06,derived from a and b
+inverse_power_fitted_factor,108_120,1.0342393100295062,1e-06,derived from a and b

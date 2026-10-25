@@ -1,0 +1,26 @@
+produced_on: '2026-10-24'
+id: MT15-separation-4x4
+spec_ids:
+- MT15
+kind: hand_worked
+title: Separation method (Taylor) on a 4 x 4 triangle generated exactly from known parameters
+source:
+  tool: exact fractions in Python
+how_produced: Run tests/benchmarks/tools/build_hand_fixtures.py. The triangle is generated from n = [20,
+  20, 24, 40], r = (0.5, 0.3, 0.15, 0.05), lambda = (100, 110, 125, 140); the recursion gives them back
+  exactly (checked). The future index is projected at 5 % a period and by the OLS trend of ln lambda.
+files:
+  incremental_paid: incremental_paid.csv
+  claim_counts: claim_counts.csv
+  values: values.csv
+spreadsheet_layout:
+- 'Sheet 1: incremental_paid (X) next to claim_counts (n); s = X / n.'
+- 'Sheet 2: d_k = sum of s on the anti-diagonal i + j = k; v_j = sum of s in column j.'
+- 'Sheet 3: from the latest diagonal: lambda_3 = d_3; r_3 = v_3 / lambda_3; lambda_2 = d_2 / (1 - r_3);
+  r_2 = v_2 / (lambda_2 + lambda_3); and so on.'
+- 'Sheet 4: future lambda_k = lambda_3 (1 + g)^(k - 3); increment = n_i r_j lambda_(i+j).'
+tolerance_note: 1e-12 relative for the exact rows, 1e-9 for the OLS trend rows.
+notes:
+- The columns of incremental_paid.csv are development periods 0 to 3 (annual).
+- The fixture is exact (no noise), so it proves the algebra of the recursion, not the fit on real data.
+checked_by_owner: false

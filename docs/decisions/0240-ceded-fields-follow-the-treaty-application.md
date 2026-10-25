@@ -1,0 +1,18 @@
+# 0240 — Reinsurance feeds: the ceded fields of claim_valuations are the treaty application
+
+## Context
+The generator already applied the treaties of a scenario to every claim (quota shares first, then excess of loss per claim or per event, on what the insurer keeps) and wrote the result as `ceded_paid_to_date` and `ceded_reserve` of claim_valuations, and as CEDED_PREMIUM and RI_COMMISSION rows of premiums. The new feeds `reinsurance_treaties` and `reinsurance_transactions` (P20 drafts) must say the same thing.
+
+## Decision
+- **The rule.** For every claim and valuation date, `ceded_paid_to_date` is the sum of the claim's CEDED_CLAIM_PAID movements booked on or before the date, and `ceded_reserve` the sum of its CEDED_CASE_RESERVE movements, to the cent (test: all valuation dates of the baseline and the heavy scenario, largest difference below 0.005).
+- **Booking.** A claim movement is booked at the month end of the valuation row on which the cumulative ceded amount moved. It carries `claim_id`, the `event_code` of an event treaty, the claim's currency and its occurrence date as `effective_date`. A negative CEDED_CASE_RESERVE is a release.
+- **Split by treaty.** `Reinsurance.ceded_parts` repeats the arithmetic of `ceded` treaty by treaty: surplus first, then quota shares on what is left (the proportional cession is shared in proportion to what each treaty cedes), then each per-claim layer, then each event treaty. The parts are scaled to the rounded and clipped valuation fields and rounded to cents, the largest part taking what rounding leaves over, so the sum is exact.
+- **Premium.** CEDED_PREMIUM and RI_COMMISSION are treaty-level movements per treaty, booking month, currency and line, equal to the sum of the ceded rows of the premiums feed (DV-RTR-11). Claim movements stay at claim level, so that DV-RTR-09 is decidable.
+- **Treaty table.** One row per treaty, contract year and line. A treaty renews every year on its inception date with the same terms. Every row is LOSSES_OCCURRING, because the simulation covers a claim by its occurrence date; `entity` is empty and `placed_share` is 1. A retention or limit that moves with prices is written at the price level of the inception date together with `index_series`. The simulation fixes the retention of a claim at the price level of its occurrence date (a stabilisation clause), which is not what the index clause of CV09 computes (payment month over inception month). The truth in `reinsurance_by_claim.csv` is the simulation's; the difference is what the reinsurance item will see when it compares its allocation with the truth.
+- **Surplus.** `phase2.surplus` in a scenario adds surplus treaties. The ceded share of a policy is the part of its sum insured above the retained line (at the price level of the policy start, converted at the start-day rate for a foreign currency), up to `number_of_lines` further lines, as a share of the sum insured. Surplus ceded premium follows the same share.
+- **Not generated:** aggregate deductible and limit, reinstatements and their premium, stop loss, facultative cover, entity-specific treaties. Those columns of the table stay empty.
+
+## Consequences
+- `truth/reinsurance_by_claim.csv` (ceded and net per claim and treaty, whole simulated life) and `truth/reinsurance_by_treaty.csv` (per treaty, line, contract year and currency, with premium and commission) are for the reinsurance item (CV09, MT21, RI03–RI05, M08).
+- A treaty's net is gross less its own ceded amount; across treaties the ceded amounts add up to `ultimate_ceded` of `truth/ultimates.csv` (test).
+- Existing scenarios apply the same treaties as before and the old arithmetic is untouched (record 0241).

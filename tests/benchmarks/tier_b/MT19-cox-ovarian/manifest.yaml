@@ -1,0 +1,24 @@
+produced_on: '2026-10-24'
+id: MT19-cox-ovarian
+spec_ids:
+- MT19
+kind: external_reference
+title: Cox proportional hazards on the ovarian cancer data (26 rows, no tied event times)
+source:
+  tool: R survival
+  version: 3.8.3
+  r_version: R version 4.5.1 (2025-06-13 ucrt)
+  data: survival::ovarian (Edmunson et al.); time = futime, event = fustat
+  calls:
+  - coxph(Surv(time, event) ~ age + resid.ds + rx + ecog.ps, ties = 'efron')
+  - coxph(Surv(time, event) ~ age + resid.ds + rx + ecog.ps, ties = 'breslow')
+how_produced: Run tests/benchmarks/tools/freeze_survival.R through freeze_survival.py; values.csv holds
+  the R output unchanged.
+files:
+  data: data.csv
+  values: values.csv
+tolerance_note: 1e-5 relative (spec MT19 benchmark).
+notes:
+- No two event times coincide, so the Efron and Breslow rows are equal; use lung for ties.
+- R is not a dependency of the platform and no test runs it (record 0600).
+checked_by_owner: false

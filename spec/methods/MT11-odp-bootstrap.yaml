@@ -1,5 +1,5 @@
 id: MT11
-version: 0.1.0
+version: 0.2.0
 title_en: Over-dispersed Poisson bootstrap
 title_tr: Aşırı yayılımlı Poisson bootstrap
 status: draft
@@ -77,9 +77,9 @@ algorithm:
       future incremental means of each origin from its actual latest cumulative C(i, J_i).
     formula: '\mu^{*}_{i,k} = C_{i,J_i} \Big(\prod_{l=J_i}^{k-1} f^*_l\Big)\,\big(f^*_{k} - 1\big), \quad k \ge J_i'
   - step: >-
-      Process error: draw every future increment from the process distribution; a negative
-      mean is drawn with its absolute value and the sign restored. The simulated reserve is
-      the sum of the draws.
+      Process error: draw every future increment from the process distribution, in the gamma
+      form of the benchmark script (decision 0609); a negative mean is drawn with its absolute
+      value and the sign restored. The simulated reserve is the sum of the draws.
     formula: 'Y^{*}_{i,k} \sim \Gamma\big(\mathrm{shape} = |\mu^*_{i,k}| / \hat\phi,\ \mathrm{scale} = \hat\phi\big)\, \mathrm{sign}(\mu^*_{i,k}), \qquad R^{*}_{b} = \sum_{i}\sum_{k \ge J_i} Y^{*}_{i,k}'
   - step: Summary statistics over the simulations, per origin and in total.
     formula: 'q_p = \mathrm{quantile}_p\{R^*_b\}, \quad \mathrm{VaR}_p = q_p, \quad \mathrm{TVaR}_p = \mathrm{mean}\{R^*_b : R^*_b \ge q_p\}, \quad cv = sd / \mathrm{mean}'
@@ -127,11 +127,14 @@ validation:
   - kind: benchmark
     description: >-
       On GenIns and RAA with 10,000 simulations: mean total reserve against the chain-ladder
-      reserve, and the standard deviation of the total reserve against the chainladder
-      package's BootstrapODPSample run with 10,000 samples, frozen in tests/benchmarks as in
-      decision 0007 (two independent simulations, so the tolerance carries Monte Carlo error
-      of about 1 per cent).
-    tolerance: mean within 2 per cent of the chain-ladder reserve; standard deviation within 5 per cent of the reference
+      reserve, and the median, the 75th and the 95th percentile of the total reserve against
+      the chainladder package's BootstrapODPSample run with 10,000 samples (process error
+      added in the gamma form above), frozen in tests/benchmarks as in decision 0007 (two
+      independent simulations, so each statistic carries the Monte Carlo tolerance of its row
+      in the reference). The standard deviation is reported and compared only with the wide
+      tolerance of its row (0.56 on RAA, where it is heavy tailed); it is not a pass criterion
+      on its own (decision 0609).
+    tolerance: mean within 2 per cent of the chain-ladder reserve; median, 75th and 95th percentile within the Monte Carlo tolerance of the reference rows
   - kind: ground_truth
     description: >-
       Calibration on triangles drawn from the model itself: row and column parameters and
@@ -158,3 +161,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 9.2 (P20).
+  - version: 0.2.0
+    date: 2026-10-24
+    change: Acceptance statistics are the median, 75th and 95th percentile of the reserve distribution; the standard deviation is reported and compared only with its wide Monte Carlo tolerance; process error in the gamma form of the benchmark script (decision 0609).

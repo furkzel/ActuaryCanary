@@ -1,0 +1,5 @@
+method,horizon_months,u_2021,u_2022,u_2023,u_2024
+chain_ladder,12,980,1130,1150,1400
+chain_ladder,24,950,1050,1300,1200
+bornhuetter_ferguson,12,1000,1090,1230,1280
+bornhuetter_ferguson,24,1010,1120,1190,1310

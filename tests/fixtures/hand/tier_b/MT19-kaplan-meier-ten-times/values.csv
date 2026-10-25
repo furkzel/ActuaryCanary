@@ -1,0 +1,42 @@
+quantity,key,value,rel_tol,note
+at_risk,2,10.0,0.0,observations with time >= 2
+events,2,1.0,0.0,events at the time
+survival,2,0.9,1e-12,product of (1 - d/n) up to 2
+greenwood_sum,2,0.011111111111111112,1e-12,sum of d / (n (n - d))
+greenwood_variance,2,0.009,1e-12,S^2 x Greenwood sum
+greenwood_standard_error,2,0.09486832980505137,1e-12,square root of the variance (float)
+log_log_lower_95,2,0.47300927136205034,1e-09,S ^ EXP(z sigma / |LN S|) with z = 1.959964 (float)
+log_log_upper_95,2,0.9852813933673431,1e-09,S ^ EXP(-z sigma / |LN S|) (float)
+at_risk,3,9.0,0.0,observations with time >= 3
+events,3,2.0,0.0,events at the time
+survival,3,0.7,1e-12,product of (1 - d/n) up to 3
+greenwood_sum,3,0.04285714285714286,1e-12,sum of d / (n (n - d))
+greenwood_variance,3,0.021,1e-12,S^2 x Greenwood sum
+greenwood_standard_error,3,0.14491376746189438,1e-12,square root of the variance (float)
+log_log_lower_95,3,0.3287165932797347,1e-09,S ^ EXP(z sigma / |LN S|) with z = 1.959964 (float)
+log_log_upper_95,3,0.8919490412248442,1e-09,S ^ EXP(-z sigma / |LN S|) (float)
+at_risk,5,6.0,0.0,observations with time >= 5
+events,5,1.0,0.0,events at the time
+survival,5,0.5833333333333334,1e-12,product of (1 - d/n) up to 5
+greenwood_sum,5,0.0761904761904762,1e-12,sum of d / (n (n - d))
+greenwood_variance,5,0.025925925925925925,1e-12,S^2 x Greenwood sum
+greenwood_standard_error,5,0.16101529717988264,1e-12,square root of the variance (float)
+log_log_lower_95,5,0.22978651892398366,1e-09,S ^ EXP(z sigma / |LN S|) with z = 1.959964 (float)
+log_log_upper_95,5,0.8207394971721561,1e-09,S ^ EXP(-z sigma / |LN S|) (float)
+at_risk,7,4.0,0.0,observations with time >= 7
+events,7,1.0,0.0,events at the time
+survival,7,0.4375,1e-12,product of (1 - d/n) up to 7
+greenwood_sum,7,0.1595238095238095,1e-12,sum of d / (n (n - d))
+greenwood_variance,7,0.030533854166666666,1e-12,S^2 x Greenwood sum
+greenwood_standard_error,7,0.17473938928205818,1e-12,square root of the variance (float)
+log_log_lower_95,7,0.11871521791481762,1e-09,S ^ EXP(z sigma / |LN S|) with z = 1.959964 (float)
+log_log_upper_95,7,0.7256487921236798,1e-09,S ^ EXP(-z sigma / |LN S|) (float)
+at_risk,9,2.0,0.0,observations with time >= 9
+events,9,1.0,0.0,events at the time
+survival,9,0.21875,1e-12,product of (1 - d/n) up to 9
+greenwood_sum,9,0.6595238095238095,1e-12,sum of d / (n (n - d))
+greenwood_variance,9,0.03155924479166667,1e-12,S^2 x Greenwood sum
+greenwood_standard_error,9,0.1776492183818062,1e-12,square root of the variance (float)
+log_log_lower_95,9,0.013149064036058592,1e-09,S ^ EXP(z sigma / |LN S|) with z = 1.959964 (float)
+log_log_upper_95,9,0.5866749584947578,1e-09,S ^ EXP(-z sigma / |LN S|) (float)
+median,time,7.0,0.0,smallest time with S <= 0.5
