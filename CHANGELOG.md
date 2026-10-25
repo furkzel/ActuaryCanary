@@ -2,6 +2,21 @@
 
 Written for users. Versions follow semantic versioning; each specification file also carries its own version and change log.
 
+## 1.1.0 (2026-10-25, the preparation date: the release date is the date the owner pushes the tag `v1.1.0`)
+
+### What is new
+
+- **Report in Turkish.** `canary run <folder> --lang tr` writes the report in Turkish; the wording lives in `report/language.yaml`. Data messages, diagnostics, anomaly reasons and the wording of specifications stay in English.
+- **Four new data rules:** DV-MKT-06, DV-MKT-07, DV-MKT-08 (market data) and DV-PRM-07 (premiums).
+- **Reserve movements by kind.** The anomaly method MT08 (version 1.2.0) looks at reserve movements by kind, so far fewer movements are flagged on lines where reserves rarely change.
+- **Lineage format 2.** The lineage of measures is written as `lineage_atoms.csv`, which is much smaller on large inputs. `--lineage-format 1` writes the previous format.
+- **Original currency view.** There is an ORIGINAL currency view of the amounts, next to the reporting-currency view.
+- **Cumulative or incremental claim amounts.** Whether claim amounts per period are cumulative or incremental is detected, and incremental amounts are accumulated.
+- **Synthetic generator for more kinds of data.** It writes reinsurance treaties and treaty movements, recoveries, a ledger, interest rates and a life book (contracts, events, fund flows), with their ground truth, in the new scenarios `reinsurance_heavy` and `life_book`.
+- **New tier B references.** 19 frozen reference sets (bootstrap, Munich chain ladder, Benktander, tail extensions, claim separation, frequency-severity, severity fits, survival, credibility, reinsurance and back-test cases) with tests that recompute every number.
+
+The reserving tables of the three examples are byte-identical to 1.0.0.
+
 ## 1.0.0 (2026-10-23, the preparation date: the release date is the date the owner pushes the tag `v1.0.0`)
 
 First release.
