@@ -30,16 +30,196 @@
     "entries": 4,
     "method": "MT10",
     "name": "bf below maturity"
+   },
+   {
+    "entries": 4,
+    "method": "MT11",
+    "name": "centre residuals"
+   },
+   {
+    "entries": 4,
+    "method": "MT11",
+    "name": "n simulations"
+   },
+   {
+    "entries": 4,
+    "method": "MT11",
+    "name": "process distribution"
+   },
+   {
+    "entries": 4,
+    "method": "MT11",
+    "name": "scale"
+   },
+   {
+    "entries": 4,
+    "method": "MT11",
+    "name": "tail factor"
+   },
+   {
+    "entries": 4,
+    "method": "MT12",
+    "name": "min origins"
+   },
+   {
+    "entries": 4,
+    "method": "MT12",
+    "name": "sigma extrapolation"
+   },
+   {
+    "entries": 4,
+    "method": "MT13",
+    "name": "blend"
+   },
+   {
+    "entries": 4,
+    "method": "MT13",
+    "name": "iterations"
+   },
+   {
+    "entries": 4,
+    "method": "MT13",
+    "name": "measure"
+   },
+   {
+    "entries": 4,
+    "method": "MT13",
+    "name": "prior"
+   },
+   {
+    "entries": 8,
+    "method": "MT14",
+    "name": "curve"
+   },
+   {
+    "entries": 8,
+    "method": "MT14",
+    "name": "extension periods"
+   },
+   {
+    "entries": 8,
+    "method": "MT14",
+    "name": "fit from age"
+   },
+   {
+    "entries": 8,
+    "method": "MT14",
+    "name": "min points"
+   },
+   {
+    "entries": 8,
+    "method": "MT14",
+    "name": "remainder warning"
+   },
+   {
+    "entries": 4,
+    "method": "MT15",
+    "name": "claim counts"
+   },
+   {
+    "entries": 4,
+    "method": "MT15",
+    "name": "future index"
+   },
+   {
+    "entries": 4,
+    "method": "MT15",
+    "name": "future rate"
+   },
+   {
+    "entries": 4,
+    "method": "MT15",
+    "name": "trend periods"
+   },
+   {
+    "entries": 4,
+    "method": "MT16",
+    "name": "maturity for trend"
+   },
+   {
+    "entries": 4,
+    "method": "MT16",
+    "name": "min trend origins"
+   },
+   {
+    "entries": 4,
+    "method": "MT16",
+    "name": "separate catastrophes"
+   },
+   {
+    "entries": 4,
+    "method": "MT16",
+    "name": "severity measure"
+   },
+   {
+    "entries": 4,
+    "method": "MT16",
+    "name": "value basis"
+   },
+   {
+    "entries": 4,
+    "method": "MT17",
+    "name": "claims used"
+   },
+   {
+    "entries": 4,
+    "method": "MT17",
+    "name": "exclude catastrophes"
+   },
+   {
+    "entries": 4,
+    "method": "MT17",
+    "name": "significance"
+   },
+   {
+    "entries": 4,
+    "method": "MT17",
+    "name": "truncation point"
+   },
+   {
+    "entries": 4,
+    "method": "MT18",
+    "name": "claims used"
+   },
+   {
+    "entries": 4,
+    "method": "MT18",
+    "name": "fdr level"
+   },
+   {
+    "entries": 4,
+    "method": "MT18",
+    "name": "min exceedances"
+   },
+   {
+    "entries": 4,
+    "method": "MT22",
+    "name": "backtest simulations"
+   },
+   {
+    "entries": 4,
+    "method": "MT22",
+    "name": "horizons months"
+   },
+   {
+    "entries": 4,
+    "method": "MT22",
+    "name": "mature at"
+   },
+   {
+    "entries": 4,
+    "method": "MT22",
+    "name": "past selections"
    }
   ],
   "by_who": [
    {
-    "entries": 56,
+    "entries": 220,
     "who": "default"
    }
   ],
   "judgements": [],
-  "total": 56
+  "total": 220
  },
  "banners": [
   "Only 4 origin periods (2022 to 2025) are loaded for 4 of 4 lines, fewer than the 8 the methods need for solid evidence: every factor, ratio and range rests on few observations, and the differences between methods show how much the answer depends on the method, not how precise it is."
@@ -48,7 +228,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "d9c8c15caee71270"
+    "value": "c394c15ab0f72437"
    },
    {
     "label": "Valuation date",
@@ -2499,7 +2679,7 @@
    "scope": "run",
    "section": "not-run",
    "specs": [],
-   "text": "Modules that ran with some measures or methods missing: 2 (M04 Reserving (indicative), M06 Anomalies and large losses).",
+   "text": "Modules that ran with some measures or methods missing: 3 (M03 Claims experience, M04 Reserving (indicative), M06 Anomalies and large losses).",
    "title": "Modules limited"
   }
  ],
@@ -2939,6 +3119,204 @@
    "plain": "Chooses one ultimate per origin from the methods that ran: chain ladder for origins developed enough, Bornhuetter–Ferguson for immature ones, unless the user selects otherwise.",
    "spec": "MT10 v1.0.0",
    "title": "Ultimate selection"
+  },
+  {
+   "assumptions": [
+    "The chain-ladder pattern is right (as MT02), and the prior ultimate of MT03 or MT04 is unbiased."
+   ],
+   "id": "MT13",
+   "parameters": [
+    {
+     "default": "benktander",
+     "name": "blend"
+    },
+    {
+     "default": "1",
+     "name": "iterations"
+    },
+    {
+     "default": "MT03",
+     "name": "prior"
+    },
+    {
+     "default": "incurred",
+     "name": "measure"
+    }
+   ],
+   "plain": "Ultimates that blend the chain ladder and Bornhuetter–Ferguson by maturity: the Benktander (iterated Bornhuetter–Ferguson) estimate, a credibility mix of the chain ladder and Bornhuetter–Ferguson with weight 1 - q^k, as a principled alternative to the hard switch of MT10.",
+   "spec": "MT13 v1.0.0",
+   "title": "Benktander blends"
+  },
+  {
+   "assumptions": [
+    "The excess development f(x) - 1 decays smoothly with the link number x along the chosen curve, also beyond the triangle.",
+    "The late factors of the triangle are credible (enough origins)."
+   ],
+   "id": "MT14",
+   "parameters": [
+    {
+     "default": "exponential_decay",
+     "name": "curve"
+    },
+    {
+     "default": "",
+     "name": "fit_from_age"
+    },
+    {
+     "default": "3",
+     "name": "min_points"
+    },
+    {
+     "default": "100",
+     "name": "extension_periods"
+    },
+    {
+     "default": "0.005",
+     "name": "remainder_warning"
+    }
+   ],
+   "plain": "Estimates development beyond the last age of the triangle by fitting a decay curve to the selected age-to-age factors by link number (exponential decay or inverse power) and extending it for a fixed number of periods, giving a tail factor and the extra factors by period for cash flows.",
+   "spec": "MT14 v1.0.0",
+   "title": "Tail factor fitting"
+  },
+  {
+   "assumptions": [
+    "Expected incremental paid of origin i in development j is n(i) r(j) lambda(i + j): a claim-count measure, a development pattern summing to 1 and a calendar index.",
+    "The ultimate claim count n(i) of each origin is known or well estimated.",
+    "The pattern sums to 1 over the observed columns, so the method has no development beyond the last column and its ultimates carry no tail.",
+    "The future calendar index follows the chosen trend or assumption."
+   ],
+   "id": "MT15",
+   "parameters": [
+    {
+     "default": "ultimate",
+     "name": "claim_counts"
+    },
+    {
+     "default": "trend",
+     "name": "future_index"
+    },
+    {
+     "default": "5",
+     "name": "trend_periods"
+    }
+   ],
+   "plain": "Splits average paid per claim into a development pattern and a calendar-period index (Taylor 1977), so that calendar-year effects such as claims inflation are measured instead of being folded into development factors, then projects with an explicit future index.",
+   "spec": "MT15 v1.0.0",
+   "title": "Separation method"
+  },
+  {
+   "assumptions": [
+    "Reported counts develop with a stable pattern (chain ladder on counts).",
+    "Severity at value-date prices follows a log-linear trend across origins.",
+    "The price index captures most of claims inflation."
+   ],
+   "id": "MT16",
+   "parameters": [
+    {
+     "default": "incurred",
+     "name": "severity_measure"
+    },
+    {
+     "default": "0.9",
+     "name": "maturity_for_trend"
+    },
+    {
+     "default": "3",
+     "name": "min_trend_origins"
+    },
+    {
+     "default": "INFLATION_ADJUSTED",
+     "name": "value_basis"
+    },
+    {
+     "default": "True",
+     "name": "separate_catastrophes"
+    }
+   ],
+   "plain": "Ultimate as ultimate claim count times ultimate severity: counts are developed with the chain ladder on the reported-count triangle, frequency is related to earned exposure, severity is trended from mature origins at value-date prices, and catastrophe claims are projected apart. Also fits the frequency trend that forecasts use (MT27).",
+   "spec": "MT16 v1.0.0",
+   "title": "Frequency–severity projection"
+  },
+  {
+   "assumptions": [
+    "Claim sizes of a group are independent draws from one distribution.",
+    "Sizes of closed claims are final; open claims' incurred is an estimate."
+   ],
+   "id": "MT17",
+   "parameters": [
+    {
+     "default": "['lognormal', 'gamma', 'weibull', 'pareto']",
+     "name": "candidates"
+    },
+    {
+     "default": "closed",
+     "name": "claims_used"
+    },
+    {
+     "default": "0",
+     "name": "truncation_point"
+    },
+    {
+     "default": "True",
+     "name": "exclude_catastrophes"
+    },
+    {
+     "default": "200",
+     "name": "gof_bootstrap"
+    },
+    {
+     "default": "2000",
+     "name": "gof_max_claims"
+    },
+    {
+     "default": "0.05",
+     "name": "significance"
+    },
+    {
+     "default": "50",
+     "name": "min_claims"
+    },
+    {
+     "default": "[]",
+     "name": "limits"
+    }
+   ],
+   "plain": "Fits lognormal, gamma, Weibull and Pareto distributions to individual claim sizes by maximum likelihood, per segment and line, tests the fit, selects one, and gives quantiles, limited expected values and layer costs for limits and reinsurance (MT21).",
+   "spec": "MT17 v1.0.0",
+   "title": "Severity distribution fitting with goodness of fit"
+  },
+  {
+   "assumptions": [
+    "Today's estimate of a mature origin is close to its final cost.",
+    "The past cut-offs see the data as it was then."
+   ],
+   "id": "MT22",
+   "parameters": [
+    {
+     "default": "[12.0, 24.0, 36.0]",
+     "name": "horizons_months"
+    },
+    {
+     "default": "['MT02', 'MT03', 'MT04', 'MT05', 'MT10']",
+     "name": "methods"
+    },
+    {
+     "default": "0.95",
+     "name": "mature_at"
+    },
+    {
+     "default": "1000",
+     "name": "backtest_simulations"
+    },
+    {
+     "default": "rerun",
+     "name": "past_selections"
+    }
+   ],
+   "plain": "Measures how good earlier reserve estimates were: the methods and selections are re-run as at earlier cut-offs with only the facts known then (CV04 as-of rule), and their ultimates are compared with today's estimate and, for mature origins, with the developed actual, by method and by horizon.",
+   "spec": "MT22 v1.0.0",
+   "title": "Back-testing of past selections"
   }
  ],
  "not_run": {
@@ -2946,10 +3324,25 @@
    {
     "load": "",
     "missing": [],
+    "module": "M03 Claims experience",
+    "state": "limited",
+    "why": [
+     "MT17 severity fits did not run for NON_LIFE / MOTOR_TPL: 22 claims, fewer than 50",
+     "MT17 severity fits did not run for LIFE / GROUP_TERM_LIFE: 34 claims, fewer than 50",
+     "MT17 severity fits did not run for NON_LIFE / PROPERTY: 4 claims, fewer than 50"
+    ]
+   },
+   {
+    "load": "",
+    "missing": [],
     "module": "M04 Reserving (indicative)",
     "state": "limited",
     "why": [
-     "MT06 Mack standard error did not run for 8 of 8 triangles: too few link ratios to estimate variance"
+     "MT06 Mack standard error did not run for 8 of 8 triangles: too few link ratios to estimate variance",
+     "MT11 bootstrap did not run for 4 of 4 groups: the bootstrap needs a chain ladder on at least 5 origin periods",
+     "MT12 Munich chain ladder did not run for 4 of 4 groups: Munich chain ladder needs at least 5 origin periods",
+     "MT14 tail factor fitting did not run for 7 of 8 triangles: too few factors above 1 to fit a tail",
+     "MT15 separation did not run for 1 of 4 groups: separation needs claim counts per origin"
     ]
    },
    {
@@ -2959,7 +3352,11 @@
     "state": "limited",
     "why": [
      "MT08: 6 groups have too few values to score",
-     "MT09: 1 group has too few claims to score"
+     "MT09: 1 group has too few claims to score",
+     "MT18 extreme values did not run for LIFE / GROUP_TERM_LIFE: 37 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
+     "MT18 extreme values did not run for NON_LIFE / MOTOR_TPL: 44 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
+     "MT18 extreme values did not run for NON_LIFE / PROPERTY: 5 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
+     "MT18 extreme values did not run for NON_LIFE / MOTOR_OD: 67 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)"
     ]
    }
   ]
@@ -3178,9 +3575,13 @@
    },
    "module": "M03",
    "question": "How many claims, how large, how fast?",
-   "reasons": [],
+   "reasons": [
+    "MT17 severity fits did not run for NON_LIFE / MOTOR_TPL: 22 claims, fewer than 50",
+    "MT17 severity fits did not run for LIFE / GROUP_TERM_LIFE: 34 claims, fewer than 50",
+    "MT17 severity fits did not run for NON_LIFE / PROPERTY: 4 claims, fewer than 50"
+   ],
    "spec": "M03 v1.0.0",
-   "state": "ran",
+   "state": "limited",
    "title": "Claims experience"
   },
   {
@@ -3547,7 +3948,11 @@
    "question": "What looks wrong or unusual?",
    "reasons": [
     "MT08: 6 groups have too few values to score",
-    "MT09: 1 group has too few claims to score"
+    "MT09: 1 group has too few claims to score",
+    "MT18 extreme values did not run for LIFE / GROUP_TERM_LIFE: 37 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
+    "MT18 extreme values did not run for NON_LIFE / MOTOR_TPL: 44 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
+    "MT18 extreme values did not run for NON_LIFE / PROPERTY: 5 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
+    "MT18 extreme values did not run for NON_LIFE / MOTOR_OD: 67 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)"
    ],
    "spec": "M06 v1.1.0",
    "state": "limited",
@@ -3675,13 +4080,13 @@
    },
    {
     "name": "modules.json",
-    "sha256": "d66ded5ad1322d60f88515da13dca307804253d55e9eee977435e75fcab31362",
-    "size": "18,240"
+    "sha256": "bad541cbefdd9a1e5550ab8114bb1242472dfd676bfb1b4ad05b48eecfe376d3",
+    "size": "19,651"
    },
    {
     "name": "assumptions.csv",
-    "sha256": "b710a37a7897cf39bb05f716ea1fccda620f6a02c0a3b9bd1f4e2ba58d4ed6d9",
-    "size": "8,142"
+    "sha256": "848b98920f27243543f39e197fa31ee41d577ff12f1bd4262c04d528f96d899f",
+    "size": "26,746"
    },
    {
     "name": "ultimates.csv",
@@ -3700,22 +4105,155 @@
    },
    {
     "name": "diagnostics.csv",
-    "sha256": "0493adc495caec8eae1d6366f76c53986a6863636c0f1881a8f0c4a446bb0971",
-    "size": "4,223"
+    "sha256": "7c14bc7339cba15a5904c48818908c9a378085cd6e171c7825733a6aa983c4df",
+    "size": "6,183"
    },
    {
     "name": "anomalies.csv",
     "sha256": "a7c94ad8222c3b043afb0e4cefdf465ba490066c102dc43d0799171eaedbbc72",
     "size": "2,205"
+   },
+   {
+    "name": "tier_b_ultimates.csv",
+    "sha256": "619e4a0d4d5e89b19ceaa1b442fc9dc968ef83eb9db89e0ed9db5b80a538e778",
+    "size": "4,780"
+   },
+   {
+    "name": "tier_b_parameters.csv",
+    "sha256": "3cba5dd4a35f9879789fb837d10819ec6f60be4ed4f880dcdb04d58e7f225f38",
+    "size": "13,189"
+   },
+   {
+    "name": "bootstrap_summary.csv",
+    "sha256": "a396979e551fc597eb87b90ac2d77f9b62d56606ad98ed098161b4c096fa0745",
+    "size": "529"
+   },
+   {
+    "name": "bootstrap_cash_flows.csv",
+    "sha256": "a00d75abd91b9daa64e382bd5bf3d37255a8437228d3a3c754f41841f69a2329",
+    "size": "104"
+   },
+   {
+    "name": "bootstrap_residuals.csv",
+    "sha256": "c9103d039565cd1c266980932f244e24f8d40759af4587cdae6e8f225bc5f683",
+    "size": "66"
+   },
+   {
+    "name": "back_test.csv",
+    "sha256": "a426a969fa8df4a93a9dbad941015f7abcf0da054f0d0eb128bb26d4c2abfd65",
+    "size": "11,240"
+   },
+   {
+    "name": "severity_parameters.csv",
+    "sha256": "825c50b3a72a216ea43cbd4bb908a1e2d6491892146acd4406861f0684b48205",
+    "size": "604"
+   },
+   {
+    "name": "severity_fits.csv",
+    "sha256": "b8128b04de4ea5032fc8d2208a6aed082a67b2054825c390d97b5e4fef856f52",
+    "size": "896"
+   },
+   {
+    "name": "severity_selected.csv",
+    "sha256": "1910c222b058d0360be15ceeeec049eaa48541a307192a2699af72c10b97a4cf",
+    "size": "352"
+   },
+   {
+    "name": "severity_quantiles.csv",
+    "sha256": "4de3d55cf3c0357c9ad8e606e6fdac116f163063aa53521494ab67fe61d27036",
+    "size": "348"
+   },
+   {
+    "name": "severity_limited_expected_values.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
+   },
+   {
+    "name": "severity_plots.csv",
+    "sha256": "7c8536d3f7ee11af39e606b21a9073951ed2acf9c438d61e9d800b96567e5be5",
+    "size": "33,986"
+   },
+   {
+    "name": "severity_trend.csv",
+    "sha256": "ff0f1b06824efecf820a2ed04c6ec2f4b72bc648418fa7edc88f6deb8c8ccb08",
+    "size": "296"
+   },
+   {
+    "name": "severity_trend_summary.csv",
+    "sha256": "bd77ca698a955a5f395d71238d81b1f5eca97f8bc2bf996536dc762ebc828928",
+    "size": "133"
+   },
+   {
+    "name": "severity_groups.csv",
+    "sha256": "b6ad20ab5303f48a95a19aa85261e4b3c22efc39e7f67e7b789debcee33bef4d",
+    "size": "317"
+   },
+   {
+    "name": "extreme_thresholds.csv",
+    "sha256": "3c9cf188ae7828385b9f4367c1b38c6d48a411222a95083370d796953b315e93",
+    "size": "507"
+   },
+   {
+    "name": "extreme_candidates.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
+   },
+   {
+    "name": "extreme_gpd_fit.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
+   },
+   {
+    "name": "extreme_tail_quantiles.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
+   },
+   {
+    "name": "extreme_return_levels.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
+   },
+   {
+    "name": "extreme_threshold_comparison.csv",
+    "sha256": "f40dbaea00c654f5b8fc2b41283521469f501b2dab16832e79703d65a0b924f0",
+    "size": "553"
+   },
+   {
+    "name": "extreme_mean_excess.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
+   },
+   {
+    "name": "extreme_excess_plot.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
+   },
+   {
+    "name": "extreme_yearly.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
+   },
+   {
+    "name": "extreme_yearly_summary.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
    }
   ],
   "randomness": [
    {
     "method": "MT09",
     "seed": "1"
+   },
+   {
+    "method": "MT22",
+    "seed": "1"
+   },
+   {
+    "method": "MT17",
+    "seed": "1"
    }
   ],
-  "run_id": "d9c8c15caee71270",
+  "run_id": "c394c15ab0f72437",
   "settings": [
    {
     "name": "bases.currency",
@@ -3760,6 +4298,14 @@
    {
     "name": "language",
     "value": "en"
+   },
+   {
+    "name": "large_loss.percentile",
+    "value": "0.99"
+   },
+   {
+    "name": "large_loss.source",
+    "value": "default"
    },
    {
     "name": "lineage_format",
@@ -3820,6 +4366,186 @@
    {
     "name": "reporting_currency",
     "value": "TRY"
+   },
+   {
+    "name": "severity.MT17.candidates",
+    "value": "lognormal, gamma, weibull, pareto"
+   },
+   {
+    "name": "severity.MT17.claims_used",
+    "value": "closed"
+   },
+   {
+    "name": "severity.MT17.exclude_catastrophes",
+    "value": "True"
+   },
+   {
+    "name": "severity.MT17.gof_bootstrap",
+    "value": "200"
+   },
+   {
+    "name": "severity.MT17.gof_max_claims",
+    "value": "2000"
+   },
+   {
+    "name": "severity.MT17.min_claims",
+    "value": "50"
+   },
+   {
+    "name": "severity.MT17.significance",
+    "value": "0.05"
+   },
+   {
+    "name": "severity.MT17.truncation_point",
+    "value": "0.0"
+   },
+   {
+    "name": "severity.MT18.candidate_quantiles",
+    "value": "0.8, 0.825, 0.85, 0.875, 0.9, 0.925, 0.95, 0.96, 0.97, 0.975, 0.98, 0.99"
+   },
+   {
+    "name": "severity.MT18.claims_used",
+    "value": "all_non_nil"
+   },
+   {
+    "name": "severity.MT18.fdr_level",
+    "value": "0.1"
+   },
+   {
+    "name": "severity.MT18.gof_bootstrap",
+    "value": "500"
+   },
+   {
+    "name": "severity.MT18.min_exceedances",
+    "value": "50"
+   },
+   {
+    "name": "severity.MT18.return_periods",
+    "value": "10, 50, 100, 200"
+   },
+   {
+    "name": "severity.seed",
+    "value": "1"
+   },
+   {
+    "name": "tier_b.methods.MT11.centre_residuals",
+    "value": "True"
+   },
+   {
+    "name": "tier_b.methods.MT11.n_simulations",
+    "value": "10000"
+   },
+   {
+    "name": "tier_b.methods.MT11.process_distribution",
+    "value": "gamma"
+   },
+   {
+    "name": "tier_b.methods.MT11.scale",
+    "value": "constant"
+   },
+   {
+    "name": "tier_b.methods.MT11.tail_factor",
+    "value": "1.0"
+   },
+   {
+    "name": "tier_b.methods.MT12.min_origins",
+    "value": "5"
+   },
+   {
+    "name": "tier_b.methods.MT12.sigma_extrapolation",
+    "value": "mack"
+   },
+   {
+    "name": "tier_b.methods.MT13.blend",
+    "value": "benktander"
+   },
+   {
+    "name": "tier_b.methods.MT13.iterations",
+    "value": "1"
+   },
+   {
+    "name": "tier_b.methods.MT13.measure",
+    "value": "incurred"
+   },
+   {
+    "name": "tier_b.methods.MT13.prior",
+    "value": "MT03"
+   },
+   {
+    "name": "tier_b.methods.MT14.curve",
+    "value": "exponential_decay"
+   },
+   {
+    "name": "tier_b.methods.MT14.extension_periods",
+    "value": "100"
+   },
+   {
+    "name": "tier_b.methods.MT14.fit_from_age",
+    "value": ""
+   },
+   {
+    "name": "tier_b.methods.MT14.min_points",
+    "value": "3"
+   },
+   {
+    "name": "tier_b.methods.MT14.remainder_warning",
+    "value": "0.005"
+   },
+   {
+    "name": "tier_b.methods.MT15.claim_counts",
+    "value": "ultimate"
+   },
+   {
+    "name": "tier_b.methods.MT15.future_index",
+    "value": "trend"
+   },
+   {
+    "name": "tier_b.methods.MT15.future_rate",
+    "value": ""
+   },
+   {
+    "name": "tier_b.methods.MT15.trend_periods",
+    "value": "5"
+   },
+   {
+    "name": "tier_b.methods.MT16.maturity_for_trend",
+    "value": "0.9"
+   },
+   {
+    "name": "tier_b.methods.MT16.min_trend_origins",
+    "value": "3"
+   },
+   {
+    "name": "tier_b.methods.MT16.separate_catastrophes",
+    "value": "True"
+   },
+   {
+    "name": "tier_b.methods.MT16.severity_measure",
+    "value": "incurred"
+   },
+   {
+    "name": "tier_b.methods.MT16.value_basis",
+    "value": "INFLATION_ADJUSTED"
+   },
+   {
+    "name": "tier_b.methods.MT22.backtest_simulations",
+    "value": "1000"
+   },
+   {
+    "name": "tier_b.methods.MT22.horizons_months",
+    "value": "12,24,36"
+   },
+   {
+    "name": "tier_b.methods.MT22.mature_at",
+    "value": "0.95"
+   },
+   {
+    "name": "tier_b.methods.MT22.past_selections",
+    "value": "rerun"
+   },
+   {
+    "name": "tier_b.seed",
+    "value": "1"
    },
    {
     "name": "triangles.cut_off",
@@ -4167,6 +4893,31 @@
     "version": "1.0.0"
    },
    {
+    "id": "MT13",
+    "title": "Benktander blends",
+    "version": "1.0.0"
+   },
+   {
+    "id": "MT14",
+    "title": "Tail factor fitting",
+    "version": "1.0.0"
+   },
+   {
+    "id": "MT15",
+    "title": "Separation method",
+    "version": "1.0.0"
+   },
+   {
+    "id": "MT16",
+    "title": "Frequency–severity projection",
+    "version": "1.0.0"
+   },
+   {
+    "id": "MT22",
+    "title": "Back-testing of past selections",
+    "version": "1.0.0"
+   },
+   {
     "id": "MT08",
     "title": "Robust z-score anomaly flags",
     "version": "1.2.0"
@@ -4175,6 +4926,16 @@
     "id": "MT09",
     "title": "Isolation forest anomaly flags",
     "version": "1.1.0"
+   },
+   {
+    "id": "MT17",
+    "title": "Severity distribution fitting with goodness of fit",
+    "version": "1.0.0"
+   },
+   {
+    "id": "AE02",
+    "title": "Back-test error of a projection",
+    "version": "1.0.0"
    },
    {
     "id": "RP01",
@@ -4251,7 +5012,7 @@
        "code": "thin evidence",
        "measure": "all",
        "message": "only 4 origin periods: thin evidence; factors, ratios and ranges rest on few observations (fewer than 8)",
-       "method": "MT02, MT03, MT04, MT05, MT07, MT10",
+       "method": "MT02, MT03, MT04, MT05, MT07, MT10, MT13, MT15, MT16, MT22",
        "target": ""
       },
       {
@@ -4695,7 +5456,7 @@
        "code": "thin evidence",
        "measure": "all",
        "message": "only 4 origin periods: thin evidence; factors, ratios and ranges rest on few observations (fewer than 8)",
-       "method": "MT02, MT03, MT04, MT05, MT07, MT10",
+       "method": "MT02, MT03, MT04, MT05, MT07, MT10, MT13, MT15, MT16, MT22",
        "target": ""
       },
       {
@@ -4731,6 +5492,13 @@
        "measure": "paid",
        "message": "paid ultimate of origin 2025 (4,163,859.11) is below the incurred to date (6,426,297.14): IBNR -2,262,438.03",
        "method": "MT02",
+       "target": "2025"
+      },
+      {
+       "code": "weight capped",
+       "measure": "incurred",
+       "message": "origin 2025: cumulative development factor 0.9874 is below 1 (reported share above 1); the weight on the chain ladder is capped at 1",
+       "method": "MT13",
        "target": "2025"
       }
      ],
@@ -5001,7 +5769,7 @@
     "segment": "NON_LIFE",
     "summary": {
      "anchor": "line-1",
-     "diagnostics": 6,
+     "diagnostics": 7,
      "ibnr_selected": "-81,214",
      "incurred": "18,575,490",
      "line": "NON_LIFE · MOTOR_OD",
@@ -5182,7 +5950,7 @@
        "code": "thin evidence",
        "measure": "all",
        "message": "only 4 origin periods: thin evidence; factors, ratios and ranges rest on few observations (fewer than 8)",
-       "method": "MT02, MT03, MT04, MT05, MT07, MT10",
+       "method": "MT02, MT03, MT04, MT05, MT07, MT10, MT13, MT14, MT15, MT16, MT22",
        "target": ""
       },
       {
@@ -5247,6 +6015,20 @@
        "message": "paid ultimate of origin 2025 (1,448,649.37) is below the incurred to date (3,511,628.47): IBNR -2,062,979.10",
        "method": "MT02",
        "target": "2025"
+      },
+      {
+       "code": "weight capped",
+       "measure": "incurred",
+       "message": "origin 2023: cumulative development factor 0.9507 is below 1 (reported share above 1); the weight on the chain ladder is capped at 1",
+       "method": "MT13",
+       "target": "2023"
+      },
+      {
+       "code": "curve not used",
+       "measure": "paid",
+       "message": "inverse power slope b = 0.4247 is not above 1, so the product diverges",
+       "method": "MT14",
+       "target": ""
       }
      ],
      "inflation": {
@@ -5516,7 +6298,7 @@
     "segment": "NON_LIFE",
     "summary": {
      "anchor": "line-2",
-     "diagnostics": 10,
+     "diagnostics": 12,
      "ibnr_selected": "1,990,063",
      "incurred": "20,418,156",
      "line": "NON_LIFE · MOTOR_TPL",
@@ -5661,7 +6443,7 @@
        "code": "thin evidence",
        "measure": "all",
        "message": "only 4 origin periods: thin evidence; factors, ratios and ranges rest on few observations (fewer than 8)",
-       "method": "MT02, MT03, MT04, MT05, MT07, MT10",
+       "method": "MT02, MT03, MT04, MT05, MT07, MT10, MT13, MT16, MT22",
        "target": ""
       },
       {
@@ -6044,7 +6826,11 @@
   "module": "M04",
   "question": "What will claims finally cost, and how sure are we?",
   "reasons": [
-   "MT06 Mack standard error did not run for 8 of 8 triangles: too few link ratios to estimate variance"
+   "MT06 Mack standard error did not run for 8 of 8 triangles: too few link ratios to estimate variance",
+   "MT11 bootstrap did not run for 4 of 4 groups: the bootstrap needs a chain ladder on at least 5 origin periods",
+   "MT12 Munich chain ladder did not run for 4 of 4 groups: Munich chain ladder needs at least 5 origin periods",
+   "MT14 tail factor fitting did not run for 7 of 8 triangles: too few factors above 1 to fit a tail",
+   "MT15 separation did not run for 1 of 4 groups: separation needs claim counts per origin"
   ],
   "selection_measure": "incurred",
   "spec": "M04 v1.0.0",
@@ -6063,7 +6849,7 @@
    },
    {
     "anchor": "line-1",
-    "diagnostics": 6,
+    "diagnostics": 7,
     "ibnr_selected": "-81,214",
     "incurred": "18,575,490",
     "line": "NON_LIFE · MOTOR_OD",
@@ -6074,7 +6860,7 @@
    },
    {
     "anchor": "line-2",
-    "diagnostics": 10,
+    "diagnostics": 12,
     "ibnr_selected": "1,990,063",
     "incurred": "20,418,156",
     "line": "NON_LIFE · MOTOR_TPL",

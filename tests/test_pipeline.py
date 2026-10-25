@@ -59,7 +59,21 @@ def test_baseline_tiny_outputs_inputs_and_groups(default_run: RunResult) -> None
         "cash_flows.csv",
         "diagnostics.csv",
         "anomalies.csv",
-    ]
+        "tier_b_ultimates.csv",
+        "tier_b_parameters.csv",
+        "bootstrap_summary.csv",
+        "bootstrap_cash_flows.csv",
+        "bootstrap_residuals.csv",
+        "back_test.csv",
+        *(f"severity_{n}.csv" for n in (
+            "parameters", "fits", "selected", "quantiles", "limited_expected_values", "plots",
+            "trend", "trend_summary", "groups",
+        )),
+        *(f"extreme_{n}.csv" for n in (
+            "thresholds", "candidates", "gpd_fit", "tail_quantiles", "return_levels",
+            "threshold_comparison", "mean_excess", "excess_plot", "yearly", "yearly_summary",
+        )),
+    ]  # fmt: skip
     assert [i["name"] for i in one["inputs"]] == [
         "claim_valuations.xlsx",
         "claims.xlsx",
@@ -236,7 +250,7 @@ def test_run_says_which_modules_ran_and_why_others_did_not(default_run: RunResul
     assert states == {
         "M01": "ran",
         "M02": "ran",
-        "M03": "ran",
+        "M03": "limited",  # MT17 needs 50 claims in a group (record 0620)
         "M04": "limited",
         "M05": "ran",
         "M06": "limited",
@@ -347,14 +361,20 @@ def test_assumptions_diagnostics_and_anomalies_are_written_and_listed_in_the_man
     assert manifest["assumptions"][0]["who"] == "default"
     assert manifest["settings"]["assumptions"] == {"entries": []}
     assert manifest["settings"]["methods"]["robust_z"]["threshold"] == 3.5
-    assert manifest["randomness"] == [{"method": "MT09", "seed": 1, "purpose": "isolation forest"}]
+    assert {r["method"] for r in manifest["randomness"]} == {"MT09", "MT17", "MT22"}
+    assert all(r["seed"] == 1 and r["purpose"] for r in manifest["randomness"])
+    settings = manifest["settings"]
+    assert settings["tier_b"]["seed"] == 1 and settings["severity"]["seed"] == 1
+    assert settings["tier_b"]["methods"]["MT11"]["n_simulations"] == 10_000
+    assert settings["large_loss"] == {"percentile": 0.99, "source": "default", "thresholds": {}}
     ids = {s["id"] for s in manifest["specs"]}
     assert {"MT03", "MT04", "MT05", "MT07", "MT08", "MT09", "MT10", "PR02"} <= ids
     assert "MT06" not in ids  # the Mack variance did not run on the 4 x 4 triangles
 
     diagnostics = _csv(default_run, "diagnostics.csv")
     counts = default_run.reserving.diagnostics_by_group()
-    assert diagnostics.height == sum(counts.values())
+    # the methods of the triangles by group, then MT17 and MT18 by claim size (record 0621)
+    assert diagnostics.height == sum(counts.values()) + len(default_run.severity.diagnostics)
     listed = json.loads((default_run.folder / "modules.json").read_text(encoding="utf-8"))
     assert {(d["segment"], d["line"]): d["count"] for d in listed["diagnostics"]} == counts
     assert {"THIN_EVIDENCE", "FEW_LINK_RATIOS", "LATE_DEVELOPMENT", "NEGATIVE_IBNR"} <= set(

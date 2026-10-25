@@ -26,7 +26,7 @@ def test_every_spec_of_p24_has_an_implementation_of_its_version() -> None:
         spec = planned.methods.get(spec_id) or planned.measures[spec_id]
         assert entry.spec_version == spec.version, spec_id
         assert entry.qualified_name.startswith("actuarycanary.methods."), spec_id
-        assert not spec.implemented  # wired by the integration (decision 0280)
+        assert spec.implemented  # wired by the integration (decisions 0280, 0620)
     with pytest.raises(KeyError, match="no tier B implementation"):
         registry.get("MT17")
 
