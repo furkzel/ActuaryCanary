@@ -1,5 +1,5 @@
 id: interest_rates
-version: 0.1.0
+version: 0.2.0
 title_en: Interest rates and yield curves
 title_tr: Faiz oranları ve getiri eğrileri
 status: draft
@@ -110,7 +110,7 @@ validation:
     fields: [interest_rates.curve_id, interest_rates.date]
     rule: >-
       The curve chosen for discounting has a date on or before the discount date and no more
-      than 31 days before it (CV10).
+      than max_curve_age_days before it (CV10).
     action: >-
       An older curve is used and flagged; with no curve on or before the discount date the
       DISCOUNTED basis is unavailable.
@@ -122,6 +122,12 @@ validation:
       The forward rates implied by the curve (CV10) are above -0.05 and change by at most 0.10
       between adjacent tenors.
     action: Listed only; a jump usually means a mistyped point.
+  - id: DV-IRT-10
+    dimension: validity
+    severity: WARNING
+    fields: [interest_rates.rate_type, interest_rates.tenor_months]
+    rule: PAR and FORWARD rows have a tenor_months divisible by 12 (CV10).
+    action: Other PAR and FORWARD rows are excluded and listed.
 notes: >-
   Draft for a later version (the uncertainty and discounting item). A separate concept rather than new kinds of the market
   concept, because a curve point needs a tenor and a rate convention that FX rates and price
@@ -131,3 +137,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint sections 4.3 and 7.2 (P20).
+  - version: 0.2.0
+    date: 2026-10-25
+    change: DV-IRT-08 refers to max_curve_age_days of CV10; new DV-IRT-10 (PAR and FORWARD rows at whole-year tenors) (decision 0618).

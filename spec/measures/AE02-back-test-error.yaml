@@ -1,5 +1,5 @@
 id: AE02
-version: 0.1.0
+version: 0.2.0
 title_en: Back-test error of a projection
 title_tr: Projeksiyonun geriye dönük test hatası
 status: draft
@@ -10,7 +10,7 @@ definition: >-
   reference, per method and horizon; used for past selections (MT22) and for every
   challenger beside its champion (blueprint 9.3).
 unit: ratio
-formula: 'e_{m,i}(h) = \frac{\hat U_{m,i}(c - h) - U^{\mathrm{ref}}_i(c)}{U^{\mathrm{ref}}_i(c)}, \qquad MAE_m(h) = \frac{\sum_i U^{\mathrm{ref}}_i |e_{m,i}(h)|}{\sum_i U^{\mathrm{ref}}_i}'
+formula: 'e_{m,i}(h) = \frac{\hat U_{m,i}(c - h) - U^{\mathrm{ref}}_i(c)}{U^{\mathrm{ref}}_i(c)}, \qquad B_m(h) = \frac{\sum_i w_i\, e_{m,i}(h)}{\sum_i w_i}, \qquad MAE_m(h) = \frac{\sum_i w_i\, |e_{m,i}(h)|}{\sum_i w_i}, \qquad w_i = U^{\mathrm{ref}}_i(c)'
 numerator: Projected ultimate of method m for origin i at cut-off c - h, minus the reference.
 denominator: Reference ultimate of origin i at cut-off c (MT22).
 grain: method, origin period and horizon; summarised per method and horizon
@@ -50,3 +50,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft for modules M12 and M13 (P20).
+  - version: 0.2.0
+    date: 2026-10-25
+    change: Weighted bias B_m(h) beside the MAE (decision 0618).

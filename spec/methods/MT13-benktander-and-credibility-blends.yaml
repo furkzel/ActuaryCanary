@@ -1,13 +1,14 @@
 id: MT13
-version: 0.1.0
-title_en: Benktander and credibility-weighted blends
-title_tr: Benktander ve güvenilirlik ağırlıklı karışımlar
+version: 0.2.0
+title_en: Benktander blends
+title_tr: Benktander karışımları
 status: draft
 implemented: false
 definition: >-
   Ultimates that blend the chain ladder and Bornhuetter–Ferguson by maturity: the
-  Benktander (iterated Bornhuetter–Ferguson) estimate and Mack's credibility-weighted
-  reserve, as principled alternatives to the hard switch of MT10.
+  Benktander (iterated Bornhuetter–Ferguson) estimate, a credibility mix of the
+  chain ladder and Bornhuetter–Ferguson with weight 1 - q^k, as a principled alternative to
+  the hard switch of MT10.
 tier: B
 requires:
   - claim_valuations.claim_id
@@ -27,15 +28,11 @@ uses: [MT01, MT02, MT03, MT04, MT10]
 assumptions:
   - statement: The chain-ladder pattern is right (as MT02), and the prior ultimate of MT03 or MT04 is unbiased.
     check: As for MT02 and MT03; compare the three estimates per origin.
-  - statement: >-
-      For the credibility weights: the reserve's variance grows with the unreported share in
-      the way Mack (2000) assumes, which gives the weight Z = p / (p + sqrt(p)).
-    check: None on one triangle; back-testing (MT22) compares the blends with CL and BF over time.
 parameters:
   - name: blend
     default: benktander
     description: Which blend.
-    allowed: [benktander, mack_credibility]
+    allowed: [benktander]
   - name: iterations
     default: 1
     description: Benktander iterations k; 0 gives Bornhuetter–Ferguson, large k approaches the chain ladder.
@@ -56,13 +53,11 @@ algorithm:
     formula: '\hat U^{(0)}_i = U^0_i, \qquad \hat U^{(m+1)}_i = C_{i,J_i} + q_i \hat U^{(m)}_i, \qquad \hat U^{GB}_i = \hat U^{(k+1)}_i'
   - step: Equivalently, a credibility mix with weight 1 - q^k on the chain ladder.
     formula: '\hat R^{(k)}_i = \big(1 - q_i^{k}\big)\, \hat R^{CL}_i + q_i^{k}\, \hat R^{BF}_i'
-  - step: Mack's credibility weight and reserve.
-    formula: 'Z_i = \frac{p_i}{p_i + \sqrt{p_i}}, \qquad \hat R^{c}_i = Z_i \hat R^{CL}_i + (1 - Z_i) \hat R^{BF}_i'
 outputs:
   - name: blended_ultimate
     description: Ultimate per origin of the chosen blend.
   - name: weights
-    description: Weight on the chain ladder per origin (1 - q^k, or Z).
+    description: Weight on the chain ladder per origin 1 - q^k.
   - name: comparison
     description: Chain ladder, Bornhuetter–Ferguson and the blend per origin.
 diagnostics:
@@ -74,10 +69,10 @@ failure_modes:
     action: Weights are capped at 1 for that origin, with a WARNING.
 validation:
   - kind: fixture
-    description: Benktander with k = 1 and the Mack credibility reserve for a 4 x 4 triangle with premium, hand-computed.
+    description: Benktander with k = 1 and k = 2 for a 4 x 4 triangle with premium, hand-computed.
     tolerance: 1e-12 relative
   - kind: property
-    description: k = 0 equals Bornhuetter–Ferguson; k = 200 equals the chain ladder for origins with p above 0.1; the iterated and the closed form agree.
+    description: k = 0 equals Bornhuetter–Ferguson; k = 200 equals the chain ladder for origins with p above 0.2 (0.9^200 is 7e-10, too close to the tolerance); the iterated and the closed form agree.
     tolerance: 1e-9 relative
   - kind: benchmark
     description: >-
@@ -93,7 +88,16 @@ validation:
 references:
   - Benktander, G. (1976). An approach to credibility in calculating IBNR for casualty excess reinsurance. The Actuarial Review.
   - 'Mack, T. (2000). Credible claims reserves: the Benktander method. ASTIN Bulletin.'
+notes: >-
+  Mack (2000) gives the optimal chain-ladder weight as c = p / (p + t) with
+  t = E[sigma^2(U)] / (Var(U0) + Var(U) - E[sigma^2(U)]), a volatility ratio that has to be
+  estimated; it is not p / (p + sqrt p), which for example gives 0.5 for a fully developed
+  origin. Mack's credibility weight is deferred until an estimator of t is specified (Mack,
+  T. (2000), Credible claims reserves: the Benktander method, ASTIN Bulletin).
 change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 9.2 (P20).
+  - version: 0.2.0
+    date: 2026-10-25
+    change: Benktander only; the credibility weight p / (p + sqrt p) with its option, output and assumption removed (decision 0613).

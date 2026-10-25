@@ -3,7 +3,7 @@ id: MT13-benktander-raa
 spec_ids:
 - MT13
 kind: library_reference
-title: Benktander and Mack credibility blend on raa with a constant prior
+title: Benktander blends on raa with a constant prior
 source:
   tool: chainladder
   version: 0.10.1
@@ -15,7 +15,7 @@ source:
   - chainladder.Benktander(apriori=0.8, n_iters=2).fit(dev, sample_weight=premium)
   - chainladder.BornhuetterFerguson(apriori=0.8).fit(dev, sample_weight=premium)
 how_produced: Run tests/benchmarks/tools/freeze_chainladder.py. Package ultimates (checked against the
-  spec formulas); the Mack credibility rows are derived by the script.
+  spec formulas).
 prior:
   earned_premium_each_origin: 30000.0
   prior_loss_ratio: 0.8

@@ -1,13 +1,13 @@
 id: MT14
-version: 0.2.0
+version: 0.3.0
 title_en: Tail factor fitting
 title_tr: Kuyruk faktörü uydurma
 status: draft
 implemented: false
 definition: >-
   Estimates development beyond the last age of the triangle by fitting a decay curve to the
-  selected age-to-age factors (exponential decay or inverse power) and extending it until
-  development stops, giving a tail factor and the extra factors by period for cash flows.
+  selected age-to-age factors by link number (exponential decay or inverse power) and extending it for
+  a fixed number of periods, giving a tail factor and the extra factors by period for cash flows.
 tier: B
 requires:
   - claim_valuations.claim_id
@@ -17,7 +17,7 @@ requires:
 optional: [claims.occurrence_date, claims.segment, claims.line]
 uses: [MT01, MT02]
 assumptions:
-  - statement: The excess development f(t) - 1 decays smoothly with age along the chosen curve, also beyond the triangle.
+  - statement: The excess development f(x) - 1 decays smoothly with the link number x along the chosen curve, also beyond the triangle.
     check: >-
       Fit quality (R squared on the log scale, residuals by age) on the fitted columns; the
       fitted factors of the last observed ages are close to the selected ones.
@@ -32,7 +32,7 @@ parameters:
     allowed: [exponential_decay, inverse_power]
   - name: fit_from_age
     default: null
-    description: First development age (in months) used in the fit; null starts at the first column with a factor above 1.
+    description: First development age (in months) used in the fit, only to choose the first fitted column; null starts at the first column with a factor above 1.
   - name: min_points
     default: 3
     description: Fewest factors above 1 needed for a fit.
@@ -40,19 +40,30 @@ parameters:
     default: 100
     description: >-
       Number of development periods the extension runs, as in the reference package (decision
-      0608). There is no stopping rule: the product always runs all periods.
+      0608). There is no stopping rule: the product always runs all periods. The fixed number
+      leaves out the rest of the product, which tail_remainder reports (decision 0614).
+  - name: remainder_warning
+    default: 0.005
+    description: The WARNING "development had not stopped" is given when tail_remainder exceeds this share.
 algorithm:
   - step: >-
-      Selected factors f(j) of MT02 and the age t(j) of each column in years (the age at the
-      start of the link, CV04). Columns from fit_from_age with f(j) above 1 are fitted.
-  - step: Exponential decay, a straight line in age on the log scale (ordinary least squares).
-    formula: '\ln\big(f(t) - 1\big) = a + b\,t, \quad b < 0'
+      Selected factors f(j) of MT02 and the link number x(j) = 1, 2, ... of each fitted link,
+      as in the reference package; for annual columns starting at 12 months it equals the age
+      in years of the start of the link (CV04). Columns from fit_from_age with f(j) above 1
+      are fitted.
+  - step: Exponential decay, a straight line in the link number on the log scale (ordinary least squares).
+    formula: '\ln\big(f(x) - 1\big) = a + b\,x, \quad b < 0'
   - step: Inverse power (Sherman), a straight line in log age.
-    formula: '\ln\big(f(t) - 1\big) = a - b \ln t, \quad b > 1'
+    formula: '\ln\big(f(x) - 1\big) = a - b \ln x, \quad b > 1'
   - step: >-
-      Extension from the age after the last column, one development period at a time, for
-      extension_periods periods; the tail factor is the product.
-    formula: '\tau = \prod_{t = t_J}^{t_J + N - 1} \big(1 + e^{\hat a}\, g(t)\big), \quad N = \text{extension\_periods}, \quad g(t) = e^{\hat b t} \ \text{or} \ t^{-\hat b}'
+      Extension from the link number after the last column, one development period at a time,
+      for extension_periods periods; the tail factor is the product.
+    formula: '\tau = \prod_{x = x_J}^{x_J + N - 1} \big(1 + e^{\hat a}\, g(x)\big), \quad N = \text{extension\_periods}, \quad g(x) = e^{\hat b x} \ \text{or} \ x^{-\hat b}'
+  - step: >-
+      Remainder of the extension: the factor of the periods beyond extension_periods relative
+      to tau, computed by running the product to 10^6 periods or until the increment is below
+      1e-12.
+    formula: '\rho = \frac{\prod_{x \ge x_J} \big(1 + e^{\hat a}\, g(x)\big)}{\tau} - 1'
   - step: >-
       The tail is used by MT02 in place of the tail_factor parameter only when the user
       selects it in the assumptions register (with the curve, fit range and value). The
@@ -60,6 +71,8 @@ algorithm:
 outputs:
   - name: tail_factor
     description: tau for the chosen curve, and for the other curve for comparison.
+  - name: tail_remainder
+    description: rho, the factor of the periods beyond extension_periods relative to tau (decision 0614).
   - name: fit
     description: Parameters a and b, R squared on the log scale, columns used.
   - name: extension_factors
@@ -75,8 +88,8 @@ failure_modes:
     action: Not fitted; reason "too few factors above 1 to fit a tail"; tail stays at the MT02 parameter.
   - condition: Fitted slope of the wrong sign (b >= 0 for exponential, b <= 1 for inverse power, whose product would not converge).
     action: That curve is not used; reason names the slope.
-  - condition: The last period of the extension still adds more than 1e-4 to the factor.
-    action: Tail reported with a WARNING that development had not stopped within extension_periods.
+  - condition: tail_remainder exceeds remainder_warning.
+    action: Tail reported with a WARNING that development had not stopped within extension_periods, giving the remainder.
 validation:
   - kind: fixture
     description: Factors generated exactly from each curve (a, b known) give back a, b and the closed-form tail product.
@@ -86,7 +99,9 @@ validation:
       Exponential and inverse-power tails on GenIns and RAA with the same fit range and the
       same 100 extension periods match the chainladder package's TailCurve, frozen as in
       decision 0007. The tails with the former stopping rule (RAA inverse power 1.0991 against
-      1.1015) are recorded as information in the manifests and are not tested.
+      1.1015) and the inverse power tails with the infinite product (RAA 1.10534 and GenIns
+      1.32130 against the 100-period 1.10148 and 1.29243) are recorded as information in the
+      manifests and are not tested.
     tolerance: 1e-6 relative
   - kind: ground_truth
     description: >-
@@ -104,3 +119,6 @@ change_log:
   - version: 0.2.0
     date: 2026-10-24
     change: The extension runs a fixed number of development periods (extension_periods, default 100), as in the reference package; the stopping rule of 1e-4 is removed (decision 0608).
+  - version: 0.3.0
+    date: 2026-10-25
+    change: The fit variable is the link number; new output tail_remainder and parameter remainder_warning (default 0.005) replace the rule 'last period adds more than 1e-4' (decision 0614).

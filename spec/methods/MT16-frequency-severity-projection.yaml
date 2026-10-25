@@ -1,5 +1,5 @@
 id: MT16
-version: 0.1.0
+version: 0.2.0
 title_en: Frequency–severity projection
 title_tr: Frekans–şiddet projeksiyonu
 status: draft
@@ -63,7 +63,11 @@ algorithm:
       Severity of mature origins: chain-ladder ultimate of the measure (restated to the value
       date per CV02) over the ultimate count; log-linear trend over origin time.
     formula: '\hat S_i = \hat U^{\mathrm{adj}}_i / \hat N_i \ (p_i \ge 0.9), \qquad \ln \hat S_i = \gamma + \delta\, t_i'
-  - step: Projected severity of every origin from the trend, and the ultimate.
+  - step: >-
+      Projected severity of every origin from the trend, and the ultimate. The projected
+      severity replaces the observed severity of mature origins too (smoothing); both are
+      shown in the diagnostics. The reported share p(i) comes from the chain ladder of the
+      severity_measure triangle (incurred or paid), not from the count triangle.
     formula: '\tilde S_i = e^{\hat\gamma + \hat\delta t_i}, \qquad \hat U^{FS}_i = \hat N_i\, \tilde S_i + \hat U^{CAT}_i'
   - step: >-
       With value_basis INFLATION_ADJUSTED, ultimates are at value-date prices and are turned
@@ -81,6 +85,7 @@ diagnostics:
   - Frequency and severity per origin against their trends.
   - Ultimates against the chain ladder and Bornhuetter–Ferguson per origin.
   - Real severity trend as an estimate of superimposed inflation.
+  - Observed and projected severity of mature origins side by side.
 failure_modes:
   - condition: Count chain ladder not available.
     action: Not run, with the MT02 reason on the count triangle.
@@ -102,9 +107,18 @@ validation:
       per line at value-date prices, summed over all accident years, against the true
       ultimate at value-date prices.
     tolerance: counts within 3 per cent per line; ultimate within 5 per cent per line, 10 per cent for MOTOR_TPL and PROPERTY
+notes: >-
+  The projected severity from the trend replaces the observed severity of mature origins
+  too, so the ultimate of a mature origin is smoothed; observed and projected severities
+  are both shown in the diagnostics. The reported share p(i) used to select mature origins
+  comes from the chain ladder of the severity_measure triangle.
 references:
   - Friedland, J. Estimating Unpaid Claims Using Basic Techniques. Casualty Actuarial Society, chapter 11.
 change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 9.2 (P20).
+  - version: 0.2.0
+    date: 2026-10-25
+    change: >-
+      Wording, projected severity replaces the observed one for mature origins too; the reported share comes from the severity_measure triangle (decision 0618).

@@ -49,23 +49,3 @@ reported_share_p,2007,0.6153102172362173,1e-09,derived: 1 / cdf at the latest ag
 reported_share_p,2008,0.4221934938608693,1e-09,derived: 1 / cdf at the latest age
 reported_share_p,2009,0.2416217059582573,1e-09,derived: 1 / cdf at the latest age
 reported_share_p,2010,0.0692205502511836,1e-09,derived: 1 / cdf at the latest age
-mack_credibility_weight_Z,2001,0.5,1e-09,derived: p / (p + sqrt p)
-mack_credibility_weight_Z,2002,0.4978038298590766,1e-09,derived: p / (p + sqrt p)
-mack_credibility_weight_Z,2003,0.4885850128382644,1e-09,derived: p / (p + sqrt p)
-mack_credibility_weight_Z,2004,0.4820316156578761,1e-09,derived: p / (p + sqrt p)
-mack_credibility_weight_Z,2005,0.471710466367265,1e-09,derived: p / (p + sqrt p)
-mack_credibility_weight_Z,2006,0.45942214910452583,1e-09,derived: p / (p + sqrt p)
-mack_credibility_weight_Z,2007,0.4395929129361351,1e-09,derived: p / (p + sqrt p)
-mack_credibility_weight_Z,2008,0.39385276384304796,1e-09,derived: p / (p + sqrt p)
-mack_credibility_weight_Z,2009,0.3295566403734014,1e-09,derived: p / (p + sqrt p)
-mack_credibility_weight_Z,2010,0.20829578460032072,1e-09,derived: p / (p + sqrt p)
-mack_credibility_ultimate,2001,3901463.0,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
-mack_credibility_ultimate,2002,5425552.2632986875,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
-mack_credibility_ultimate,2003,5339594.7811319195,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
-mack_credibility_ultimate,2004,5242546.926766245,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
-mack_credibility_ultimate,2005,4819836.960665973,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
-mack_credibility_ultimate,2006,5019417.701049242,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
-mack_credibility_ultimate,2007,5410528.346151908,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
-mack_credibility_ultimate,2008,5984580.563938015,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
-mack_credibility_ultimate,2009,5061481.334295033,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson
-mack_credibility_ultimate,2010,4623609.930888647,1e-09,derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson

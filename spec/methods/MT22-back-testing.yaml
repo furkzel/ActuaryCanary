@@ -1,5 +1,5 @@
 id: MT22
-version: 0.1.0
+version: 0.2.0
 title_en: Back-testing of past selections
 title_tr: Geçmiş seçimlerin geriye dönük testi
 status: draft
@@ -32,6 +32,11 @@ parameters:
   - name: mature_at
     default: 0.95
     description: Reported share from which today's estimate stands for the actual.
+  - name: backtest_simulations
+    default: 1000
+    description: >-
+      Number of simulations of the reruns of MT06 and MT11 at past cut-offs, so that
+      back-testing stays inside the time budget. The bootstrap rerun is optional.
   - name: past_selections
     default: rerun
     description: Re-run the default selection rules at the past cut-off, or read the selections of past run manifests in the folder when present.
@@ -44,7 +49,7 @@ algorithm:
     formula: 'B_m(h) = \frac{\sum_i w_i e_{m,i}}{\sum_i w_i}, \quad MAE_m(h) = \frac{\sum_i w_i |e_{m,i}|}{\sum_i w_i}, \quad w_i = U^{\mathrm{ref}}_i(c)'
   - step: >-
       Range calibration - share of origins whose reference falls inside the past 5 to 95 per
-      cent range of MT06 (and MT11 when run); the expected share is 90 per cent.
+      cent range of MT06 (and MT11 when run, an optional rerun with backtest_simulations samples); the expected share is 90 per cent.
   - step: Actual against expected development over each horizon (AE01) beside the errors.
 outputs:
   - name: back_test_errors
@@ -84,3 +89,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 9.2 (P20).
+  - version: 0.2.0
+    date: 2026-10-25
+    change: New parameter backtest_simulations (default 1000) for the reruns of MT06 and MT11; the bootstrap rerun is optional (decision 0618).

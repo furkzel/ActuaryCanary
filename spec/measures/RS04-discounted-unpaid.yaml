@@ -1,5 +1,5 @@
 id: RS04
-version: 0.1.0
+version: 0.2.0
 title_en: Discounted unpaid claims
 title_tr: İskonto edilmiş ödenmemiş hasarlar
 status: draft
@@ -41,6 +41,11 @@ parameters:
       Pattern that times the selected unpaid - the paid chain-ladder pattern (MT02), scaled
       to the selected unpaid of each origin.
 edge_cases:
+  - case: NET basis
+    handling: >-
+      The gross cash flows are scaled by the origin's net-to-gross unpaid ratio (CV09) and
+      discounted at the gross timing; labelled an approximation until treaty-level cash
+      flows exist.
   - case: No curve named, or the curve in another currency
     handling: Not available (CV10), with the reason.
   - case: Selected unpaid negative for an origin
@@ -64,3 +69,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint sections 5.3 and 7.2 (P20).
+  - version: 0.2.0
+    date: 2026-10-25
+    change: NET basis, gross cash flows scaled by the net-to-gross unpaid ratio at the gross timing, labelled an approximation (decision 0618).

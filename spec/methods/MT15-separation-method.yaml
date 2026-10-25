@@ -1,5 +1,5 @@
 id: MT15
-version: 0.1.0
+version: 0.2.0
 title_en: Separation method
 title_tr: Ayrıştırma yöntemi (separation)
 status: draft
@@ -24,6 +24,11 @@ assumptions:
     check: Residuals of the fit by origin and development show no pattern.
   - statement: The ultimate claim count n(i) of each origin is known or well estimated.
     check: Count development of MT16; immature origins carry its error.
+  - statement: >-
+      The pattern sums to 1 over the observed columns, so the method has no development
+      beyond the last column and its ultimates carry no tail.
+    check: >-
+      The report says so beside the ultimates; a tail is not part of this method (see notes).
   - statement: The future calendar index follows the chosen trend or assumption.
     check: Compare the fitted past index with CPI (CV02) and with the line's own trend.
 parameters:
@@ -83,6 +88,12 @@ validation:
       the true claims inflation of those years (CPI plus the line's superimposed rate, from
       the scenario file).
     tolerance: within 3 percentage points a year, 5 for MOTOR_TPL
+notes: >-
+  Limitation: the pattern r(j) sums to 1 over the observed columns, so the ultimates of this
+  method carry no tail and development after the last column is not estimated; the report
+  says so. A tail from MT14 or an assumed tail factor is applied outside the method, to the
+  ultimates, as selected in the assumptions register (as for MT02), and is shown as a
+  separate line. No other tail source is allowed.
 references:
   - Taylor, G. C. (1977). Separation of inflation and other effects from the distribution of non-life insurance claim delays. ASTIN Bulletin.
   - 'Taylor, G. (2000). Loss Reserving: An Actuarial Perspective. Kluwer.'
@@ -90,3 +101,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 9.2 (P20).
+  - version: 0.2.0
+    date: 2026-10-25
+    change: States that the method has no tail and which tails may be applied outside it (decision 0618).

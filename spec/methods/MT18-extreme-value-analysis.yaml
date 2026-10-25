@@ -1,5 +1,5 @@
 id: MT18
-version: 0.2.0
+version: 0.3.0
 title_en: Extreme value analysis (peaks over threshold)
 title_tr: Uç değer analizi (eşik aşımları)
 status: draft
@@ -60,6 +60,10 @@ algorithm:
     formula: '\hat k = \max\Big\{ k : -\frac{1}{k}\sum_{m=1}^{k} \ln(1 - p_m) \le \alpha \Big\}, \qquad \hat u = u_{\hat k + 1}'
   - step: Tail quantile and return level, with n claims in total, N_u above u and h years of data.
     formula: 'x_p = \hat u + \frac{\hat\sigma}{\hat\xi}\Big[\Big(\frac{n}{N_u}(1-p)\Big)^{-\hat\xi} - 1\Big], \qquad z_T = \hat u + \frac{\hat\sigma}{\hat\xi}\Big[\Big(\frac{N_u}{h}\,T\Big)^{\hat\xi} - 1\Big]'
+  - step: >-
+      Limits for xi = 0: x_p = u + sigma ln(N_u / (n (1 - p))), z_T = u + sigma ln(N_u T / h)
+      and ES_p = x_p + sigma.
+    formula: 'x_p = \hat u + \hat\sigma \ln\frac{N_u}{n(1-p)}, \qquad z_T = \hat u + \hat\sigma \ln\frac{N_u T}{h}, \qquad ES_p = x_p + \hat\sigma'
   - step: Expected shortfall above a quantile (xi below 1).
     formula: 'ES_p = \frac{x_p}{1 - \hat\xi} + \frac{\hat\sigma - \hat\xi \hat u}{1 - \hat\xi}'
   - step: >-
@@ -128,3 +132,6 @@ change_log:
       Owner decision (record 0601): the selected threshold is used only inside the
       extreme-value fit and reported next to CV08's threshold; it no longer proposes a
       replacement for CV08, and the requires_decision entry is closed.
+  - version: 0.3.0
+    date: 2026-10-25
+    change: Limits of the tail quantile, the return level and the expected shortfall for xi = 0 (decision 0618).

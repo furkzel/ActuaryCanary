@@ -19,4 +19,8 @@ Regenerate (by hand; the tests never run these): from the repository root, with 
 `freeze_scipy.py`, `freeze_survival.py` (needs Rscript with survival), `build_hand_fixtures.py`.
 `check_km_hand_fixture.R` compares the Kaplan–Meier fixture with R.
 
+The bootstrap package (`BootstrapODPSample`) projects from the sampled diagonal and centres the residual pool; MT11 0.3.0 does the same (decision 0612), so the simulation rows are comparable like for like. The mean of the package total is 1.8 per cent above the chain-ladder reserve on RAA, hence the 3 per cent mean criterion.
+
+The tail references carry the inverse power tail with the infinite product (RAA 1.10534, GenIns 1.32130 against the 100-period 1.10148 and 1.29243) as information (decision 0614). The Cox references freeze coefficients, standard errors, log-likelihoods and the overall tests; the Grambsch–Therneau test, the concordance and the baseline survival have no frozen reference and are information until one is frozen from R (`cox.zph`, `concordance`, decision 0616). `MT13` freezes the Benktander, Bornhuetter–Ferguson and chain-ladder rows only; Mack's credibility weight was removed from the spec (decision 0613).
+
 A manifest may carry an `information` list: values of variants that a decision dropped (the Munich lambda with every link, decision 0607; the tail with the 1e-4 stopping rule, decision 0608). They are not pass criteria and have no row in `values.csv`.

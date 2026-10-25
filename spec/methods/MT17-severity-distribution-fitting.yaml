@@ -1,5 +1,5 @@
 id: MT17
-version: 0.1.0
+version: 0.2.0
 title_en: Severity distribution fitting with goodness of fit
 title_tr: Hasar şiddeti dağılımı uydurma ve uyum iyiliği
 status: draft
@@ -41,6 +41,13 @@ parameters:
   - name: gof_bootstrap
     default: 200
     description: Parametric bootstrap samples for the p-values of Kolmogorov–Smirnov and Anderson–Darling with estimated parameters.
+  - name: gof_max_claims
+    default: 2000
+    description: >-
+      In a group with more claims, D, A^2 and their bootstrap p-values are computed on a random
+      subsample of this size (seed from the run seed, recorded) and the output names the number
+      used. With thousands of claims every family is rejected and the rule "lowest AIC among the
+      not rejected" would never apply.
   - name: significance
     default: 0.05
     description: A family whose Anderson–Darling bootstrap p-value is below this is rejected.
@@ -59,14 +66,19 @@ algorithm:
     formula: '\hat\theta = \arg\max_\theta \sum_k \ln f_\theta(x_k) - n \ln\big(1 - F_\theta(d)\big)'
   - step: Standard errors from the observed information (numerical Hessian of the log-likelihood).
     formula: '\widehat{\mathrm{Var}}(\hat\theta) = \big[-\nabla^2 \ell(\hat\theta)\big]^{-1}'
-  - step: Goodness of fit per family; p-values by parametric bootstrap (refit on each sample).
+  - step: >-
+      Goodness of fit per family; p-values by parametric bootstrap (refit on each sample), on
+      at most gof_max_claims claims per group. With truncation_point d > 0, D and A^2 use the
+      conditional distribution function (F(x) - F(d)) / (1 - F(d)) in place of F.
     formula: 'D = \sup_x |F_n(x) - F_{\hat\theta}(x)|, \qquad A^2 = -n - \frac{1}{n}\sum_{k=1}^{n} (2k-1)\big[\ln F_{\hat\theta}(x_{(k)}) + \ln\big(1 - F_{\hat\theta}(x_{(n+1-k)})\big)\big], \qquad AIC = 2p - 2\ell'
   - step: Selection - the lowest AIC among the families not rejected by Anderson–Darling; when all are rejected, the lowest AIC, labelled "no family fits".
   - step: Quantiles, limited expected value and layer cost of the selected family.
     formula: 'E[X \wedge L] = \int_0^L \big(1 - F(x)\big)\,dx, \qquad E[\text{layer } (R, R+L]] = E[X \wedge (R+L)] - E[X \wedge R]'
 outputs:
   - name: fits
-    description: Parameters with standard errors, log-likelihood, AIC, BIC, D, A^2 and their p-values, per family and group.
+    description: >-
+      Parameters with standard errors, log-likelihood, AIC, BIC, D, A^2 and their p-values, per
+      family and group, with the number of claims used for D, A^2 and the p-values.
   - name: selected
     description: Selected family per group and why.
   - name: quantiles
@@ -96,10 +108,12 @@ validation:
     tolerance: 1e-4 relative
   - kind: ground_truth
     description: >-
-      Calibration on samples from each family itself (known parameters, 1,000 samples of
-      2,000 sizes, fixed seed): the 95 per cent Wald interval covers the true parameter, and
-      the true family is selected (slow test, behind ACTUARYCANARY_MONTE_CARLO=1).
-    tolerance: coverage within 90 to 99 per cent per parameter; true family selected in at least 80 per cent of samples
+      Calibration on samples from each family itself (1,000 samples of 2,000 sizes, fixed
+      seed): the parameter sets are fixed in the test and recorded, with the families at least
+      as well separated as in tests/benchmarks/tier_b/MT17-severity-fits. The 95 per cent Wald
+      interval covers the true parameter, and the true family is selected (slow test, behind
+      ACTUARYCANARY_MONTE_CARLO=1).
+    tolerance: coverage within 90 to 99 per cent per parameter; true family selected in at least 80 per cent of samples (a proposal, UNVERIFIED)
   - kind: ground_truth
     description: >-
       On the synthetic baseline (medium), the selected family and the fitted 95th percentile
@@ -114,3 +128,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 9.2 (P20).
+  - version: 0.2.0
+    date: 2026-10-25
+    change: Goodness of fit under truncation uses the conditional distribution function; new parameter gof_max_claims (default 2000); ground-truth parameter sets fixed and recorded (decision 0615).
