@@ -3,7 +3,7 @@ version: 1.0.0
 title_en: Separation method
 title_tr: Ayrıştırma yöntemi (separation)
 status: reviewed
-implemented: false
+implemented: true
 definition: >-
   Splits average paid per claim into a development pattern and a calendar-period index
   (Taylor 1977), so that calendar-year effects such as claims inflation are measured

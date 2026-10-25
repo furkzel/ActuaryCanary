@@ -3,7 +3,7 @@ version: 1.0.0
 title_en: Benktander blends
 title_tr: Benktander karışımları
 status: reviewed
-implemented: false
+implemented: true
 definition: >-
   Ultimates that blend the chain ladder and Bornhuetter–Ferguson by maturity: the
   Benktander (iterated Bornhuetter–Ferguson) estimate, a credibility mix of the

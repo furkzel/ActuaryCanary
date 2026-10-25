@@ -70,11 +70,15 @@ def run_id(
     return digest[:RUN_ID_LENGTH]
 
 
-def write_output(folder: Path, name: str, content: str) -> OutputRecord:
-    """Write one output file and fingerprint it from memory, without reading it back."""
-    data = content.encode("utf-8")
+def write_output_bytes(folder: Path, name: str, data: bytes) -> OutputRecord:
+    """Write one binary output file (parquet) and fingerprint it from memory."""
     (folder / name).write_bytes(data)
     return OutputRecord(name, len(data), hashlib.sha256(data).hexdigest())
+
+
+def write_output(folder: Path, name: str, content: str) -> OutputRecord:
+    """Write one output file and fingerprint it from memory, without reading it back."""
+    return write_output_bytes(folder, name, content.encode("utf-8"))
 
 
 def write_manifest(

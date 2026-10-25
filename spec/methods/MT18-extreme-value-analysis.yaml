@@ -3,7 +3,7 @@ version: 1.0.0
 title_en: Extreme value analysis (peaks over threshold)
 title_tr: Uç değer analizi (eşik aşımları)
 status: reviewed
-implemented: false
+implemented: true
 definition: >-
   Models the largest claims with a generalised Pareto distribution above a threshold
   chosen by an automatic, reproducible rule, and gives tail quantiles, return levels and

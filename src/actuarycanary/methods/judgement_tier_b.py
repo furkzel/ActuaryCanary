@@ -209,9 +209,11 @@ def chain_ladder_with_tail(
     if isinstance(curve_fit, Skipped):
         raise AssumptionError(f"MT14 selected_curve {selected.value}: {curve_fit.reason}")
     tail = curve_fit.tail_factor
+    # the run's own tail setting (passed in `options` by the module) gives way to the fitted one
+    rest = {k: v for k, v in options.items() if k != "tail_factor"}
     rerun, _ = chain_ladder_judged(
         cumulative, origins=origins, ages=ages, scope=scope, register=register,
-        calendar=calendar, tail_factor=tail, **options,  # type: ignore[arg-type]
+        calendar=calendar, tail_factor=tail, **rest,  # type: ignore[arg-type]
     )  # fmt: skip
     entries = [e for e in entries if not (e.method == "MT02" and e.name == "tail_factor")]
     first = ages[curve_fit.columns[0]]

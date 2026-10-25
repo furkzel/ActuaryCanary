@@ -93,7 +93,7 @@ IMPLEMENTATIONS: dict[str, Implementation] = {
     "RT02": Implementation(ratio_measures.combined_ratio),
     "AE01": Implementation(ratio_measures.actual_versus_expected, {"entity": _TRIANGLES}),
 }
-METHOD_OUTPUTS = ("RS01", "RS02", "RS03")  # tables of the methods, through the port
+METHOD_OUTPUTS = ("RS01", "RS02", "RS03", "AE02")  # tables of the methods, through the port
 CURRENCY_VIEWS = {CurrencyView.ORIGINAL: "ORIGINAL", CurrencyView.REPORTING: "REPORTING"}
 
 

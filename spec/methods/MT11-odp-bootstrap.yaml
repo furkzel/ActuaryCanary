@@ -3,7 +3,7 @@ version: 1.1.0
 title_en: Over-dispersed Poisson bootstrap
 title_tr: Aşırı yayılımlı Poisson bootstrap
 status: reviewed
-implemented: false
+implemented: true
 definition: >-
   The full predictive distribution of the chain-ladder reserve under the over-dispersed
   Poisson model (England and Verrall 1999, 2002): residual resampling for parameter error

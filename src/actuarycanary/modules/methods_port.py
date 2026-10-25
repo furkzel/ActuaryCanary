@@ -1,5 +1,6 @@
 """The methods behind the port of the measures (record 0056): RT01, RT02 and AE01 read the
-selection (MT10), RS01 to RS03 are the tables of the reserving module.
+selection (MT10), RS01 to RS03 are the tables of the reserving module and AE02 the errors of
+the back-test (MT22).
 
 The port answers on the basis the run was made on only; a measure asked on another basis gets
 "not available" with that reason instead of numbers mixed from two bases.
@@ -23,9 +24,13 @@ from actuarycanary.modules.reserving import (
     ReservingResult,
     earlier_result,
 )
+from actuarycanary.modules.reserving_tier_b_output import ae02_table
 from actuarycanary.structures.triangles import MEASURES
 
-IMPLEMENTED = frozenset({"MT03", "MT04", "MT05", "MT06", "MT07", "MT10"})
+IMPLEMENTED = frozenset(
+    {"MT03", "MT04", "MT05", "MT06", "MT07", "MT10", "MT11", "MT12", "MT13", "MT14", "MT15",
+     "MT16", "MT22"}
+)  # fmt: skip
 PERCENTILE_COLUMNS = {0.5: "p50", 0.75: "p75", 0.9: "p90", 0.95: "p95", 0.99: "p99", 0.995: "p99_5"}
 SAME_ULTIMATE = 1e-9  # relative: a selected ultimate equal to the Mack one is the Mack one
 
@@ -106,13 +111,22 @@ class ReservingPort:
         if wrong:
             return wrong
         if measure_id not in self._tables:
-            builders = {"RS01": factors_table, "RS02": ultimates_table, "RS03": range_table}
+            builders = {
+                "RS01": factors_table,
+                "RS02": ultimates_table,
+                "RS03": range_table,
+                "AE02": ae02_table,
+            }
             if measure_id not in builders:
                 return NotAvailable(f"{measure_id} is not a method output")
             self._tables[measure_id] = builders[measure_id](self._result)
         table = self._tables[measure_id]
         if table.height == 0:
-            return NotAvailable("no triangle could be developed")
+            return NotAvailable(
+                "the back-test did not run (MT22)"
+                if measure_id == "AE02"
+                else "no triangle could be developed"
+            )
         return table
 
     def built(self) -> frozenset[str]:

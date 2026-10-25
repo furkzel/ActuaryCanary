@@ -39,15 +39,21 @@ from actuarycanary.manifest.run import (
     run_id,
     write_manifest,
     write_output,
+    write_output_bytes,
 )
 from actuarycanary.measures.lineage import DEFAULT_FORMAT, FORMATS, build_lineage
 from actuarycanary.measures.model import Basis, CurrencyView, MeasureInputs, with_refs
 from actuarycanary.measures.output import values_table
 from actuarycanary.methods import diagnostics as diagnostic_limits
 from actuarycanary.methods import isolation_forest, robust_z
+from actuarycanary.methods import registry as tier_b_registry
 from actuarycanary.methods.assumptions import AssumptionsRegister, records
 from actuarycanary.methods.chain_ladder import ChainLadder
+from actuarycanary.methods.seeding import RUN_SEED
 from actuarycanary.methods.selection import BF_BELOW_MATURITY
+from actuarycanary.methods.severity import LargeLossError, LargeLossSettings, parse_large_loss
+from actuarycanary.modules import reserving_tier_b_output as tier_b_output
+from actuarycanary.modules import severity_run
 from actuarycanary.modules.anomalies import AnomalyResult, run_anomalies
 from actuarycanary.modules.methods_port import ReservingPort
 from actuarycanary.modules.output import analysis_json
@@ -77,6 +83,7 @@ from actuarycanary.modules.reserving_output import (
     ultimates_csv,
 )
 from actuarycanary.modules.runner import AnalysisResult, run_modules
+from actuarycanary.modules.tier_b_inputs import TierBInputs, tier_b_source
 from actuarycanary.quality.engine import evaluate
 from actuarycanary.quality.model import QualityReport
 from actuarycanary.quality.output import QUALITY_NAME, quality_json
@@ -223,6 +230,7 @@ class RunResult:
     analysis: AnalysisResult
     anomalies: AnomalyResult
     report_data: dict[str, Any]  # every number and text of the report page (golden test)
+    severity: severity_run.SeverityRun  # MT17 and MT18 over the claim sizes
 
 
 def recognise_folder(
@@ -340,12 +348,21 @@ def _mapping_record(rec: TableRecognition, values: list[ValueMapping]) -> dict[s
 
 
 def _settings_record(
-    settings: RunSettings, reporting_currency: str, price_index: str, market_read: bool
+    settings: RunSettings,
+    reporting_currency: str,
+    price_index: str,
+    market_read: bool,
+    large_loss: LargeLossSettings,
 ) -> dict[str, Any]:
     record = settings.model_dump(mode="json")
     record["reporting_currency"] = reporting_currency
     record["triangles"]["price_index"] = price_index
     record["methods"] = _methods_record()
+    # the seeds and defaults of the tier B and severity methods, and the large-loss section of
+    # project.yaml, so that a change of any of them gives another run id (records 0281, 0620)
+    record["tier_b"] = tier_b_registry.settings(RUN_SEED)
+    record["severity"] = severity_run.settings()
+    record["large_loss"] = large_loss.manifest_record()
     record["bases"] = {
         "reinsurance": settings.triangles.reinsurance_basis.value,
         "currency": settings.currency_view,
@@ -577,6 +594,10 @@ def run(
     settings = settings or RunSettings()
     step = progress or (lambda _: None)
     metadata = load_metadata()
+    try:
+        large_loss = parse_large_loss(metadata.large_loss)
+    except LargeLossError as error:
+        raise InputError(f"project.yaml: {error}") from error
     specs = load_specs()
     dictionary = build_dictionary(specs)
     currency = settings.reporting_currency or metadata.report.default_reporting_currency
@@ -715,6 +736,8 @@ def run(
         fiscal_year_start_month=settings.triangles.fiscal_year_start_month,
         origin_axis=settings.triangles.origin_axis.value,
         triangles=triangles,
+        large_loss_percentile=large_loss.percentile,
+        large_loss_thresholds=large_loss.thresholds,
     )
     reinsurance, value_basis = settings.triangles.reinsurance_basis, settings.triangles.value_basis
     period = settings.triangles.origin_period
@@ -743,8 +766,27 @@ def run(
         nominal=other_value if adjusted else triangles,
         adjusted_reason=other_reason,
         origin_axis=settings.triangles.origin_axis.value,
+        tier_b=TierBInputs(
+            tier_b_source(
+                valuations,
+                claims,
+                measure_frames.get(POLICIES),
+                settings.triangles,
+                rates,
+                currency,
+                policies=policies,
+                market=market,
+                price_index=price_index,
+                cut_off=triangles.cut_off,
+            )
+        ),
     )
     reserving = run_reserving(triangles, settings.chain_ladder, method_inputs)
+
+    step("Fitting claim sizes and extreme values")
+    severity = severity_run.run_severity(measure_inputs, settings.assumptions)
+    measure_inputs.extreme_value_note = severity.comparison
+    reserving = replace(reserving, extra_assumptions=severity.entries)
 
     step("Flagging anomalies")
     anomalies = run_anomalies(valuations, claims, rates, triangles.cut_off)
@@ -760,7 +802,11 @@ def run(
         reinsurance,
         value_basis,
         cache=cache,
-        notes={"M04": not_run_notes(reserving), "M06": anomalies.reasons},
+        notes={
+            "M03": severity.notes.get("M03", ()),
+            "M04": not_run_notes(reserving),
+            "M06": [*anomalies.reasons, *severity.notes.get("M06", ())],
+        },
         view=view,
     )
     checked_only = [c for c in CHECKED_CONCEPTS if c in checked]
@@ -773,7 +819,13 @@ def run(
         for module in sorted(specs.modules.values(), key=lambda m: m.id)
         for i in (module.id, *module.measures)
     ]
-    ran_methods = [*methods_run(reserving), "MT08", "MT09"]
+    ran_methods = [
+        *methods_run(reserving),
+        "MT08",
+        "MT09",
+        *severity_run.methods_run(severity),
+        *tier_b_output.measures_run(reserving),
+    ]
     used = [
         s
         for s in (*SPECS_USED, *extra, *concepts, *checked_only, *ran, *ran_methods)
@@ -782,7 +834,7 @@ def run(
     used = list(dict.fromkeys([*used, specs.finding_rules.id]))
     catalogue = {f.spec.id: f.spec for f in specs.files}
     spec_records = [SpecRecord(s, catalogue[s].version, catalogue[s].title_en) for s in used]
-    settings_record = _settings_record(settings, currency, price_index, market_read)
+    settings_record = _settings_record(settings, currency, price_index, market_read, large_loss)
     applied = [
         {
             "file": m["file"],
@@ -817,11 +869,24 @@ def run(
         (ULTIMATES_NAME, ultimates_csv(reserving)),
         (RANGE_NAME, range_csv(reserving)),
         (CASH_FLOWS_NAME, cash_flows_csv(reserving)),
-        (DIAGNOSTICS_NAME, diagnostics_csv(reserving)),
+        (
+            DIAGNOSTICS_NAME,
+            diagnostics_csv(reserving, severity_run.diagnostic_rows(severity)),
+        ),
         (ANOMALIES_NAME, anomalies_csv(anomalies)),
     ):
         outputs.append(write_output(out, name, content))
-    randomness = [{"method": "MT09", "seed": isolation_forest.SEED, "purpose": "isolation forest"}]
+    for name, table in tier_b_output.tables(reserving).items():
+        outputs.append(write_output(out, name, table.write_csv()))
+    for name, data in tier_b_output.distribution_files(reserving).items():
+        outputs.append(write_output_bytes(out, name, data))
+    for name, table in severity.files().items():
+        outputs.append(write_output(out, name, table.write_csv()))
+    randomness = [
+        {"method": "MT09", "seed": isolation_forest.SEED, "purpose": "isolation forest"},
+        *[row for row in tier_b_registry.randomness(RUN_SEED) if row["method"] in ran_methods],
+        *severity.randomness(),
+    ]
 
     step("Writing the report")
     previous = earlier_valuation(reserving)
@@ -884,4 +949,5 @@ def run(
         analysis,
         anomalies,
         report_data,
+        severity,
     )

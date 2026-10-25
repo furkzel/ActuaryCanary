@@ -44,7 +44,9 @@ def assumptions_csv(entries: list[Assumption]) -> str:
     return frame.write_csv()
 
 
-def diagnostics_csv(result: ReservingResult) -> str:
+def diagnostics_csv(result: ReservingResult, extra: list[dict[str, Any]] | None = None) -> str:
+    """The diagnostics of the methods; `extra` are rows of methods outside the triangles
+    (MT17, MT18), already in the columns of the file."""
     rows: list[dict[str, Any]] = []
     for group in result.groups:
         for found in group.diagnostics:
@@ -62,6 +64,7 @@ def diagnostics_csv(result: ReservingResult) -> str:
                     "message": item.message,
                 }
             )
+    rows += extra or []
     schema: dict[str, Any] = {c: pl.String for c in DIAGNOSTIC_COLUMNS}
     schema["value"] = pl.Float64
     return pl.DataFrame(rows, schema=schema).write_csv()

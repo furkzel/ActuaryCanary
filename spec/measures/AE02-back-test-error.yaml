@@ -3,7 +3,7 @@ version: 1.0.0
 title_en: Back-test error of a projection
 title_tr: Projeksiyonun geriye dönük test hatası
 status: reviewed
-implemented: false
+implemented: true
 definition: >-
   How far an ultimate projected at an earlier cut-off lies from the reference today (the
   selected ultimate, or the developed actual of mature origins), as a share of the
