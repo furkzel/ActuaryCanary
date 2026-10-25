@@ -1,4 +1,6 @@
-"""Shared helpers of the tier B method tests: references as arrays and series."""
+"""Shared helpers of the tier B method tests: references as arrays and series (read once)."""
+
+from functools import cache
 
 import numpy as np
 
@@ -6,6 +8,7 @@ from tests.benchmarks.load import load_reference, load_table, load_triangle, ref
 from tests.methods.helpers import array
 
 
+@cache
 def reference(name: str) -> dict:
     return load_reference(name)
 
