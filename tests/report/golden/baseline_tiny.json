@@ -48,7 +48,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "235831147adff89b"
+    "value": "d9c8c15caee71270"
    },
    {
     "label": "Valuation date",
@@ -80,7 +80,7 @@
    },
    {
     "label": "Software",
-    "value": "ActuaryCanary 1.0.0"
+    "value": "ActuaryCanary 1.1.0"
    }
   ],
   "tagline": "Turns insurance data in any layout into an auditable, early-warning actuarial report on your own computer.",
@@ -3715,7 +3715,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "235831147adff89b",
+  "run_id": "d9c8c15caee71270",
   "settings": [
    {
     "name": "bases.currency",
@@ -3874,7 +3874,7 @@
     "value": "True"
    }
   ],
-  "software": "ActuaryCanary 1.0.0",
+  "software": "ActuaryCanary 1.1.0",
   "specs": [
    {
     "id": "claim_valuations",

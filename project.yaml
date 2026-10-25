@@ -4,7 +4,7 @@ name: "ActuaryCanary"                  # working name; may change later
 package: "actuarycanary"               # Python import name
 command: "canary"                      # terminal command, e.g. `canary run data/`
 tagline: "Turns insurance data in any layout into an auditable, early-warning actuarial report on your own computer."
-version: "1.0.0"
+version: "1.1.0"
 author: ""
 contact: ""
 repository: ""

@@ -1515,7 +1515,7 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "c9bafb0a12c6c771ace9beb9e888c07a7c7c9b37cb1c0542b72223a8d2147ff9",
+      "sha256": "9e45b30f74280e2ad405fe9eefea972d80310b5830a3f3d0069be858ca88ce1e",
       "size": 5045555
     },
     {
@@ -1596,7 +1596,7 @@
       "seed": 1
     }
   ],
-  "run_id": "fa732a2c97f83e6b",
+  "run_id": "b8421ff59f2a208b",
   "settings": {
     "assumptions": {
       "entries": []
@@ -1659,7 +1659,7 @@
     "use_market": true
   },
   "software": {
-    "actuarycanary": "1.0.0"
+    "actuarycanary": "1.1.0"
   },
   "specs": [
     {
