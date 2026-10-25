@@ -1,5 +1,5 @@
 id: MT11
-version: 0.2.0
+version: 0.3.0
 title_en: Over-dispersed Poisson bootstrap
 title_tr: Aşırı yayılımlı Poisson bootstrap
 status: draft
@@ -27,7 +27,9 @@ assumptions:
       column-wise scale option).
   - statement: Every column of incremental paid sums to a positive amount.
     check: Column sums of the incremental triangle; a non-positive column stops the method.
-  - statement: Residuals are exchangeable across cells.
+  - statement: >-
+      Residuals are exchangeable across cells and have mean zero after centring (parameter
+      centre_residuals).
     check: Residual plots by development period; a few columns with much larger residuals suggest heteroscedasticity.
 parameters:
   - name: n_simulations
@@ -47,6 +49,9 @@ parameters:
   - name: tail_factor
     default: MT02 tail_factor
     description: Tail of the fitted chain ladder; a tail from MT14 adds a fixed share to each simulation, without its own error.
+  - name: centre_residuals
+    default: true
+    description: The pool of adjusted residuals has its mean subtracted before resampling, as the reference package does (decision 0612).
   - name: percentiles
     default: [0.5, 0.75, 0.9, 0.95, 0.99, 0.995]
     description: Percentiles reported, as in MT06.
@@ -69,13 +74,17 @@ algorithm:
       first column of the latest origin and of the last column of the oldest origin) have
       zero residual and leave the resampling pool. With scale by_development, phi and the
       residuals are computed per column and residuals are rescaled to a common variance.
-    formula: 'r^{\mathrm{adj}}_{i,j} = r_{i,j} \sqrt{\frac{n}{n - p}}'
+      With centre_residuals the mean of the pool is subtracted from every adjusted residual.
+    formula: 'r^{\mathrm{adj}}_{i,j} = r_{i,j} \sqrt{\frac{n}{n - p}}, \qquad r^{\mathrm{c}}_{i,j} = r^{\mathrm{adj}}_{i,j} - \bar r^{\mathrm{adj}}'
   - step: For each simulation b, resample residuals with replacement and form a pseudo-triangle.
     formula: 'X^{*}_{i,j} = \hat\mu_{i,j} + r^{*}_{i,j} \sqrt{\hat\mu_{i,j}}'
   - step: >-
       Refit the chain ladder on the cumulated pseudo-triangle, giving f*(j), and project the
-      future incremental means of each origin from its actual latest cumulative C(i, J_i).
-    formula: '\mu^{*}_{i,k} = C_{i,J_i} \Big(\prod_{l=J_i}^{k-1} f^*_l\Big)\,\big(f^*_{k} - 1\big), \quad k \ge J_i'
+      future incremental means of each origin from the cumulative of the pseudo-triangle on
+      its latest diagonal, C*(i, J_i), not from the actual latest cumulative: this is the
+      forecast of the refitted model, whose row parameters are re-estimated on the pseudo-data
+      (decision 0612).
+    formula: '\mu^{*}_{i,k} = C^{*}_{i,J_i} \Big(\prod_{l=J_i}^{k-1} f^*_l\Big)\,\big(f^*_{k} - 1\big), \quad k \ge J_i'
   - step: >-
       Process error: draw every future increment from the process distribution, in the gamma
       form of the benchmark script (decision 0609); a negative mean is drawn with its absolute
@@ -134,7 +143,7 @@ validation:
       in the reference). The standard deviation is reported and compared only with the wide
       tolerance of its row (0.56 on RAA, where it is heavy tailed); it is not a pass criterion
       on its own (decision 0609).
-    tolerance: mean within 2 per cent of the chain-ladder reserve; median, 75th and 95th percentile within the Monte Carlo tolerance of the reference rows
+    tolerance: mean within 3 per cent of the chain-ladder reserve (decision 0612); median, 75th and 95th percentile within the Monte Carlo tolerance of the reference rows
   - kind: ground_truth
     description: >-
       Calibration on triangles drawn from the model itself: row and column parameters and
@@ -164,3 +173,6 @@ change_log:
   - version: 0.2.0
     date: 2026-10-24
     change: Acceptance statistics are the median, 75th and 95th percentile of the reserve distribution; the standard deviation is reported and compared only with its wide Monte Carlo tolerance; process error in the gamma form of the benchmark script (decision 0609).
+  - version: 0.3.0
+    date: 2026-10-25
+    change: Future means are projected from the pseudo-triangle's own latest diagonal; new parameter centre_residuals (default true); the mean criterion of the benchmark is 3 per cent (decision 0612).

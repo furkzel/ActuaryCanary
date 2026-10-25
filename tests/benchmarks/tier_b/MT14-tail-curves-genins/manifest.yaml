@@ -30,9 +30,14 @@ information:
   value: 1.292430311543694
   note: 'dropped variant (decision 0608): extension stops when f - 1 < 1e-4, 100 periods; derived from
     a and b'
+- quantity: inverse_power_tail
+  key: infinite_product
+  value: 1.321301295957719
+  note: 'information, not tested (decision 0614): the product run to 1e6 periods or until the increment is
+    below 1e-12; the remainder beyond the 100 periods of the default is 2.23 per cent of the 100-period tail'
 notes:
 - x is the link number (1 for 12-24 months, annual grain), which is the age at the start of the link in
   years (spec MT14, CV04).
 - The extension runs to a fixed number of development periods, default 100, as in the package (decisions
-  0276 and 0608). The tail with the old stopping rule (f - 1 below 1e-4) is information only, see `information`.
+  0276 and 0608). The tail with the old stopping rule (f - 1 below 1e-4) is information only, see `information`. The fixed 100 periods also leave out the rest of the product (the inverse power tail with the infinite product is information, decision 0614).
 checked_by_owner: false

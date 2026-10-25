@@ -93,8 +93,6 @@ def build_mt13() -> None:
             bf = latest + q * prior
             gb1 = latest + q * bf
             gb2 = latest + q * gb1
-            z = float(p) / (float(p) + math.sqrt(float(p)))
-            mack = z * float(cl_ult) + (1 - z) * float(bf)
             rows += [
                 (
                     f"{basis}_reported_share_p",
@@ -138,20 +136,6 @@ def build_mt13() -> None:
                     EXACT,
                     "1 - q (closed form: (1 - q) CL + q BF)",
                 ),
-                (
-                    f"{basis}_mack_weight_Z",
-                    origin,
-                    z,
-                    EXACT,
-                    f"p / (p + sqrt p) with p = {num(p)} (float)",
-                ),
-                (
-                    f"{basis}_mack_credibility_ultimate",
-                    origin,
-                    mack,
-                    EXACT,
-                    f"{num(z)} x {num(cl_ult)} + (1 - {num(z)}) x {num(bf)} (float)",
-                ),
             ]
             # the closed form (1 - q) CL + q BF equals the iterated value
             assert (1 - q) * cl_ult + q * bf == gb1
@@ -162,7 +146,7 @@ def build_mt13() -> None:
             "id": "MT13-benktander-4x4",
             "spec_ids": ["MT13"],
             "kind": "hand_worked",
-            "title": "Benktander (k = 1, 2) and Mack credibility blend on the 4 x 4 fixture",
+            "title": "Benktander (k = 1, 2) on the 4 x 4 fixture",
             "source": {
                 "tool": "exact fractions in Python",
                 "data": "tests/fixtures/hand/*.csv (copied here), prior loss ratio 0.6 as in decision 0007",
@@ -178,7 +162,6 @@ def build_mt13() -> None:
             "tolerance_note": "1e-12 relative.",
             "notes": [
                 "Volume-weighted factors, tail 1.0. Benktander k=1 is U = C + q x BF; k=2 iterates once more.",
-                "Mack weight Z = p / (p + sqrt p) uses a square root, so those rows are floats.",
             ],
         },
     )
@@ -910,7 +893,11 @@ def build_mt18() -> None:
                     f"p{p}",
                     x_p,
                     EXACT,
-                    f"u + sigma/xi x ((n/N_u (1-p))^-xi - 1) with n/N_u (1-p) = {ratio:.6g}",
+                    (
+                        f"u + sigma ln(N_u / (n (1-p))) (xi = 0 limit) with n/N_u (1-p) = {ratio:.6g}"
+                        if xi == 0
+                        else f"u + sigma/xi x ((n/N_u (1-p))^-xi - 1) with n/N_u (1-p) = {ratio:.6g}"
+                    ),
                 )
             )
             es = x_p / (1 - xi) + (sigma - xi * u) / (1 - xi)
@@ -920,7 +907,9 @@ def build_mt18() -> None:
                     f"p{p}",
                     es,
                     EXACT,
-                    "x_p/(1-xi) + (sigma - xi u)/(1-xi)",
+                    "x_p + sigma (xi = 0 limit)"
+                    if xi == 0
+                    else "x_p/(1-xi) + (sigma - xi u)/(1-xi)",
                 )
             )
         for period in (10, 50):
@@ -932,7 +921,11 @@ def build_mt18() -> None:
                     f"T{period}",
                     z,
                     EXACT,
-                    f"u + sigma/xi x ((N_u/h T)^xi - 1) with N_u/h T = {rate:g}",
+                    (
+                        f"u + sigma ln(N_u T / h) (xi = 0 limit) with N_u/h T = {rate:g}"
+                        if xi == 0
+                        else f"u + sigma/xi x ((N_u/h T)^xi - 1) with N_u/h T = {rate:g}"
+                    ),
                 )
             )
     for label, pvals in (

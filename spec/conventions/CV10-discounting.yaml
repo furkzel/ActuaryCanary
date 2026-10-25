@@ -1,5 +1,5 @@
 id: CV10
-version: 0.1.0
+version: 0.2.0
 title_en: Discounting
 title_tr: İskonto
 status: draft
@@ -29,7 +29,10 @@ rules:
     Every point is turned into a continuously compounded zero rate z(t), with t the tenor in
     years (tenor_months / 12): ANNUAL spot by ln(1 + r), SIMPLE spot by ln(1 + r t) / t,
     CONTINUOUS spot as given; PAR rates are bootstrapped at whole-year tenors with annual
-    coupons; FORWARD rates are one-year forwards accumulated from the first year.
+    coupons; FORWARD rates are one-year forwards accumulated from the first year. PAR and
+    FORWARD points exist only at whole-year tenors. A SIMPLE point with 1 + r t at or below
+    zero is excluded and listed. A par bootstrap that gives D(n) at or below zero makes the
+    curve unavailable, with the tenor named.
   - >-
     Interpolation is linear in z(t) t, the negative log discount factor, which means a
     constant forward rate between two tenors and keeps every discount factor positive.
@@ -102,3 +105,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint sections 5.3 and 7.2 (P20).
+  - version: 0.2.0
+    date: 2026-10-25
+    change: Exclusion of SIMPLE points with 1 + r t not above zero, curve unavailable when a par bootstrap gives a non-positive discount factor, PAR and FORWARD points at whole-year tenors only (decision 0618).

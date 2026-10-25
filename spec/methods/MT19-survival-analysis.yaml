@@ -1,5 +1,5 @@
 id: MT19
-version: 0.2.0
+version: 0.3.0
 title_en: Survival analysis (Kaplan–Meier and Cox)
 title_tr: Sağkalım analizi (Kaplan–Meier ve Cox)
 status: draft
@@ -34,7 +34,11 @@ parameters:
     allowed: [closed, closed_with_payment]
   - name: covariates
     default: [line]
-    description: Covariates of the Cox model (line, cause, size class of CV08).
+    description: >-
+      Covariates of the Cox model (line, cause, size class of CV08). The size class is the
+      class at report (incurred at the first valuation, CV08 bands). The class at the cut-off
+      or at closing depends on the outcome and is allowed only as a descriptive grouping of
+      Kaplan–Meier curves, labelled so.
   - name: ties
     default: efron
     description: Handling of tied event times in the Cox partial likelihood.
@@ -53,7 +57,11 @@ algorithm:
       the event.
   - step: Kaplan–Meier estimate with Greenwood variance, at the distinct event times t(m) with d(m) events among n(m) at risk.
     formula: '\hat S(t) = \prod_{t_m \le t} \Big(1 - \frac{d_m}{n_m}\Big), \qquad \widehat{\mathrm{Var}}\big(\hat S(t)\big) = \hat S(t)^2 \sum_{t_m \le t} \frac{d_m}{n_m (n_m - d_m)}'
-  - step: Median and percentiles of time to event with log-log confidence intervals.
+  - step: >-
+      Median and percentiles of time to event with log-log confidence intervals; the lower
+      limit takes the plus sign and the upper limit the minus sign of the exponent, z the
+      normal quantile of the confidence level, and the sums run over t(m) up to t.
+    formula: '\hat S(t)^{\exp\left(\pm z\,\hat\sigma(t) / |\ln \hat S(t)|\right)}, \qquad \hat\sigma(t) = \sqrt{\sum_{t_m \le t} \frac{d_m}{n_m (n_m - d_m)}}'
   - step: >-
       Cox proportional hazards by partial likelihood (ties per the parameter; Efron shown,
       with risk set R(m), events D(m) at t(m) and s(m) the sum of their covariates), with
@@ -88,7 +96,10 @@ validation:
     description: >-
       Cox coefficients and standard errors (Efron and Breslow) on a small public dataset
       (the ovarian cancer data of Edmunson et al., 26 rows) against the R survival package,
-      frozen in tests/benchmarks as in decision 0007.
+      frozen in tests/benchmarks as in decision 0007. The references freeze coefficients,
+      standard errors, log-likelihoods and the overall tests; the Grambsch–Therneau test, the
+      concordance and the baseline survival have no frozen reference and are information
+      until one is frozen from R (cox.zph, concordance), decision 0616.
     tolerance: 1e-5 relative
   - kind: ground_truth
     description: >-
@@ -122,3 +133,6 @@ change_log:
     change: >-
       Library decision of the owner (record 0600): implemented with numpy and scipy, no
       statsmodels; the requires_decision entry is closed. Kaplan-Meier with Greenwood variance on numpy; Cox by partial likelihood with scipy.optimize.
+  - version: 0.3.0
+    date: 2026-10-25
+    change: Size class is the class at report; the log-log interval is written out; the Grambsch–Therneau test, the concordance and the baseline survival are information until a reference is frozen (decision 0616).

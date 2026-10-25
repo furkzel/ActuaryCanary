@@ -28,8 +28,9 @@ tolerance_note: 'Deterministic rows 1e-9 relative. Simulation rows carry their M
   by about 1.5 times that.'
 notes:
 - The package samples parameter error only, uses hat_adj=False (the degrees-of-freedom adjustment sqrt(n/(n-p))
-  of the spec) and centres the pool of residuals; the spec does not centre. Its residual pool differs
-  slightly from residuals.csv.
+  of the spec), centres the pool of residuals and projects the future cells from the cumulative of the
+  pseudo-triangle on its latest diagonal; the spec does so too since MT11 0.3.0 (decision 0612). Its residual
+  pool differs slightly from residuals.csv, which is not centred.
 - Acceptance statistics are the median (p50), p75 and p95 of the total reserve; the standard deviation
   is reported and compared only with its wide Monte Carlo tolerance, it is not a pass criterion on its
   own (decision 0609). Process error is gamma with shape |m| / phi and scale phi, sign kept, as in the

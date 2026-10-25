@@ -389,8 +389,10 @@ def freeze_odp(name: str) -> None:
             ),
             "notes": [
                 "The package samples parameter error only, uses hat_adj=False (the degrees-of-freedom "
-                "adjustment sqrt(n/(n-p)) of the spec) and centres the pool of residuals; the spec "
-                "does not centre. Its residual pool differs slightly from residuals.csv.",
+                "adjustment sqrt(n/(n-p)) of the spec), centres the pool of residuals and projects "
+                "the future cells from the cumulative of the pseudo-triangle on its latest diagonal; "
+                "the spec does so too since MT11 0.3.0 (decision 0612). Its residual pool differs "
+                "slightly from residuals.csv, which is not centred.",
                 "Acceptance statistics are the median (p50), p75 and p95 of the total reserve; the "
                 "standard deviation is reported and compared only with its wide Monte Carlo tolerance, "
                 "it is not a pass criterion on its own (decision 0609). Process error is gamma with "
@@ -430,8 +432,6 @@ def freeze_benktander(name: str) -> None:
     bf_ult = latest + q * prior
     gb1 = latest + q * bf_ult
     gb2 = latest + q * gb1
-    z = p / (p + np.sqrt(p))
-    mack = z * cl_ult + (1 - z) * bf_ult
 
     def ult(estimator) -> list[float]:
         return origin_values(estimator.fit(dev, sample_weight=premium).ultimate_)
@@ -466,20 +466,6 @@ def freeze_benktander(name: str) -> None:
         out.append(
             ("reported_share_p", origin, float(v), 1e-9, "derived: 1 / cdf at the latest age")
         )
-    for origin, v in zip(origins, z, strict=True):
-        out.append(
-            ("mack_credibility_weight_Z", origin, float(v), 1e-9, "derived: p / (p + sqrt p)")
-        )
-    for origin, v in zip(origins, mack, strict=True):
-        out.append(
-            (
-                "mack_credibility_ultimate",
-                origin,
-                float(v),
-                1e-9,
-                "derived: Z x chain ladder + (1 - Z) x Bornhuetter-Ferguson",
-            )
-        )
     write_values(folder, out)
     write_manifest(
         folder,
@@ -487,7 +473,7 @@ def freeze_benktander(name: str) -> None:
             "id": f"MT13-benktander-{name}",
             "spec_ids": ["MT13"],
             "kind": "library_reference",
-            "title": f"Benktander and Mack credibility blend on {name} with a constant prior",
+            "title": f"Benktander blends on {name} with a constant prior",
             "source": {
                 **PACKAGE,
                 "data": f"chainladder.load_sample('{name}')",
@@ -502,8 +488,7 @@ def freeze_benktander(name: str) -> None:
                 ],
             },
             "how_produced": (
-                f"Run {SCRIPT}. Package ultimates (checked against the spec formulas); the Mack "
-                "credibility rows are derived by the script."
+                f"Run {SCRIPT}. Package ultimates (checked against the spec formulas)."
             ),
             "prior": {"earned_premium_each_origin": premium_value, "prior_loss_ratio": apriori},
             "files": {
@@ -545,6 +530,23 @@ def spec_tail(a: float, b: float, curve: str, first_t: int) -> tuple[float, int]
     return tail, steps
 
 
+def infinite_tail(a: float, b: float, curve: str, first_t: int) -> tuple[float, float]:
+    """Tail with the product run to 1e6 periods or until the increment is below 1e-12 (decision 0614).
+
+    Returns the tail and its remainder beyond the 100 periods of the default, relative to the
+    100-period tail.
+    """
+    tail = hundred = 1.0
+    for k in range(1_000_000):
+        excess = curve_excess(a, b, curve, first_t + k)
+        if excess < 1e-12:
+            break
+        tail *= 1.0 + excess
+        if k == 99:
+            hundred = tail
+    return tail, tail / hundred - 1.0
+
+
 def freeze_tail(name: str) -> None:
     folder = TIER_B_DIR / f"MT14-tail-curves-{name}"
     tri = cl.load_sample(name)
@@ -584,6 +586,18 @@ def freeze_tail(name: str) -> None:
                 f"{steps} periods; derived from a and b",
             }
         )
+        infinite, remainder = infinite_tail(intercept, slope, curve, first_t=n_links + 1)
+        if curve == "inverse_power":
+            information.append(
+                {
+                    "quantity": f"{curve}_tail",
+                    "key": "infinite_product",
+                    "value": infinite,
+                    "note": "information, not tested (decision 0614): the product run to 1e6 periods "
+                    "or until the increment is below 1e-12; the remainder beyond the 100 periods of "
+                    f"the default is {100 * remainder:.2f} per cent of the 100-period tail",
+                }
+            )
         note_b = (
             "package slope"
             if curve == "exponential"
@@ -646,7 +660,9 @@ def freeze_tail(name: str) -> None:
                 "of the link in years (spec MT14, CV04).",
                 "The extension runs to a fixed number of development periods, default 100, as in the "
                 "package (decisions 0276 and 0608). The tail with the old stopping rule (f - 1 below "
-                "1e-4) is information only, see `information`.",
+                "1e-4) is information only, see `information`. The fixed 100 periods also leave out the rest "
+                "of the product (the inverse power tail with the infinite product is information, "
+                "decision 0614).",
             ],
         },
     )

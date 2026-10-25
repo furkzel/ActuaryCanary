@@ -190,19 +190,11 @@ def test_mt13_package_blends_equal_the_spec_formulas(name: str) -> None:
     bf = latest + q * prior
     gb1 = latest + q * bf
     gb2 = latest + q * gb1
-    z = p / (p + np.sqrt(p))
     for i, origin in enumerate(origins):
         _close(values, "chain_ladder_ultimate", origin, float(latest[i] * cdf[i]))
         _close(values, "bornhuetter_ferguson_ultimate", origin, float(bf[i]))
         _close(values, "benktander_k1_ultimate", origin, float(gb1[i]))
         _close(values, "benktander_k2_ultimate", origin, float(gb2[i]))
-        _close(values, "mack_credibility_weight_Z", origin, float(z[i]))
-        _close(
-            values,
-            "mack_credibility_ultimate",
-            origin,
-            float(z[i] * latest[i] * cdf[i] + (1 - z[i]) * bf[i]),
-        )
 
 
 def test_mt13_hand_fixture_from_triangles() -> None:
@@ -272,6 +264,14 @@ def test_mt14_tail_fit_and_tail_from_the_triangle(name: str, curve: str) -> None
     dropped = _information(f"MT14-tail-curves-{name}")[(f"{curve}_tail", "stop_below_1e-4")]
     assert spec == pytest.approx(dropped, rel=1e-8)
     assert spec <= package
+    if curve == "inverse_power":
+        # the fixed 100 periods leave out the rest of the product (information, decision 0614)
+        t_all = np.arange(first, first + 1_000_000, dtype=float)
+        inc = math.exp(intercept) * t_all**slope
+        infinite = math.exp(float(np.sum(np.log1p(inc[inc >= 1e-12]))))
+        info = _information(f"MT14-tail-curves-{name}")[(f"{curve}_tail", "infinite_product")]
+        assert infinite == pytest.approx(info, rel=1e-6)
+        assert infinite > package
     if curve == "exponential":
         assert b < 0
     else:

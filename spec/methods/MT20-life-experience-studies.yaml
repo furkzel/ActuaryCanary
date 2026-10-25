@@ -1,5 +1,5 @@
 id: MT20
-version: 0.2.0
+version: 0.3.0
 title_en: Life experience studies with credibility
 title_tr: Güvenilirlik ağırlıklı hayat deneyim çalışmaları
 status: draft
@@ -51,8 +51,9 @@ parameters:
     default: limited_fluctuation
     description: >-
       Limited fluctuation (full credibility at a number of decrements) or Bühlmann–Straub
-      across cells (needs at least 5 cells with exposure, each observed in at least 2
-      calendar years).
+      across cells on actual over expected (needs at least 5 cells with exposure, each observed
+      in at least 2 calendar years, and a reference table). Without a reference table the value
+      is none: crude rates only.
     allowed: [limited_fluctuation, buhlmann_straub, none]
   - name: full_credibility_probability
     default: 0.90
@@ -64,30 +65,38 @@ parameters:
     default: 0.95
     description: Level of the exact Poisson interval of A/E.
 algorithm:
-  - step: Exposure E(c) per cell c (age, policy year, calendar or policy year, and the chosen groups) and actual decrements A(c), per CV11.
-  - step: Expected decrements from the table (CV11 central or initial); amounts-based weights by sum assured or fund value.
-    formula: 'E_c = \sum_{x} \mu^{\mathrm{ref}}_x\, E^{c}_{x,c} \quad \text{or} \quad \sum_x q^{\mathrm{ref}}_x\, E^{0}_{x,c}'
+  - step: Exposure Ex(c) per cell c (age, policy year, calendar or policy year, and the chosen groups) and actual decrements A(c), per CV11.
+  - step: Expected decrements D(c) from the table (CV11 central or initial); amounts-based weights by sum assured or fund value.
+    formula: 'D_c = \sum_{x} \mu^{\mathrm{ref}}_x\, Ex^{\mathrm{c}}_{x,c} \quad \text{or} \quad \sum_x q^{\mathrm{ref}}_x\, Ex^{0}_{x,c}'
   - step: Ratio and exact Poisson interval (Garwood), from chi-square quantiles.
-    formula: '\widehat{AE}_c = \frac{A_c}{E_c}, \qquad \Big[\frac{\chi^2_{2A_c,\ \alpha/2}}{2E_c},\ \frac{\chi^2_{2A_c+2,\ 1-\alpha/2}}{2E_c}\Big]'
+    formula: '\widehat{AE}_c = \frac{A_c}{D_c}, \qquad \Big[\frac{\chi^2_{2A_c,\ \alpha/2}}{2D_c},\ \frac{\chi^2_{2A_c+2,\ 1-\alpha/2}}{2D_c}\Big]'
   - step: Limited fluctuation credibility towards the table (A/E of 1).
     formula: 'n_F = \Big(\frac{z_{(1+p)/2}}{k}\Big)^2, \qquad Z_c = \min\Big(1, \sqrt{A_c / n_F}\Big), \qquad \widetilde{AE}_c = Z_c\,\widehat{AE}_c + (1 - Z_c)'
   - step: >-
-      Bühlmann–Straub across cells with exposures as weights, with the classical unbiased
-      estimators of the structural parameters (Bühlmann and Gisler 2005, decision 0610). A
-      cell c is observed in calendar years t = 1..T_c with ratio X_{c,t} = A_{c,t} / E_{c,t}
-      and weight w_{c,t} = E_{c,t}. The within-cell variance is pooled over the cells; the
-      between-cell variance is estimated from the weighted totals; a negative between-cell
-      variance is truncated to zero, which gives kappa infinite and Z_c = 0 for every cell.
+      Bühlmann–Straub across cells on actual over expected, with the classical unbiased
+      estimators of the structural parameters (Bühlmann and Gisler 2005, decisions 0610 and
+      0617). A cell c is observed in calendar years t = 1..T_c with the ratio
+      X_{c,t} = A_{c,t} / D_{c,t}, where D_{c,t} is the expected decrements of the cell in
+      calendar year t from the reference table, and the weight w_{c,t} = D_{c,t}. Crude
+      rates differ by age by a factor of many, so pulling them towards a portfolio mean would
+      be meaningless; the ratio to the table is what is comparable across cells. The
+      within-cell variance is pooled over the cells; the between-cell variance is estimated
+      from the weighted totals; a negative between-cell variance is truncated to zero, which
+      gives kappa infinite and Z_c = 0 for every cell. The pooled estimator itself needs only
+      the sum over cells of (T_c - 1) to be positive; the rule that each cell is observed in at
+      least two calendar years is the owner's reading (decision 0610).
     formula: 'w_c = \sum_t w_{c,t}, \quad \bar X_c = \frac{\sum_t w_{c,t} X_{c,t}}{w_c}, \quad w = \sum_c w_c, \quad \bar X = \frac{\sum_c w_c \bar X_c}{w}, \qquad \hat s^2 = \frac{\sum_c \sum_t w_{c,t} (X_{c,t} - \bar X_c)^2}{\sum_c (T_c - 1)}, \qquad \hat a = \max\Big(0,\ \frac{w}{w^2 - \sum_c w_c^2}\Big[\sum_c w_c (\bar X_c - \bar X)^2 - (C - 1)\,\hat s^2\Big]\Big)'
-  - step: Credibility factor and credibility-weighted ratio per cell.
+  - step: >-
+      Credibility factor and credibility-weighted ratio per cell; the collective ratio
+      X-bar is the portfolio actual over expected.
     formula: 'Z_c = \frac{w_c}{w_c + \hat\kappa}, \qquad \widetilde{AE}_c = Z_c\,\bar X_c + (1 - Z_c)\,\bar X, \qquad \hat\kappa = \hat s^2 / \hat a \ \ (Z_c = 0 \text{ when } \hat a = 0)'
-  - step: Without a reference table, crude rates replace A/E.
-    formula: '\hat\mu_c = A_c / E^{c}_c \ \ (\text{with the same Garwood interval divided by exposure})'
+  - step: Without a reference table, crude rates replace A/E (credibility none).
+    formula: '\hat\mu_c = A_c / Ex^{\mathrm{c}}_c \ \ (\text{with the same Garwood interval divided by exposure})'
 outputs:
   - name: exposure
-    description: Central and initial exposure by cell.
+    description: Central and initial exposure Ex by cell.
   - name: actual_expected
-    description: A, E, A/E with interval and credibility-weighted A/E by cell and in total.
+    description: A, D (expected), A/D with interval and credibility-weighted A/E by cell and in total.
   - name: crude_rates
     description: Crude rates with intervals, by age band and policy year.
   - name: credibility
@@ -101,6 +110,8 @@ failure_modes:
     action: Crude rates only; reason "no reference table chosen" (open decision).
   - condition: A cell with zero expected decrements but actual ones.
     action: The cell is shown without a ratio and listed.
+  - condition: No reference table with Bühlmann–Straub or limited fluctuation requested.
+    action: Credibility none; crude rates only, with the reason.
   - condition: Fewer than 5 cells with exposure for Bühlmann–Straub, or a cell observed in fewer than 2 calendar years (the within-cell variance cannot be estimated).
     action: Falls back to limited fluctuation, with the reason.
   - condition: The between-cell variance estimate is negative.
@@ -108,10 +119,10 @@ failure_modes:
 validation:
   - kind: fixture
     description: >-
-      Three contracts with dates, a death and a lapse; central and initial exposure, A, E with
+      Three contracts with dates, a death and a lapse; central and initial exposure, A, D with
       a small table, Garwood interval and Z hand-computed. A second fixture for
-      Bühlmann–Straub (cells by calendar year, s squared, a, kappa and Z by hand) is built by
-      the item that implements MT20 (decision 0610).
+      Bühlmann–Straub (cells by calendar year, ratios A/D with weights D, s squared, a, kappa and Z by hand) is built by
+      the item that implements MT20 (decisions 0610 and 0617).
     tolerance: 1e-12 relative
   - kind: property
     description: Splitting a cell into sub-cells does not change total exposure, actuals or expected.
@@ -142,3 +153,6 @@ change_log:
   - version: 0.2.0
     date: 2026-10-24
     change: Bühlmann–Straub names the classical unbiased estimators (pooled within-cell variance, between-cell variance from the weighted totals); a negative between-cell variance is truncated to zero (decision 0610).
+  - version: 0.3.0
+    date: 2026-10-25
+    change: Bühlmann–Straub on actual over expected (X = A / D, weight D, collective A/E); only with a reference table; exposure is Ex and expected decrements D (decision 0617).
