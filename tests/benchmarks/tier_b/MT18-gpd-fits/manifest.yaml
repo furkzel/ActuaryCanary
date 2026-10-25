@@ -23,4 +23,4 @@ notes:
 - 'The automatic threshold rule (ForwardStop with bootstrap Anderson-Darling p-values) has no frozen reference
   here: it rests on random p-values. Its ForwardStop index for given p-values is a hand case for the P25
   tests.'
-checked_by_owner: false
+checked_by_owner: true

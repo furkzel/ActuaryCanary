@@ -1,8 +1,8 @@
 id: MT13
-version: 0.2.0
+version: 1.0.0
 title_en: Benktander blends
 title_tr: Benktander karışımları
-status: draft
+status: reviewed
 implemented: false
 definition: >-
   Ultimates that blend the chain ladder and Bornhuetter–Ferguson by maturity: the
@@ -101,3 +101,6 @@ change_log:
   - version: 0.2.0
     date: 2026-10-25
     change: Benktander only; the credibility weight p / (p + sqrt p) with its option, output and assumption removed (decision 0613).
+  - version: 1.0.0
+    date: 2026-10-25
+    change: Reviewed and accepted by the owner.

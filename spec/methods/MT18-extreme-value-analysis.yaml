@@ -1,8 +1,8 @@
 id: MT18
-version: 0.3.0
+version: 1.0.0
 title_en: Extreme value analysis (peaks over threshold)
 title_tr: Uç değer analizi (eşik aşımları)
-status: draft
+status: reviewed
 implemented: false
 definition: >-
   Models the largest claims with a generalised Pareto distribution above a threshold
@@ -135,3 +135,6 @@ change_log:
   - version: 0.3.0
     date: 2026-10-25
     change: Limits of the tail quantile, the return level and the expected shortfall for xi = 0 (decision 0618).
+  - version: 1.0.0
+    date: 2026-10-25
+    change: Reviewed and accepted by the owner.

@@ -29,4 +29,4 @@ notes:
   Benktander, package n_iters = 2).
 - The samples carry no premium; premium and prior loss ratio are chosen for the test and are not market
   figures.
-checked_by_owner: false
+checked_by_owner: true

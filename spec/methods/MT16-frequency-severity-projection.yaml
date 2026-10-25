@@ -1,8 +1,8 @@
 id: MT16
-version: 0.2.0
+version: 1.0.0
 title_en: Frequency–severity projection
 title_tr: Frekans–şiddet projeksiyonu
-status: draft
+status: reviewed
 implemented: false
 definition: >-
   Ultimate as ultimate claim count times ultimate severity: counts are developed with the
@@ -122,3 +122,6 @@ change_log:
     date: 2026-10-25
     change: >-
       Wording, projected severity replaces the observed one for mature origins too; the reported share comes from the severity_measure triangle (decision 0618).
+  - version: 1.0.0
+    date: 2026-10-25
+    change: Reviewed and accepted by the owner.

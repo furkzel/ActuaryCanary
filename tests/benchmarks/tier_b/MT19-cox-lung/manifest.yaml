@@ -21,4 +21,4 @@ tolerance_note: 1e-5 relative (spec MT19 benchmark).
 notes:
 - Tied event times separate Efron from Breslow.
 - R is not a dependency of the platform and no test runs it (record 0600).
-checked_by_owner: false
+checked_by_owner: true

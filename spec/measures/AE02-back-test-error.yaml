@@ -1,8 +1,8 @@
 id: AE02
-version: 0.2.0
+version: 1.0.0
 title_en: Back-test error of a projection
 title_tr: Projeksiyonun geriye dönük test hatası
-status: draft
+status: reviewed
 implemented: false
 definition: >-
   How far an ultimate projected at an earlier cut-off lies from the reference today (the
@@ -53,3 +53,6 @@ change_log:
   - version: 0.2.0
     date: 2026-10-25
     change: Weighted bias B_m(h) beside the MAE (decision 0618).
+  - version: 1.0.0
+    date: 2026-10-25
+    change: Reviewed and accepted by the owner.

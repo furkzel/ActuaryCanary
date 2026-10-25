@@ -92,7 +92,9 @@ def test_run_catalogue_holds_only_built_specs(
 
 
 def test_planned_specs_are_drafts(planned: SpecCatalogue) -> None:
-    assert all(f.spec.status == "draft" for f in planned.files if not f.spec.implemented)
+    assert all(
+        f.spec.status in ("draft", "reviewed") for f in planned.files if not f.spec.implemented
+    )
 
 
 def test_every_reference_of_the_planned_specs_resolves(planned: SpecCatalogue) -> None:

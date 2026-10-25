@@ -16,4 +16,4 @@ files:
 tolerance_note: 1e-12 relative.
 notes:
 - RMSE is taken as SQRT(sum of w e^2 / sum of w); the spec names RMSE without a formula (decision 0275).
-checked_by_owner: false
+checked_by_owner: true

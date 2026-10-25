@@ -17,4 +17,4 @@ files:
 tolerance_note: 1e-12 relative.
 notes:
 - Volume-weighted factors, tail 1.0. Benktander k=1 is U = C + q x BF; k=2 iterates once more.
-checked_by_owner: false
+checked_by_owner: true

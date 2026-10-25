@@ -36,4 +36,4 @@ notes:
   own (decision 0609). Process error is gamma with shape |m| / phi and scale phi, sign kept, as in the
   spec.
 - 'Published scale parameter of GenIns (England and Verrall) not opened: UNVERIFIED.'
-checked_by_owner: false
+checked_by_owner: true

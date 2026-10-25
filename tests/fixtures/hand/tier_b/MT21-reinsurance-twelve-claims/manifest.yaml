@@ -20,4 +20,4 @@ not_covered:
 - 'Aggregate deductible and limit, reinstatements with premium, stop loss, event excess of loss and the
   index clause: no hand case yet; they belong to the reinsurance item (P30) and the spec MT21 fixture
   line stays open for them (decision 0273).'
-checked_by_owner: false
+checked_by_owner: true

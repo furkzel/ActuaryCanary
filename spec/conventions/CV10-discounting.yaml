@@ -1,8 +1,8 @@
 id: CV10
-version: 0.2.0
+version: 1.0.0
 title_en: Discounting
 title_tr: İskonto
-status: draft
+status: reviewed
 implemented: false
 definition: >-
   On the DISCOUNTED value basis, projected future cash flows are discounted to the discount
@@ -108,3 +108,6 @@ change_log:
   - version: 0.2.0
     date: 2026-10-25
     change: Exclusion of SIMPLE points with 1 + r t not above zero, curve unavailable when a par bootstrap gives a non-positive discount factor, PAR and FORWARD points at whole-year tenors only (decision 0618).
+  - version: 1.0.0
+    date: 2026-10-25
+    change: Reviewed and accepted by the owner.

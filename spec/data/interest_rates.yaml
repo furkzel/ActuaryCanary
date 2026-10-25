@@ -1,8 +1,8 @@
 id: interest_rates
-version: 0.2.0
+version: 1.0.0
 title_en: Interest rates and yield curves
 title_tr: Faiz oranları ve getiri eğrileri
-status: draft
+status: reviewed
 implemented: false
 definition: >-
   Interest rates by curve, date and tenor: the points of a yield curve, or a single rate
@@ -140,3 +140,6 @@ change_log:
   - version: 0.2.0
     date: 2026-10-25
     change: DV-IRT-08 refers to max_curve_age_days of CV10; new DV-IRT-10 (PAR and FORWARD rows at whole-year tenors) (decision 0618).
+  - version: 1.0.0
+    date: 2026-10-25
+    change: Reviewed and accepted by the owner.
