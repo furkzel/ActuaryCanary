@@ -118,7 +118,7 @@ The Mack standard error assumes independent origins and stable development. On l
 
 ## 6. The run folder
 
-`out/<run id>/` holds fourteen files, all listed with their SHA-256 in `manifest.json`:
+`out/<run id>/` holds the files below, all listed with their SHA-256 in `manifest.json`:
 
 | File | Content |
 | --- | --- |
@@ -130,6 +130,10 @@ The Mack standard error assumes independent origins and stable development. On l
 | `measures.csv`, `lineage.csv`, `lineage_atoms.csv` | Every measure value; for each, the source rows it came from. In format 2 `lineage.csv` names, per value, the groups of rows (atoms) and `lineage_atoms.csv` lists each atom once (35 MB for a million claim rows and four million premium rows; format 1, one file, 352 MB) |
 | `modules.json`, `quality.json` | What each module ran and why; the data quality findings |
 | `assumptions.csv`, `diagnostics.csv`, `anomalies.csv` | The register in force; the method diagnostics; every anomaly flag |
+| `tier_b_ultimates.csv`, `tier_b_parameters.csv` | Ultimates of the Munich chain ladder, Benktander, separation and frequency–severity methods per origin, or the reason a method did not run; the fitted quantities of the tier B methods (frequency–severity ultimates are at value-date prices when the price index is loaded, and say so) |
+| `bootstrap_summary.csv`, `bootstrap_cash_flows.csv`, `bootstrap_residuals.csv`, `bootstrap_distribution_<segment>_<line>.parquet` | The bootstrap reserve distribution of a line: mean, spread and percentiles per origin and in total; simulated payments by period; residuals; every simulated reserve (only for lines where the bootstrap ran) |
+| `back_test.csv` | The back-test of the selection: error per method, origin and horizon, their summaries, how often the reserve range held, and what did not run |
+| `severity_*.csv`, `extreme_*.csv` | Claim size distributions fitted per segment and line, and the extreme-value fit of the tail with the extreme-value threshold beside the large-loss threshold of the run |
 
 The same inputs, settings and software always give the same run id and byte-identical outputs. Spreadsheets are read once and cached as parquet files in `.cache/`, keyed by their SHA-256; delete the folder to force a re-read.
 
@@ -137,9 +141,9 @@ The same inputs, settings and software always give the same run id and byte-iden
 
 | Folder | What it is | Run id |
 | --- | --- | --- |
-| [examples/demo](../examples/demo/) | A synthetic insurer, ten accident years 2016–2025 and about 2,600 claims in four lines; no thin-evidence warning. The one to try first. | `b8421ff59f2a208b` |
-| [examples/baseline](../examples/baseline/) | The same insurer at tiny size, four accident years 2022–2025, with a few faults injected on purpose | `d9c8c15caee71270` |
-| [examples/messy_headers](../examples/messy_headers/) | The baseline as real files arrive: headers renamed, misspelt or in Turkish, title rows above the header, dates as text, labels in Turkish, repeated rows and personal-data columns | `2f2f174c92a584f6` |
+| [examples/demo](../examples/demo/) | A synthetic insurer, ten accident years 2016–2025 and about 2,600 claims in four lines; no thin-evidence warning. The one to try first. | `b868ffbc331222be` |
+| [examples/baseline](../examples/baseline/) | The same insurer at tiny size, four accident years 2022–2025, with a few faults injected on purpose | `c394c15ab0f72437` |
+| [examples/messy_headers](../examples/messy_headers/) | The baseline as real files arrive: headers renamed, misspelt or in Turkish, title rows above the header, dates as text, labels in Turkish, repeated rows and personal-data columns | `62b0f32f5d4e190d` |
 
 Each example folder has the six input files and a `report/` folder with the report and manifest of its run (the report as the platform wrote it, the manifest with its fingerprints). The messy example is the one to use for the mapping confirmation: `canary run examples/messy_headers` asks about every sheet. The data are synthetic, generated from a fixed seed by [synthetic/scenarios/](../synthetic/scenarios/); no personal or company data is anywhere in the repository.
 
