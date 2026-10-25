@@ -1,8 +1,8 @@
 id: MT20
-version: 0.3.0
+version: 1.0.0
 title_en: Life experience studies with credibility
 title_tr: Güvenilirlik ağırlıklı hayat deneyim çalışmaları
-status: draft
+status: reviewed
 implemented: false
 definition: >-
   Actual against expected mortality, morbidity, lapse and surrender by age, policy year,
@@ -156,3 +156,6 @@ change_log:
   - version: 0.3.0
     date: 2026-10-25
     change: Bühlmann–Straub on actual over expected (X = A / D, weight D, collective A/E); only with a reference table; exposure is Ex and expected decrements D (decision 0617).
+  - version: 1.0.0
+    date: 2026-10-25
+    change: Reviewed and accepted by the owner.

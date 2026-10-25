@@ -1,8 +1,8 @@
 id: MT11
-version: 0.3.0
+version: 1.0.0
 title_en: Over-dispersed Poisson bootstrap
 title_tr: Aşırı yayılımlı Poisson bootstrap
-status: draft
+status: reviewed
 implemented: false
 definition: >-
   The full predictive distribution of the chain-ladder reserve under the over-dispersed
@@ -176,3 +176,6 @@ change_log:
   - version: 0.3.0
     date: 2026-10-25
     change: Future means are projected from the pseudo-triangle's own latest diagonal; new parameter centre_residuals (default true); the mean criterion of the benchmark is 3 per cent (decision 0612).
+  - version: 1.0.0
+    date: 2026-10-25
+    change: Reviewed and accepted by the owner.

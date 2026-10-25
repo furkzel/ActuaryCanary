@@ -1,8 +1,8 @@
 id: RS05
-version: 0.1.0
+version: 1.0.0
 title_en: Simulated reserve distribution and risk measures
 title_tr: Simüle edilmiş karşılık dağılımı ve risk ölçüleri
-status: draft
+status: reviewed
 implemented: false
 definition: >-
   Mean, standard deviation, coefficient of variation, percentiles, value at risk and tail
@@ -48,3 +48,6 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft for module M12 (P20).
+  - version: 1.0.0
+    date: 2026-10-25
+    change: Reviewed and accepted by the owner.

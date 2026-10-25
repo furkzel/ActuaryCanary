@@ -18,4 +18,4 @@ tolerance_note: 1e-12 relative for the rational rows, 1e-9 for rows with logarit
 notes:
 - Maturity p of an origin is taken from the incurred chain ladder (the severity measure); the spec says
   p_i >= 0.9 without naming the pattern - recorded in decision 0277.
-checked_by_owner: false
+checked_by_owner: true

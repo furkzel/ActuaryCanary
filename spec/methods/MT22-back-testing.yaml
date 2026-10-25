@@ -1,8 +1,8 @@
 id: MT22
-version: 0.2.0
+version: 1.0.0
 title_en: Back-testing of past selections
 title_tr: Geçmiş seçimlerin geriye dönük testi
-status: draft
+status: reviewed
 implemented: false
 definition: >-
   Measures how good earlier reserve estimates were: the methods and selections are re-run
@@ -92,3 +92,6 @@ change_log:
   - version: 0.2.0
     date: 2026-10-25
     change: New parameter backtest_simulations (default 1000) for the reruns of MT06 and MT11; the bootstrap rerun is optional (decision 0618).
+  - version: 1.0.0
+    date: 2026-10-25
+    change: Reviewed and accepted by the owner.

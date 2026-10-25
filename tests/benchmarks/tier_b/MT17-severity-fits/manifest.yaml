@@ -27,4 +27,4 @@ notes:
   Pareto II (Lomax) with alpha and theta.'
 - 'The closed-form lognormal rows (mean and divisor-n standard deviation of the logs) equal the fit: mu
   = ln(exp_mu), sigma = sigma.'
-checked_by_owner: false
+checked_by_owner: true

@@ -23,4 +23,4 @@ tolerance_note: 1e-12 relative for the exact rows, 1e-9 for the OLS trend rows.
 notes:
 - The columns of incremental_paid.csv are development periods 0 to 3 (annual).
 - The fixture is exact (no noise), so it proves the algebra of the recursion, not the fit on real data.
-checked_by_owner: false
+checked_by_owner: true

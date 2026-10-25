@@ -1,8 +1,8 @@
 id: MT12
-version: 0.2.0
+version: 1.0.0
 title_en: Munich chain ladder
 title_tr: Münih zincir merdiven
-status: draft
+status: reviewed
 implemented: false
 definition: >-
   Projects the paid and the incurred triangle together (Quarg and Mack 2004): each
@@ -104,3 +104,6 @@ change_log:
   - version: 0.2.0
     date: 2026-10-24
     change: The lambda regressions leave out the last link, as the reference package does; the spec gave no reason for including it (decision 0607).
+  - version: 1.0.0
+    date: 2026-10-25
+    change: Reviewed and accepted by the owner.

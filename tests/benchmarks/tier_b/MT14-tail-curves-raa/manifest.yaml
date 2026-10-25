@@ -40,4 +40,4 @@ notes:
   years (spec MT14, CV04).
 - The extension runs to a fixed number of development periods, default 100, as in the package (decisions
   0276 and 0608). The tail with the old stopping rule (f - 1 below 1e-4) is information only, see `information`. The fixed 100 periods also leave out the rest of the product (the inverse power tail with the infinite product is information, decision 0614).
-checked_by_owner: false
+checked_by_owner: true

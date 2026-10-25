@@ -18,4 +18,4 @@ notes:
 - 'Buehlmann-Straub credibility is NOT frozen: the spec says the structural parameters are ''estimated
   from the cells, non-negative'' without naming the estimators; a choice changes the numbers, so it waits
   for the owner (decision 0272).'
-checked_by_owner: false
+checked_by_owner: true

@@ -1,8 +1,8 @@
 id: MT14
-version: 0.3.0
+version: 1.0.0
 title_en: Tail factor fitting
 title_tr: Kuyruk faktörü uydurma
-status: draft
+status: reviewed
 implemented: false
 definition: >-
   Estimates development beyond the last age of the triangle by fitting a decay curve to the
@@ -122,3 +122,6 @@ change_log:
   - version: 0.3.0
     date: 2026-10-25
     change: The fit variable is the link number; new output tail_remainder and parameter remainder_warning (default 0.005) replace the rule 'last period adds more than 1e-4' (decision 0614).
+  - version: 1.0.0
+    date: 2026-10-25
+    change: Reviewed and accepted by the owner.

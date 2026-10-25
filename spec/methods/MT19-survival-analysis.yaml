@@ -1,8 +1,8 @@
 id: MT19
-version: 0.3.0
+version: 1.0.0
 title_en: Survival analysis (Kaplan–Meier and Cox)
 title_tr: Sağkalım analizi (Kaplan–Meier ve Cox)
-status: draft
+status: reviewed
 implemented: false
 definition: >-
   Time-to-event curves of claims with censoring: the Kaplan–Meier estimate of the share of
@@ -136,3 +136,6 @@ change_log:
   - version: 0.3.0
     date: 2026-10-25
     change: Size class is the class at report; the log-log interval is written out; the Grambsch–Therneau test, the concordance and the baseline survival are information until a reference is frozen (decision 0616).
+  - version: 1.0.0
+    date: 2026-10-25
+    change: Reviewed and accepted by the owner.
