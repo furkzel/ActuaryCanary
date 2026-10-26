@@ -228,7 +228,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "c394c15ab0f72437"
+    "value": "7c80c7acb83dec6f"
    },
    {
     "label": "Valuation date",
@@ -4253,7 +4253,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "c394c15ab0f72437",
+  "run_id": "7c80c7acb83dec6f",
   "settings": [
    {
     "name": "bases.currency",
@@ -4413,7 +4413,7 @@
    },
    {
     "name": "severity.MT18.gof_bootstrap",
-    "value": "500"
+    "value": "200"
    },
    {
     "name": "severity.MT18.min_exceedances",

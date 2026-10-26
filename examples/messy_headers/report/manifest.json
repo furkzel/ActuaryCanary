@@ -2801,7 +2801,7 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "efdcf043a587fe2d2f9fcc1d0f58fa6aeda2dc469ccef3452fd546aa87c057df",
+      "sha256": "abad0704c05785c68dfa0023f5361675cb15161e451efeeefecd9b28ad2c9477",
       "size": 4992248
     },
     {
@@ -3017,7 +3017,7 @@
       "seed": 1
     }
   ],
-  "run_id": "62b0f32f5d4e190d",
+  "run_id": "716601c11ae42e83",
   "settings": {
     "assumptions": {
       "entries": []
@@ -3101,7 +3101,7 @@
         ],
         "claims_used": "all_non_nil",
         "fdr_level": 0.1,
-        "gof_bootstrap": 500,
+        "gof_bootstrap": 200,
         "min_exceedances": 50,
         "return_periods": [
           10,

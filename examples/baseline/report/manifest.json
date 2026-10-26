@@ -2785,7 +2785,7 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "a07d9d66ffa88bc63e7355b3d40803addc5819d179fcccef4cb7233cbbcc5f9f",
+      "sha256": "5a9c13040e5eff4e626cee74ae3e121b96ed9c8b283382b8346221dd09782e5c",
       "size": 4991960
     },
     {
@@ -3001,7 +3001,7 @@
       "seed": 1
     }
   ],
-  "run_id": "c394c15ab0f72437",
+  "run_id": "7c80c7acb83dec6f",
   "settings": {
     "assumptions": {
       "entries": []
@@ -3085,7 +3085,7 @@
         ],
         "claims_used": "all_non_nil",
         "fdr_level": 0.1,
-        "gof_bootstrap": 500,
+        "gof_bootstrap": 200,
         "min_exceedances": 50,
         "return_periods": [
           10,

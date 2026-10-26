@@ -64,6 +64,7 @@ def test_the_methods_that_ran_enter_the_manifest_with_their_seeds_and_defaults(
     assert set(rows) == {"MT09", "MT17", "MT22"} and all(r["seed"] == 1 for r in rows.values())
     assert manifest["settings"]["tier_b"] == registry.settings(1)
     assert manifest["settings"]["severity"]["MT17"]["gof_bootstrap"] == 200
+    assert manifest["settings"]["severity"]["MT18"]["gof_bootstrap"] == 200  # MT18 1.1.0, 0625
     assert manifest["settings"]["severity"]["MT18"]["min_exceedances"] == 50
     names = [o["name"] for o in manifest["outputs"]]
     assert "tier_b_parameters.csv" in names and "extreme_threshold_comparison.csv" in names

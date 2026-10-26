@@ -3319,7 +3319,7 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "1a14aaffa319e6ba670064bfce8404b53327c8b9153f5901daac4fb556b86c50",
+      "sha256": "d868a8158da17a09d76bb5e1d8fb336d8d76ad2191697a3931308d89dce01aa9",
       "size": 5067128
     },
     {
@@ -3479,8 +3479,8 @@
     },
     {
       "name": "extreme_candidates.csv",
-      "sha256": "449f216fe8be422d7bba98958fbaeb375726d408076d98fa9f918171ca6f402d",
-      "size": 3841
+      "sha256": "3a33d54bd3838768125ced58b5c705ae507fa3656c9d985a92fb9282e829e10c",
+      "size": 3837
     },
     {
       "name": "extreme_gpd_fit.csv",
@@ -3550,7 +3550,7 @@
       "seed": 1
     }
   ],
-  "run_id": "b868ffbc331222be",
+  "run_id": "927ab01570225d1f",
   "settings": {
     "assumptions": {
       "entries": []
@@ -3634,7 +3634,7 @@
         ],
         "claims_used": "all_non_nil",
         "fdr_level": 0.1,
-        "gof_bootstrap": 500,
+        "gof_bootstrap": 200,
         "min_exceedances": 50,
         "return_periods": [
           10,
@@ -4061,7 +4061,7 @@
     {
       "id": "MT18",
       "title": "Extreme value analysis (peaks over threshold)",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "AE02",
