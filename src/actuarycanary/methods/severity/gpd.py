@@ -39,7 +39,9 @@ def _profile(y: np.ndarray, mean: np.ndarray, s: np.ndarray) -> np.ndarray:
     """Profile log-likelihood of rows `y` (B, n) at s = k x mean, one s per row."""
     k = s / mean
     with np.errstate(invalid="ignore", divide="ignore", over="ignore"):
-        xi = np.log1p(k[:, None] * y).mean(axis=1)
+        z = k[:, None] * y
+        np.log1p(z, out=z)
+        xi = z.mean(axis=1)
         out = -y.shape[1] * (np.log(xi / k) + xi + 1.0)
     return np.where(np.isfinite(out), out, -np.inf)
 
@@ -105,10 +107,11 @@ def fit_matrix(
         c_new = b - GOLDEN * (b - a)
         d_new = a + GOLDEN * (b - a)
         c, d = np.where(left, c_new, d), np.where(left, c, d_new)
-        fc, fd = (
-            np.where(left, _profile(y, mean, c), fd),
-            np.where(left, fc, _profile(y, mean, d)),
-        )
+        # one point of each row is new (c when the maximum lies left, d otherwise), the other
+        # is kept: one evaluation of the profile per step, not two
+        new = np.where(left, c, d)
+        f_new = _profile(y, mean, new)
+        fc, fd = np.where(left, f_new, fd), np.where(left, fc, f_new)
     s = (a + b) / 2.0
     if polish:
         for r in range(rows):
