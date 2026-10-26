@@ -91,12 +91,12 @@ def _source() -> TierBInputs:
     return TierBInputs(source)
 
 
-def _register(**simulations: int) -> AssumptionsRegister:
+def _register(n: int = SIMULATIONS) -> AssumptionsRegister:
     entries = [
-        Assumption(method="MT11", name="n_simulations", scope="S/L/paid", value=SIMULATIONS,
+        Assumption(method="MT11", name="n_simulations", scope="S/L/paid", value=n,
                    who="test", why="keep the test fast"),
         Assumption(method="MT22", name="backtest_simulations", scope="S/L/incurred",
-                   value=SIMULATIONS, who="test", why="keep the test fast"),
+                   value=n, who="test", why="keep the test fast"),
     ]  # fmt: skip
     return AssumptionsRegister(entries=tuple(entries))
 
@@ -203,6 +203,7 @@ def test_mt14_is_fitted_on_every_chain_ladder_and_replaces_the_tail_only_when_se
     chosen = group.tier_b.tails["paid"].chosen.tail_factor
     register = AssumptionsRegister(
         entries=(
+            *_register(2).entries,
             Assumption(
                 method="MT14",
                 name="selected_curve",

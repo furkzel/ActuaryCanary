@@ -47,8 +47,8 @@ def test_a_method_that_cannot_run_is_listed_with_its_reason_and_gives_no_number(
     summary = _csv(default_run, "bootstrap_summary.csv")
     assert summary["mean"].null_count() == summary.height  # not a single simulated figure
     assert not [f for f in (default_run.folder).glob("bootstrap_distribution_*")]
-    page = default_run.report.read_text(encoding="utf-8")
-    assert "What did not run and why" in page and "MT11 bootstrap did not run" in page
+    listed = str(default_run.report_data["not_run"])  # the section "What did not run and why"
+    assert "MT11 bootstrap did not run" in listed and "MT12 Munich chain ladder" in listed
     assert "MT17 severity fits did not run" in " ".join(default_run.analysis.get("M03").reasons)
     assert "MT18 extreme values did not run" in " ".join(default_run.analysis.get("M06").reasons)
 
