@@ -228,7 +228,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "7c80c7acb83dec6f"
+    "value": "384dff36d777725f"
    },
    {
     "label": "Valuation date",
@@ -4105,8 +4105,8 @@
    },
    {
     "name": "diagnostics.csv",
-    "sha256": "7c14bc7339cba15a5904c48818908c9a378085cd6e171c7825733a6aa983c4df",
-    "size": "6,183"
+    "sha256": "fe723c248538400ec66fcf32a249d9e70304a6e93b7d468c7992945e4c08fc2c",
+    "size": "6,169"
    },
    {
     "name": "anomalies.csv",
@@ -4115,13 +4115,13 @@
    },
    {
     "name": "tier_b_ultimates.csv",
-    "sha256": "619e4a0d4d5e89b19ceaa1b442fc9dc968ef83eb9db89e0ed9db5b80a538e778",
-    "size": "4,780"
+    "sha256": "d85abe136649b97b894b8f179c4278636ef7f66c5490a2a6dc8c50ccfeb8f093",
+    "size": "4,581"
    },
    {
     "name": "tier_b_parameters.csv",
-    "sha256": "3cba5dd4a35f9879789fb837d10819ec6f60be4ed4f880dcdb04d58e7f225f38",
-    "size": "13,189"
+    "sha256": "0be2fe26baa5316f3446bf7c13975a5106c5790e2b1212a19bc462891c67682c",
+    "size": "12,454"
    },
    {
     "name": "bootstrap_summary.csv",
@@ -4140,28 +4140,28 @@
    },
    {
     "name": "back_test.csv",
-    "sha256": "a426a969fa8df4a93a9dbad941015f7abcf0da054f0d0eb128bb26d4c2abfd65",
-    "size": "11,240"
+    "sha256": "d50b25e1216fc1baf4e780846b67b4bd9291215c09781f2b18c504ad793e7029",
+    "size": "10,304"
    },
    {
     "name": "severity_parameters.csv",
-    "sha256": "825c50b3a72a216ea43cbd4bb908a1e2d6491892146acd4406861f0684b48205",
-    "size": "604"
+    "sha256": "d4caaf1aac272b6edfd3904be122d0fe87771f7b72000fa2518837f2be635507",
+    "size": "500"
    },
    {
     "name": "severity_fits.csv",
-    "sha256": "b8128b04de4ea5032fc8d2208a6aed082a67b2054825c390d97b5e4fef856f52",
-    "size": "896"
+    "sha256": "f5bce07bef55073e0b4e90eb009d22b98920bb4414440da413f2e3699ea5e4b4",
+    "size": "716"
    },
    {
     "name": "severity_selected.csv",
-    "sha256": "1910c222b058d0360be15ceeeec049eaa48541a307192a2699af72c10b97a4cf",
-    "size": "352"
+    "sha256": "e85b4a0d1b5b30d3bf55d1d3b299e3b36ba098d89de1b21c6ca62403c0158bc7",
+    "size": "345"
    },
    {
     "name": "severity_quantiles.csv",
-    "sha256": "4de3d55cf3c0357c9ad8e606e6fdac116f163063aa53521494ab67fe61d27036",
-    "size": "348"
+    "sha256": "e66749dd97f0089cef7e3e985b998ce08dc364183c854491ff29cc522f0000a9",
+    "size": "309"
    },
    {
     "name": "severity_limited_expected_values.csv",
@@ -4170,18 +4170,18 @@
    },
    {
     "name": "severity_plots.csv",
-    "sha256": "7c8536d3f7ee11af39e606b21a9073951ed2acf9c438d61e9d800b96567e5be5",
-    "size": "33,986"
+    "sha256": "2067f85633d001837d3055b08dba5b2df4f6ba8c63c35585e65c613348f7ed1d",
+    "size": "24,768"
    },
    {
     "name": "severity_trend.csv",
-    "sha256": "ff0f1b06824efecf820a2ed04c6ec2f4b72bc648418fa7edc88f6deb8c8ccb08",
-    "size": "296"
+    "sha256": "43a93a713e7c541ca1340ebef256bf10a65dda6e7fd4c2461f59d37eb9d6527e",
+    "size": "243"
    },
    {
     "name": "severity_trend_summary.csv",
-    "sha256": "bd77ca698a955a5f395d71238d81b1f5eca97f8bc2bf996536dc762ebc828928",
-    "size": "133"
+    "sha256": "e9d0a2981c8e2467cbf0ccd8c118d4546d4381ee3881c3f1b74bb0324cb5eef4",
+    "size": "116"
    },
    {
     "name": "severity_groups.csv",
@@ -4215,8 +4215,8 @@
    },
    {
     "name": "extreme_threshold_comparison.csv",
-    "sha256": "f40dbaea00c654f5b8fc2b41283521469f501b2dab16832e79703d65a0b924f0",
-    "size": "553"
+    "sha256": "f8163303121618ffe1f820e850f007f7aca3a127511f7521b91ab269edfefdf9",
+    "size": "504"
    },
    {
     "name": "extreme_mean_excess.csv",
@@ -4253,7 +4253,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "7c80c7acb83dec6f",
+  "run_id": "384dff36d777725f",
   "settings": [
    {
     "name": "bases.currency",
@@ -4640,7 +4640,7 @@
    {
     "id": "CV06",
     "title": "Precision and rounding",
-    "version": "1.0.0"
+    "version": "1.1.0"
    },
    {
     "id": "CV07",
@@ -4953,7 +4953,7 @@
    "heatmaps": "Cumulative cells by origin and development age, GROSS, NOMINAL, TRY; paid on its own one-hue ramp, incurred on another; the further a cell stands from the page colour, the larger it is (MT01 v1.0.0, CV04 v1.0.0).",
    "methods": "Ultimate per origin by method on the incurred triangle (MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0), and the selected ultimate (diamond, MT10 v1.0.0). The spread between methods shows how much the answer depends on the method; it is not a confidence interval.",
    "range": "Selected reserve (diamond) with the 25th to 75th percentile (dark bar) and the 5th to 95th percentile (light bar); the Mack coefficient of variation applied to the selected reserve, lognormal approximation (MT06 v1.1.0, RS03 v1.0.0). The upper percentiles are in the table.",
-   "summary": "TRY, GROSS, NOMINAL, TRY. Chain ladder MT02 v1.0.0 on paid and incurred triangles MT01 v1.0.0; selected ultimate MT10 v1.0.0; IBNR = ultimate − incurred at the valuation date RS02 v1.0.0. Rounded per CV06 v1.0.0; totals from unrounded values. Rows of ultimates.csv and lineage.csv (RS02)."
+   "summary": "TRY, GROSS, NOMINAL, TRY. Chain ladder MT02 v1.0.0 on paid and incurred triangles MT01 v1.0.0; selected ultimate MT10 v1.0.0; IBNR = ultimate − incurred at the valuation date RS02 v1.0.0. Rounded per CV06 v1.1.0; totals from unrounded values. Rows of ultimates.csv and lineage.csv (RS02)."
   },
   "lines": [
    {

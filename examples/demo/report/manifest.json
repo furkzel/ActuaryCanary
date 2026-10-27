@@ -3319,8 +3319,8 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "d868a8158da17a09d76bb5e1d8fb336d8d76ad2191697a3931308d89dce01aa9",
-      "size": 5067128
+      "sha256": "72d6852d0234a8b11b91eff1930f6ffbcacec83a1f0c5a60da3bc673c05b3c9b",
+      "size": 5067127
     },
     {
       "name": "quality.json",
@@ -3384,8 +3384,8 @@
     },
     {
       "name": "diagnostics.csv",
-      "sha256": "0468149b1db5fb0a97ae9ee75d2432bacd504577e71e5f0ae29307106fae4cb1",
-      "size": 5455
+      "sha256": "d882cb092e086103608625c6e16ed8cfd3a7faf8aec2d837af6adb92f1cbce21",
+      "size": 5428
     },
     {
       "name": "anomalies.csv",
@@ -3394,58 +3394,58 @@
     },
     {
       "name": "tier_b_ultimates.csv",
-      "sha256": "fedaca0085f1304d360b938bcbd1c81dcbbcfec6e0f32071e839770187ca4cda",
-      "size": 17525
+      "sha256": "542ddd1ae23e22531725e362e2b6ae33d4493bb9fa16b275f9b6a5314bd82d22",
+      "size": 16636
     },
     {
       "name": "tier_b_parameters.csv",
-      "sha256": "9e0b939b30c4c2de77ed527dcafcb961e6147f9d11cf0cdab8d01a97224e0192",
-      "size": 33060
+      "sha256": "787bf19cc0162b29698629b007dcb176577c7a41e925caa6429d90156d6328c2",
+      "size": 31036
     },
     {
       "name": "bootstrap_summary.csv",
-      "sha256": "2caf799bee143f1534c7d18b37d66fb02becff54115475a11ccb4f0e814c481e",
-      "size": 2999
+      "sha256": "424149ea48e16830062a2f6ce2d010206771907511feef0c209425df06941c3e",
+      "size": 2208
     },
     {
       "name": "bootstrap_cash_flows.csv",
-      "sha256": "85a8c57d543a437fd2e3f50bd68582467c11d42abd0a0798a3aa62eebfa2dda8",
-      "size": 2120
+      "sha256": "bd266719234f7f59f2a790bd1a78f74f68e86155f3812d496b2d8c38fb4659c6",
+      "size": 1480
     },
     {
       "name": "bootstrap_residuals.csv",
-      "sha256": "27e7af40edfc5bb51889d754969b69da75b174ccc492531b515514b3bc1cb36f",
-      "size": 4951
+      "sha256": "8393b30408d2fe737b3eaa2fceedf6d499f341d36a88a49afb6a9978d1ad5739",
+      "size": 3919
     },
     {
       "name": "back_test.csv",
-      "sha256": "7aca61f6749a7ed6bd82a4335da8ab8812bf38f4c819769c54361efedb43bfa5",
-      "size": 55351
+      "sha256": "5e2dc20d2fb5086c79a48a99358713b7fb938963ac9df3b5c5c151ec7c7c9e70",
+      "size": 48103
     },
     {
       "name": "bootstrap_distribution_NON_LIFE_MOTOR_TPL.parquet",
-      "sha256": "1f035e27382873d07db34e6aef7e0ab3d3995438fd1a935d681b9b76d1328e72",
-      "size": 779354
+      "sha256": "c103cb83dc887ac4aa00d9473afc7c803e78c2d226338bbd12637adb9f72c509",
+      "size": 663954
     },
     {
       "name": "severity_parameters.csv",
-      "sha256": "33b68a1478c737aed5ebc817245809e9ecef8bfadf2be1ecb026064b54ddf25a",
-      "size": 2276
+      "sha256": "bbe607773ff92557bbd42f64775841aeffbee3baabae3e33c50537eb164381de",
+      "size": 1874
     },
     {
       "name": "severity_fits.csv",
-      "sha256": "d9ed066c95e6bede6c0b98c7ee679541190c617f1e72ab362df0c8fceabee61f",
-      "size": 3170
+      "sha256": "be9230f8c8acfeea9be99d2bd3c92448be3c768fd4352e09421b4674e57cb423",
+      "size": 2472
     },
     {
       "name": "severity_selected.csv",
-      "sha256": "e2284a23965f37bc43d289fc676b1742cca4acd6c4225e77ca3ea6b5a7b06a2d",
-      "size": 488
+      "sha256": "3e3e2ea7ef83daeb698725cb638b163ff9dbe14a72652603171644271ae7f9d2",
+      "size": 461
     },
     {
       "name": "severity_quantiles.csv",
-      "sha256": "fb20fbf33f402e6571249e9aa6b54dd68cf0f452bf8cb7165f19b1c5ab45049a",
-      "size": 1266
+      "sha256": "8aff8be9630bf6fe99655651a5c8f1aa69921217b2f5b8447d2c45eecd23033b",
+      "size": 1114
     },
     {
       "name": "severity_limited_expected_values.csv",
@@ -3454,18 +3454,18 @@
     },
     {
       "name": "severity_plots.csv",
-      "sha256": "971705e36fd78e18fb23a8b7a8fcb500360b11bb7c3d55678f60432da61e9fc0",
-      "size": 313325
+      "sha256": "8237758756a9964ebee4774eef1f6071be284f6f1de2ad8b0b68172bdbebc7da",
+      "size": 233495
     },
     {
       "name": "severity_trend.csv",
-      "sha256": "3621e38d28ab2890fdba61f4b662351d2f481388cc7d54fd698845ebc7e0befb",
-      "size": 2595
+      "sha256": "889b59091586563ac4f9a527bab894b9c2616eb9c74a96b822295f48f582af2b",
+      "size": 2072
     },
     {
       "name": "severity_trend_summary.csv",
-      "sha256": "6b4be9e0d442292d7453b8133220214b88dfef8aae58aea2be13645252f015f1",
-      "size": 390
+      "sha256": "39429096172f610794f0b13520ee973dabd984d685574bc9b8d940a88e366c5c",
+      "size": 309
     },
     {
       "name": "severity_groups.csv",
@@ -3474,53 +3474,53 @@
     },
     {
       "name": "extreme_thresholds.csv",
-      "sha256": "a9bea9cc8fe4eaa52a68e9920c860a8e9101dcfaf66ccc7b07723bdd7a02eef8",
-      "size": 423
+      "sha256": "eb52f589cb24f632aa6eedc0f8257533f4367c86757a5f8b85209e8ed2931d3f",
+      "size": 406
     },
     {
       "name": "extreme_candidates.csv",
-      "sha256": "3a33d54bd3838768125ced58b5c705ae507fa3656c9d985a92fb9282e829e10c",
-      "size": 3837
+      "sha256": "0866e18b9769e7630e937ab42f3a671f603c18cd914daa418867f1164a4dd7db",
+      "size": 2845
     },
     {
       "name": "extreme_gpd_fit.csv",
-      "sha256": "a49bf1ad5f86f34bd1db68befc624128510acddffc27f43cd1f143de82d82fc8",
-      "size": 713
+      "sha256": "1190613d9387511b8720ace4b436371a7a2affd7363f82097696b91ac86f9db9",
+      "size": 536
     },
     {
       "name": "extreme_tail_quantiles.csv",
-      "sha256": "c464ea5c55830720fa7db5c3e668810fe64266128282515f584354dbdd89aad7",
-      "size": 612
+      "sha256": "24e150e6ebc3bfd3e0704f80be0a910e2eb3adda519078fb5d89c5f43b5dc0b2",
+      "size": 489
     },
     {
       "name": "extreme_return_levels.csv",
-      "sha256": "babc9d74349077a45e474c418e576ccdfcbe636752e02dbcc485bbe924feac93",
-      "size": 614
+      "sha256": "79a910f0493bcc3057a654f4ff981d34d20e671f5c807fc192a705364cfc4107",
+      "size": 531
     },
     {
       "name": "extreme_threshold_comparison.csv",
-      "sha256": "15bdb852d784425956f736d95e5098c77405f5b878f3ea79023b6f9307457801",
-      "size": 740
+      "sha256": "b04db2ea0572867adbdfac5d1fd37e311e7115b4e23be794a1e26193102be8c5",
+      "size": 605
     },
     {
       "name": "extreme_mean_excess.csv",
-      "sha256": "f1a7d855e4121197fc5d35b5509b5b1d6fd710a938ce75803d9d046e58bff0d2",
-      "size": 12252
+      "sha256": "e495670af3c5b48d8453c03a3a7edd4c032f564628e9fb2f61e9752b7eee80a3",
+      "size": 9408
     },
     {
       "name": "extreme_excess_plot.csv",
-      "sha256": "fcf26aafc165bc85a791d268d735df1f04009a147e2cdfa64fef3755f2353f31",
-      "size": 29706
+      "sha256": "d1b5945caebef45ed4703ace8afc474426552a598ad43a4eab5cdaa9f20a1df1",
+      "size": 22735
     },
     {
       "name": "extreme_yearly.csv",
-      "sha256": "996988e7317a9ac9579a506b2ed6c5f977d8b86139a0c2d95859d2585c53abcc",
-      "size": 1525
+      "sha256": "1e0df6dc83ba9be0a06b2d7477b67ab91d6dfd12322d37e2908fea6cba6a9931",
+      "size": 1324
     },
     {
       "name": "extreme_yearly_summary.csv",
-      "sha256": "33ed217e96732319ab47346b8292eca607d7709e43d6e18875fe8b3806c77cdc",
-      "size": 406
+      "sha256": "ec1fed02d02b65d69c19e3a266af1dfe93c811f0156f98bfe8ecb2b43bb51154",
+      "size": 330
     }
   ],
   "randomness": [
@@ -3550,7 +3550,7 @@
       "seed": 1
     }
   ],
-  "run_id": "927ab01570225d1f",
+  "run_id": "465a16bea5dd8a65",
   "settings": {
     "assumptions": {
       "entries": []
@@ -3751,7 +3751,7 @@
     {
       "id": "CV06",
       "title": "Precision and rounding",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "CV07",
