@@ -3,7 +3,7 @@ version: 1.0.0
 title_en: Survival analysis (Kaplan–Meier and Cox)
 title_tr: Sağkalım analizi (Kaplan–Meier ve Cox)
 status: reviewed
-implemented: false
+implemented: true
 definition: >-
   Time-to-event curves of claims with censoring: the Kaplan–Meier estimate of the share of
   claims still open by time since report, and a Cox proportional-hazards model of how line,

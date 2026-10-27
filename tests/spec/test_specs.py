@@ -22,10 +22,11 @@ CONCEPTS_PLANNED = {
 }  # fmt: skip
 MODULES_PLANNED = {f"M{n:02d}" for n in range(7, 14)}
 # Built by the integration P25b (record 0620): the tier B reserving methods, the severity
-# methods, and the measure AE02, the back-test error. MT19 (survival) is not built yet.
+# methods, and the measure AE02, the back-test error. P25c built MT19 (survival).
 METHODS_BUILT_P25B = {f"MT{n}" for n in (*range(11, 19), 22)}
+METHODS_BUILT_P25C = {"MT19"}
 MEASURES_BUILT_P25B = {"AE02"}
-METHODS_PLANNED = {f"MT{n}" for n in range(11, 30)} - METHODS_BUILT_P25B
+METHODS_PLANNED = {f"MT{n}" for n in range(11, 30)} - METHODS_BUILT_P25B - METHODS_BUILT_P25C
 
 
 @pytest.fixture(scope="module")
@@ -50,7 +51,9 @@ def test_spec_ids_are_unique(catalogue: SpecCatalogue) -> None:
 def test_version_1_scope_is_complete(catalogue: SpecCatalogue) -> None:
     assert set(catalogue.data) == CONCEPTS_V1
     assert set(catalogue.measures) == MEASURES_V1 | MEASURES_BUILT_P25B
-    assert {m for m in catalogue.methods if int(m[2:]) >= 11} == METHODS_BUILT_P25B
+    assert {m for m in catalogue.methods if int(m[2:]) >= 11} == (
+        METHODS_BUILT_P25B | METHODS_BUILT_P25C
+    )
     assert set(catalogue.modules) == MODULES_V1
     assert {f"CV0{n}" for n in range(1, 7)} <= set(catalogue.conventions)
 
@@ -109,8 +112,8 @@ def test_every_reference_of_the_planned_specs_resolves(planned: SpecCatalogue) -
 def test_phase_2_scope_is_planned(planned: SpecCatalogue) -> None:
     not_built = {f.spec.id for f in planned.files if not f.spec.implemented}
     assert not_built >= CONCEPTS_PLANNED | MODULES_PLANNED | METHODS_PLANNED
-    assert {"CV09", "CV10", "CV11", "CV12", "AL03", "AL04", "MT19"} <= not_built
-    assert not (METHODS_BUILT_P25B | MEASURES_BUILT_P25B) & not_built
+    assert {"CV09", "CV10", "CV11", "CV12", "AL03", "AL04"} <= not_built
+    assert not (METHODS_BUILT_P25B | METHODS_BUILT_P25C | MEASURES_BUILT_P25B) & not_built
     assert {m for m in METHODS_PLANNED if planned.methods[m].tier == "C"} == {
         f"MT{n}" for n in range(23, 30)
     }
