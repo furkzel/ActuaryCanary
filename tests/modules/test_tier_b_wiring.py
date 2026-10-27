@@ -33,7 +33,7 @@ from actuarycanary.modules.reserving_tier_b_output import (
     ae02_table,
     back_test_table,
     bootstrap_summary,
-    distribution_files,
+    distribution_frames,
     measures_run,
     parameters_table,
     tables,
@@ -304,9 +304,9 @@ def test_the_output_tables_have_one_row_per_origin_or_the_reason(wired) -> None:
     assert summary.filter(pl.col("origin_period") == "Total").height == 1
     assert set(parameters_table(wired)["method"]) == {"MT11", "MT12", "MT13", "MT14"}
     assert set(tables(wired)) >= {"tier_b_ultimates.csv", "back_test.csv", "bootstrap_summary.csv"}
-    files = distribution_files(wired)
+    files = distribution_frames(wired)
     assert list(files) == ["bootstrap_distribution_S_L.parquet"]
-    frame = pl.read_parquet(__import__("io").BytesIO(next(iter(files.values()))))
+    frame = next(iter(files.values()))
     assert frame.height == SIMULATIONS and frame.columns[-1] == "total"
     np.testing.assert_allclose(
         frame["total"].to_numpy(), wired.groups[0].tier_b.bootstrap.total, rtol=0, atol=0

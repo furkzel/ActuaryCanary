@@ -8,17 +8,20 @@ slow and skips without `data/synthetic/baseline/medium`.
 """
 
 import json
+import math
 from pathlib import Path
 
 import polars as pl
 import pytest
 
 from actuarycanary.manifest.metadata import ProjectMetadata, load_metadata
+from actuarycanary.manifest.run import SIGNIFICANT_DIGITS
 from actuarycanary.measures.claim_base import size_classes
 from actuarycanary.measures.model import MeasureRequest
 from actuarycanary.methods import registry
 from actuarycanary.methods.chain_ladder import Skipped
 from actuarycanary.methods.severity import LargeLossError, parse_large_loss
+from actuarycanary.modules.reserving_output import ROUNDED_METHODS
 from actuarycanary.pipeline import RunResult, RunSettings, run
 
 BASELINE = Path(__file__).parent / "fixtures" / "synthetic" / "baseline"
@@ -96,6 +99,40 @@ def test_tier_a_tables_of_the_run_are_what_they_were(default_run: RunResult) -> 
         assert all(
             c.tail_factor == 1.0 for c in group.chain_ladder.values() if not isinstance(c, Skipped)
         )
+
+
+# The csv files of tier A, the lineage and the module output keep every digit (CV06 1.1.0); every
+# other csv file of a run, so every file of a later item too, goes through `write_table`.
+FULL_PRECISION_FILES = {
+    "anomalies.csv", "assumptions.csv", "cash_flows.csv", "chain_ladder.csv", "diagnostics.csv",
+    "factors.csv", "lineage.csv", "lineage_atoms.csv", "measures.csv", "reserve_range.csv",
+    "triangles.csv", "ultimates.csv",
+}  # fmt: skip
+
+
+def test_no_float_of_a_new_file_has_more_digits_than_the_rule_allows(
+    default_run: RunResult,
+) -> None:
+    """CV06 1.1.0: significant digits of every float cell of every file not listed above."""
+    names = [o["name"] for o in _manifest(default_run)["outputs"] if o["name"].endswith(".csv")]
+    checked = sorted(set(names) - FULL_PRECISION_FILES)
+    assert {"tier_b_ultimates.csv", "tier_b_parameters.csv", "severity_parameters.csv"} <= set(
+        checked
+    )
+    cells = 0
+    for name in checked:
+        frame = _csv(default_run, name)
+        for column in (c for c, t in frame.schema.items() if t == pl.Float64):
+            for value in (v for v in frame[column].drop_nulls().to_list() if math.isfinite(v)):
+                cells += 1
+                assert float(f"{value:.{SIGNIFICANT_DIGITS - 1}e}") == value, (name, column, value)
+    assert cells > 1000  # the check looked at numbers
+    diagnostics = _csv(default_run, "diagnostics.csv").filter(
+        pl.col("method").is_in(sorted(ROUNDED_METHODS))
+    )
+    assert diagnostics["value"].drop_nulls().len() > 0
+    for value in (v for v in diagnostics["value"].drop_nulls().to_list() if math.isfinite(v)):
+        assert float(f"{value:.{SIGNIFICANT_DIGITS - 1}e}") == value, ("diagnostics.csv", value)
 
 
 def test_the_back_test_and_its_errors_are_written_for_ae02(default_run: RunResult) -> None:
@@ -190,7 +227,10 @@ def test_on_the_medium_baseline_m06_shows_the_mt18_threshold_beside_cv08s_and_do
     assert note in cl12.notes
     classes, _ = size_classes(result.analysis.inputs, MeasureRequest())
     in_force = set(classes["threshold"].drop_nulls().to_list())
-    assert in_force == set(comparison["cv08_threshold"].drop_nulls().to_list())  # CV08's only
+    # CV08's only; the file holds them to 10 significant digits (record 0626)
+    assert sorted(comparison["cv08_threshold"].drop_nulls().unique().to_list()) == pytest.approx(
+        sorted(in_force), rel=1e-9
+    )
     assert not in_force & set(ran["extreme_value_threshold"].to_list())  # MT18's never classes
     reasons = " ".join(result.analysis.get("M04").reasons)
     assert "MT11 bootstrap did not run" in reasons  # late columns paid nothing (record 0285)

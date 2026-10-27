@@ -39,7 +39,8 @@ from actuarycanary.manifest.run import (
     run_id,
     write_manifest,
     write_output,
-    write_output_bytes,
+    write_parquet_table,
+    write_table,
 )
 from actuarycanary.measures.lineage import DEFAULT_FORMAT, FORMATS, build_lineage
 from actuarycanary.measures.model import Basis, CurrencyView, MeasureInputs, with_refs
@@ -877,11 +878,11 @@ def run(
     ):
         outputs.append(write_output(out, name, content))
     for name, table in tier_b_output.tables(reserving).items():
-        outputs.append(write_output(out, name, table.write_csv()))
-    for name, data in tier_b_output.distribution_files(reserving).items():
-        outputs.append(write_output_bytes(out, name, data))
+        outputs.append(write_table(out, name, table))
+    for name, table in tier_b_output.distribution_frames(reserving).items():
+        outputs.append(write_parquet_table(out, name, table))
     for name, table in severity.files().items():
-        outputs.append(write_output(out, name, table.write_csv()))
+        outputs.append(write_table(out, name, table))
     randomness = [
         {"method": "MT09", "seed": isolation_forest.SEED, "purpose": "isolation forest"},
         *[row for row in tier_b_registry.randomness(RUN_SEED) if row["method"] in ran_methods],

@@ -1,16 +1,22 @@
-"""The data files of the reserving and anomaly modules, unrounded (CV06)."""
+"""The data files of the reserving and anomaly modules, unrounded (CV06), except the values of the
+tier B and severity methods in diagnostics.csv, which carry 10 significant digits (CV06 1.1.0)."""
 
 from datetime import date
 from typing import Any
 
 import polars as pl
 
+from actuarycanary.manifest.run import round_significant
 from actuarycanary.methods.assumptions import Assumption
 from actuarycanary.methods.inflation_adjusted import InflationAdjusted, future_cash_flows
 from actuarycanary.modules.anomalies import ANOMALY_COLUMNS, AnomalyResult
 from actuarycanary.modules.methods_port import range_table, ultimates_table
 from actuarycanary.modules.reserving import ReservingResult
 
+# The methods whose rows in diagnostics.csv carry floats to 10 significant digits (CV06 1.1.0)
+ROUNDED_METHODS = frozenset(
+    ("MT11", "MT12", "MT13", "MT14", "MT15", "MT16", "MT17", "MT18", "MT22", "AE02")
+)
 ASSUMPTIONS_NAME = "assumptions.csv"
 ANOMALIES_NAME = "anomalies.csv"
 DIAGNOSTICS_NAME = "diagnostics.csv"
@@ -65,6 +71,9 @@ def diagnostics_csv(result: ReservingResult, extra: list[dict[str, Any]] | None 
                 }
             )
     rows += extra or []
+    for row in rows:
+        if row["method"] in ROUNDED_METHODS:
+            row["value"] = round_significant(row["value"])
     schema: dict[str, Any] = {c: pl.String for c in DIAGNOSTIC_COLUMNS}
     schema["value"] = pl.Float64
     return pl.DataFrame(rows, schema=schema).write_csv()

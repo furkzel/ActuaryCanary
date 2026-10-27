@@ -1,4 +1,5 @@
-"""The data files of the tier B reserving methods, unrounded (CV06; record 0620).
+"""The data files of the tier B reserving methods (CV06; records 0620 and 0626): the tables are
+handed to the shared writer, which rounds their floats to 10 significant digits.
 
 `tier_b_ultimates.csv`  ultimates of MT12, MT13, MT15 and MT16 per origin, or the reason a
                          method did not run
@@ -13,7 +14,6 @@ Diagnostics and the parameters in force go to `diagnostics.csv` and `assumptions
 of tier A.
 """
 
-import io
 import re
 from collections.abc import Callable
 from typing import Any
@@ -335,18 +335,16 @@ def bootstrap_residuals(result: ReservingResult) -> pl.DataFrame:
     return pl.concat(parts).select(columns)
 
 
-def distribution_files(result: ReservingResult) -> dict[str, bytes]:
-    """MT11 `reserve_distribution`: the simulated reserves of each group as parquet, one row
-    per simulation with a column per origin and `total`."""
-    files: dict[str, bytes] = {}
+def distribution_frames(result: ReservingResult) -> dict[str, pl.DataFrame]:
+    """MT11 `reserve_distribution`: the simulated reserves of each group, one row per
+    simulation with a column per origin and `total`, by the name of its parquet file."""
+    files: dict[str, pl.DataFrame] = {}
     for group in result.groups:
         if group.tier_b is None or not isinstance(group.tier_b.bootstrap, OdpBootstrap):
             continue
         label = re.sub(r"[^A-Za-z0-9_.-]+", "-", "_".join(group.group)).strip("-")
-        buffer = io.BytesIO()
         frame = group.tier_b.bootstrap.distribution_frame(group.triangles["paid"].origins)
-        frame.write_parquet(buffer, compression="zstd", statistics=False)
-        files[f"{DISTRIBUTION_PREFIX}{label}{DISTRIBUTION_SUFFIX}"] = buffer.getvalue()
+        files[f"{DISTRIBUTION_PREFIX}{label}{DISTRIBUTION_SUFFIX}"] = frame
     return files
 
 
