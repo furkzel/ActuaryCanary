@@ -42,4 +42,4 @@ notes:
   the mean of the simulated total reserve within 5 per cent of the chain-ladder reserve. Percentile and
   standard-deviation rows are information, not pass criteria (decision 0282).'
 - 'Published scale parameter of GenIns (England and Verrall) not opened: UNVERIFIED.'
-checked_by_owner: false
+checked_by_owner: true
