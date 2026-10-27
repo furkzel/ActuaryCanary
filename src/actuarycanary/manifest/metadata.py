@@ -1,6 +1,7 @@
 """Project metadata loaded from project.yaml through a validated model."""
 
 from pathlib import Path
+from typing import Any
 
 import yaml
 from pydantic import BaseModel, ConfigDict
@@ -37,6 +38,8 @@ class ProjectMetadata(BaseModel):
     licence: str
     report: ReportSettings
     data: DataSettings
+    # the large-loss section (CV08 1.1.0, record 0601); read by `parse_large_loss`
+    large_loss: dict[str, Any] | None = None
 
 
 def find_project_file(start: Path | None = None) -> Path:

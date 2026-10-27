@@ -3,7 +3,7 @@ version: 1.0.0
 title_en: Munich chain ladder
 title_tr: Münih zincir merdiven
 status: reviewed
-implemented: false
+implemented: true
 definition: >-
   Projects the paid and the incurred triangle together (Quarg and Mack 2004): each
   development factor is corrected by how far the origin's paid-to-incurred ratio lies from

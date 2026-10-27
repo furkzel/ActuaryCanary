@@ -284,9 +284,10 @@ def large_loss_share(
         .otherwise(pl.lit(""))
         .alias(NOTE),
     ).drop("_no_large")
+    extreme = (inputs.extreme_value_note,) if inputs.extreme_value_note else ()
     return Computed(
         keep_columns(frame, keys).sort(keys) if keys else frame,
-        tuple([*notes, *left, *dim_notes, *origin_notes(inputs, request)]),
+        tuple([*notes, *left, *dim_notes, *origin_notes(inputs, request), *extreme]),
         (CONCEPT,),
     )
 

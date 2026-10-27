@@ -3,7 +3,7 @@ version: 1.0.0
 title_en: Tail factor fitting
 title_tr: Kuyruk faktörü uydurma
 status: reviewed
-implemented: false
+implemented: true
 definition: >-
   Estimates development beyond the last age of the triangle by fitting a decay curve to the
   selected age-to-age factors by link number (exponential decay or inverse power) and extending it for
