@@ -1,0 +1,31 @@
+{#- The settlement-speed part of the M03 page (MT19, record 0341); `sv` is its body. -#}
+<h3 id="settlement-speed">{{ tr("Settlement speed (survival analysis)") }}</h3>
+{% if sv.warnings %}<ul>{% for w in sv.warnings %}<li class="negative">{{ w.message }}</li>{% endfor %}</ul>{% endif %}
+<div class="charts">{% for l in sv.lines %}{{ figure(l.figure, tr("Share of claims still open, {line}", line=l.line)) }}{% endfor %}</div>
+<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Line") }}</th><th>{{ tr("Claims") }}</th><th>{{ tr("Closed") }}</th><th>{{ tr("Still open (censored)") }}</th><th>{{ tr("25th percentile (days)") }}</th><th>{{ tr("Median (days)") }}</th><th>{{ tr("75th percentile (days)") }}</th><th>{{ tr("Month-end dates") }}</th></tr></thead>
+  <tbody>{% for l in sv.lines %}<tr><td>{{ l.line }}{% if l.thin %} <span class="negative">({{ tr("thin evidence") }})</span>{% endif %}</td><td>{{ l.claims }}</td><td>{{ l.events }}</td><td>{{ l.censored }}</td>{% for p in l.percentiles %}<td>{{ p }}</td>{% endfor %}<td>{{ l.month_end }}</td></tr>{% endfor %}</tbody>
+</table></div>
+<p class="footnote">{{ sv.footnotes.curves }} {{ tr("Intervals in brackets.") }}</p>
+{% if sv.information %}<ul class="why">{% for i in sv.information %}<li>{{ i }}</li>{% endfor %}</ul>{% endif %}
+<h4>{{ tr("Cox model: hazard ratios") }}</h4>
+{% for x in sv.models %}<p>{{ x.segment }}: {% if x.status == "fitted" %}{{ tr("fitted on {claims} claims with {events} closings, covariates {covariates}; likelihood-ratio p-value {lr}, Wald p-value {wald}.", claims=x.claims, events=x.events, covariates=x.covariates, lr=x.lr_p, wald=x.wald_p) }}{% else %}{{ tr("no model: {reason}.", reason=x.reason) }}{% endif %}{% if x.note %} <span class="evidence">{{ x.note }}</span>{% endif %}</p>{% endfor %}
+{% if sv.coefficients %}<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Segment") }}</th><th class="text">{{ tr("Level") }}</th><th>{{ tr("Against") }}</th><th>{{ tr("Closings") }}</th><th>{{ tr("Hazard ratio") }}</th><th>{{ tr("95% interval") }}</th><th>{{ tr("p-value") }}</th></tr></thead>
+  <tbody>{% for c in sv.coefficients %}<tr><td>{{ c.segment }}</td><td class="text">{{ c.term }}</td><td>{{ c.reference }}</td><td>{{ c.events }}</td><td>{{ c.ratio }}</td><td>{{ c.low }} – {{ c.high }}</td><td>{{ c.p }}</td></tr>{% endfor %}</tbody>
+</table></div>{% endif %}
+<p class="footnote">{{ sv.footnotes.cox }}</p>
+<details><summary>{{ tr("Cohorts and information-only tests") }}</summary>
+  {% if sv.logrank %}<p>{% for x in sv.logrank %}{{ tr("{segment}: log-rank test across report years {statistic} on {df} degrees of freedom, p-value {p}.", segment=x.segment, statistic=x.statistic, df=x.df, p=x.p) }} {% endfor %}</p>{% endif %}
+  <div class="scroll"><table>
+    <thead><tr><th>{{ tr("Segment") }}</th><th>{{ tr("Report year") }}</th><th>{{ tr("Claims") }}</th><th>{{ tr("Share censored") }}</th></tr></thead>
+    <tbody>{% for x in sv.cohorts %}<tr><td>{{ x.segment }}</td><td>{{ x.year }}</td><td>{{ x.claims }}</td><td>{{ x.censored }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% if sv.proportional %}<h4>{{ tr("Information: Grambsch–Therneau test of proportional hazards") }}</h4>
+  <div class="scroll"><table>
+    <thead><tr><th>{{ tr("Segment") }}</th><th class="text">{{ tr("Term") }}</th><th>{{ tr("Statistic") }}</th><th>{{ tr("p-value") }}</th></tr></thead>
+    <tbody>{% for x in sv.proportional %}<tr><td>{{ x.segment }}</td><td class="text">{{ x.term }}</td><td>{{ x.statistic }}</td><td>{{ x.p }}</td></tr>{% endfor %}</tbody>
+  </table></div>{% endif %}
+  {% for x in sv.models if x.concordance != "–" %}<p>{{ tr("Information: concordance of the {segment} model {value}.", segment=x.segment, value=x.concordance) }}</p>{% endfor %}
+  <p class="footnote">{{ sv.footnotes.information }}</p>
+</details>

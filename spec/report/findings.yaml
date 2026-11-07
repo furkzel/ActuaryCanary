@@ -1,5 +1,5 @@
 id: RP01
-version: 1.1.0
+version: 1.2.0
 title_en: Key finding rules
 title_tr: Temel bulgu kuralları
 status: draft
@@ -416,6 +416,154 @@ rules:
       section: anomalies
       files: [anomalies.csv]
       specs: [MT08]
+  - id: KF27
+    title: Munich chain ladder differs from the selection
+    scope: line
+    priority: 7
+    condition: munich_gap_size >= 0.1
+    template: >-
+      The Munich chain ladder gives {munich_incurred} {currency} on incurred and
+      {munich_paid} {currency} on paid, {munich_gap} against the selected ultimate: paid and
+      incurred tell different stories on this line, and the selection rests on one of them.
+    title_tr: Munich zincir merdiven seçimden farklı
+    template_tr: >-
+      Munich zincir merdiven gerçekleşen üzerinde {munich_incurred} {currency}, ödenen
+      üzerinde {munich_paid} {currency} veriyor; seçilen nihai tutara göre fark
+      {munich_gap}: bu branşta ödenen ve gerçekleşen farklı şeyler söylüyor ve seçim
+      bunlardan birine dayanıyor.
+    evidence:
+      section: line
+      files: [tier_b_ultimates.csv, ultimates.csv]
+      specs: [MT12, MT10]
+  - id: KF28
+    title: The selection missed in the back test
+    scope: line
+    priority: 8
+    condition: back_test_bias_size >= 0.05
+    template: >-
+      Rerun on the data known {back_test_horizon} months earlier, the selected ultimate was
+      off by {back_test_bias} on average over {back_test_origins} origins against what was
+      known later; the method has erred in one direction on this line before.
+    title_tr: Seçim geriye dönük testte saptı
+    template_tr: >-
+      {back_test_horizon} ay önce bilinen veriyle yeniden çalıştırıldığında seçilen nihai
+      tutar, sonradan bilinene göre {back_test_origins} kaynak dönemde ortalama
+      {back_test_bias} saptı; yöntem bu branşta daha önce de tek yönde yanılmış.
+    evidence:
+      section: line
+      files: [back_test.csv]
+      specs: [MT22, AE02, MT10]
+  - id: KF29
+    title: The fitted tail changes the reserve
+    scope: line
+    priority: 9
+    condition: tail_fitted_change >= 0.1
+    template: >-
+      With the tail of the curve MT14 fitted instead of the tail {tail_factor} of the run, the
+      selected IBNR would be {tail_fitted_ibnr} {currency} ({tail_fitted_change} more):
+      development after the last age matters on this line.
+    title_tr: Uydurulan kuyruk rezervi değiştiriyor
+    template_tr: >-
+      Çalıştırmanın {tail_factor} kuyruğu yerine MT14'ün uydurduğu eğrinin kuyruğu
+      kullanılsaydı seçilen IBNR {tail_fitted_ibnr} {currency} olurdu ({tail_fitted_change}
+      fazla): bu branşta son yaştan sonraki gelişim önemlidir.
+    evidence:
+      section: line
+      files: [sensitivity.csv, tier_b_parameters.csv]
+      specs: [MT14, MT02]
+  - id: KF30
+    title: The reserve is sensitive to the tail
+    scope: line
+    priority: 10
+    condition: tail_up_change >= 0.25
+    template: >-
+      A tail factor {tail_step} higher would add {tail_up_difference} {currency} to the selected
+      IBNR ({tail_up_change}): most of this line's reserve depends on how much development is
+      left after the last age.
+    title_tr: Rezerv kuyruğa duyarlı
+    template_tr: >-
+      {tail_step} daha yüksek bir kuyruk faktörü seçilen IBNR'ye {tail_up_difference} {currency}
+      ekler ({tail_up_change}): bu branşın rezervinin çoğu, son yaştan sonra ne kadar gelişim
+      kaldığına bağlıdır.
+    evidence:
+      section: sensitivity
+      files: [sensitivity.csv]
+      specs: [MT02, MT10]
+  - id: KF31
+    title: Heavy tail of large claims
+    scope: line
+    priority: 11
+    condition: gpd_shape >= gpd_shape_limit
+    template: >-
+      Above {gpd_threshold} {currency} the {gpd_exceedances} largest claims have a fitted
+      generalised Pareto shape of {gpd_shape}, at least {gpd_shape_limit}: the fitted tail
+      has no finite variance, so single claims can dominate the results of this line.
+    title_tr: Büyük hasarlarda kalın kuyruk
+    template_tr: >-
+      {gpd_threshold} {currency} üzerindeki en büyük {gpd_exceedances} hasarın uydurulan
+      genelleştirilmiş Pareto biçim parametresi {gpd_shape}, yani en az {gpd_shape_limit}:
+      uydurulan kuyruğun sonlu varyansı yoktur, bu branşın sonuçlarını tek tek hasarlar
+      belirleyebilir.
+    evidence:
+      section: large-losses
+      files: [extreme_gpd_fit.csv]
+      specs: [MT18]
+  - id: KF32
+    title: Settlement speed differs between report years
+    scope: segment
+    priority: 14
+    condition: cohort_logrank_p < cohort_significance
+    template: >-
+      {segment}: claims of different report years settle at different speeds (log-rank test
+      over {cohort_years} report years, p-value {cohort_logrank_p}); the development of the
+      older years may not hold for the recent ones.
+    title_tr: Rapor yılları arasında kapanış hızı farklı
+    template_tr: >-
+      {segment}: farklı rapor yıllarının hasarları farklı hızlarda kapanıyor ({cohort_years}
+      rapor yılı üzerinde log-rank testi, p değeri {cohort_logrank_p}); eski yılların gelişimi
+      yeni yıllar için geçerli olmayabilir.
+    evidence:
+      section: settlement-speed
+      files: [survival_cohorts.csv]
+      specs: [MT19]
+  - id: KF33
+    title: Width of the reserve range
+    scope: run
+    priority: 15
+    condition: range_upper_width >= 0.25
+    template: >-
+      The selected unpaid of all lines, {range_reserve} {currency}, has a 95th percentile of
+      {range_p95} {currency}, {range_upper_width} above it ({range_source}); the range is an
+      indicative approximation, not a capital requirement.
+    title_tr: Rezerv aralığının genişliği
+    template_tr: >-
+      Tüm branşların seçilen ödenmemiş tutarı {range_reserve} {currency}; 95. yüzdeliği
+      {range_p95} {currency}, yani {range_upper_width} üzerinde ({range_source}); aralık
+      gösterge niteliğinde bir yaklaşımdır, sermaye gereksinimi değildir.
+    evidence:
+      section: uncertainty
+      files: [risk_measures.csv]
+      specs: [RS03, RS05, M12]
+  - id: KF34
+    title: Discount effect
+    scope: run
+    priority: 16
+    condition: discount_share >= 0.05
+    template: >-
+      Discounted with the curve {discount_curve} of {discount_curve_date}, the selected unpaid
+      of all lines falls from {discount_nominal} to {discount_present} {currency}
+      ({discount_share} less); switch the value basis at the top of the page to see the
+      discounted figures.
+    title_tr: İndirgeme etkisi
+    template_tr: >-
+      {discount_curve_date} tarihli {discount_curve} eğrisiyle indirgendiğinde tüm
+      branşların seçilen ödenmemiş tutarı {discount_nominal} değerinden {discount_present}
+      {currency} değerine düşer ({discount_share} daha az); indirgenmiş tutarları görmek için
+      sayfanın üstündeki değer bazını değiştirin.
+    evidence:
+      section: uncertainty
+      files: [risk_measures.csv, discount_curve.csv]
+      specs: [RS04, CV10]
 change_log:
   - version: 1.0.0
     date: 2026-10-22
@@ -426,3 +574,12 @@ change_log:
       Every rule has a Turkish title and sentence template (title_tr, template_tr) beside
       the English ones, with the same conditions and placeholders; the report is written
       in Turkish with --lang tr (record 0224). No condition or English sentence changes.
+  - version: 1.2.0
+    date: 2026-11-07
+    change: >-
+      Eight rules for the results of version 1.2 (work item P27, record 0345), in English
+      and Turkish: KF27 Munich chain ladder against the selection, KF28 bias of the
+      selection in the back test, KF29 effect of the fitted tail, KF30 sensitivity to the
+      tail, KF31 heavy tail of large claims, KF32 settlement speed by report year, KF33 width
+      of the reserve range, KF34 discount effect. KF01 to KF26 are unchanged. Not reviewed
+      by the owner yet (gate G5).

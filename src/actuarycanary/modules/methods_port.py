@@ -34,7 +34,7 @@ from actuarycanary.structures.triangles import MEASURES
 
 IMPLEMENTED = frozenset(
     {"MT03", "MT04", "MT05", "MT06", "MT07", "MT10", "MT11", "MT12", "MT13", "MT14", "MT15",
-     "MT16", "MT22"}
+     "MT16", "MT17", "MT18", "MT19", "MT22"}
 )  # fmt: skip
 PERCENTILE_COLUMNS = {0.5: "p50", 0.75: "p75", 0.9: "p90", 0.95: "p95", 0.99: "p99", 0.995: "p99_5"}
 SAME_ULTIMATE = 1e-9  # relative: a selected ultimate equal to the Mack one is the Mack one

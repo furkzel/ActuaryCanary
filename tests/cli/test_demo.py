@@ -73,7 +73,16 @@ def test_demo_equals_a_run_on_the_same_folder_by_fingerprints(
     demo = runner.invoke(cli.app, ["demo", "--out", str(tmp_path / "demo"), "--no-open"])
     assert demo.exit_code == 0, demo.output
     run = runner.invoke(
-        cli.app, ["run", str(find_demo_folder()), "--yes", "--out", str(tmp_path / "run")]
+        cli.app,
+        [
+            "run",
+            str(find_demo_folder()),
+            "--yes",
+            "--curve",
+            "TRY_GOV",
+            "--out",
+            str(tmp_path / "run"),
+        ],
     )
     assert run.exit_code == 0, run.output
     first, second = (next((tmp_path / name).glob("*/manifest.json")) for name in ("demo", "run"))

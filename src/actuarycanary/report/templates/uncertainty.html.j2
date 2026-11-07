@@ -1,0 +1,62 @@
+{#- The uncertainty page (M12, record 0342); `b` is the page body. -#}
+{% if b.reason %}<p>{{ tr("Nothing to show: {reason}.", reason=b.reason) }}</p>{% else %}
+{% for blk in b.blocks %}<div data-basis="{{ blk.basis }}">
+  <h3>{{ tr("Reserve and its range, {basis}", basis=blk.label) }}</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>{{ tr("Line") }}</th><th>{{ tr("Reserve") }}</th><th>{{ tr("5th percentile") }}</th><th>{{ tr("95th percentile") }}</th><th>{{ tr("CV") }}</th><th class="text">{{ tr("Range from") }}</th>{% if blk.basis == "DISCOUNTED" %}<th>{{ tr("Discount effect") }}</th>{% endif %}</tr></thead>
+    <tbody>{% for h in blk.headline %}<tr><td>{{ h.line }}</td><td>{{ h.reserve }}</td><td>{{ h.low }}</td><td>{{ h.high }}</td><td>{{ h.cv }}</td><td class="text">{{ h.source }}</td>{% if blk.basis == "DISCOUNTED" %}<td>{{ h.effect }}</td>{% endif %}</tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="footnote">{{ b.footnotes.headline }}</p>
+  <h3>{{ tr("Ranges side by side, {basis}", basis=blk.label) }}</h3>
+  {{ figure(blk.range_figure, tr("Reserve ranges by line and source")) }}
+  <p class="footnote">{{ b.footnotes.figure }}</p>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>{{ tr("Line") }}</th><th class="text">{{ tr("Source") }}</th><th>{{ tr("Mean") }}</th><th>{{ tr("CV") }}</th><th>{{ tr("Median") }}</th><th>{{ tr("75th percentile") }}</th><th>{{ tr("95th percentile") }}</th><th>{{ tr("VaR 99.5%") }}</th><th>{{ tr("TVaR 99%") }}</th><th>{{ tr("Simulations") }}</th></tr></thead>
+    <tbody>{% for x in blk.ranges %}<tr title="{{ x.label }}{% if x.note %} · {{ x.note }}{% endif %}"><td>{{ x.line }}</td><td class="text">{{ x.source }}</td>{% for c in x.cells %}<td>{{ c }}</td>{% endfor %}<td>{{ x.simulations }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="footnote">{{ b.footnotes.ranges }}</p>
+  {% if blk.histograms %}<h3>{{ tr("Distribution of the simulated reserve, {basis}", basis=blk.label) }}</h3>
+  <div class="charts">{% for id in blk.histograms %}{{ figure(id, tr("Histogram of the simulated reserve")) }}{% endfor %}</div>
+  <p class="footnote">{{ b.footnotes.histogram }}</p>{% endif %}
+</div>{% endfor %}
+
+{% set st = b.statements %}
+<h3>{{ tr("What the totals rest on") }}</h3>
+<ul>
+  <li>{% if st.independent %}{{ tr("Lines are added with a correlation of {value}: independence, the default of the assumptions register (RS05 line_correlation, record 0323), and the least prudent choice.", value=st.correlation) }}{% else %}{{ tr("Lines are added with a correlation of {value}, set in the assumptions register (RS05 line_correlation, record 0323).", value=st.correlation) }}{% endif %}</li>
+  {% if st.boot_estimator %}<li>{{ tr("Bootstrap: {simulations} simulations; {estimator}; the TVaR at {level} is the mean of the {tail} largest simulations.", simulations=st.simulations, estimator=st.boot_estimator, level=st.tvar_level, tail=st.tail_count) }}</li>{% endif %}
+  {% if st.mack_estimator %}<li>{{ tr("Mack: {estimator}.", estimator=st.mack_estimator) }}</li>{% endif %}
+  <li>{% if st.all_lines_total %}{{ tr("A simulated total of all lines exists because every line has a bootstrap.") }}{% else %}{{ tr("A simulated total of all lines exists only when every line has a bootstrap; here the bootstrap ran on {n} of {lines} lines ({list}), so the all-lines figures are the Mack approximation only.", n=st.simulated|length, lines=st.lines, list=st.simulated|join(", ") or "–") }}{% endif %}</li>
+</ul>
+
+<h3>{{ tr("Tail factor: effect of the fitted curve") }}</h3>
+{% if b.tail_effects %}<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Line") }}</th><th>{{ tr("IBNR, tail of the run") }}</th><th>{{ tr("IBNR, tail fitted by MT14") }}</th><th>{{ tr("Change") }}</th><th class="text">{{ tr("Note") }}</th></tr></thead>
+  <tbody>{% for x in b.tail_effects %}<tr><td>{{ x.line }}</td><td>{{ x.base }}</td><td>{{ x.value }}</td><td>{{ x.change }}</td><td class="text">{{ x.note }}</td></tr>{% endfor %}</tbody>
+</table></div>
+<p class="footnote">{{ tr("The fitted curves of each line are on its reserving page; rows tail_fitted of sensitivity.csv.") }}</p>{% endif %}
+
+<h3>{{ tr("Expected cash flows") }}</h3>
+{{ figure(b.cash_flow_figure, tr("Expected payments by future period")) }}
+<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Period") }}</th><th>{{ tr("Payment date") }}</th><th>{{ tr("Nominal") }}</th><th>{{ tr("Discount factor") }}</th><th>{{ tr("Present value") }}</th></tr></thead>
+  <tbody>{% for x in b.cash_flows %}<tr><td>{{ x.period }}</td><td>{{ x.date }}</td><td>{{ x.nominal }}</td><td>{{ x.factor }}</td><td>{{ x.discounted }}</td></tr>{% endfor %}</tbody>
+</table></div>
+<p class="footnote">{{ b.footnotes.cash_flows }}</p>
+{% if b.curve %}<h4>{{ tr("Discount curve used") }}</h4>
+<dl class="cover">{% for k, v in b.curve.rows %}<dt>{{ k }}</dt><dd>{{ v }}</dd>{% endfor %}</dl>
+<details><summary>{{ tr("{n} points of the curve", n=b.curve.points|length) }}</summary><div class="scroll"><table>
+  <thead><tr><th>{{ tr("Tenor (years)") }}</th><th>{{ tr("Zero rate") }}</th><th>{{ tr("Discount factor") }}</th><th>{{ tr("Forward rate") }}</th></tr></thead>
+  <tbody>{% for x in b.curve.points %}<tr><td>{{ x.tenor }}</td><td>{{ x.zero }}</td><td>{{ x.factor }}</td><td>{{ x.forward }}</td></tr>{% endfor %}</tbody>
+</table></div></details>
+<p class="footnote">{{ tr("Rows of discount_curve.csv; the curve, the dates and the timing are in the manifest settings (discount, discount_used).") }}</p>
+{% else %}<p>{{ tr("No discounted figures: {reason}.", reason=b.discount_reason) }}</p>{% endif %}
+
+<h3>{{ tr("Calibration notes") }}</h3>
+{% if b.calibration %}<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Method") }}</th><th>{{ tr("Horizon (months)") }}</th><th>{{ tr("Lines") }}</th><th>{{ tr("Origins") }}</th><th>{{ tr("Share inside the range") }}</th></tr></thead>
+  <tbody>{% for x in b.calibration %}<tr><td>{{ x.method }}</td><td>{{ x.horizon }}</td><td>{{ x.lines }}</td><td>{{ x.origins }}</td><td>{{ x.share }}</td></tr>{% endfor %}</tbody>
+</table></div>{% else %}<p>{{ tr("No range could be back-tested on this data.") }}</p>{% endif %}
+<p class="footnote">{{ b.footnotes.calibration }}</p>
+{% if b.notes %}<details><summary>{{ tr("{n} notes of the module", n=b.notes|length) }}</summary><ul class="why">{% for n in b.notes %}<li>{{ n }}</li>{% endfor %}</ul></details>{% endif %}
+{% endif %}

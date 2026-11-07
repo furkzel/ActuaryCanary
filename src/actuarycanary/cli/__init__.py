@@ -17,7 +17,7 @@ from rich.table import Table
 from actuarycanary import __version__
 from actuarycanary.canonical.feeds import CanonicalError
 from actuarycanary.cli.confirm import confirm_tables
-from actuarycanary.cli.demo import find_demo_folder
+from actuarycanary.cli.demo import DEMO_CURVE, find_demo_folder
 from actuarycanary.cli.welcome import demo_closing_lines, show_welcome
 from actuarycanary.convert.bases import ReinsuranceBasis, ValueBasis
 from actuarycanary.convert.discount import DiscountSettings
@@ -383,7 +383,8 @@ def demo_command(
         bool, typer.Option("--open/--no-open", help="Open the report in the browser.")
     ] = True,
 ) -> None:
-    """Run on the example data that ships with the program and open the report."""
+    """Run on the example data that ships with the program and open the report. The demo names
+    its interest-rate curve (TRY_GOV), so the report also carries the discounted figures."""
     console = Console(width=100)
     try:
         folder = find_demo_folder()
@@ -391,7 +392,8 @@ def demo_command(
         console.print(f"[red]Cannot run:[/red] {escape(str(error))}")
         raise typer.Exit(1) from error
     console.print(f"Example data {folder}", soft_wrap=True)
-    result = _run_with_progress(console, folder, out, RunSettings(), True, Path("profiles"))
+    settings = RunSettings(discount=DiscountSettings(curve_id=DEMO_CURVE))
+    result = _run_with_progress(console, folder, out, settings, True, Path("profiles"))
     _summary(console, result)
     for line in demo_closing_lines(result.report.resolve(), result.report.resolve().parent):
         console.print(line, highlight=False, markup=False, soft_wrap=True)

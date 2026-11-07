@@ -1,0 +1,39 @@
+{#- The large-loss part of the M06 page (record 0340); `ll` is the large-loss body. -#}
+<h3 id="large-losses">{{ tr("Large losses: claim sizes and extreme values") }}</h3>
+{% if not ll.lines %}<p>{{ tr("No claim sizes were fitted on this run.") }}</p>{% endif %}
+{% for x in ll.lines %}
+<h4>{{ x.line }}</h4>
+{% set f = x.fits %}{% set th = x.thresholds %}
+<div class="scroll"><table>
+  <thead><tr><th class="text">{{ tr("Threshold") }}</th><th>{{ tr("Amount") }}</th><th>{{ tr("Claims above") }}</th><th>{{ tr("Share of incurred above") }}</th></tr></thead>
+  <tbody>
+    <tr><td class="text">{{ tr("Large-loss threshold of the run (CV08)") }}</td><td>{{ th.cv08 }}</td><td>{{ th.cv08_claims }}</td><td>{{ th.cv08_incurred }}</td></tr>
+    <tr><td class="text">{% if th.quantile != "–" %}{{ tr("Extreme-value threshold (MT18, quantile {q})", q=th.quantile) }}{% else %}{{ tr("Extreme-value threshold (MT18)") }}{% endif %}</td><td>{{ th.mt18 }}</td><td>{{ th.mt18_claims }}</td><td>{{ th.mt18_incurred }}</td></tr>
+  </tbody>
+</table></div>
+{% if th.reason %}<p class="footnote">MT18: {{ th.reason }}</p>{% endif %}
+{% if f.rows %}<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Family") }}</th><th>AIC</th><th>BIC</th><th>{{ tr("KS p-value") }}</th><th>{{ tr("AD p-value") }}</th><th class="text">{{ tr("Outcome") }}</th></tr></thead>
+  <tbody>{% for r in f.rows %}<tr><td>{{ r.family }}</td><td>{{ r.aic }}</td><td>{{ r.bic }}</td><td>{{ r.ks_p }}</td><td>{{ r.ad_p }}</td><td class="text">{% if r.selected %}<strong>{{ tr("selected") }}</strong>{% elif not r.converged %}{{ tr("did not converge") }}{% elif r.rejected %}{{ tr("rejected by the Anderson–Darling test") }}{% else %}{{ tr("not rejected") }}{% endif %}</td></tr>{% endfor %}</tbody>
+</table></div>
+<p>{{ tr("Claims fitted: {n}. Selected: {family} ({why}).", n=f.claims, family=f.family or "–", why=f.why or "–") }} {% if f.family %}{{ tr("Quantiles of the selected family") }}: {% for q in ll.quantile_headers %}{{ q }} {{ f.quantiles[loop.index0] }}{% if not loop.last %}; {% endif %}{% endfor %} {{ ll.currency }}.{% endif %}</p>
+{% elif f.reason %}<p>MT17: {{ f.reason }}</p>{% endif %}
+{% if x.tail %}{% set g = x.tail %}
+<p>{{ tr("Generalised Pareto above the extreme-value threshold: shape {xi} (interval {low} to {high}), scale {sigma}, on {n} claims.", xi=g.xi, low=g.xi_low, high=g.xi_high, sigma=g.sigma, n=g.exceedances) }}{% if g.warning %} <strong class="negative">{{ g.warning }}</strong>{% endif %}</p>
+<div class="charts">
+  {{ figure(x.figure, tr("Claims above the extreme-value threshold by origin year")) }}
+  <div class="scroll"><table>
+    <thead><tr><th>{{ tr("Probability") }}</th><th>{{ tr("Quantile") }}</th><th>{{ tr("Expected shortfall") }}</th></tr></thead>
+    <tbody>{% for q in g.quantiles %}<tr><td>{{ q.probability }}</td><td>{{ q.quantile }}</td><td>{{ q.shortfall }}</td></tr>{% endfor %}</tbody>
+  </table>
+  <table>
+    <thead><tr><th>{{ tr("Return period (years)") }}</th><th>{{ tr("Return level") }}</th></tr></thead>
+    <tbody>{% for q in g.returns %}<tr><td>{{ q.period }}</td><td>{{ q.level }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+<p class="footnote">{{ tr("Claims above the threshold per year: dispersion index {d} (p-value {dp}); trend of the excesses {trend} a year (p-value {tp}).", d=g.dispersion, dp=g.dispersion_p, trend=g.trend, tp=g.trend_p) }}</p>
+{% endif %}
+{% endfor %}
+<p class="footnote">{{ ll.footnotes.fits }}</p>
+<p class="footnote">{{ ll.footnotes.thresholds }}</p>
+<p class="footnote">{{ ll.footnotes.tail }}</p>
