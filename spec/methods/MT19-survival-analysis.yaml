@@ -1,5 +1,5 @@
 id: MT19
-version: 1.0.0
+version: 1.1.0
 title_en: Survival analysis (Kaplan–Meier and Cox)
 title_tr: Sağkalım analizi (Kaplan–Meier ve Cox)
 status: reviewed
@@ -54,7 +54,14 @@ algorithm:
   - step: >-
       Durations and event flags: from report_date to close_date, or to the cut-off when the
       claim is open (censored), with the dates of CL08. A reopened claim's first closing is
-      the event.
+      the event. The first closing is the first valuation in a closed status (CLOSED or
+      CLOSED_NIL); claims.close_date gives its day when the claim was never open again after
+      that closing and the date is not after the cut-off, because close_date is the last
+      closing of a reopened claim (record 0305).
+  - step: >-
+      With event closed_with_payment, a first closing as CLOSED is the event and a first
+      closing as CLOSED_NIL (a zero payment closing) ends the observation without an event,
+      at the date of that closing: the claim is censored there (record 0305).
   - step: Kaplan–Meier estimate with Greenwood variance, at the distinct event times t(m) with d(m) events among n(m) at risk.
     formula: '\hat S(t) = \prod_{t_m \le t} \Big(1 - \frac{d_m}{n_m}\Big), \qquad \widehat{\mathrm{Var}}\big(\hat S(t)\big) = \hat S(t)^2 \sum_{t_m \le t} \frac{d_m}{n_m (n_m - d_m)}'
   - step: >-
@@ -65,7 +72,9 @@ algorithm:
   - step: >-
       Cox proportional hazards by partial likelihood (ties per the parameter; Efron shown,
       with risk set R(m), events D(m) at t(m) and s(m) the sum of their covariates), with
-      Wald and likelihood-ratio tests.
+      Wald and likelihood-ratio tests. Each covariate enters as dummy variables per level;
+      the reference level is the level with the most events (then the most claims, then the
+      name), and a level with no events is merged into it with a note (record 0305).
     formula: 'h(t \mid x) = h_0(t)\, e^{\beta^\top x}, \qquad \ell(\beta) = \sum_{m} \Big[\beta^\top s_m - \sum_{r=0}^{d_m - 1} \ln\Big(\sum_{l \in R_m} e^{\beta^\top x_l} - \frac{r}{d_m}\sum_{l \in D_m} e^{\beta^\top x_l}\Big)\Big]'
   - step: Breslow baseline cumulative hazard and survival curves per covariate group.
 outputs:
@@ -139,3 +148,12 @@ change_log:
   - version: 1.0.0
     date: 2026-10-25
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-11-07
+    change: >-
+      Three conventions of record 0305 written down (P27, record 0341): the first closing is
+      taken from close_date when the claim was never reopened; a zero payment closing is
+      censored under closed_with_payment; the reference level of a covariate is the level
+      with the most events. No number changes. The Grambsch-Therneau test, the concordance
+      and the baseline survival stay information. The owner has not reviewed this version
+      yet.

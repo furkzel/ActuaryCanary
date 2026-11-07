@@ -1,5 +1,5 @@
 id: M04
-version: 1.0.0
+version: 1.1.0
 title_en: Reserving (indicative)
 title_tr: Karşılık tahmini (gösterge)
 status: reviewed
@@ -13,11 +13,23 @@ required_all: [claim_valuations]
 required_any: []
 optional: [claims, premiums, policies, market]
 measures: [RS01, RS02, RS03, AE01, CL10]
-methods: [MT01, MT02, MT03, MT04, MT05, MT06, MT07, MT10]
+methods: [MT01, MT02, MT03, MT04, MT05, MT06, MT07, MT10, MT11, MT12, MT13, MT14, MT15, MT16, MT22]
 skip_reason: >-
   Reserving did not run: no claim valuations were loaded. Load claim_valuations.xlsx to
   enable it; add claims.xlsx for accident-period origins, premiums.xlsx with policies.xlsx
   for Bornhuetter–Ferguson and Cape Cod, and market.xlsx for the inflation-adjusted view.
+outputs:
+  - triangles.csv, factors.csv, chain_ladder.csv, ultimates.csv, reserve_range.csv, cash_flows.csv, diagnostics.csv, assumptions.csv (tier A, unrounded, CV06)
+  - tier_b_ultimates.csv (MT12, MT13, MT15 and MT16 ultimates per origin, or the reason a method did not run)
+  - tier_b_parameters.csv (fitted quantities of MT11 to MT16, the MT14 tail curves among them)
+  - bootstrap_summary.csv, bootstrap_cash_flows.csv, bootstrap_residuals.csv (MT11 per line)
+  - bootstrap_distribution_<segment>_<line>.parquet (MT11 simulated reserves, where MT11 ran)
+  - back_test.csv (MT22 with AE02 - errors per method and horizon, range calibration, reasons)
+  - sensitivity.csv (the reserve under variants of the selected factors, the tail, the future inflation and the discount curve, computed in the same run; record 0343)
+report_page:
+  - Summary per line - paid, incurred, chain-ladder ultimates, selected ultimate and IBNR, diagnostics.
+  - Per line - heatmaps, factors with the selection, ultimates of tier A and tier B side by side with the selection, the fitted tails (MT14), Munich paid and incurred (MT12), the reserve range, the inflation-adjusted chain ladder, the back test (MT22, AE02), and the diagnostics beside each method.
+  - Sensitivity - the reserve under each variant against the reserve of the run.
 notes: >-
   Without claims, origins are first-valuation months (proxy report periods, decision 0008)
   and the premium-based methods report that they need accident origins.
@@ -28,3 +40,10 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-11-07
+    change: >-
+      The report item (P27, records 0340 and 0343): the tier B methods MT11 to MT16 and MT22,
+      wired in code by P25b (record 0620) and not listed then (record 0622), are listed with
+      the files they write, the sensitivity file is added and the outline of the page is
+      written. The owner has not reviewed this version yet.
