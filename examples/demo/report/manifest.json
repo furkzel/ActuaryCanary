@@ -111,6 +111,61 @@
       "why": "MT02 default: the volume-weighted average"
     },
     {
+      "default": "exponential_decay",
+      "method": "MT14",
+      "name": "curve",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": "exponential_decay",
+      "when": null,
+      "who": "default",
+      "why": "MT14 default curve"
+    },
+    {
+      "default": null,
+      "method": "MT14",
+      "name": "fit_from_age",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default: from the first column with a factor above 1"
+    },
+    {
+      "default": 3.0,
+      "method": "MT14",
+      "name": "min_points",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": 3.0,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default"
+    },
+    {
+      "default": 100.0,
+      "method": "MT14",
+      "name": "extension_periods",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": 100.0,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default (decision 0608)"
+    },
+    {
+      "default": 0.005,
+      "method": "MT14",
+      "name": "remainder_warning",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": 0.005,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default (decision 0614)"
+    },
+    {
       "default": "cape_cod",
       "method": "MT03",
       "name": "prior_loss_ratio",
@@ -243,6 +298,61 @@
       "why": "MT02 default: the volume-weighted average"
     },
     {
+      "default": "exponential_decay",
+      "method": "MT14",
+      "name": "curve",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": "exponential_decay",
+      "when": null,
+      "who": "default",
+      "why": "MT14 default curve"
+    },
+    {
+      "default": null,
+      "method": "MT14",
+      "name": "fit_from_age",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default: from the first column with a factor above 1"
+    },
+    {
+      "default": 3.0,
+      "method": "MT14",
+      "name": "min_points",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": 3.0,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default"
+    },
+    {
+      "default": 100.0,
+      "method": "MT14",
+      "name": "extension_periods",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": 100.0,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default (decision 0608)"
+    },
+    {
+      "default": 0.005,
+      "method": "MT14",
+      "name": "remainder_warning",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": 0.005,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default (decision 0614)"
+    },
+    {
       "default": "cape_cod",
       "method": "MT03",
       "name": "prior_loss_ratio",
@@ -285,6 +395,270 @@
       "when": null,
       "who": "default",
       "why": "MT07 default: no assumption, results at value-date prices only (record 0012)"
+    },
+    {
+      "default": 10000.0,
+      "method": "MT11",
+      "name": "n_simulations",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": 10000.0,
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: 10,000 bootstrap samples"
+    },
+    {
+      "default": "gamma",
+      "method": "MT11",
+      "name": "process_distribution",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": "gamma",
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: gamma process error (decision 0609)"
+    },
+    {
+      "default": "constant",
+      "method": "MT11",
+      "name": "scale",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": "constant",
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: one scale parameter for the triangle"
+    },
+    {
+      "default": true,
+      "method": "MT11",
+      "name": "centre_residuals",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": true,
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: the residual pool is centred (decision 0612)"
+    },
+    {
+      "default": 1.0,
+      "method": "MT11",
+      "name": "tail_factor",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: the tail of MT02"
+    },
+    {
+      "default": "mack",
+      "method": "MT12",
+      "name": "sigma_extrapolation",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": "mack",
+      "when": null,
+      "who": "default",
+      "why": "MT12 default: last variance parameters extrapolated as in MT06"
+    },
+    {
+      "default": 5.0,
+      "method": "MT12",
+      "name": "min_origins",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": 5.0,
+      "when": null,
+      "who": "default",
+      "why": "MT12 default"
+    },
+    {
+      "default": "benktander",
+      "method": "MT13",
+      "name": "blend",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": "benktander",
+      "when": null,
+      "who": "default",
+      "why": "MT13: Benktander only (0613)"
+    },
+    {
+      "default": 1.0,
+      "method": "MT13",
+      "name": "iterations",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT13 default: the classical Benktander estimate"
+    },
+    {
+      "default": "MT03",
+      "method": "MT13",
+      "name": "prior",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": "MT03",
+      "when": null,
+      "who": "default",
+      "why": "MT13 default: the prior ultimate of Bornhuetter–Ferguson"
+    },
+    {
+      "default": "incurred",
+      "method": "MT13",
+      "name": "measure",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": "incurred",
+      "when": null,
+      "who": "default",
+      "why": "MT13 default, as MT10"
+    },
+    {
+      "default": "incurred",
+      "method": "MT16",
+      "name": "severity_measure",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": "incurred",
+      "when": null,
+      "who": "default",
+      "why": "MT16 default"
+    },
+    {
+      "default": 0.9,
+      "method": "MT16",
+      "name": "maturity_for_trend",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": 0.9,
+      "when": null,
+      "who": "default",
+      "why": "MT16 default"
+    },
+    {
+      "default": 3.0,
+      "method": "MT16",
+      "name": "min_trend_origins",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": 3.0,
+      "when": null,
+      "who": "default",
+      "why": "MT16 default"
+    },
+    {
+      "default": "INFLATION_ADJUSTED",
+      "method": "MT16",
+      "name": "value_basis",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": "INFLATION_ADJUSTED",
+      "when": null,
+      "who": "default",
+      "why": "MT16 default: value-date prices when the price index is loaded"
+    },
+    {
+      "default": true,
+      "method": "MT16",
+      "name": "separate_catastrophes",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": true,
+      "when": null,
+      "who": "default",
+      "why": "MT16 default: catastrophe claims projected apart"
+    },
+    {
+      "default": "ultimate",
+      "method": "MT15",
+      "name": "claim_counts",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": "ultimate",
+      "when": null,
+      "who": "default",
+      "why": "MT15 default: ultimate counts of MT16"
+    },
+    {
+      "default": "trend",
+      "method": "MT15",
+      "name": "future_index",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": "trend",
+      "when": null,
+      "who": "default",
+      "why": "MT15 default: log-linear trend of the last diagonals"
+    },
+    {
+      "default": 5.0,
+      "method": "MT15",
+      "name": "trend_periods",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": 5.0,
+      "when": null,
+      "who": "default",
+      "why": "MT15 default"
+    },
+    {
+      "default": null,
+      "method": "MT15",
+      "name": "future_rate",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "MT15: annual rate of the future index, used with future_index assumption"
+    },
+    {
+      "default": "12,24,36",
+      "method": "MT22",
+      "name": "horizons_months",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": "12,24,36",
+      "when": null,
+      "who": "default",
+      "why": "MT22 default: past cut-offs 12, 24 and 36 months back"
+    },
+    {
+      "default": 0.95,
+      "method": "MT22",
+      "name": "mature_at",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": 0.95,
+      "when": null,
+      "who": "default",
+      "why": "MT22 default"
+    },
+    {
+      "default": 1000.0,
+      "method": "MT22",
+      "name": "backtest_simulations",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": 1000.0,
+      "when": null,
+      "who": "default",
+      "why": "MT22 default (decision 0618)"
+    },
+    {
+      "default": "rerun",
+      "method": "MT22",
+      "name": "past_selections",
+      "scope": "LIFE/GROUP_TERM_LIFE/incurred",
+      "target": "",
+      "value": "rerun",
+      "when": null,
+      "who": "default",
+      "why": "MT22 default: the default selection rules re-run at the past cut-off"
     },
     {
       "default": 1.0,
@@ -395,6 +769,61 @@
       "when": null,
       "who": "default",
       "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": "exponential_decay",
+      "method": "MT14",
+      "name": "curve",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": "exponential_decay",
+      "when": null,
+      "who": "default",
+      "why": "MT14 default curve"
+    },
+    {
+      "default": null,
+      "method": "MT14",
+      "name": "fit_from_age",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default: from the first column with a factor above 1"
+    },
+    {
+      "default": 3.0,
+      "method": "MT14",
+      "name": "min_points",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": 3.0,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default"
+    },
+    {
+      "default": 100.0,
+      "method": "MT14",
+      "name": "extension_periods",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": 100.0,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default (decision 0608)"
+    },
+    {
+      "default": 0.005,
+      "method": "MT14",
+      "name": "remainder_warning",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": 0.005,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default (decision 0614)"
     },
     {
       "default": "cape_cod",
@@ -529,6 +958,61 @@
       "why": "MT02 default: the volume-weighted average"
     },
     {
+      "default": "exponential_decay",
+      "method": "MT14",
+      "name": "curve",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": "exponential_decay",
+      "when": null,
+      "who": "default",
+      "why": "MT14 default curve"
+    },
+    {
+      "default": null,
+      "method": "MT14",
+      "name": "fit_from_age",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default: from the first column with a factor above 1"
+    },
+    {
+      "default": 3.0,
+      "method": "MT14",
+      "name": "min_points",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": 3.0,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default"
+    },
+    {
+      "default": 100.0,
+      "method": "MT14",
+      "name": "extension_periods",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": 100.0,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default (decision 0608)"
+    },
+    {
+      "default": 0.005,
+      "method": "MT14",
+      "name": "remainder_warning",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": 0.005,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default (decision 0614)"
+    },
+    {
       "default": "cape_cod",
       "method": "MT03",
       "name": "prior_loss_ratio",
@@ -571,6 +1055,270 @@
       "when": null,
       "who": "default",
       "why": "MT07 default: no assumption, results at value-date prices only (record 0012)"
+    },
+    {
+      "default": 10000.0,
+      "method": "MT11",
+      "name": "n_simulations",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": 10000.0,
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: 10,000 bootstrap samples"
+    },
+    {
+      "default": "gamma",
+      "method": "MT11",
+      "name": "process_distribution",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": "gamma",
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: gamma process error (decision 0609)"
+    },
+    {
+      "default": "constant",
+      "method": "MT11",
+      "name": "scale",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": "constant",
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: one scale parameter for the triangle"
+    },
+    {
+      "default": true,
+      "method": "MT11",
+      "name": "centre_residuals",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": true,
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: the residual pool is centred (decision 0612)"
+    },
+    {
+      "default": 1.0,
+      "method": "MT11",
+      "name": "tail_factor",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: the tail of MT02"
+    },
+    {
+      "default": "mack",
+      "method": "MT12",
+      "name": "sigma_extrapolation",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": "mack",
+      "when": null,
+      "who": "default",
+      "why": "MT12 default: last variance parameters extrapolated as in MT06"
+    },
+    {
+      "default": 5.0,
+      "method": "MT12",
+      "name": "min_origins",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": 5.0,
+      "when": null,
+      "who": "default",
+      "why": "MT12 default"
+    },
+    {
+      "default": "benktander",
+      "method": "MT13",
+      "name": "blend",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": "benktander",
+      "when": null,
+      "who": "default",
+      "why": "MT13: Benktander only (0613)"
+    },
+    {
+      "default": 1.0,
+      "method": "MT13",
+      "name": "iterations",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT13 default: the classical Benktander estimate"
+    },
+    {
+      "default": "MT03",
+      "method": "MT13",
+      "name": "prior",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": "MT03",
+      "when": null,
+      "who": "default",
+      "why": "MT13 default: the prior ultimate of Bornhuetter–Ferguson"
+    },
+    {
+      "default": "incurred",
+      "method": "MT13",
+      "name": "measure",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": "incurred",
+      "when": null,
+      "who": "default",
+      "why": "MT13 default, as MT10"
+    },
+    {
+      "default": "incurred",
+      "method": "MT16",
+      "name": "severity_measure",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": "incurred",
+      "when": null,
+      "who": "default",
+      "why": "MT16 default"
+    },
+    {
+      "default": 0.9,
+      "method": "MT16",
+      "name": "maturity_for_trend",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": 0.9,
+      "when": null,
+      "who": "default",
+      "why": "MT16 default"
+    },
+    {
+      "default": 3.0,
+      "method": "MT16",
+      "name": "min_trend_origins",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": 3.0,
+      "when": null,
+      "who": "default",
+      "why": "MT16 default"
+    },
+    {
+      "default": "INFLATION_ADJUSTED",
+      "method": "MT16",
+      "name": "value_basis",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": "INFLATION_ADJUSTED",
+      "when": null,
+      "who": "default",
+      "why": "MT16 default: value-date prices when the price index is loaded"
+    },
+    {
+      "default": true,
+      "method": "MT16",
+      "name": "separate_catastrophes",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": true,
+      "when": null,
+      "who": "default",
+      "why": "MT16 default: catastrophe claims projected apart"
+    },
+    {
+      "default": "ultimate",
+      "method": "MT15",
+      "name": "claim_counts",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": "ultimate",
+      "when": null,
+      "who": "default",
+      "why": "MT15 default: ultimate counts of MT16"
+    },
+    {
+      "default": "trend",
+      "method": "MT15",
+      "name": "future_index",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": "trend",
+      "when": null,
+      "who": "default",
+      "why": "MT15 default: log-linear trend of the last diagonals"
+    },
+    {
+      "default": 5.0,
+      "method": "MT15",
+      "name": "trend_periods",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": 5.0,
+      "when": null,
+      "who": "default",
+      "why": "MT15 default"
+    },
+    {
+      "default": null,
+      "method": "MT15",
+      "name": "future_rate",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "MT15: annual rate of the future index, used with future_index assumption"
+    },
+    {
+      "default": "12,24,36",
+      "method": "MT22",
+      "name": "horizons_months",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": "12,24,36",
+      "when": null,
+      "who": "default",
+      "why": "MT22 default: past cut-offs 12, 24 and 36 months back"
+    },
+    {
+      "default": 0.95,
+      "method": "MT22",
+      "name": "mature_at",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": 0.95,
+      "when": null,
+      "who": "default",
+      "why": "MT22 default"
+    },
+    {
+      "default": 1000.0,
+      "method": "MT22",
+      "name": "backtest_simulations",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": 1000.0,
+      "when": null,
+      "who": "default",
+      "why": "MT22 default (decision 0618)"
+    },
+    {
+      "default": "rerun",
+      "method": "MT22",
+      "name": "past_selections",
+      "scope": "NON_LIFE/MOTOR_OD/incurred",
+      "target": "",
+      "value": "rerun",
+      "when": null,
+      "who": "default",
+      "why": "MT22 default: the default selection rules re-run at the past cut-off"
     },
     {
       "default": 1.0,
@@ -681,6 +1429,61 @@
       "when": null,
       "who": "default",
       "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": "exponential_decay",
+      "method": "MT14",
+      "name": "curve",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": "exponential_decay",
+      "when": null,
+      "who": "default",
+      "why": "MT14 default curve"
+    },
+    {
+      "default": null,
+      "method": "MT14",
+      "name": "fit_from_age",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default: from the first column with a factor above 1"
+    },
+    {
+      "default": 3.0,
+      "method": "MT14",
+      "name": "min_points",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": 3.0,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default"
+    },
+    {
+      "default": 100.0,
+      "method": "MT14",
+      "name": "extension_periods",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": 100.0,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default (decision 0608)"
+    },
+    {
+      "default": 0.005,
+      "method": "MT14",
+      "name": "remainder_warning",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": 0.005,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default (decision 0614)"
     },
     {
       "default": "cape_cod",
@@ -815,6 +1618,61 @@
       "why": "MT02 default: the volume-weighted average"
     },
     {
+      "default": "exponential_decay",
+      "method": "MT14",
+      "name": "curve",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": "exponential_decay",
+      "when": null,
+      "who": "default",
+      "why": "MT14 default curve"
+    },
+    {
+      "default": null,
+      "method": "MT14",
+      "name": "fit_from_age",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default: from the first column with a factor above 1"
+    },
+    {
+      "default": 3.0,
+      "method": "MT14",
+      "name": "min_points",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": 3.0,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default"
+    },
+    {
+      "default": 100.0,
+      "method": "MT14",
+      "name": "extension_periods",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": 100.0,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default (decision 0608)"
+    },
+    {
+      "default": 0.005,
+      "method": "MT14",
+      "name": "remainder_warning",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": 0.005,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default (decision 0614)"
+    },
+    {
       "default": "cape_cod",
       "method": "MT03",
       "name": "prior_loss_ratio",
@@ -857,6 +1715,270 @@
       "when": null,
       "who": "default",
       "why": "MT07 default: no assumption, results at value-date prices only (record 0012)"
+    },
+    {
+      "default": 10000.0,
+      "method": "MT11",
+      "name": "n_simulations",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": 10000.0,
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: 10,000 bootstrap samples"
+    },
+    {
+      "default": "gamma",
+      "method": "MT11",
+      "name": "process_distribution",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": "gamma",
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: gamma process error (decision 0609)"
+    },
+    {
+      "default": "constant",
+      "method": "MT11",
+      "name": "scale",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": "constant",
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: one scale parameter for the triangle"
+    },
+    {
+      "default": true,
+      "method": "MT11",
+      "name": "centre_residuals",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": true,
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: the residual pool is centred (decision 0612)"
+    },
+    {
+      "default": 1.0,
+      "method": "MT11",
+      "name": "tail_factor",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: the tail of MT02"
+    },
+    {
+      "default": "mack",
+      "method": "MT12",
+      "name": "sigma_extrapolation",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": "mack",
+      "when": null,
+      "who": "default",
+      "why": "MT12 default: last variance parameters extrapolated as in MT06"
+    },
+    {
+      "default": 5.0,
+      "method": "MT12",
+      "name": "min_origins",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": 5.0,
+      "when": null,
+      "who": "default",
+      "why": "MT12 default"
+    },
+    {
+      "default": "benktander",
+      "method": "MT13",
+      "name": "blend",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": "benktander",
+      "when": null,
+      "who": "default",
+      "why": "MT13: Benktander only (0613)"
+    },
+    {
+      "default": 1.0,
+      "method": "MT13",
+      "name": "iterations",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT13 default: the classical Benktander estimate"
+    },
+    {
+      "default": "MT03",
+      "method": "MT13",
+      "name": "prior",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": "MT03",
+      "when": null,
+      "who": "default",
+      "why": "MT13 default: the prior ultimate of Bornhuetter–Ferguson"
+    },
+    {
+      "default": "incurred",
+      "method": "MT13",
+      "name": "measure",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": "incurred",
+      "when": null,
+      "who": "default",
+      "why": "MT13 default, as MT10"
+    },
+    {
+      "default": "incurred",
+      "method": "MT16",
+      "name": "severity_measure",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": "incurred",
+      "when": null,
+      "who": "default",
+      "why": "MT16 default"
+    },
+    {
+      "default": 0.9,
+      "method": "MT16",
+      "name": "maturity_for_trend",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": 0.9,
+      "when": null,
+      "who": "default",
+      "why": "MT16 default"
+    },
+    {
+      "default": 3.0,
+      "method": "MT16",
+      "name": "min_trend_origins",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": 3.0,
+      "when": null,
+      "who": "default",
+      "why": "MT16 default"
+    },
+    {
+      "default": "INFLATION_ADJUSTED",
+      "method": "MT16",
+      "name": "value_basis",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": "INFLATION_ADJUSTED",
+      "when": null,
+      "who": "default",
+      "why": "MT16 default: value-date prices when the price index is loaded"
+    },
+    {
+      "default": true,
+      "method": "MT16",
+      "name": "separate_catastrophes",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": true,
+      "when": null,
+      "who": "default",
+      "why": "MT16 default: catastrophe claims projected apart"
+    },
+    {
+      "default": "ultimate",
+      "method": "MT15",
+      "name": "claim_counts",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": "ultimate",
+      "when": null,
+      "who": "default",
+      "why": "MT15 default: ultimate counts of MT16"
+    },
+    {
+      "default": "trend",
+      "method": "MT15",
+      "name": "future_index",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": "trend",
+      "when": null,
+      "who": "default",
+      "why": "MT15 default: log-linear trend of the last diagonals"
+    },
+    {
+      "default": 5.0,
+      "method": "MT15",
+      "name": "trend_periods",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": 5.0,
+      "when": null,
+      "who": "default",
+      "why": "MT15 default"
+    },
+    {
+      "default": null,
+      "method": "MT15",
+      "name": "future_rate",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "MT15: annual rate of the future index, used with future_index assumption"
+    },
+    {
+      "default": "12,24,36",
+      "method": "MT22",
+      "name": "horizons_months",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": "12,24,36",
+      "when": null,
+      "who": "default",
+      "why": "MT22 default: past cut-offs 12, 24 and 36 months back"
+    },
+    {
+      "default": 0.95,
+      "method": "MT22",
+      "name": "mature_at",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": 0.95,
+      "when": null,
+      "who": "default",
+      "why": "MT22 default"
+    },
+    {
+      "default": 1000.0,
+      "method": "MT22",
+      "name": "backtest_simulations",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": 1000.0,
+      "when": null,
+      "who": "default",
+      "why": "MT22 default (decision 0618)"
+    },
+    {
+      "default": "rerun",
+      "method": "MT22",
+      "name": "past_selections",
+      "scope": "NON_LIFE/MOTOR_TPL/incurred",
+      "target": "",
+      "value": "rerun",
+      "when": null,
+      "who": "default",
+      "why": "MT22 default: the default selection rules re-run at the past cut-off"
     },
     {
       "default": 1.0,
@@ -967,6 +2089,61 @@
       "when": null,
       "who": "default",
       "why": "MT02 default: the volume-weighted average"
+    },
+    {
+      "default": "exponential_decay",
+      "method": "MT14",
+      "name": "curve",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": "exponential_decay",
+      "when": null,
+      "who": "default",
+      "why": "MT14 default curve"
+    },
+    {
+      "default": null,
+      "method": "MT14",
+      "name": "fit_from_age",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default: from the first column with a factor above 1"
+    },
+    {
+      "default": 3.0,
+      "method": "MT14",
+      "name": "min_points",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": 3.0,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default"
+    },
+    {
+      "default": 100.0,
+      "method": "MT14",
+      "name": "extension_periods",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": 100.0,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default (decision 0608)"
+    },
+    {
+      "default": 0.005,
+      "method": "MT14",
+      "name": "remainder_warning",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": 0.005,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default (decision 0614)"
     },
     {
       "default": "cape_cod",
@@ -1101,6 +2278,61 @@
       "why": "MT02 default: the volume-weighted average"
     },
     {
+      "default": "exponential_decay",
+      "method": "MT14",
+      "name": "curve",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": "exponential_decay",
+      "when": null,
+      "who": "default",
+      "why": "MT14 default curve"
+    },
+    {
+      "default": null,
+      "method": "MT14",
+      "name": "fit_from_age",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default: from the first column with a factor above 1"
+    },
+    {
+      "default": 3.0,
+      "method": "MT14",
+      "name": "min_points",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": 3.0,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default"
+    },
+    {
+      "default": 100.0,
+      "method": "MT14",
+      "name": "extension_periods",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": 100.0,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default (decision 0608)"
+    },
+    {
+      "default": 0.005,
+      "method": "MT14",
+      "name": "remainder_warning",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": 0.005,
+      "when": null,
+      "who": "default",
+      "why": "MT14 default (decision 0614)"
+    },
+    {
       "default": "cape_cod",
       "method": "MT03",
       "name": "prior_loss_ratio",
@@ -1143,6 +2375,578 @@
       "when": null,
       "who": "default",
       "why": "MT07 default: no assumption, results at value-date prices only (record 0012)"
+    },
+    {
+      "default": 10000.0,
+      "method": "MT11",
+      "name": "n_simulations",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": 10000.0,
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: 10,000 bootstrap samples"
+    },
+    {
+      "default": "gamma",
+      "method": "MT11",
+      "name": "process_distribution",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": "gamma",
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: gamma process error (decision 0609)"
+    },
+    {
+      "default": "constant",
+      "method": "MT11",
+      "name": "scale",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": "constant",
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: one scale parameter for the triangle"
+    },
+    {
+      "default": true,
+      "method": "MT11",
+      "name": "centre_residuals",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": true,
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: the residual pool is centred (decision 0612)"
+    },
+    {
+      "default": 1.0,
+      "method": "MT11",
+      "name": "tail_factor",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: the tail of MT02"
+    },
+    {
+      "default": "mack",
+      "method": "MT12",
+      "name": "sigma_extrapolation",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": "mack",
+      "when": null,
+      "who": "default",
+      "why": "MT12 default: last variance parameters extrapolated as in MT06"
+    },
+    {
+      "default": 5.0,
+      "method": "MT12",
+      "name": "min_origins",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": 5.0,
+      "when": null,
+      "who": "default",
+      "why": "MT12 default"
+    },
+    {
+      "default": "benktander",
+      "method": "MT13",
+      "name": "blend",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": "benktander",
+      "when": null,
+      "who": "default",
+      "why": "MT13: Benktander only (0613)"
+    },
+    {
+      "default": 1.0,
+      "method": "MT13",
+      "name": "iterations",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": 1.0,
+      "when": null,
+      "who": "default",
+      "why": "MT13 default: the classical Benktander estimate"
+    },
+    {
+      "default": "MT03",
+      "method": "MT13",
+      "name": "prior",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": "MT03",
+      "when": null,
+      "who": "default",
+      "why": "MT13 default: the prior ultimate of Bornhuetter–Ferguson"
+    },
+    {
+      "default": "incurred",
+      "method": "MT13",
+      "name": "measure",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": "incurred",
+      "when": null,
+      "who": "default",
+      "why": "MT13 default, as MT10"
+    },
+    {
+      "default": "incurred",
+      "method": "MT16",
+      "name": "severity_measure",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": "incurred",
+      "when": null,
+      "who": "default",
+      "why": "MT16 default"
+    },
+    {
+      "default": 0.9,
+      "method": "MT16",
+      "name": "maturity_for_trend",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": 0.9,
+      "when": null,
+      "who": "default",
+      "why": "MT16 default"
+    },
+    {
+      "default": 3.0,
+      "method": "MT16",
+      "name": "min_trend_origins",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": 3.0,
+      "when": null,
+      "who": "default",
+      "why": "MT16 default"
+    },
+    {
+      "default": "INFLATION_ADJUSTED",
+      "method": "MT16",
+      "name": "value_basis",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": "INFLATION_ADJUSTED",
+      "when": null,
+      "who": "default",
+      "why": "MT16 default: value-date prices when the price index is loaded"
+    },
+    {
+      "default": true,
+      "method": "MT16",
+      "name": "separate_catastrophes",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": true,
+      "when": null,
+      "who": "default",
+      "why": "MT16 default: catastrophe claims projected apart"
+    },
+    {
+      "default": "ultimate",
+      "method": "MT15",
+      "name": "claim_counts",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": "ultimate",
+      "when": null,
+      "who": "default",
+      "why": "MT15 default: ultimate counts of MT16"
+    },
+    {
+      "default": "trend",
+      "method": "MT15",
+      "name": "future_index",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": "trend",
+      "when": null,
+      "who": "default",
+      "why": "MT15 default: log-linear trend of the last diagonals"
+    },
+    {
+      "default": 5.0,
+      "method": "MT15",
+      "name": "trend_periods",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": 5.0,
+      "when": null,
+      "who": "default",
+      "why": "MT15 default"
+    },
+    {
+      "default": null,
+      "method": "MT15",
+      "name": "future_rate",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "MT15: annual rate of the future index, used with future_index assumption"
+    },
+    {
+      "default": "12,24,36",
+      "method": "MT22",
+      "name": "horizons_months",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": "12,24,36",
+      "when": null,
+      "who": "default",
+      "why": "MT22 default: past cut-offs 12, 24 and 36 months back"
+    },
+    {
+      "default": 0.95,
+      "method": "MT22",
+      "name": "mature_at",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": 0.95,
+      "when": null,
+      "who": "default",
+      "why": "MT22 default"
+    },
+    {
+      "default": 1000.0,
+      "method": "MT22",
+      "name": "backtest_simulations",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": 1000.0,
+      "when": null,
+      "who": "default",
+      "why": "MT22 default (decision 0618)"
+    },
+    {
+      "default": "rerun",
+      "method": "MT22",
+      "name": "past_selections",
+      "scope": "NON_LIFE/PROPERTY/incurred",
+      "target": "",
+      "value": "rerun",
+      "when": null,
+      "who": "default",
+      "why": "MT22 default: the default selection rules re-run at the past cut-off"
+    },
+    {
+      "default": "closed",
+      "method": "MT17",
+      "name": "claims_used",
+      "scope": "LIFE/GROUP_TERM_LIFE/severity",
+      "target": "",
+      "value": "closed",
+      "when": null,
+      "who": "default",
+      "why": "MT17 default: closed claims, whose sizes are final"
+    },
+    {
+      "default": 0.0,
+      "method": "MT17",
+      "name": "truncation_point",
+      "scope": "LIFE/GROUP_TERM_LIFE/severity",
+      "target": "",
+      "value": 0.0,
+      "when": null,
+      "who": "default",
+      "why": "MT17 default: no truncation"
+    },
+    {
+      "default": true,
+      "method": "MT17",
+      "name": "exclude_catastrophes",
+      "scope": "LIFE/GROUP_TERM_LIFE/severity",
+      "target": "",
+      "value": true,
+      "when": null,
+      "who": "default",
+      "why": "MT17 default: catastrophe events are not single-claim severity"
+    },
+    {
+      "default": 0.05,
+      "method": "MT17",
+      "name": "significance",
+      "scope": "LIFE/GROUP_TERM_LIFE/severity",
+      "target": "",
+      "value": 0.05,
+      "when": null,
+      "who": "default",
+      "why": "MT17 default: a family is rejected below 0.05"
+    },
+    {
+      "default": "all_non_nil",
+      "method": "MT18",
+      "name": "claims_used",
+      "scope": "LIFE/GROUP_TERM_LIFE/severity",
+      "target": "",
+      "value": "all_non_nil",
+      "when": null,
+      "who": "default",
+      "why": "MT18 default: all non-nil claims, so the largest open claims count"
+    },
+    {
+      "default": 0.1,
+      "method": "MT18",
+      "name": "fdr_level",
+      "scope": "LIFE/GROUP_TERM_LIFE/severity",
+      "target": "",
+      "value": 0.1,
+      "when": null,
+      "who": "default",
+      "why": "MT18 default: false discovery rate of ForwardStop (Bader, Yan and Zhang 2018)"
+    },
+    {
+      "default": 50.0,
+      "method": "MT18",
+      "name": "min_exceedances",
+      "scope": "LIFE/GROUP_TERM_LIFE/severity",
+      "target": "",
+      "value": 50.0,
+      "when": null,
+      "who": "default",
+      "why": "MT18 default: fewest excesses for a fit at a threshold"
+    },
+    {
+      "default": "closed",
+      "method": "MT17",
+      "name": "claims_used",
+      "scope": "NON_LIFE/MOTOR_OD/severity",
+      "target": "",
+      "value": "closed",
+      "when": null,
+      "who": "default",
+      "why": "MT17 default: closed claims, whose sizes are final"
+    },
+    {
+      "default": 0.0,
+      "method": "MT17",
+      "name": "truncation_point",
+      "scope": "NON_LIFE/MOTOR_OD/severity",
+      "target": "",
+      "value": 0.0,
+      "when": null,
+      "who": "default",
+      "why": "MT17 default: no truncation"
+    },
+    {
+      "default": true,
+      "method": "MT17",
+      "name": "exclude_catastrophes",
+      "scope": "NON_LIFE/MOTOR_OD/severity",
+      "target": "",
+      "value": true,
+      "when": null,
+      "who": "default",
+      "why": "MT17 default: catastrophe events are not single-claim severity"
+    },
+    {
+      "default": 0.05,
+      "method": "MT17",
+      "name": "significance",
+      "scope": "NON_LIFE/MOTOR_OD/severity",
+      "target": "",
+      "value": 0.05,
+      "when": null,
+      "who": "default",
+      "why": "MT17 default: a family is rejected below 0.05"
+    },
+    {
+      "default": "all_non_nil",
+      "method": "MT18",
+      "name": "claims_used",
+      "scope": "NON_LIFE/MOTOR_OD/severity",
+      "target": "",
+      "value": "all_non_nil",
+      "when": null,
+      "who": "default",
+      "why": "MT18 default: all non-nil claims, so the largest open claims count"
+    },
+    {
+      "default": 0.1,
+      "method": "MT18",
+      "name": "fdr_level",
+      "scope": "NON_LIFE/MOTOR_OD/severity",
+      "target": "",
+      "value": 0.1,
+      "when": null,
+      "who": "default",
+      "why": "MT18 default: false discovery rate of ForwardStop (Bader, Yan and Zhang 2018)"
+    },
+    {
+      "default": 50.0,
+      "method": "MT18",
+      "name": "min_exceedances",
+      "scope": "NON_LIFE/MOTOR_OD/severity",
+      "target": "",
+      "value": 50.0,
+      "when": null,
+      "who": "default",
+      "why": "MT18 default: fewest excesses for a fit at a threshold"
+    },
+    {
+      "default": "closed",
+      "method": "MT17",
+      "name": "claims_used",
+      "scope": "NON_LIFE/MOTOR_TPL/severity",
+      "target": "",
+      "value": "closed",
+      "when": null,
+      "who": "default",
+      "why": "MT17 default: closed claims, whose sizes are final"
+    },
+    {
+      "default": 0.0,
+      "method": "MT17",
+      "name": "truncation_point",
+      "scope": "NON_LIFE/MOTOR_TPL/severity",
+      "target": "",
+      "value": 0.0,
+      "when": null,
+      "who": "default",
+      "why": "MT17 default: no truncation"
+    },
+    {
+      "default": true,
+      "method": "MT17",
+      "name": "exclude_catastrophes",
+      "scope": "NON_LIFE/MOTOR_TPL/severity",
+      "target": "",
+      "value": true,
+      "when": null,
+      "who": "default",
+      "why": "MT17 default: catastrophe events are not single-claim severity"
+    },
+    {
+      "default": 0.05,
+      "method": "MT17",
+      "name": "significance",
+      "scope": "NON_LIFE/MOTOR_TPL/severity",
+      "target": "",
+      "value": 0.05,
+      "when": null,
+      "who": "default",
+      "why": "MT17 default: a family is rejected below 0.05"
+    },
+    {
+      "default": "all_non_nil",
+      "method": "MT18",
+      "name": "claims_used",
+      "scope": "NON_LIFE/MOTOR_TPL/severity",
+      "target": "",
+      "value": "all_non_nil",
+      "when": null,
+      "who": "default",
+      "why": "MT18 default: all non-nil claims, so the largest open claims count"
+    },
+    {
+      "default": 0.1,
+      "method": "MT18",
+      "name": "fdr_level",
+      "scope": "NON_LIFE/MOTOR_TPL/severity",
+      "target": "",
+      "value": 0.1,
+      "when": null,
+      "who": "default",
+      "why": "MT18 default: false discovery rate of ForwardStop (Bader, Yan and Zhang 2018)"
+    },
+    {
+      "default": 50.0,
+      "method": "MT18",
+      "name": "min_exceedances",
+      "scope": "NON_LIFE/MOTOR_TPL/severity",
+      "target": "",
+      "value": 50.0,
+      "when": null,
+      "who": "default",
+      "why": "MT18 default: fewest excesses for a fit at a threshold"
+    },
+    {
+      "default": "closed",
+      "method": "MT17",
+      "name": "claims_used",
+      "scope": "NON_LIFE/PROPERTY/severity",
+      "target": "",
+      "value": "closed",
+      "when": null,
+      "who": "default",
+      "why": "MT17 default: closed claims, whose sizes are final"
+    },
+    {
+      "default": 0.0,
+      "method": "MT17",
+      "name": "truncation_point",
+      "scope": "NON_LIFE/PROPERTY/severity",
+      "target": "",
+      "value": 0.0,
+      "when": null,
+      "who": "default",
+      "why": "MT17 default: no truncation"
+    },
+    {
+      "default": true,
+      "method": "MT17",
+      "name": "exclude_catastrophes",
+      "scope": "NON_LIFE/PROPERTY/severity",
+      "target": "",
+      "value": true,
+      "when": null,
+      "who": "default",
+      "why": "MT17 default: catastrophe events are not single-claim severity"
+    },
+    {
+      "default": 0.05,
+      "method": "MT17",
+      "name": "significance",
+      "scope": "NON_LIFE/PROPERTY/severity",
+      "target": "",
+      "value": 0.05,
+      "when": null,
+      "who": "default",
+      "why": "MT17 default: a family is rejected below 0.05"
+    },
+    {
+      "default": "all_non_nil",
+      "method": "MT18",
+      "name": "claims_used",
+      "scope": "NON_LIFE/PROPERTY/severity",
+      "target": "",
+      "value": "all_non_nil",
+      "when": null,
+      "who": "default",
+      "why": "MT18 default: all non-nil claims, so the largest open claims count"
+    },
+    {
+      "default": 0.1,
+      "method": "MT18",
+      "name": "fdr_level",
+      "scope": "NON_LIFE/PROPERTY/severity",
+      "target": "",
+      "value": 0.1,
+      "when": null,
+      "who": "default",
+      "why": "MT18 default: false discovery rate of ForwardStop (Bader, Yan and Zhang 2018)"
+    },
+    {
+      "default": 50.0,
+      "method": "MT18",
+      "name": "min_exceedances",
+      "scope": "NON_LIFE/PROPERTY/severity",
+      "target": "",
+      "value": 50.0,
+      "when": null,
+      "who": "default",
+      "why": "MT18 default: fewest excesses for a fit at a threshold"
     }
   ],
   "data_findings": [
@@ -1515,8 +3319,8 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "9e45b30f74280e2ad405fe9eefea972d80310b5830a3f3d0069be858ca88ce1e",
-      "size": 5045555
+      "sha256": "72d6852d0234a8b11b91eff1930f6ffbcacec83a1f0c5a60da3bc673c05b3c9b",
+      "size": 5067127
     },
     {
       "name": "quality.json",
@@ -1555,13 +3359,13 @@
     },
     {
       "name": "modules.json",
-      "sha256": "b3b6fb5efce5d1e9292ed408d086171b63bc08c3315f4e3166232733f5a3e154",
-      "size": 22140
+      "sha256": "47746408e7dee735f276aae3921c4bbbd823a1d1ef267667807f7384b02b2521",
+      "size": 23413
     },
     {
       "name": "assumptions.csv",
-      "sha256": "63ada322716638c3ed3d764a73e0a3bfebbbfe7cba2118369b8d69a3f52e3f1e",
-      "size": 14242
+      "sha256": "38b3ecad28bd3d17d8c1595b36605be7aa810c63328e3a191baa478846867f64",
+      "size": 32846
     },
     {
       "name": "ultimates.csv",
@@ -1580,13 +3384,143 @@
     },
     {
       "name": "diagnostics.csv",
-      "sha256": "82cf74e25d42236f40294411472b8d325ea6e347860ff73e8e6c5c7479ceb59c",
-      "size": 3473
+      "sha256": "d882cb092e086103608625c6e16ed8cfd3a7faf8aec2d837af6adb92f1cbce21",
+      "size": 5428
     },
     {
       "name": "anomalies.csv",
       "sha256": "45e5d1e5dbd4999d667981496359db0af6cfafe7ef8eba68bbf09fe00b53c659",
       "size": 47122
+    },
+    {
+      "name": "tier_b_ultimates.csv",
+      "sha256": "542ddd1ae23e22531725e362e2b6ae33d4493bb9fa16b275f9b6a5314bd82d22",
+      "size": 16636
+    },
+    {
+      "name": "tier_b_parameters.csv",
+      "sha256": "787bf19cc0162b29698629b007dcb176577c7a41e925caa6429d90156d6328c2",
+      "size": 31036
+    },
+    {
+      "name": "bootstrap_summary.csv",
+      "sha256": "424149ea48e16830062a2f6ce2d010206771907511feef0c209425df06941c3e",
+      "size": 2208
+    },
+    {
+      "name": "bootstrap_cash_flows.csv",
+      "sha256": "bd266719234f7f59f2a790bd1a78f74f68e86155f3812d496b2d8c38fb4659c6",
+      "size": 1480
+    },
+    {
+      "name": "bootstrap_residuals.csv",
+      "sha256": "8393b30408d2fe737b3eaa2fceedf6d499f341d36a88a49afb6a9978d1ad5739",
+      "size": 3919
+    },
+    {
+      "name": "back_test.csv",
+      "sha256": "5e2dc20d2fb5086c79a48a99358713b7fb938963ac9df3b5c5c151ec7c7c9e70",
+      "size": 48103
+    },
+    {
+      "name": "bootstrap_distribution_NON_LIFE_MOTOR_TPL.parquet",
+      "sha256": "c103cb83dc887ac4aa00d9473afc7c803e78c2d226338bbd12637adb9f72c509",
+      "size": 663954
+    },
+    {
+      "name": "severity_parameters.csv",
+      "sha256": "bbe607773ff92557bbd42f64775841aeffbee3baabae3e33c50537eb164381de",
+      "size": 1874
+    },
+    {
+      "name": "severity_fits.csv",
+      "sha256": "be9230f8c8acfeea9be99d2bd3c92448be3c768fd4352e09421b4674e57cb423",
+      "size": 2472
+    },
+    {
+      "name": "severity_selected.csv",
+      "sha256": "3e3e2ea7ef83daeb698725cb638b163ff9dbe14a72652603171644271ae7f9d2",
+      "size": 461
+    },
+    {
+      "name": "severity_quantiles.csv",
+      "sha256": "8aff8be9630bf6fe99655651a5c8f1aa69921217b2f5b8447d2c45eecd23033b",
+      "size": 1114
+    },
+    {
+      "name": "severity_limited_expected_values.csv",
+      "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+      "size": 13
+    },
+    {
+      "name": "severity_plots.csv",
+      "sha256": "8237758756a9964ebee4774eef1f6071be284f6f1de2ad8b0b68172bdbebc7da",
+      "size": 233495
+    },
+    {
+      "name": "severity_trend.csv",
+      "sha256": "889b59091586563ac4f9a527bab894b9c2616eb9c74a96b822295f48f582af2b",
+      "size": 2072
+    },
+    {
+      "name": "severity_trend_summary.csv",
+      "sha256": "39429096172f610794f0b13520ee973dabd984d685574bc9b8d940a88e366c5c",
+      "size": 309
+    },
+    {
+      "name": "severity_groups.csv",
+      "sha256": "f07cda7ab210123e7cc94bff97f7a59ccdbb567c8762f7cb3ad303e94d018027",
+      "size": 239
+    },
+    {
+      "name": "extreme_thresholds.csv",
+      "sha256": "eb52f589cb24f632aa6eedc0f8257533f4367c86757a5f8b85209e8ed2931d3f",
+      "size": 406
+    },
+    {
+      "name": "extreme_candidates.csv",
+      "sha256": "0866e18b9769e7630e937ab42f3a671f603c18cd914daa418867f1164a4dd7db",
+      "size": 2845
+    },
+    {
+      "name": "extreme_gpd_fit.csv",
+      "sha256": "1190613d9387511b8720ace4b436371a7a2affd7363f82097696b91ac86f9db9",
+      "size": 536
+    },
+    {
+      "name": "extreme_tail_quantiles.csv",
+      "sha256": "24e150e6ebc3bfd3e0704f80be0a910e2eb3adda519078fb5d89c5f43b5dc0b2",
+      "size": 489
+    },
+    {
+      "name": "extreme_return_levels.csv",
+      "sha256": "79a910f0493bcc3057a654f4ff981d34d20e671f5c807fc192a705364cfc4107",
+      "size": 531
+    },
+    {
+      "name": "extreme_threshold_comparison.csv",
+      "sha256": "b04db2ea0572867adbdfac5d1fd37e311e7115b4e23be794a1e26193102be8c5",
+      "size": 605
+    },
+    {
+      "name": "extreme_mean_excess.csv",
+      "sha256": "e495670af3c5b48d8453c03a3a7edd4c032f564628e9fb2f61e9752b7eee80a3",
+      "size": 9408
+    },
+    {
+      "name": "extreme_excess_plot.csv",
+      "sha256": "d1b5945caebef45ed4703ace8afc474426552a598ad43a4eab5cdaa9f20a1df1",
+      "size": 22735
+    },
+    {
+      "name": "extreme_yearly.csv",
+      "sha256": "1e0df6dc83ba9be0a06b2d7477b67ab91d6dfd12322d37e2908fea6cba6a9931",
+      "size": 1324
+    },
+    {
+      "name": "extreme_yearly_summary.csv",
+      "sha256": "ec1fed02d02b65d69c19e3a266af1dfe93c811f0156f98bfe8ecb2b43bb51154",
+      "size": 330
     }
   ],
   "randomness": [
@@ -1594,9 +3528,29 @@
       "method": "MT09",
       "purpose": "isolation forest",
       "seed": 1
+    },
+    {
+      "method": "MT11",
+      "purpose": "residual resampling and process error, one stream per group",
+      "seed": 1
+    },
+    {
+      "method": "MT22",
+      "purpose": "the optional MT11 rerun at past cut-offs, one stream per group",
+      "seed": 1
+    },
+    {
+      "method": "MT17",
+      "purpose": "bootstrap p-values and the subsample of the goodness-of-fit tests",
+      "seed": 1
+    },
+    {
+      "method": "MT18",
+      "purpose": "Anderson-Darling bootstrap p-values of the threshold candidates",
+      "seed": 1
     }
   ],
-  "run_id": "b8421ff59f2a208b",
+  "run_id": "465a16bea5dd8a65",
   "settings": {
     "assumptions": {
       "entries": []
@@ -1616,6 +3570,11 @@
     },
     "currency_view": "REPORTING",
     "language": "en",
+    "large_loss": {
+      "percentile": 0.99,
+      "source": "default",
+      "thresholds": {}
+    },
     "lineage_format": 2,
     "methods": {
       "bf_below_maturity": 0.5,
@@ -1642,6 +3601,98 @@
       "selection_measure": "incurred"
     },
     "reporting_currency": "TRY",
+    "severity": {
+      "MT17": {
+        "candidates": [
+          "lognormal",
+          "gamma",
+          "weibull",
+          "pareto"
+        ],
+        "claims_used": "closed",
+        "exclude_catastrophes": true,
+        "gof_bootstrap": 200,
+        "gof_max_claims": 2000,
+        "min_claims": 50,
+        "significance": 0.05,
+        "truncation_point": 0.0
+      },
+      "MT18": {
+        "candidate_quantiles": [
+          0.8,
+          0.825,
+          0.85,
+          0.875,
+          0.9,
+          0.925,
+          0.95,
+          0.96,
+          0.97,
+          0.975,
+          0.98,
+          0.99
+        ],
+        "claims_used": "all_non_nil",
+        "fdr_level": 0.1,
+        "gof_bootstrap": 200,
+        "min_exceedances": 50,
+        "return_periods": [
+          10,
+          50,
+          100,
+          200
+        ]
+      },
+      "seed": 1
+    },
+    "tier_b": {
+      "methods": {
+        "MT11": {
+          "centre_residuals": true,
+          "n_simulations": 10000,
+          "process_distribution": "gamma",
+          "scale": "constant",
+          "tail_factor": 1.0
+        },
+        "MT12": {
+          "min_origins": 5,
+          "sigma_extrapolation": "mack"
+        },
+        "MT13": {
+          "blend": "benktander",
+          "iterations": 1,
+          "measure": "incurred",
+          "prior": "MT03"
+        },
+        "MT14": {
+          "curve": "exponential_decay",
+          "extension_periods": 100,
+          "fit_from_age": null,
+          "min_points": 3,
+          "remainder_warning": 0.005
+        },
+        "MT15": {
+          "claim_counts": "ultimate",
+          "future_index": "trend",
+          "future_rate": null,
+          "trend_periods": 5
+        },
+        "MT16": {
+          "maturity_for_trend": 0.9,
+          "min_trend_origins": 3,
+          "separate_catastrophes": true,
+          "severity_measure": "incurred",
+          "value_basis": "INFLATION_ADJUSTED"
+        },
+        "MT22": {
+          "backtest_simulations": 1000,
+          "horizons_months": "12,24,36",
+          "mature_at": 0.95,
+          "past_selections": "rerun"
+        }
+      },
+      "seed": 1
+    },
     "triangles": {
       "cut_off": null,
       "cut_off_used": "2025-12-31",
@@ -1700,7 +3751,7 @@
     {
       "id": "CV06",
       "title": "Precision and rounding",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "CV07",
@@ -1958,6 +4009,41 @@
       "version": "1.0.0"
     },
     {
+      "id": "MT11",
+      "title": "Over-dispersed Poisson bootstrap",
+      "version": "1.1.0"
+    },
+    {
+      "id": "MT12",
+      "title": "Munich chain ladder",
+      "version": "1.0.0"
+    },
+    {
+      "id": "MT13",
+      "title": "Benktander blends",
+      "version": "1.0.0"
+    },
+    {
+      "id": "MT14",
+      "title": "Tail factor fitting",
+      "version": "1.0.0"
+    },
+    {
+      "id": "MT15",
+      "title": "Separation method",
+      "version": "1.0.0"
+    },
+    {
+      "id": "MT16",
+      "title": "Frequency–severity projection",
+      "version": "1.0.0"
+    },
+    {
+      "id": "MT22",
+      "title": "Back-testing of past selections",
+      "version": "1.0.0"
+    },
+    {
       "id": "MT08",
       "title": "Robust z-score anomaly flags",
       "version": "1.2.0"
@@ -1966,6 +4052,21 @@
       "id": "MT09",
       "title": "Isolation forest anomaly flags",
       "version": "1.1.0"
+    },
+    {
+      "id": "MT17",
+      "title": "Severity distribution fitting with goodness of fit",
+      "version": "1.0.0"
+    },
+    {
+      "id": "MT18",
+      "title": "Extreme value analysis (peaks over threshold)",
+      "version": "1.1.0"
+    },
+    {
+      "id": "AE02",
+      "title": "Back-test error of a projection",
+      "version": "1.0.0"
     },
     {
       "id": "RP01",

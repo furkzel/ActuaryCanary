@@ -3,11 +3,13 @@
 Per group and per paid and incurred triangle: chain ladder (MT02), Bornhuetter–Ferguson
 (MT03), Cape Cod (MT04), expected loss ratio (MT05) and the Mack standard error (MT06); on the
 paid triangle also the inflation-adjusted chain ladder (MT07); on the incurred triangle the
-selection (MT10). Every judgement goes through the assumptions register (record 0037) and
+selection (MT10). When the run gives the tier B inputs (`MethodInputs.tier_b`), the tier B
+methods run beside them (record 0620): MT11 to MT16 and MT22, with the fitted tail of MT14 on
+each chain ladder. Every judgement goes through the assumptions register (record 0037) and
 comes back as the entries in force. Methods that cannot run keep their reason (record 0055).
 """
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field, replace
 from datetime import date
 
@@ -32,14 +34,17 @@ from actuarycanary.methods.inflation_adjusted import (
     inflation_adjusted_chain_ladder,
 )
 from actuarycanary.methods.judgement import (
-    chain_ladder_judged,
     future_inflation,
     prior_loss_ratios,
     selection_overrides,
 )
+from actuarycanary.methods.judgement_tier_b import chain_ladder_with_tail
 from actuarycanary.methods.mack import Mack, mack
 from actuarycanary.methods.selection import Selection as UltimateSelection
 from actuarycanary.methods.selection import select_ultimates
+from actuarycanary.methods.tail import TailFit
+from actuarycanary.modules.reserving_tier_b import TierBGroup, run_tier_b
+from actuarycanary.modules.tier_b_inputs import TierBInputs
 from actuarycanary.structures.triangles import MEASURES, Triangle, TriangleSet
 
 SELECTION_MEASURE = "incurred"  # MT10 parameter `measure`, its default
@@ -77,6 +82,8 @@ class MethodInputs:
     nominal: TriangleSet | None = None
     adjusted_reason: str = "no market data with a price index was loaded"
     origin_axis: str = "accident"
+    # the extra inputs and the seed of the tier B methods; None: they do not run (record 0620)
+    tier_b: TierBInputs | None = None
 
 
 @dataclass(frozen=True)
@@ -121,6 +128,7 @@ class GroupReserving:
     chain_diagnostics: dict[str, ChainLadderDiagnostics] = field(default_factory=dict)
     diagnostics: tuple[MeasureDiagnostic, ...] = ()
     assumptions: tuple[Assumption, ...] = ()
+    tier_b: TierBGroup | None = None
 
     def estimates(self) -> list[OriginEstimate]:
         paid, incurred = self.triangles["paid"].latest, self.triangles["incurred"].latest
@@ -177,10 +185,12 @@ class ReservingResult:
     settings: ChainLadderSettings
     groups: tuple[GroupReserving, ...]
     inputs: MethodInputs = field(default_factory=MethodInputs)
+    # the entries in force of methods outside the triangles (MT17, MT18), added by the run
+    extra_assumptions: tuple[Assumption, ...] = ()
 
     def assumptions(self) -> list[Assumption]:
         """Every judgement in force: the register's entries and the defaults the methods used."""
-        return [a for g in self.groups for a in g.assumptions]
+        return [a for g in self.groups for a in g.assumptions] + list(self.extra_assumptions)
 
     def diagnostics_by_group(self) -> dict[tuple[str, ...], int]:
         return {g.group: len(g.diagnostics) for g in self.groups}
@@ -267,6 +277,7 @@ def reserve_group(
     fergusons: dict[str, BornhuetterFerguson | Skipped] = {}
     ratios: dict[str, ExpectedLossRatio | Skipped] = {}
     chain_diagnostics: dict[str, ChainLadderDiagnostics] = {}
+    tails: dict[str, TailFit | Skipped | None] = {}
     diagnostics: list[MeasureDiagnostic] = []
     premium = (
         _group_premium(triangles["incurred"], lookup, context)
@@ -280,7 +291,7 @@ def reserve_group(
     for measure in MEASURES:
         t = triangles[measure]
         scope = "/".join((*group, measure))
-        chain, used = chain_ladder_judged(
+        chain, tails[measure], used = chain_ladder_with_tail(
             t.cumulative,
             origins=t.origins,
             ages=t.ages,
@@ -361,13 +372,32 @@ def reserve_group(
 
     adjusted: InflationAdjusted | Skipped | None = None
     adjusted_origins: tuple[str, ...] = ()
+    tier_b: TierBGroup | None = None
     if context.full:
         adjusted, adjusted_origins, used = _inflation_adjusted(
             group, chains[INFLATION_MEASURE], settings, inputs, context
         )
         entries += used
+        if inputs.tier_b is not None:
+            tier_b, used = run_tier_b(
+                group,
+                triangles,
+                chains,
+                fergusons,
+                capes,
+                tails,
+                selection,
+                premium,
+                register,
+                inputs.tier_b.source,
+                inputs.tier_b.seed,
+                context.development_months,
+                SELECTION_MEASURE,
+            )
+            entries += used
+            diagnostics += [MeasureDiagnostic(m, d) for m, d in tier_b.diagnostics]
         thin = thin_evidence(
-            _methods_that_ran(chains, fergusons, capes, ratios, macks, adjusted, selection),
+            _methods_that_ran(chains, fergusons, capes, ratios, macks, adjusted, selection, tier_b),
             len(triangles["paid"].origins),
         )
         if thin:
@@ -388,6 +418,7 @@ def reserve_group(
         chain_diagnostics,
         tuple(diagnostics),
         tuple(entries),
+        tier_b,
     )
 
 
@@ -399,8 +430,9 @@ def _methods_that_ran(
     macks: Mapping[str, Mack | Skipped],
     adjusted: InflationAdjusted | Skipped | None,
     selection: UltimateSelection | Skipped | None,
+    tier_b: TierBGroup | None = None,
 ) -> str:
-    ran = [
+    ran: list[tuple[str, Iterable[object]]] = [
         ("MT02", chains.values()),
         ("MT03", fergusons.values()),
         ("MT04", capes.values()),
@@ -409,6 +441,11 @@ def _methods_that_ran(
         ("MT07", [adjusted]),
         ("MT10", [selection]),
     ]
+    if tier_b is not None:
+        by_method: dict[str, list[object]] = {}
+        for method, outcome in tier_b.outcomes():
+            by_method.setdefault(method, []).append(outcome)
+        ran += sorted(by_method.items())
     return ", ".join(
         m for m, results in ran if any(r and not isinstance(r, Skipped) for r in results)
     )
@@ -501,7 +538,15 @@ METHOD_TITLES = {
     "MT06": "Mack standard error",
     "MT07": "inflation-adjusted chain ladder",
     "MT10": "selection",
+    "MT11": "bootstrap",
+    "MT12": "Munich chain ladder",
+    "MT13": "Benktander",
+    "MT14": "tail factor fitting",
+    "MT15": "separation",
+    "MT16": "frequency–severity",
+    "MT22": "back-test",
 }
+PER_GROUP = ("MT07", "MT10", "MT11", "MT12", "MT13", "MT15", "MT16", "MT22")  # else per triangle
 
 
 def _outcomes(result: ReservingResult) -> list[tuple[str, object]]:
@@ -517,6 +562,8 @@ def _outcomes(result: ReservingResult) -> list[tuple[str, object]]:
         ):
             found += [(method, outcome) for outcome in outcomes.values()]
         found += [("MT07", group.inflation_adjusted), ("MT10", group.selection)]
+        if group.tier_b is not None:
+            found += group.tier_b.outcomes()
     return found
 
 
@@ -540,7 +587,7 @@ def not_run_notes(result: ReservingResult) -> list[str]:
             found[key] = found.get(key, 0) + 1
     return [
         f"{method} {METHOD_TITLES[method]} did not run for {count} of {total[method]}"
-        f" {'groups' if method in ('MT07', 'MT10') else 'triangles'}: {reason}"
+        f" {'groups' if method in PER_GROUP else 'triangles'}: {reason}"
         for (method, reason), count in sorted(found.items())
     ]
 

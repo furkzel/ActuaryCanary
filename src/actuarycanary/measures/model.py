@@ -129,6 +129,8 @@ class MeasureInputs:
     large_loss_percentile: float = 0.99  # CV08 defaults
     min_claims_for_percentile: int = 100
     large_loss_thresholds: Mapping[tuple[str, str], float] = field(default_factory=dict)
+    # the MT18 threshold beside CV08's, as a sentence for the notes of CL12 (information only)
+    extreme_value_note: str = ""
     cache: dict[Any, Any] = field(default_factory=dict)
 
     def has(self, concept: str, name: str | None = None) -> bool:

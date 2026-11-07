@@ -214,20 +214,67 @@ def odp_deterministic(values: np.ndarray) -> dict:
     }
 
 
-def simulate_totals(tri, seed: int, phi: float) -> tuple[np.ndarray, np.ndarray]:
-    """Total reserve per simulation: parameter error only (package) and with gamma process error."""
-    sims = cl.BootstrapODPSample(n_sims=N_SIMS, hat_adj=False, random_state=seed).fit_transform(tri)
-    model = cl.Chainladder().fit(sims)
-    param_only = np.asarray(model.ibnr_.sum("origin").values).reshape(N_SIMS)
-    n = tri.shape[-1]
-    full = np.asarray(model.full_triangle_.values)[:, 0, :, :n]
-    cum_prev = np.concatenate([np.zeros((N_SIMS, n, 1)), full[:, :, :-1]], axis=2)
+def adjusted_pseudo_triangles(tri, seed: int, det: dict, n_sims: int = N_SIMS) -> np.ndarray:
+    """Cumulative pseudo-triangles (sims x origins x ages, NaN after the diagonal): the package's
+    resampled triangles with the spec's degrees-of-freedom adjustment applied on top.
+
+    With hat_adj=False the package resamples the unscaled residuals (centred, zeros dropped);
+    multiplying each pseudo-increment's deviation from its fitted mean by sqrt(n / (n - p)) gives
+    the triangles of the spec's adjusted pool (decision 0282). Not independent of the spec."""
+    sims = cl.BootstrapODPSample(n_sims=n_sims, hat_adj=False, random_state=seed).fit_transform(tri)
+    cumulative = np.asarray(sims.values)[:, 0]
+    observed = ~np.isnan(det["observed"])
+    increments = cumulative.copy()
+    increments[:, :, 1:] = cumulative[:, :, 1:] - cumulative[:, :, :-1]
+    scale = math.sqrt(det["n_cells"] / (det["n_cells"] - det["n_params"]))
+    adjusted = det["fitted"] + scale * (increments - det["fitted"])
+    return np.where(observed, np.cumsum(np.where(observed, adjusted, 0.0), axis=2), np.nan)
+
+
+def package_future_means(tri, pseudo: np.ndarray) -> np.ndarray:
+    """Future incremental means (sims x future cells), the package fitted on each pseudo-triangle
+    alone: fitting them as one batch mixes the simulations (chainladder 0.10.1, decision 0282)."""
     future = np.isnan(np.asarray(tri.values)[0, 0])
-    means = (full - cum_prev)[:, future]
-    assert np.allclose(means.sum(axis=1), param_only, rtol=1e-8)
+    n = pseudo.shape[-1]
+    means = np.empty((len(pseudo), int(future.sum())))
+    for s in range(len(pseudo)):
+        one = tri.copy()
+        one.values = pseudo[s][None, None]
+        full = np.asarray(cl.Chainladder().fit(one).full_triangle_.values)[0, 0, :, :n]
+        previous = np.concatenate([np.zeros((n, 1)), full[:, :-1]], axis=1)
+        means[s] = (full - previous)[future]
+    return means
+
+
+def numpy_future_means(pseudo: np.ndarray) -> np.ndarray:
+    """The same with numpy, all simulations at once (volume-weighted factors over all diagonals,
+    projection from each pseudo-triangle's latest diagonal)."""
+    _, n, _ = pseudo.shape
+    observed = ~np.isnan(pseudo[0])
+    latest_index = observed.sum(axis=1) - 1
+    filled = np.nan_to_num(pseudo)
+    both = observed[:, 1:] & observed[:, :-1]
+    factors = (filled[:, :, 1:] * both).sum(axis=1) / (filled[:, :, :-1] * both).sum(axis=1)
+    projected = filled.copy()
+    for j in range(n - 1):
+        later = latest_index <= j
+        projected[:, later, j + 1] = projected[:, later, j] * factors[:, j, None]
+    increments = projected.copy()
+    increments[:, :, 1:] = projected[:, :, 1:] - projected[:, :, :-1]
+    return increments[:, ~observed]
+
+
+def simulate_totals(
+    tri, seed: int, det: dict, *, package: bool, n_sims: int = N_SIMS
+) -> tuple[np.ndarray, np.ndarray]:
+    """Total reserve per simulation: parameter error only and with gamma process error."""
+    pseudo = adjusted_pseudo_triangles(tri, seed, det, n_sims)
+    means = package_future_means(tri, pseudo) if package else numpy_future_means(pseudo)
+    if package:
+        assert np.allclose(means, numpy_future_means(pseudo), rtol=1e-9, atol=1e-6)
     rng = np.random.default_rng(seed)
-    draws = rng.gamma(np.abs(means) / phi, phi) * np.sign(means)
-    return param_only, draws.sum(axis=1)
+    draws = rng.gamma(np.abs(means) / det["phi"], det["phi"]) * np.sign(means)
+    return means.sum(axis=1), draws.sum(axis=1)
 
 
 def summary(x: np.ndarray) -> dict[str, float]:
@@ -279,7 +326,7 @@ def freeze_odp(name: str) -> None:
     dev = cl.Development(average="volume").fit_transform(tri)
     chain_ladder_reserve = float(np.nansum(origin_values(cl.Chainladder().fit(dev).ibnr_)))
 
-    param_only, with_process = simulate_totals(tri, SEED, det["phi"])
+    param_only, with_process = simulate_totals(tri, SEED, det, package=True)
     stats = {
         "parameter_error_only": summary(param_only),
         "with_process_error": summary(with_process),
@@ -290,7 +337,7 @@ def freeze_odp(name: str) -> None:
 
     repeats: dict[str, dict[str, list[float]]] = {k: {s: [] for s in stats[k]} for k in stats}
     for seed in range(1000, 1000 + N_SEEDS_FOR_TOLERANCE):
-        a, b = simulate_totals(tri, seed, det["phi"])
+        a, b = simulate_totals(tri, seed, det, package=False)
         for key, sample in (("parameter_error_only", a), ("with_process_error", b)):
             for stat, value in summary(sample).items():
                 repeats[key][stat].append(value)
@@ -321,8 +368,14 @@ def freeze_odp(name: str) -> None:
         )
     )
     labels = {
-        "parameter_error_only": "package parameter draws",
-        "with_process_error": "derived: package parameter draws plus numpy gamma process error",
+        "parameter_error_only": (
+            "information, not a pass criterion (decision 0282): package resampling with the spec's "
+            "adjustment on top, each pseudo-triangle fitted alone by the package"
+        ),
+        "with_process_error": (
+            "information, not a pass criterion (decision 0282): as the parameter rows plus numpy "
+            "gamma process error"
+        ),
     }
     for kind, label in labels.items():
         for stat, value in stats[kind].items():
@@ -330,7 +383,7 @@ def freeze_odp(name: str) -> None:
             tol = float(f"{3 * spread:.2g}")
             note = (
                 f"{label}; seed {SEED}, {N_SIMS} sims; rel_tol = 3 x relative sd of the statistic "
-                f"over {N_SEEDS_FOR_TOLERANCE} other seeds ({spread:.2g})"
+                f"over {N_SEEDS_FOR_TOLERANCE} other seeds ({spread:.2g}, numpy refit)"
             )
             if spread > 0.1:
                 note += (
@@ -362,16 +415,21 @@ def freeze_odp(name: str) -> None:
                 "data": f"chainladder.load_sample('{name}')",
                 "calls": [
                     f"tri = chainladder.load_sample('{name}')",
-                    f"boot = chainladder.BootstrapODPSample(n_sims={N_SIMS}, hat_adj=False, "
-                    f"random_state={SEED})",
-                    "model = chainladder.Chainladder().fit(boot.fit_transform(tri))",
+                    f"sims = chainladder.BootstrapODPSample(n_sims={N_SIMS}, hat_adj=False, "
+                    f"random_state={SEED}).fit_transform(tri)",
+                    "each simulated increment X* replaced by mu + sqrt(n / (n - p)) (X* - mu)",
+                    "chainladder.Chainladder().fit(one) for each adjusted pseudo-triangle alone",
                 ],
             },
             "how_produced": (
-                f"Run {SCRIPT}. Deterministic rows are computed with numpy from the spec formulas and "
-                "agree with the package scale_ to 1e-9. Simulation rows: the package gives the "
-                "parameter-error-only totals; process error (gamma, mean m, variance phi m, sign "
-                "kept) is added by the script with numpy default_rng(seed)."
+                f"Run {SCRIPT} odp {name}. Deterministic rows are computed with numpy from the spec "
+                "formulas and agree with the package scale_ to 1e-9. Simulation rows: the package "
+                "resamples the residuals; the script applies the spec's degrees-of-freedom "
+                "adjustment sqrt(n / (n - p)) on top of the package output, fits the package's chain "
+                "ladder on each adjusted pseudo-triangle alone and adds gamma process error (mean m, "
+                "variance phi m, sign kept) with numpy default_rng(seed). The adjustment is the "
+                "spec's, applied by this script: the simulation rows are not independent of the "
+                "spec (decision 0282)."
             ),
             "seed": SEED,
             "n_simulations": N_SIMS,
@@ -381,22 +439,24 @@ def freeze_odp(name: str) -> None:
                 "values": "values.csv",
             },
             "tolerance_note": (
-                "Deterministic rows 1e-9 relative. Simulation rows carry their Monte Carlo tolerance "
-                "in rel_tol: three times the relative standard deviation of the statistic over "
-                f"{N_SEEDS_FOR_TOLERANCE} other seeds of the same size. A test of a different sampler "
-                "compares against it as a bound, two independent samplers differ by about 1.5 times "
-                "that."
+                "Deterministic rows 1e-9 relative. Simulation rows are information; their rel_tol "
+                "is the Monte Carlo spread of the statistic: three times its relative standard "
+                f"deviation over {N_SEEDS_FOR_TOLERANCE} other seeds of the same size, with a numpy "
+                "refit that equals the package fitted on each pseudo-triangle alone (checked to "
+                "1e-9 on the seed of the frozen rows)."
             ),
             "notes": [
-                "The package samples parameter error only, uses hat_adj=False (the degrees-of-freedom "
-                "adjustment sqrt(n/(n-p)) of the spec), centres the pool of residuals and projects "
-                "the future cells from the cumulative of the pseudo-triangle on its latest diagonal; "
-                "the spec does so too since MT11 0.3.0 (decision 0612). Its residual pool differs "
-                "slightly from residuals.csv, which is not centred.",
-                "Acceptance statistics are the median (p50), p75 and p95 of the total reserve; the "
-                "standard deviation is reported and compared only with its wide Monte Carlo tolerance, "
-                "it is not a pass criterion on its own (decision 0609). Process error is gamma with "
-                "shape |m| / phi and scale phi, sign kept, as in the spec.",
+                "With hat_adj=False the package resamples the unscaled residuals (centred, the zero "
+                "residuals of the two cells fitted exactly dropped); it does not apply the spec's "
+                "degrees-of-freedom adjustment sqrt(n/(n-p)), which this script applies on top "
+                "(decision 0282). The former reference (2026-10-24) said otherwise and was wrong.",
+                "chainladder 0.10.1 fitted on all simulated triangles as one batch gives other "
+                "reserves than fitted on each alone (it mixes the simulations), which widened the "
+                "former reference; each pseudo-triangle is now fitted alone (decision 0282).",
+                "Pass criteria of MT11 1.1.0: the scale parameter phi against deterministic "
+                "scale_parameter_phi, and the mean of the simulated total reserve within 5 per cent "
+                "of the chain-ladder reserve. Percentile and standard-deviation rows are "
+                "information, not pass criteria (decision 0282).",
                 "Published scale parameter of GenIns (England and Verrall) not opened: UNVERIFIED.",
             ],
         },
@@ -672,6 +732,11 @@ if __name__ == "__main__":
     import sys
 
     wanted = set(sys.argv[1:]) or {"munich", "raa", "genins"}
+    if "odp" in wanted:  # only the bootstrap references, for example `odp raa`
+        for dataset in sorted(wanted & {"raa", "genins"}) or ["raa", "genins"]:
+            freeze_odp(dataset)
+        print("done")
+        sys.exit(0)
     if "munich" in wanted:
         freeze_munich()
     for dataset in ("raa", "genins"):

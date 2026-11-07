@@ -3,7 +3,7 @@ version: 1.0.0
 title_en: Back-testing of past selections
 title_tr: Geçmiş seçimlerin geriye dönük testi
 status: reviewed
-implemented: false
+implemented: true
 definition: >-
   Measures how good earlier reserve estimates were: the methods and selections are re-run
   as at earlier cut-offs with only the facts known then (CV04 as-of rule), and their

@@ -1,9 +1,9 @@
 id: MT18
-version: 1.0.0
+version: 1.1.0
 title_en: Extreme value analysis (peaks over threshold)
 title_tr: Uç değer analizi (eşik aşımları)
 status: reviewed
-implemented: false
+implemented: true
 definition: >-
   Models the largest claims with a generalised Pareto distribution above a threshold
   chosen by an automatic, reproducible rule, and gives tail quantiles, return levels and
@@ -39,8 +39,11 @@ parameters:
     default: 0.10
     description: False discovery rate of the ForwardStop rule (Bader, Yan and Zhang 2018).
   - name: gof_bootstrap
-    default: 500
-    description: Parametric bootstrap samples for the Anderson–Darling p-value at each candidate.
+    default: 200
+    description: >-
+      Parametric bootstrap samples for the Anderson–Darling p-value at each candidate
+      threshold of the scan. The fit at the selected threshold has no bootstrap of its own:
+      its standard errors and its profile-likelihood interval do not use this parameter.
   - name: return_periods
     default: [10, 50, 100, 200]
     description: Years for which return levels are given (the size exceeded on average once in T years).
@@ -138,3 +141,10 @@ change_log:
   - version: 1.0.0
     date: 2026-10-25
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-10-26
+    change: >-
+      Owner decision (record 0625): the default of gof_bootstrap, the parametric bootstrap of
+      the threshold scan, is 200 (it was 500), so that the medium run keeps its time budget.
+      The specification had one parameter and one use, the scan; the fit at the selected
+      threshold has no bootstrap, so no second number is kept. Tolerances are unchanged.

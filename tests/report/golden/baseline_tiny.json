@@ -30,16 +30,196 @@
     "entries": 4,
     "method": "MT10",
     "name": "bf below maturity"
+   },
+   {
+    "entries": 4,
+    "method": "MT11",
+    "name": "centre residuals"
+   },
+   {
+    "entries": 4,
+    "method": "MT11",
+    "name": "n simulations"
+   },
+   {
+    "entries": 4,
+    "method": "MT11",
+    "name": "process distribution"
+   },
+   {
+    "entries": 4,
+    "method": "MT11",
+    "name": "scale"
+   },
+   {
+    "entries": 4,
+    "method": "MT11",
+    "name": "tail factor"
+   },
+   {
+    "entries": 4,
+    "method": "MT12",
+    "name": "min origins"
+   },
+   {
+    "entries": 4,
+    "method": "MT12",
+    "name": "sigma extrapolation"
+   },
+   {
+    "entries": 4,
+    "method": "MT13",
+    "name": "blend"
+   },
+   {
+    "entries": 4,
+    "method": "MT13",
+    "name": "iterations"
+   },
+   {
+    "entries": 4,
+    "method": "MT13",
+    "name": "measure"
+   },
+   {
+    "entries": 4,
+    "method": "MT13",
+    "name": "prior"
+   },
+   {
+    "entries": 8,
+    "method": "MT14",
+    "name": "curve"
+   },
+   {
+    "entries": 8,
+    "method": "MT14",
+    "name": "extension periods"
+   },
+   {
+    "entries": 8,
+    "method": "MT14",
+    "name": "fit from age"
+   },
+   {
+    "entries": 8,
+    "method": "MT14",
+    "name": "min points"
+   },
+   {
+    "entries": 8,
+    "method": "MT14",
+    "name": "remainder warning"
+   },
+   {
+    "entries": 4,
+    "method": "MT15",
+    "name": "claim counts"
+   },
+   {
+    "entries": 4,
+    "method": "MT15",
+    "name": "future index"
+   },
+   {
+    "entries": 4,
+    "method": "MT15",
+    "name": "future rate"
+   },
+   {
+    "entries": 4,
+    "method": "MT15",
+    "name": "trend periods"
+   },
+   {
+    "entries": 4,
+    "method": "MT16",
+    "name": "maturity for trend"
+   },
+   {
+    "entries": 4,
+    "method": "MT16",
+    "name": "min trend origins"
+   },
+   {
+    "entries": 4,
+    "method": "MT16",
+    "name": "separate catastrophes"
+   },
+   {
+    "entries": 4,
+    "method": "MT16",
+    "name": "severity measure"
+   },
+   {
+    "entries": 4,
+    "method": "MT16",
+    "name": "value basis"
+   },
+   {
+    "entries": 4,
+    "method": "MT17",
+    "name": "claims used"
+   },
+   {
+    "entries": 4,
+    "method": "MT17",
+    "name": "exclude catastrophes"
+   },
+   {
+    "entries": 4,
+    "method": "MT17",
+    "name": "significance"
+   },
+   {
+    "entries": 4,
+    "method": "MT17",
+    "name": "truncation point"
+   },
+   {
+    "entries": 4,
+    "method": "MT18",
+    "name": "claims used"
+   },
+   {
+    "entries": 4,
+    "method": "MT18",
+    "name": "fdr level"
+   },
+   {
+    "entries": 4,
+    "method": "MT18",
+    "name": "min exceedances"
+   },
+   {
+    "entries": 4,
+    "method": "MT22",
+    "name": "backtest simulations"
+   },
+   {
+    "entries": 4,
+    "method": "MT22",
+    "name": "horizons months"
+   },
+   {
+    "entries": 4,
+    "method": "MT22",
+    "name": "mature at"
+   },
+   {
+    "entries": 4,
+    "method": "MT22",
+    "name": "past selections"
    }
   ],
   "by_who": [
    {
-    "entries": 56,
+    "entries": 220,
     "who": "default"
    }
   ],
   "judgements": [],
-  "total": 56
+  "total": 220
  },
  "banners": [
   "Only 4 origin periods (2022 to 2025) are loaded for 4 of 4 lines, fewer than the 8 the methods need for solid evidence: every factor, ratio and range rests on few observations, and the differences between methods show how much the answer depends on the method, not how precise it is."
@@ -48,7 +228,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "d9c8c15caee71270"
+    "value": "384dff36d777725f"
    },
    {
     "label": "Valuation date",
@@ -2499,7 +2679,7 @@
    "scope": "run",
    "section": "not-run",
    "specs": [],
-   "text": "Modules that ran with some measures or methods missing: 2 (M04 Reserving (indicative), M06 Anomalies and large losses).",
+   "text": "Modules that ran with some measures or methods missing: 3 (M03 Claims experience, M04 Reserving (indicative), M06 Anomalies and large losses).",
    "title": "Modules limited"
   }
  ],
@@ -2939,6 +3119,204 @@
    "plain": "Chooses one ultimate per origin from the methods that ran: chain ladder for origins developed enough, Bornhuetter–Ferguson for immature ones, unless the user selects otherwise.",
    "spec": "MT10 v1.0.0",
    "title": "Ultimate selection"
+  },
+  {
+   "assumptions": [
+    "The chain-ladder pattern is right (as MT02), and the prior ultimate of MT03 or MT04 is unbiased."
+   ],
+   "id": "MT13",
+   "parameters": [
+    {
+     "default": "benktander",
+     "name": "blend"
+    },
+    {
+     "default": "1",
+     "name": "iterations"
+    },
+    {
+     "default": "MT03",
+     "name": "prior"
+    },
+    {
+     "default": "incurred",
+     "name": "measure"
+    }
+   ],
+   "plain": "Ultimates that blend the chain ladder and Bornhuetter–Ferguson by maturity: the Benktander (iterated Bornhuetter–Ferguson) estimate, a credibility mix of the chain ladder and Bornhuetter–Ferguson with weight 1 - q^k, as a principled alternative to the hard switch of MT10.",
+   "spec": "MT13 v1.0.0",
+   "title": "Benktander blends"
+  },
+  {
+   "assumptions": [
+    "The excess development f(x) - 1 decays smoothly with the link number x along the chosen curve, also beyond the triangle.",
+    "The late factors of the triangle are credible (enough origins)."
+   ],
+   "id": "MT14",
+   "parameters": [
+    {
+     "default": "exponential_decay",
+     "name": "curve"
+    },
+    {
+     "default": "",
+     "name": "fit_from_age"
+    },
+    {
+     "default": "3",
+     "name": "min_points"
+    },
+    {
+     "default": "100",
+     "name": "extension_periods"
+    },
+    {
+     "default": "0.005",
+     "name": "remainder_warning"
+    }
+   ],
+   "plain": "Estimates development beyond the last age of the triangle by fitting a decay curve to the selected age-to-age factors by link number (exponential decay or inverse power) and extending it for a fixed number of periods, giving a tail factor and the extra factors by period for cash flows.",
+   "spec": "MT14 v1.0.0",
+   "title": "Tail factor fitting"
+  },
+  {
+   "assumptions": [
+    "Expected incremental paid of origin i in development j is n(i) r(j) lambda(i + j): a claim-count measure, a development pattern summing to 1 and a calendar index.",
+    "The ultimate claim count n(i) of each origin is known or well estimated.",
+    "The pattern sums to 1 over the observed columns, so the method has no development beyond the last column and its ultimates carry no tail.",
+    "The future calendar index follows the chosen trend or assumption."
+   ],
+   "id": "MT15",
+   "parameters": [
+    {
+     "default": "ultimate",
+     "name": "claim_counts"
+    },
+    {
+     "default": "trend",
+     "name": "future_index"
+    },
+    {
+     "default": "5",
+     "name": "trend_periods"
+    }
+   ],
+   "plain": "Splits average paid per claim into a development pattern and a calendar-period index (Taylor 1977), so that calendar-year effects such as claims inflation are measured instead of being folded into development factors, then projects with an explicit future index.",
+   "spec": "MT15 v1.0.0",
+   "title": "Separation method"
+  },
+  {
+   "assumptions": [
+    "Reported counts develop with a stable pattern (chain ladder on counts).",
+    "Severity at value-date prices follows a log-linear trend across origins.",
+    "The price index captures most of claims inflation."
+   ],
+   "id": "MT16",
+   "parameters": [
+    {
+     "default": "incurred",
+     "name": "severity_measure"
+    },
+    {
+     "default": "0.9",
+     "name": "maturity_for_trend"
+    },
+    {
+     "default": "3",
+     "name": "min_trend_origins"
+    },
+    {
+     "default": "INFLATION_ADJUSTED",
+     "name": "value_basis"
+    },
+    {
+     "default": "True",
+     "name": "separate_catastrophes"
+    }
+   ],
+   "plain": "Ultimate as ultimate claim count times ultimate severity: counts are developed with the chain ladder on the reported-count triangle, frequency is related to earned exposure, severity is trended from mature origins at value-date prices, and catastrophe claims are projected apart. Also fits the frequency trend that forecasts use (MT27).",
+   "spec": "MT16 v1.0.0",
+   "title": "Frequency–severity projection"
+  },
+  {
+   "assumptions": [
+    "Claim sizes of a group are independent draws from one distribution.",
+    "Sizes of closed claims are final; open claims' incurred is an estimate."
+   ],
+   "id": "MT17",
+   "parameters": [
+    {
+     "default": "['lognormal', 'gamma', 'weibull', 'pareto']",
+     "name": "candidates"
+    },
+    {
+     "default": "closed",
+     "name": "claims_used"
+    },
+    {
+     "default": "0",
+     "name": "truncation_point"
+    },
+    {
+     "default": "True",
+     "name": "exclude_catastrophes"
+    },
+    {
+     "default": "200",
+     "name": "gof_bootstrap"
+    },
+    {
+     "default": "2000",
+     "name": "gof_max_claims"
+    },
+    {
+     "default": "0.05",
+     "name": "significance"
+    },
+    {
+     "default": "50",
+     "name": "min_claims"
+    },
+    {
+     "default": "[]",
+     "name": "limits"
+    }
+   ],
+   "plain": "Fits lognormal, gamma, Weibull and Pareto distributions to individual claim sizes by maximum likelihood, per segment and line, tests the fit, selects one, and gives quantiles, limited expected values and layer costs for limits and reinsurance (MT21).",
+   "spec": "MT17 v1.0.0",
+   "title": "Severity distribution fitting with goodness of fit"
+  },
+  {
+   "assumptions": [
+    "Today's estimate of a mature origin is close to its final cost.",
+    "The past cut-offs see the data as it was then."
+   ],
+   "id": "MT22",
+   "parameters": [
+    {
+     "default": "[12.0, 24.0, 36.0]",
+     "name": "horizons_months"
+    },
+    {
+     "default": "['MT02', 'MT03', 'MT04', 'MT05', 'MT10']",
+     "name": "methods"
+    },
+    {
+     "default": "0.95",
+     "name": "mature_at"
+    },
+    {
+     "default": "1000",
+     "name": "backtest_simulations"
+    },
+    {
+     "default": "rerun",
+     "name": "past_selections"
+    }
+   ],
+   "plain": "Measures how good earlier reserve estimates were: the methods and selections are re-run as at earlier cut-offs with only the facts known then (CV04 as-of rule), and their ultimates are compared with today's estimate and, for mature origins, with the developed actual, by method and by horizon.",
+   "spec": "MT22 v1.0.0",
+   "title": "Back-testing of past selections"
   }
  ],
  "not_run": {
@@ -2946,10 +3324,25 @@
    {
     "load": "",
     "missing": [],
+    "module": "M03 Claims experience",
+    "state": "limited",
+    "why": [
+     "MT17 severity fits did not run for NON_LIFE / MOTOR_TPL: 22 claims, fewer than 50",
+     "MT17 severity fits did not run for LIFE / GROUP_TERM_LIFE: 34 claims, fewer than 50",
+     "MT17 severity fits did not run for NON_LIFE / PROPERTY: 4 claims, fewer than 50"
+    ]
+   },
+   {
+    "load": "",
+    "missing": [],
     "module": "M04 Reserving (indicative)",
     "state": "limited",
     "why": [
-     "MT06 Mack standard error did not run for 8 of 8 triangles: too few link ratios to estimate variance"
+     "MT06 Mack standard error did not run for 8 of 8 triangles: too few link ratios to estimate variance",
+     "MT11 bootstrap did not run for 4 of 4 groups: the bootstrap needs a chain ladder on at least 5 origin periods",
+     "MT12 Munich chain ladder did not run for 4 of 4 groups: Munich chain ladder needs at least 5 origin periods",
+     "MT14 tail factor fitting did not run for 7 of 8 triangles: too few factors above 1 to fit a tail",
+     "MT15 separation did not run for 1 of 4 groups: separation needs claim counts per origin"
     ]
    },
    {
@@ -2959,7 +3352,11 @@
     "state": "limited",
     "why": [
      "MT08: 6 groups have too few values to score",
-     "MT09: 1 group has too few claims to score"
+     "MT09: 1 group has too few claims to score",
+     "MT18 extreme values did not run for LIFE / GROUP_TERM_LIFE: 37 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
+     "MT18 extreme values did not run for NON_LIFE / MOTOR_TPL: 44 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
+     "MT18 extreme values did not run for NON_LIFE / PROPERTY: 5 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
+     "MT18 extreme values did not run for NON_LIFE / MOTOR_OD: 67 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)"
     ]
    }
   ]
@@ -3178,9 +3575,13 @@
    },
    "module": "M03",
    "question": "How many claims, how large, how fast?",
-   "reasons": [],
+   "reasons": [
+    "MT17 severity fits did not run for NON_LIFE / MOTOR_TPL: 22 claims, fewer than 50",
+    "MT17 severity fits did not run for LIFE / GROUP_TERM_LIFE: 34 claims, fewer than 50",
+    "MT17 severity fits did not run for NON_LIFE / PROPERTY: 4 claims, fewer than 50"
+   ],
    "spec": "M03 v1.0.0",
-   "state": "ran",
+   "state": "limited",
    "title": "Claims experience"
   },
   {
@@ -3547,7 +3948,11 @@
    "question": "What looks wrong or unusual?",
    "reasons": [
     "MT08: 6 groups have too few values to score",
-    "MT09: 1 group has too few claims to score"
+    "MT09: 1 group has too few claims to score",
+    "MT18 extreme values did not run for LIFE / GROUP_TERM_LIFE: 37 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
+    "MT18 extreme values did not run for NON_LIFE / MOTOR_TPL: 44 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
+    "MT18 extreme values did not run for NON_LIFE / PROPERTY: 5 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
+    "MT18 extreme values did not run for NON_LIFE / MOTOR_OD: 67 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)"
    ],
    "spec": "M06 v1.1.0",
    "state": "limited",
@@ -3675,13 +4080,13 @@
    },
    {
     "name": "modules.json",
-    "sha256": "d66ded5ad1322d60f88515da13dca307804253d55e9eee977435e75fcab31362",
-    "size": "18,240"
+    "sha256": "bad541cbefdd9a1e5550ab8114bb1242472dfd676bfb1b4ad05b48eecfe376d3",
+    "size": "19,651"
    },
    {
     "name": "assumptions.csv",
-    "sha256": "b710a37a7897cf39bb05f716ea1fccda620f6a02c0a3b9bd1f4e2ba58d4ed6d9",
-    "size": "8,142"
+    "sha256": "848b98920f27243543f39e197fa31ee41d577ff12f1bd4262c04d528f96d899f",
+    "size": "26,746"
    },
    {
     "name": "ultimates.csv",
@@ -3700,22 +4105,450 @@
    },
    {
     "name": "diagnostics.csv",
-    "sha256": "0493adc495caec8eae1d6366f76c53986a6863636c0f1881a8f0c4a446bb0971",
-    "size": "4,223"
+    "sha256": "fe723c248538400ec66fcf32a249d9e70304a6e93b7d468c7992945e4c08fc2c",
+    "size": "6,169"
    },
    {
     "name": "anomalies.csv",
     "sha256": "a7c94ad8222c3b043afb0e4cefdf465ba490066c102dc43d0799171eaedbbc72",
     "size": "2,205"
+   },
+   {
+    "name": "tier_b_ultimates.csv",
+    "sha256": "d85abe136649b97b894b8f179c4278636ef7f66c5490a2a6dc8c50ccfeb8f093",
+    "size": "4,581"
+   },
+   {
+    "name": "tier_b_parameters.csv",
+    "sha256": "0be2fe26baa5316f3446bf7c13975a5106c5790e2b1212a19bc462891c67682c",
+    "size": "12,454"
+   },
+   {
+    "name": "bootstrap_summary.csv",
+    "sha256": "a396979e551fc597eb87b90ac2d77f9b62d56606ad98ed098161b4c096fa0745",
+    "size": "529"
+   },
+   {
+    "name": "bootstrap_cash_flows.csv",
+    "sha256": "a00d75abd91b9daa64e382bd5bf3d37255a8437228d3a3c754f41841f69a2329",
+    "size": "104"
+   },
+   {
+    "name": "bootstrap_residuals.csv",
+    "sha256": "c9103d039565cd1c266980932f244e24f8d40759af4587cdae6e8f225bc5f683",
+    "size": "66"
+   },
+   {
+    "name": "back_test.csv",
+    "sha256": "d50b25e1216fc1baf4e780846b67b4bd9291215c09781f2b18c504ad793e7029",
+    "size": "10,304"
+   },
+   {
+    "columns": [
+     "segment",
+     "line",
+     "family",
+     "parameter",
+     "estimate",
+     "std_error"
+    ],
+    "name": "severity_parameters.csv",
+    "rows": [
+     "NON_LIFE,MOTOR_OD,lognormal,mu,12.19879045,0.1608824592",
+     "NON_LIFE,MOTOR_OD,lognormal,sigma,1.256532174,0.1137610751",
+     "NON_LIFE,MOTOR_OD,gamma,shape,0.5761048009,0.08726450348",
+     "NON_LIFE,MOTOR_OD,gamma,scale,1013838.431,229852.7082",
+     "NON_LIFE,MOTOR_OD,weibull,shape,0.6795274201,0.05609109866",
+     "NON_LIFE,MOTOR_OD,weibull,scale,380024.8857,76110.10031",
+     "NON_LIFE,MOTOR_OD,pareto,alpha,2.114284598,0.6878456317",
+     "NON_LIFE,MOTOR_OD,pareto,theta,507751.642,223682.1329"
+    ]
+   },
+   {
+    "columns": [
+     "segment",
+     "line",
+     "family",
+     "claims",
+     "loglik",
+     "aic",
+     "bic",
+     "aic_rank",
+     "bic_rank",
+     "ks",
+     "ad",
+     "ks_p",
+     "ad_p",
+     "gof_claims",
+     "gof_bootstrap",
+     "converged",
+     "rejected",
+     "selected"
+    ],
+    "name": "severity_fits.csv",
+    "rows": [
+     "NON_LIFE,MOTOR_OD,lognormal,61,-844.6111647,1693.222329,1697.444077,1,1,0.1125406552,0.5832772936,0.05472636816,0.1641791045,61,200,true,false,true",
+     "NON_LIFE,MOTOR_OD,gamma,61,-863.1696346,1730.339269,1734.561017,4,4,0.2128524839,4.109425001,0.004975124378,0.004975124378,61,200,true,true,false",
+     "NON_LIFE,MOTOR_OD,weibull,61,-855.604203,1715.208406,1719.430154,3,3,0.143042015,2.459168413,0.009950248756,0.004975124378,61,200,true,true,false",
+     "NON_LIFE,MOTOR_OD,pareto,61,-845.5822704,1695.164541,1699.386288,2,2,0.1227028035,0.8737721647,0.02538071066,0.08629441624,61,196,true,false,false"
+    ]
+   },
+   {
+    "name": "severity_selected.csv",
+    "sha256": "e85b4a0d1b5b30d3bf55d1d3b299e3b36ba098d89de1b21c6ca62403c0158bc7",
+    "size": "345"
+   },
+   {
+    "name": "severity_quantiles.csv",
+    "sha256": "e66749dd97f0089cef7e3e985b998ce08dc364183c854491ff29cc522f0000a9",
+    "size": "309"
+   },
+   {
+    "name": "severity_limited_expected_values.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
+   },
+   {
+    "columns": [
+     "segment",
+     "line",
+     "family",
+     "probability",
+     "empirical_quantile",
+     "fitted_quantile",
+     "fitted_cdf",
+     "empirical_survival",
+     "fitted_survival"
+    ],
+    "name": "severity_plots.csv",
+    "rows": [
+     "NON_LIFE,MOTOR_OD,lognormal,0.008196721311,10559.32918,9730.95697,0.00977123658,0.9918032787,0.9902287634",
+     "NON_LIFE,MOTOR_OD,lognormal,0.02459016393,16311.26829,16766.87078,0.02335339056,0.9754098361,0.9766466094",
+     "NON_LIFE,MOTOR_OD,lognormal,0.04098360656,21188.8896,22319.10448,0.03747739624,0.9590163934,0.9625226038",
+     "NON_LIFE,MOTOR_OD,lognormal,0.05737704918,26444.19795,27364.80431,0.05431136232,0.9426229508,0.9456886377",
+     "NON_LIFE,MOTOR_OD,lognormal,0.0737704918,32117.69853,32176.44793,0.07356740743,0.9262295082,0.9264325926",
+     "NON_LIFE,MOTOR_OD,lognormal,0.09016393443,34180.10809,36877.47584,0.08072731586,0.9098360656,0.9192726841",
+     "NON_LIFE,MOTOR_OD,lognormal,0.106557377,40681.60487,41537.41195,0.1035437767,0.893442623,0.8964562233",
+     "NON_LIFE,MOTOR_OD,lognormal,0.1229508197,44469.67351,46201.09804,0.1168739929,0.8770491803,0.8831260071",
+     "NON_LIFE,MOTOR_OD,lognormal,0.1393442623,44604.86564,50900.42929,0.1173489934,0.8606557377,0.8826510066",
+     "NON_LIFE,MOTOR_OD,lognormal,0.1557377049,45692.06842,55659.90078,0.1211658538,0.8442622951,0.8788341462",
+     "NON_LIFE,MOTOR_OD,lognormal,0.1721311475,54765.37199,60499.54431,0.1526756615,0.8278688525,0.8473243385",
+     "NON_LIFE,MOTOR_OD,lognormal,0.1885245902,67239.10209,65436.62322,0.1944205213,0.8114754098,0.8055794787",
+     "NON_LIFE,MOTOR_OD,lognormal,0.2049180328,68126.33113,70486.68153,0.1973045581,0.7950819672,0.8026954419",
+     "NON_LIFE,MOTOR_OD,lognormal,0.2213114754,73000.29135,75664.2343,0.2129299599,0.7786885246,0.7870700401",
+     "NON_LIFE,MOTOR_OD,lognormal,0.237704918,74375.84219,80983.24871,0.2172719977,0.762295082,0.7827280023",
+     "NON_LIFE,MOTOR_OD,lognormal,0.2540983607,99415.95621,86457.49824,0.2909878064,0.7459016393,0.7090121936",
+     "NON_LIFE,MOTOR_OD,lognormal,0.2704918033,117566.8164,92100.83883,0.3383233611,0.7295081967,0.6616766389",
+     "NON_LIFE,MOTOR_OD,lognormal,0.2868852459,121556.8646,97927.43667,0.3480901403,0.7131147541,0.6519098597",
+     "NON_LIFE,MOTOR_OD,lognormal,0.3032786885,148031.9128,103951.967,0.4076226224,0.6967213115,0.5923773776",
+     "NON_LIFE,MOTOR_OD,lognormal,0.3196721311,148742.7782,110189.7971,0.4091033123,0.6803278689,0.5908966877",
+     "NON_LIFE,MOTOR_OD,lognormal,0.3360655738,149519.2099,116657.1638,0.4107139804,0.6639344262,0.5892860196",
+     "NON_LIFE,MOTOR_OD,lognormal,0.3524590164,150817.1572,123371.3512,0.4133912345,0.6475409836,0.5866087655",
+     "NON_LIFE,MOTOR_OD,lognormal,0.368852459,154278.7391,130350.877,0.4204391343,0.631147541,0.5795608657",
+     "NON_LIFE,MOTOR_OD,lognormal,0.3852459016,157579.9426,137615.6919,0.427037835,0.6147540984,0.572962165",
+     "NON_LIFE,MOTOR_OD,lognormal,0.4016393443,164844.8751,145187.3976,0.4411514338,0.5983606557,0.5588485662",
+     "NON_LIFE,MOTOR_OD,lognormal,0.4180327869,178165.8111,153089.4901,0.4656513561,0.5819672131,0.5343486439",
+     "NON_LIFE,MOTOR_OD,lognormal,0.4344262295,178927.6116,161347.6337,0.467001175,0.5655737705,0.532998825",
+     "NON_LIFE,MOTOR_OD,lognormal,0.4508196721,185241.6567,169989.9744,0.477985326,0.5491803279,0.522014674",
+     "NON_LIFE,MOTOR_OD,lognormal,0.4672131148,193345.8807,179047.5003,0.4915697281,0.5327868852,0.5084302719",
+     "NON_LIFE,MOTOR_OD,lognormal,0.4836065574,194243.5929,188554.4598,0.4930401818,0.5163934426,0.5069598182",
+     "NON_LIFE,MOTOR_OD,lognormal,0.5,211576.7731,198548.8512,0.5201690618,0.5,0.4798309382",
+     "NON_LIFE,MOTOR_OD,lognormal,0.5163934426,245593.6177,209072.9986,0.5671921638,0.4836065574,0.4328078362",
+     "NON_LIFE,MOTOR_OD,lognormal,0.5327868852,247128.834,220174.2345,0.5691417042,0.4672131148,0.4308582958",
+     "NON_LIFE,MOTOR_OD,lognormal,0.5491803279,249916.736,231905.7135,0.5726469641,0.4508196721,0.4273530359",
+     "NON_LIFE,MOTOR_OD,lognormal,0.5655737705,252641.4062,244327.3905,0.576029703,0.4344262295,0.423970297",
+     "NON_LIFE,MOTOR_OD,lognormal,0.5819672131,253946.3475,257507.2024,0.5776349726,0.4180327869,0.4223650274",
+     "NON_LIFE,MOTOR_OD,lognormal,0.5983606557,261319.3845,271522.5078,0.5865285509,0.4016393443,0.4134714491",
+     "NON_LIFE,MOTOR_OD,lognormal,0.6147540984,266303.69,286461.8545,0.592375797,0.3852459016,0.407624203",
+     "NON_LIFE,MOTOR_OD,lognormal,0.631147541,309913.9881,302427.1659,0.6384639221,0.368852459,0.3615360779",
+     "NON_LIFE,MOTOR_OD,lognormal,0.6475409836,312476.1389,319536.472,0.640916015,0.3524590164,0.359083985",
+     "NON_LIFE,MOTOR_OD,lognormal,0.6639344262,340186.6325,337927.3507,0.6658666222,0.3360655738,0.3341333778",
+     "NON_LIFE,MOTOR_OD,lognormal,0.6803278689,345858.8972,357761.3112,0.6706426542,0.3196721311,0.3293573458",
+     "NON_LIFE,MOTOR_OD,lognormal,0.6967213115,358378.4387,379229.4409,0.6808180067,0.3032786885,0.3191819933",
+     "NON_LIFE,MOTOR_OD,lognormal,0.7131147541,367704.8906,402559.7692,0.6880864247,0.2868852459,0.3119135753",
+     "NON_LIFE,MOTOR_OD,lognormal,0.7295081967,374692.6505,428027.0061,0.6933665058,0.2704918033,0.3066334942",
+     "NON_LIFE,MOTOR_OD,lognormal,0.7459016393,398155.3782,455965.6144,0.7101256953,0.2540983607,0.2898743047",
+     "NON_LIFE,MOTOR_OD,lognormal,0.762295082,415564.5901,486787.6621,0.7216702727,0.237704918,0.2783297273",
+     "NON_LIFE,MOTOR_OD,lognormal,0.7786885246,417671.656,521007.6685,0.7230196504,0.2213114754,0.2769803496",
+     "NON_LIFE,MOTOR_OD,lognormal,0.7950819672,452225.7039,559277.9438,0.7437962648,0.2049180328,0.2562037352",
+     "NON_LIFE,MOTOR_OD,lognormal,0.8114754098,457007.3373,602440.1072,0.7464833907,0.1885245902,0.2535166093",
+     "NON_LIFE,MOTOR_OD,lognormal,0.8278688525,502825.9916,651602.3675,0.7701991145,0.1721311475,0.2298008855",
+     "NON_LIFE,MOTOR_OD,lognormal,0.8442622951,540701.634,708259.3709,0.7873614383,0.1557377049,0.2126385617",
+     "NON_LIFE,MOTOR_OD,lognormal,0.8606557377,578014.8499,774485.5369,0.8024507169,0.1393442623,0.1975492831",
+     "NON_LIFE,MOTOR_OD,lognormal,0.8770491803,594636.8425,853262.108,0.8086604601,0.1229508197,0.1913395399",
+     "NON_LIFE,MOTOR_OD,lognormal,0.893442623,673301.0571,949063.6142,0.8344367383,0.106557377,0.1655632617",
+     "NON_LIFE,MOTOR_OD,lognormal,0.9098360656,782649.29,1068989.821,0.862498846,0.09016393443,0.137501154",
+     "NON_LIFE,MOTOR_OD,lognormal,0.9262295082,1013181.965,1225170.858,0.9026972371,0.0737704918,0.09730276291",
+     "NON_LIFE,MOTOR_OD,lognormal,0.9426229508,1160451.48,1440596.682,0.9200013749,0.05737704918,0.07999862513",
+     "NON_LIFE,MOTOR_OD,lognormal,0.9590163934,1248108.496,1766273.658,0.9282709639,0.04098360656,0.07172903608",
+     "NON_LIFE,MOTOR_OD,lognormal,0.9754098361,3419685.752,2351163.006,0.9882491141,0.02459016393,0.01175088587",
+     "NON_LIFE,MOTOR_OD,lognormal,0.9918032787,15580852.56,4051158.219,0.9997417655,0.008196721311,0.0002582344995",
+     "NON_LIFE,MOTOR_OD,gamma,0.008196721311,10559.32918,198.4118716,0.08061510841,0.9918032787,0.9193848916",
+     "NON_LIFE,MOTOR_OD,gamma,0.02459016393,16311.26829,1336.785786,0.1033515391,0.9754098361,0.8966484609",
+     "NON_LIFE,MOTOR_OD,gamma,0.04098360656,21188.8896,3248.366998,0.119953794,0.9590163934,0.880046206",
+     "NON_LIFE,MOTOR_OD,gamma,0.05737704918,26444.19795,5834.660545,0.1360285114,0.9426229508,0.8639714886",
+     "NON_LIFE,MOTOR_OD,gamma,0.0737704918,32117.69853,9043.543068,0.1518375626,0.9262295082,0.8481624374",
+     "NON_LIFE,MOTOR_OD,gamma,0.09016393443,34180.10809,12842.31131,0.1572644042,0.9098360656,0.8427355958",
+     "NON_LIFE,MOTOR_OD,gamma,0.106557377,40681.60487,17209.12625,0.1734560258,0.893442623,0.8265439742",
+     "NON_LIFE,MOTOR_OD,gamma,0.1229508197,44469.67351,22129.19939,0.1823383274,0.8770491803,0.8176616726",
+     "NON_LIFE,MOTOR_OD,gamma,0.1393442623,44604.86564,27592.78016,0.1826486651,0.8606557377,0.8173513349",
+     "NON_LIFE,MOTOR_OD,gamma,0.1557377049,45692.06842,33593.97978,0.1851285377,0.8442622951,0.8148714623",
+     "NON_LIFE,MOTOR_OD,gamma,0.1721311475,54765.37199,40130.03717,0.2048280214,0.8278688525,0.7951719786",
+     "NON_LIFE,MOTOR_OD,gamma,0.1885245902,67239.10209,47200.84178,0.229511864,0.8114754098,0.770488136",
+     "NON_LIFE,MOTOR_OD,gamma,0.2049180328,68126.33113,54808.617,0.2311789632,0.7950819672,0.7688210368",
+     "NON_LIFE,MOTOR_OD,gamma,0.2213114754,73000.29135,62957.71045,0.2401523481,0.7786885246,0.7598476519",
+     "NON_LIFE,MOTOR_OD,gamma,0.237704918,74375.84219,71654.45938,0.2426308089,0.762295082,0.7573691911",
+     "NON_LIFE,MOTOR_OD,gamma,0.2540983607,99415.95621,80907.11192,0.2842566074,0.7459016393,0.7157433926",
+     "NON_LIFE,MOTOR_OD,gamma,0.2704918033,117566.8164,90725.79179,0.311099824,0.7295081967,0.688900176",
+     "NON_LIFE,MOTOR_OD,gamma,0.2868852459,121556.8646,101122.499,0.3166966546,0.7131147541,0.6833033454",
+     "NON_LIFE,MOTOR_OD,gamma,0.3032786885,148031.9128,112111.1416,0.3515062615,0.6967213115,0.6484937385",
+     "NON_LIFE,MOTOR_OD,gamma,0.3196721311,148742.7782,123707.596,0.3523906156,0.6803278689,0.6476093844",
+     "NON_LIFE,MOTOR_OD,gamma,0.3360655738,149519.2099,135929.7948,0.3533537864,0.6639344262,0.6466462136",
+     "NON_LIFE,MOTOR_OD,gamma,0.3524590164,150817.1572,148797.8414,0.3549575393,0.6475409836,0.6450424607",
+     "NON_LIFE,MOTOR_OD,gamma,0.368852459,154278.7391,162334.1534,0.3591963801,0.631147541,0.6408036199",
+     "NON_LIFE,MOTOR_OD,gamma,0.3852459016,157579.9426,176563.6366,0.3631880931,0.6147540984,0.6368119069",
+     "NON_LIFE,MOTOR_OD,gamma,0.4016393443,164844.8751,191513.891,0.3718048415,0.5983606557,0.6281951585",
+     "NON_LIFE,MOTOR_OD,gamma,0.4180327869,178165.8111,207215.4557,0.3870418639,0.5819672131,0.6129581361",
+     "NON_LIFE,MOTOR_OD,gamma,0.4344262295,178927.6116,223702.0949,0.3878924115,0.5655737705,0.6121075885",
+     "NON_LIFE,MOTOR_OD,gamma,0.4508196721,185241.6567,241011.1324,0.3948595468,0.5491803279,0.6051404532",
+     "NON_LIFE,MOTOR_OD,gamma,0.4672131148,193345.8807,259183.8435,0.4035939044,0.5327868852,0.5964060956",
+     "NON_LIFE,MOTOR_OD,gamma,0.4836065574,194243.5929,278265.9127,0.4045475266,0.5163934426,0.5954524734",
+     "NON_LIFE,MOTOR_OD,gamma,0.5,211576.7731,298307.9697,0.4224477366,0.5,0.5775522634",
+     "NON_LIFE,MOTOR_OD,gamma,0.5163934426,245593.6177,319366.2206,0.4550294136,0.4836065574,0.5449705864",
+     "NON_LIFE,MOTOR_OD,gamma,0.5327868852,247128.834,341503.1901,0.4564280622,0.4672131148,0.5435719378",
+     "NON_LIFE,MOTOR_OD,gamma,0.5491803279,249916.736,364788.6022,0.4589531924,0.4508196721,0.5410468076",
+     "NON_LIFE,MOTOR_OD,gamma,0.5655737705,252641.4062,389300.4267,0.4614028698,0.4344262295,0.5385971302",
+     "NON_LIFE,MOTOR_OD,gamma,0.5819672131,253946.3475,415126.1317,0.4625698169,0.4180327869,0.5374301831",
+     "NON_LIFE,MOTOR_OD,gamma,0.5983606557,261319.3845,442364.19,0.4690881075,0.4016393443,0.5309118925",
+     "NON_LIFE,MOTOR_OD,gamma,0.6147540984,266303.69,471125.9041,0.4734239644,0.3852459016,0.5265760356",
+     "NON_LIFE,MOTOR_OD,gamma,0.631147541,309913.9881,501537.633,0.5091356458,0.368852459,0.4908643542",
+     "NON_LIFE,MOTOR_OD,gamma,0.6475409836,312476.1389,533743.5297,0.5111188302,0.3524590164,0.4888811698",
+     "NON_LIFE,MOTOR_OD,gamma,0.6639344262,340186.6325,567908.9372,0.5318346544,0.3360655738,0.4681653456",
+     "NON_LIFE,MOTOR_OD,gamma,0.6803278689,345858.8972,604224.641,0.5359174546,0.3196721311,0.4640825454",
+     "NON_LIFE,MOTOR_OD,gamma,0.6967213115,358378.4387,642912.2498,0.5447501648,0.3032786885,0.4552498352",
+     "NON_LIFE,MOTOR_OD,gamma,0.7131147541,367704.8906,684231.0828,0.5511756811,0.2868852459,0.4488243189",
+     "NON_LIFE,MOTOR_OD,gamma,0.7295081967,374692.6505,728487.0984,0.5559065298,0.2704918033,0.4440934702",
+     "NON_LIFE,MOTOR_OD,gamma,0.7459016393,398155.3782,776044.6348,0.5712924059,0.2540983607,0.4287075941",
+     "NON_LIFE,MOTOR_OD,gamma,0.762295082,415564.5901,827342.0934,0.5822381852,0.237704918,0.4177618148",
+     "NON_LIFE,MOTOR_OD,gamma,0.7786885246,417671.656,882913.2674,0.5835370571,0.2213114754,0.4164629429",
+     "NON_LIFE,MOTOR_OD,gamma,0.7950819672,452225.7039,943416.9395,0.6040836197,0.2049180328,0.3959163803",
+     "NON_LIFE,MOTOR_OD,gamma,0.8114754098,457007.3373,1009678.912,0.6068196473,0.1885245902,0.3931803527",
+     "NON_LIFE,MOTOR_OD,gamma,0.8278688525,502825.9916,1082753.308,0.6318218895,0.1721311475,0.3681781105",
+     "NON_LIFE,MOTOR_OD,gamma,0.8442622951,540701.634,1164014.809,0.6509601079,0.1557377049,0.3490398921",
+     "NON_LIFE,MOTOR_OD,gamma,0.8606557377,578014.8499,1255302.647,0.6685992671,0.1393442623,0.3314007329",
+     "NON_LIFE,MOTOR_OD,gamma,0.8770491803,594636.8425,1359155.599,0.6760980021,0.1229508197,0.3239019979",
+     "NON_LIFE,MOTOR_OD,gamma,0.893442623,673301.0571,1479217.003,0.7088845346,0.106557377,0.2911154654",
+     "NON_LIFE,MOTOR_OD,gamma,0.9098360656,782649.29,1620982.448,0.7480846855,0.09016393443,0.2519153145",
+     "NON_LIFE,MOTOR_OD,gamma,0.9262295082,1013181.965,1793309.598,0.8123000295,0.0737704918,0.1876999705",
+     "NON_LIFE,MOTOR_OD,gamma,0.9426229508,1160451.48,2011864.755,0.8435807745,0.05737704918,0.1564192255",
+     "NON_LIFE,MOTOR_OD,gamma,0.9590163934,1248108.496,2308543.942,0.8594349963,0.04098360656,0.1405650037",
+     "NON_LIFE,MOTOR_OD,gamma,0.9754098361,3419685.752,2766235.4,0.9879889258,0.02459016393,0.01201107422",
+     "NON_LIFE,MOTOR_OD,gamma,0.9918032787,15580852.56,3772455.68,0.9999999581,0.008196721311,4.18914119e-8",
+     "NON_LIFE,MOTOR_OD,weibull,0.008196721311,10559.32918,325.1848802,0.08387862762,0.9918032787,0.9161213724",
+     "NON_LIFE,MOTOR_OD,weibull,0.02459016393,16311.26829,1657.977262,0.1110587857,0.9754098361,0.8889412143",
+     "NON_LIFE,MOTOR_OD,weibull,0.04098360656,21188.8896,3559.916686,0.131188131,0.9590163934,0.868811869",
+     "NON_LIFE,MOTOR_OD,weibull,0.05737704918,26444.19795,5914.892258,0.1508148745,0.9426229508,0.8491851255",
+     "NON_LIFE,MOTOR_OD,weibull,0.0737704918,32117.69853,8671.775487,0.1701921533,0.9262295082,0.8298078467",
+     "NON_LIFE,MOTOR_OD,weibull,0.09016393443,34180.10809,11802.78038,0.176852833,0.9098360656,0.823147167",
+     "NON_LIFE,MOTOR_OD,weibull,0.106557377,40681.60487,15291.8725,0.1967321612,0.893442623,0.8032678388",
+     "NON_LIFE,MOTOR_OD,weibull,0.1229508197,44469.67351,19130.03889,0.2076321979,0.8770491803,0.7923678021",
+     "NON_LIFE,MOTOR_OD,weibull,0.1393442623,44604.86564,23312.96195,0.2080128754,0.8606557377,0.7919871246",
+     "NON_LIFE,MOTOR_OD,weibull,0.1557377049,45692.06842,27839.73993,0.2110543495,0.8442622951,0.7889456505",
+     "NON_LIFE,MOTOR_OD,weibull,0.1721311475,54765.37199,32712.13116,0.2351746992,0.8278688525,0.7648253008",
+     "NON_LIFE,MOTOR_OD,weibull,0.1885245902,67239.10209,37934.08785,0.2652491428,0.8114754098,0.7347508572",
+     "NON_LIFE,MOTOR_OD,weibull,0.2049180328,68126.33113,43511.46335,0.2672726953,0.7950819672,0.7327273047",
+     "NON_LIFE,MOTOR_OD,weibull,0.2213114754,73000.29135,49451.8301,0.2781458009,0.7786885246,0.7218541991",
+     "NON_LIFE,MOTOR_OD,weibull,0.237704918,74375.84219,55764.37297,0.2811430993,0.762295082,0.7188569007",
+     "NON_LIFE,MOTOR_OD,weibull,0.2540983607,99415.95621,62459.83676,0.3310484307,0.7459016393,0.6689515693",
+     "NON_LIFE,MOTOR_OD,weibull,0.2704918033,117566.8164,69550.51509,0.3627351735,0.7295081967,0.6372648265",
+     "NON_LIFE,MOTOR_OD,weibull,0.2868852459,121556.8646,77050.27299,0.3692876693,0.7131147541,0.6307123307",
+     "NON_LIFE,MOTOR_OD,weibull,0.3032786885,148031.9128,84974.59848,0.4095924209,0.6967213115,0.5904075791",
+     "NON_LIFE,MOTOR_OD,weibull,0.3196721311,148742.7782,93340.68069,0.4106059757,0.6803278689,0.5893940243",
+     "NON_LIFE,MOTOR_OD,weibull,0.3360655738,149519.2099,102167.5138,0.4117092601,0.6639344262,0.5882907399",
+     "NON_LIFE,MOTOR_OD,weibull,0.3524590164,150817.1572,111476.0267,0.4135449174,0.6475409836,0.5864550826",
+     "NON_LIFE,MOTOR_OD,weibull,0.368852459,154278.7391,121289.2404,0.4183882675,0.631147541,0.5816117325",
+     "NON_LIFE,MOTOR_OD,weibull,0.3852459016,157579.9426,131632.455,0.422937995,0.6147540984,0.577062005",
+     "NON_LIFE,MOTOR_OD,weibull,0.4016393443,164844.8751,142533.4692,0.4327217377,0.5983606557,0.5672782623",
+     "NON_LIFE,MOTOR_OD,weibull,0.4180327869,178165.8111,154022.8377,0.4498948197,0.5819672131,0.5501051803",
+     "NON_LIFE,MOTOR_OD,weibull,0.4344262295,178927.6116,166134.1714,0.4508485808,0.5655737705,0.5491514192",
+     "NON_LIFE,MOTOR_OD,weibull,0.4508196721,185241.6567,178904.4865,0.4586416302,0.5491803279,0.5413583698",
+     "NON_LIFE,MOTOR_OD,weibull,0.4672131148,193345.8807,192374.6132,0.4683618509,0.5327868852,0.5316381491",
+     "NON_LIFE,MOTOR_OD,weibull,0.4836065574,194243.5929,206589.6725,0.4694197507,0.5163934426,0.5305802493",
+     "NON_LIFE,MOTOR_OD,weibull,0.5,211576.7731,221599.635,0.4891533956,0.5,0.5108466044",
+     "NON_LIFE,MOTOR_OD,weibull,0.5163934426,245593.6177,237459.9793,0.524458692,0.4836065574,0.475541308",
+     "NON_LIFE,MOTOR_OD,weibull,0.5327868852,247128.834,254232.4688,0.5259562856,0.4672131148,0.4740437144",
+     "NON_LIFE,MOTOR_OD,weibull,0.5491803279,249916.736,271986.0744,0.528656274,0.4508196721,0.471343726",
+     "NON_LIFE,MOTOR_OD,weibull,0.5655737705,252641.4062,290798.0745,0.531270932,0.4344262295,0.468729068",
+     "NON_LIFE,MOTOR_OD,weibull,0.5819672131,253946.3475,310755.3763,0.5325148574,0.4180327869,0.4674851426",
+     "NON_LIFE,MOTOR_OD,weibull,0.5983606557,261319.3845,331956.1099,0.5394439449,0.4016393443,0.4605560551",
+     "NON_LIFE,MOTOR_OD,weibull,0.6147540984,266303.69,354511.5681,0.5440349937,0.3852459016,0.4559650063",
+     "NON_LIFE,MOTOR_OD,weibull,0.631147541,309913.9881,378548.5813,0.5812955582,0.368852459,0.4187044418",
+     "NON_LIFE,MOTOR_OD,weibull,0.6475409836,312476.1389,404212.452,0.5833356887,0.3524590164,0.4166643113",
+     "NON_LIFE,MOTOR_OD,weibull,0.6639344262,340186.6325,431670.611,0.604462347,0.3360655738,0.395537653",
+     "NON_LIFE,MOTOR_OD,weibull,0.6803278689,345858.8972,461117.2175,0.6085864065,0.3196721311,0.3914135935",
+     "NON_LIFE,MOTOR_OD,weibull,0.6967213115,358378.4387,492779.0108,0.6174635239,0.3032786885,0.3825364761",
+     "NON_LIFE,MOTOR_OD,weibull,0.7131147541,367704.8906,526922.8396,0.6238827527,0.2868852459,0.3761172473",
+     "NON_LIFE,MOTOR_OD,weibull,0.7295081967,374692.6505,563865.4779,0.6285881747,0.2704918033,0.3714118253",
+     "NON_LIFE,MOTOR_OD,weibull,0.7459016393,398155.3782,603986.6073,0.643769255,0.2540983607,0.356230745",
+     "NON_LIFE,MOTOR_OD,weibull,0.762295082,415564.5901,647746.2676,0.6544555216,0.237704918,0.3455444784",
+     "NON_LIFE,MOTOR_OD,weibull,0.7786885246,417671.656,695708.7405,0.6557173138,0.2213114754,0.3442826862",
+     "NON_LIFE,MOTOR_OD,weibull,0.7950819672,452225.7039,748575.9187,0.6754998791,0.2049180328,0.3245001209",
+     "NON_LIFE,MOTOR_OD,weibull,0.8114754098,457007.3373,807235.0353,0.678108985,0.1885245902,0.321891015",
+     "NON_LIFE,MOTOR_OD,weibull,0.8278688525,502825.9916,872828.8089,0.7016772834,0.1721311475,0.2983227166",
+     "NON_LIFE,MOTOR_OD,weibull,0.8442622951,540701.634,946861.848,0.7193842984,0.1557377049,0.2806157016",
+     "NON_LIFE,MOTOR_OD,weibull,0.8606557377,578014.8499,1031368.222,0.7354487247,0.1393442623,0.2645512753",
+     "NON_LIFE,MOTOR_OD,weibull,0.8770491803,594636.8425,1129187.533,0.7422038867,0.1229508197,0.2577961133",
+     "NON_LIFE,MOTOR_OD,weibull,0.893442623,673301.0571,1244445.669,0.771221839,0.106557377,0.228778161",
+     "NON_LIFE,MOTOR_OD,weibull,0.9098360656,782649.29,1383452.536,0.804818202,0.09016393443,0.195181798",
+     "NON_LIFE,MOTOR_OD,weibull,0.9262295082,1013181.965,1556538.408,0.8573164223,0.0737704918,0.1426835777",
+     "NON_LIFE,MOTOR_OD,weibull,0.9426229508,1160451.48,1782309.015,0.881782829,0.05737704918,0.118217171",
+     "NON_LIFE,MOTOR_OD,weibull,0.9590163934,1248108.496,2099488.472,0.8939185306,0.04098360656,0.1060814694",
+     "NON_LIFE,MOTOR_OD,weibull,0.9754098361,3419685.752,2611665.256,0.9883247229,0.02459016393,0.01167527709",
+     "NON_LIFE,MOTOR_OD,weibull,0.9918032787,15580852.56,3827095.336,0.9999961666,0.008196721311,3.833401541e-6",
+     "NON_LIFE,MOTOR_OD,pareto,0.008196721311,10559.32918,1980.430701,0.04258490132,0.9918032787,0.9574150987",
+     "NON_LIFE,MOTOR_OD,pareto,0.02459016393,16311.26829,6014.563855,0.06466656682,0.9754098361,0.9353334332",
+     "NON_LIFE,MOTOR_OD,pareto,0.04098360656,21188.8896,10149.82021,0.0828089739,0.9590163934,0.9171910261",
+     "NON_LIFE,MOTOR_OD,pareto,0.05737704918,26444.19795,14390.52926,0.1017819258,0.9426229508,0.8982180742",
+     "NON_LIFE,MOTOR_OD,pareto,0.0737704918,32117.69853,18741.28538,0.1216226913,0.9262295082,0.8783773087",
+     "NON_LIFE,MOTOR_OD,pareto,0.09016393443,34180.10809,23206.96912,0.1286753553,0.9098360656,0.8713246447",
+     "NON_LIFE,MOTOR_OD,pareto,0.106557377,40681.60487,27792.77058,0.1503701933,0.893442623,0.8496298067",
+     "NON_LIFE,MOTOR_OD,pareto,0.1229508197,44469.67351,32504.21511,0.1626455839,0.8770491803,0.8373544161",
+     "NON_LIFE,MOTOR_OD,pareto,0.1393442623,44604.86564,37347.1918,0.1630788408,0.8606557377,0.8369211592",
+     "NON_LIFE,MOTOR_OD,pareto,0.1557377049,45692.06842,42327.98486,0.1665510792,0.8442622951,0.8334489208",
+     "NON_LIFE,MOTOR_OD,pareto,0.1721311475,54765.37199,47453.3085,0.1947189594,0.8278688525,0.8052810406",
+     "NON_LIFE,MOTOR_OD,pareto,0.1885245902,67239.10209,52730.34552,0.231208612,0.8114754098,0.768791388",
+     "NON_LIFE,MOTOR_OD,pareto,0.2049180328,68126.33113,58166.79034,0.23371071,0.7950819672,0.76628929",
+     "NON_LIFE,MOTOR_OD,pareto,0.2213114754,73000.29135,63770.89688,0.2472442911,0.7786885246,0.7527557089",
+     "NON_LIFE,MOTOR_OD,pareto,0.237704918,74375.84219,69551.53212,0.2510001041,0.762295082,0.7489998959",
+     "NON_LIFE,MOTOR_OD,pareto,0.2540983607,99415.95621,75518.23603,0.3148108599,0.7459016393,0.6851891401",
+     "NON_LIFE,MOTOR_OD,pareto,0.2704918033,117566.8164,81681.28878,0.3561819564,0.7295081967,0.6438180436",
+     "NON_LIFE,MOTOR_OD,pareto,0.2868852459,121556.8646,88051.78643,0.364782079,0.7131147541,0.635217921",
+     "NON_LIFE,MOTOR_OD,pareto,0.3032786885,148031.9128,94641.72631,0.4177847707,0.6967213115,0.5822152293",
+     "NON_LIFE,MOTOR_OD,pareto,0.3196721311,148742.7782,101464.1035,0.4191168843,0.6803278689,0.5808831157",
+     "NON_LIFE,MOTOR_OD,pareto,0.3360655738,149519.2099,108533.0204,0.4205667414,0.6639344262,0.5794332586",
+     "NON_LIFE,MOTOR_OD,pareto,0.3524590164,150817.1572,115863.8112,0.4229785657,0.6475409836,0.5770214343",
+     "NON_LIFE,MOTOR_OD,pareto,0.368852459,154278.7391,123473.1843,0.4293389789,0.631147541,0.5706610211",
+     "NON_LIFE,MOTOR_OD,pareto,0.3852459016,157579.9426,131379.3845,0.4353089717,0.6147540984,0.5646910283",
+     "NON_LIFE,MOTOR_OD,pareto,0.4016393443,164844.8751,139602.381,0.4481272874,0.5983606557,0.5518727126",
+     "NON_LIFE,MOTOR_OD,pareto,0.4180327869,178165.8111,148164.0819,0.4705425634,0.5819672131,0.5294574366",
+     "NON_LIFE,MOTOR_OD,pareto,0.4344262295,178927.6116,157088.5846,0.4717836821,0.5655737705,0.5282163179",
+     "NON_LIFE,MOTOR_OD,pareto,0.4508196721,185241.6567,166402.4656,0.4819075034,0.5491803279,0.5180924966",
+     "NON_LIFE,MOTOR_OD,pareto,0.4672131148,193345.8807,176135.1191,0.4944880353,0.5327868852,0.5055119647",
+     "NON_LIFE,MOTOR_OD,pareto,0.4836065574,194243.5929,186319.1535,0.4958538392,0.5163934426,0.5041461608",
+     "NON_LIFE,MOTOR_OD,pareto,0.5,211576.7731,196990.8596,0.5211938308,0.5,0.4788061692",
+     "NON_LIFE,MOTOR_OD,pareto,0.5163934426,245593.6177,208190.7633,0.5657571073,0.4836065574,0.4342428927",
+     "NON_LIFE,MOTOR_OD,pareto,0.5327868852,247128.834,219964.2851,0.5676221777,0.4672131148,0.4323778223",
+     "NON_LIFE,MOTOR_OD,pareto,0.5491803279,249916.736,232362.5284,0.5709790443,0.4508196721,0.4290209557",
+     "NON_LIFE,MOTOR_OD,pareto,0.5655737705,252641.4062,245443.2299,0.5742228138,0.4344262295,0.4257771862",
+     "NON_LIFE,MOTOR_OD,pareto,0.5819672131,253946.3475,259271.9112,0.5757635892,0.4180327869,0.4242364108",
+     "NON_LIFE,MOTOR_OD,pareto,0.5983606557,261319.3845,273923.2861,0.5843167431,0.4016393443,0.4156832569",
+     "NON_LIFE,MOTOR_OD,pareto,0.6147540984,266303.69,289482.991,0.5899556919,0.3852459016,0.4100443081",
+     "NON_LIFE,MOTOR_OD,pareto,0.631147541,309913.9881,306049.7322,0.634823422,0.368852459,0.365176578",
+     "NON_LIFE,MOTOR_OD,pareto,0.6475409836,312476.1389,323737.9736,0.637230999,0.3524590164,0.362769001",
+     "NON_LIFE,MOTOR_OD,pareto,0.6639344262,340186.6325,342681.3325,0.6618405407,0.3360655738,0.3381594593",
+     "NON_LIFE,MOTOR_OD,pareto,0.6803278689,345858.8972,363036.9175,0.6665739196,0.3196721311,0.3334260804",
+     "NON_LIFE,MOTOR_OD,pareto,0.6967213115,358378.4387,384990.9314,0.6766817658,0.3032786885,0.3233182342",
+     "NON_LIFE,MOTOR_OD,pareto,0.7131147541,367704.8906,408766.0026,0.6839209759,0.2868852459,0.3160790241",
+     "NON_LIFE,MOTOR_OD,pareto,0.7295081967,374692.6505,434630.9118,0.6891895139,0.2704918033,0.3108104861",
+     "NON_LIFE,MOTOR_OD,pareto,0.7459016393,398155.3782,462913.699,0.7059639468,0.2540983607,0.2940360532",
+     "NON_LIFE,MOTOR_OD,pareto,0.762295082,415564.5901,494019.6351,0.7175626548,0.237704918,0.2824373452",
+     "NON_LIFE,MOTOR_OD,pareto,0.7786885246,417671.656,528456.3485,0.7189205681,0.2213114754,0.2810794319",
+     "NON_LIFE,MOTOR_OD,pareto,0.7950819672,452225.7039,566869.7417,0.7398831526,0.2049180328,0.2601168474",
+     "NON_LIFE,MOTOR_OD,pareto,0.8114754098,457007.3373,610096.6467,0.7426013982,0.1885245902,0.2573986018",
+     "NON_LIFE,MOTOR_OD,pareto,0.8278688525,502825.9916,659244.3067,0.7666533631,0.1721311475,0.2333466369",
+     "NON_LIFE,MOTOR_OD,pareto,0.8442622951,540701.634,715814.5191,0.7841179424,0.1557377049,0.2158820576",
+     "NON_LIFE,MOTOR_OD,pareto,0.8606557377,578014.8499,781905.5298,0.799503793,0.1393442623,0.200496207",
+     "NON_LIFE,MOTOR_OD,pareto,0.8770491803,594636.8425,860556.7682,0.8058418533,0.1229508197,0.1941581467",
+     "NON_LIFE,MOTOR_OD,pareto,0.893442623,673301.0571,956373.8157,0.8321716456,0.106557377,0.1678283544",
+     "NON_LIFE,MOTOR_OD,pareto,0.9098360656,782649.29,1076750.443,0.8608254922,0.09016393443,0.1391745078",
+     "NON_LIFE,MOTOR_OD,pareto,0.9262295082,1013181.965,1234506.547,0.9016826319,0.0737704918,0.09831736811",
+     "NON_LIFE,MOTOR_OD,pareto,0.9426229508,1160451.48,1454410.652,0.9191340551,0.05737704918,0.08086594492",
+     "NON_LIFE,MOTOR_OD,pareto,0.9590163934,1248108.496,1792893.165,0.9274325465,0.04098360656,0.07256745346",
+     "NON_LIFE,MOTOR_OD,pareto,0.9754098361,3419685.752,2421644.409,0.986770389,0.02459016393,0.01322961097",
+     "NON_LIFE,MOTOR_OD,pareto,0.9918032787,15580852.56,4417672.891,0.9993289731,0.008196721311,0.0006710269341"
+    ]
+   },
+   {
+    "name": "severity_trend.csv",
+    "sha256": "43a93a713e7c541ca1340ebef256bf10a65dda6e7fd4c2461f59d37eb9d6527e",
+    "size": "243"
+   },
+   {
+    "name": "severity_trend_summary.csv",
+    "sha256": "e9d0a2981c8e2467cbf0ccd8c118d4546d4381ee3881c3f1b74bb0324cb5eef4",
+    "size": "116"
+   },
+   {
+    "name": "severity_groups.csv",
+    "sha256": "b6ad20ab5303f48a95a19aa85261e4b3c22efc39e7f67e7b789debcee33bef4d",
+    "size": "317"
+   },
+   {
+    "name": "extreme_thresholds.csv",
+    "sha256": "3c9cf188ae7828385b9f4367c1b38c6d48a411222a95083370d796953b315e93",
+    "size": "507"
+   },
+   {
+    "name": "extreme_candidates.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
+   },
+   {
+    "name": "extreme_gpd_fit.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
+   },
+   {
+    "name": "extreme_tail_quantiles.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
+   },
+   {
+    "name": "extreme_return_levels.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
+   },
+   {
+    "name": "extreme_threshold_comparison.csv",
+    "sha256": "f8163303121618ffe1f820e850f007f7aca3a127511f7521b91ab269edfefdf9",
+    "size": "504"
+   },
+   {
+    "name": "extreme_mean_excess.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
+   },
+   {
+    "name": "extreme_excess_plot.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
+   },
+   {
+    "name": "extreme_yearly.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
+   },
+   {
+    "name": "extreme_yearly_summary.csv",
+    "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
+    "size": "13"
    }
   ],
   "randomness": [
    {
     "method": "MT09",
     "seed": "1"
+   },
+   {
+    "method": "MT22",
+    "seed": "1"
+   },
+   {
+    "method": "MT17",
+    "seed": "1"
    }
   ],
-  "run_id": "d9c8c15caee71270",
+  "run_id": "384dff36d777725f",
   "settings": [
    {
     "name": "bases.currency",
@@ -3760,6 +4593,14 @@
    {
     "name": "language",
     "value": "en"
+   },
+   {
+    "name": "large_loss.percentile",
+    "value": "0.99"
+   },
+   {
+    "name": "large_loss.source",
+    "value": "default"
    },
    {
     "name": "lineage_format",
@@ -3820,6 +4661,186 @@
    {
     "name": "reporting_currency",
     "value": "TRY"
+   },
+   {
+    "name": "severity.MT17.candidates",
+    "value": "lognormal, gamma, weibull, pareto"
+   },
+   {
+    "name": "severity.MT17.claims_used",
+    "value": "closed"
+   },
+   {
+    "name": "severity.MT17.exclude_catastrophes",
+    "value": "True"
+   },
+   {
+    "name": "severity.MT17.gof_bootstrap",
+    "value": "200"
+   },
+   {
+    "name": "severity.MT17.gof_max_claims",
+    "value": "2000"
+   },
+   {
+    "name": "severity.MT17.min_claims",
+    "value": "50"
+   },
+   {
+    "name": "severity.MT17.significance",
+    "value": "0.05"
+   },
+   {
+    "name": "severity.MT17.truncation_point",
+    "value": "0.0"
+   },
+   {
+    "name": "severity.MT18.candidate_quantiles",
+    "value": "0.8, 0.825, 0.85, 0.875, 0.9, 0.925, 0.95, 0.96, 0.97, 0.975, 0.98, 0.99"
+   },
+   {
+    "name": "severity.MT18.claims_used",
+    "value": "all_non_nil"
+   },
+   {
+    "name": "severity.MT18.fdr_level",
+    "value": "0.1"
+   },
+   {
+    "name": "severity.MT18.gof_bootstrap",
+    "value": "200"
+   },
+   {
+    "name": "severity.MT18.min_exceedances",
+    "value": "50"
+   },
+   {
+    "name": "severity.MT18.return_periods",
+    "value": "10, 50, 100, 200"
+   },
+   {
+    "name": "severity.seed",
+    "value": "1"
+   },
+   {
+    "name": "tier_b.methods.MT11.centre_residuals",
+    "value": "True"
+   },
+   {
+    "name": "tier_b.methods.MT11.n_simulations",
+    "value": "10000"
+   },
+   {
+    "name": "tier_b.methods.MT11.process_distribution",
+    "value": "gamma"
+   },
+   {
+    "name": "tier_b.methods.MT11.scale",
+    "value": "constant"
+   },
+   {
+    "name": "tier_b.methods.MT11.tail_factor",
+    "value": "1.0"
+   },
+   {
+    "name": "tier_b.methods.MT12.min_origins",
+    "value": "5"
+   },
+   {
+    "name": "tier_b.methods.MT12.sigma_extrapolation",
+    "value": "mack"
+   },
+   {
+    "name": "tier_b.methods.MT13.blend",
+    "value": "benktander"
+   },
+   {
+    "name": "tier_b.methods.MT13.iterations",
+    "value": "1"
+   },
+   {
+    "name": "tier_b.methods.MT13.measure",
+    "value": "incurred"
+   },
+   {
+    "name": "tier_b.methods.MT13.prior",
+    "value": "MT03"
+   },
+   {
+    "name": "tier_b.methods.MT14.curve",
+    "value": "exponential_decay"
+   },
+   {
+    "name": "tier_b.methods.MT14.extension_periods",
+    "value": "100"
+   },
+   {
+    "name": "tier_b.methods.MT14.fit_from_age",
+    "value": ""
+   },
+   {
+    "name": "tier_b.methods.MT14.min_points",
+    "value": "3"
+   },
+   {
+    "name": "tier_b.methods.MT14.remainder_warning",
+    "value": "0.005"
+   },
+   {
+    "name": "tier_b.methods.MT15.claim_counts",
+    "value": "ultimate"
+   },
+   {
+    "name": "tier_b.methods.MT15.future_index",
+    "value": "trend"
+   },
+   {
+    "name": "tier_b.methods.MT15.future_rate",
+    "value": ""
+   },
+   {
+    "name": "tier_b.methods.MT15.trend_periods",
+    "value": "5"
+   },
+   {
+    "name": "tier_b.methods.MT16.maturity_for_trend",
+    "value": "0.9"
+   },
+   {
+    "name": "tier_b.methods.MT16.min_trend_origins",
+    "value": "3"
+   },
+   {
+    "name": "tier_b.methods.MT16.separate_catastrophes",
+    "value": "True"
+   },
+   {
+    "name": "tier_b.methods.MT16.severity_measure",
+    "value": "incurred"
+   },
+   {
+    "name": "tier_b.methods.MT16.value_basis",
+    "value": "INFLATION_ADJUSTED"
+   },
+   {
+    "name": "tier_b.methods.MT22.backtest_simulations",
+    "value": "1000"
+   },
+   {
+    "name": "tier_b.methods.MT22.horizons_months",
+    "value": "12,24,36"
+   },
+   {
+    "name": "tier_b.methods.MT22.mature_at",
+    "value": "0.95"
+   },
+   {
+    "name": "tier_b.methods.MT22.past_selections",
+    "value": "rerun"
+   },
+   {
+    "name": "tier_b.seed",
+    "value": "1"
    },
    {
     "name": "triangles.cut_off",
@@ -3914,7 +4935,7 @@
    {
     "id": "CV06",
     "title": "Precision and rounding",
-    "version": "1.0.0"
+    "version": "1.1.0"
    },
    {
     "id": "CV07",
@@ -4167,6 +5188,31 @@
     "version": "1.0.0"
    },
    {
+    "id": "MT13",
+    "title": "Benktander blends",
+    "version": "1.0.0"
+   },
+   {
+    "id": "MT14",
+    "title": "Tail factor fitting",
+    "version": "1.0.0"
+   },
+   {
+    "id": "MT15",
+    "title": "Separation method",
+    "version": "1.0.0"
+   },
+   {
+    "id": "MT16",
+    "title": "Frequency–severity projection",
+    "version": "1.0.0"
+   },
+   {
+    "id": "MT22",
+    "title": "Back-testing of past selections",
+    "version": "1.0.0"
+   },
+   {
     "id": "MT08",
     "title": "Robust z-score anomaly flags",
     "version": "1.2.0"
@@ -4175,6 +5221,16 @@
     "id": "MT09",
     "title": "Isolation forest anomaly flags",
     "version": "1.1.0"
+   },
+   {
+    "id": "MT17",
+    "title": "Severity distribution fitting with goodness of fit",
+    "version": "1.0.0"
+   },
+   {
+    "id": "AE02",
+    "title": "Back-test error of a projection",
+    "version": "1.0.0"
    },
    {
     "id": "RP01",
@@ -4192,7 +5248,7 @@
    "heatmaps": "Cumulative cells by origin and development age, GROSS, NOMINAL, TRY; paid on its own one-hue ramp, incurred on another; the further a cell stands from the page colour, the larger it is (MT01 v1.0.0, CV04 v1.0.0).",
    "methods": "Ultimate per origin by method on the incurred triangle (MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0), and the selected ultimate (diamond, MT10 v1.0.0). The spread between methods shows how much the answer depends on the method; it is not a confidence interval.",
    "range": "Selected reserve (diamond) with the 25th to 75th percentile (dark bar) and the 5th to 95th percentile (light bar); the Mack coefficient of variation applied to the selected reserve, lognormal approximation (MT06 v1.1.0, RS03 v1.0.0). The upper percentiles are in the table.",
-   "summary": "TRY, GROSS, NOMINAL, TRY. Chain ladder MT02 v1.0.0 on paid and incurred triangles MT01 v1.0.0; selected ultimate MT10 v1.0.0; IBNR = ultimate − incurred at the valuation date RS02 v1.0.0. Rounded per CV06 v1.0.0; totals from unrounded values. Rows of ultimates.csv and lineage.csv (RS02)."
+   "summary": "TRY, GROSS, NOMINAL, TRY. Chain ladder MT02 v1.0.0 on paid and incurred triangles MT01 v1.0.0; selected ultimate MT10 v1.0.0; IBNR = ultimate − incurred at the valuation date RS02 v1.0.0. Rounded per CV06 v1.1.0; totals from unrounded values. Rows of ultimates.csv and lineage.csv (RS02)."
   },
   "lines": [
    {
@@ -4251,7 +5307,7 @@
        "code": "thin evidence",
        "measure": "all",
        "message": "only 4 origin periods: thin evidence; factors, ratios and ranges rest on few observations (fewer than 8)",
-       "method": "MT02, MT03, MT04, MT05, MT07, MT10",
+       "method": "MT02, MT03, MT04, MT05, MT07, MT10, MT13, MT15, MT16, MT22",
        "target": ""
       },
       {
@@ -4695,7 +5751,7 @@
        "code": "thin evidence",
        "measure": "all",
        "message": "only 4 origin periods: thin evidence; factors, ratios and ranges rest on few observations (fewer than 8)",
-       "method": "MT02, MT03, MT04, MT05, MT07, MT10",
+       "method": "MT02, MT03, MT04, MT05, MT07, MT10, MT13, MT15, MT16, MT22",
        "target": ""
       },
       {
@@ -4731,6 +5787,13 @@
        "measure": "paid",
        "message": "paid ultimate of origin 2025 (4,163,859.11) is below the incurred to date (6,426,297.14): IBNR -2,262,438.03",
        "method": "MT02",
+       "target": "2025"
+      },
+      {
+       "code": "weight capped",
+       "measure": "incurred",
+       "message": "origin 2025: cumulative development factor 0.9874 is below 1 (reported share above 1); the weight on the chain ladder is capped at 1",
+       "method": "MT13",
        "target": "2025"
       }
      ],
@@ -5001,7 +6064,7 @@
     "segment": "NON_LIFE",
     "summary": {
      "anchor": "line-1",
-     "diagnostics": 6,
+     "diagnostics": 7,
      "ibnr_selected": "-81,214",
      "incurred": "18,575,490",
      "line": "NON_LIFE · MOTOR_OD",
@@ -5182,7 +6245,7 @@
        "code": "thin evidence",
        "measure": "all",
        "message": "only 4 origin periods: thin evidence; factors, ratios and ranges rest on few observations (fewer than 8)",
-       "method": "MT02, MT03, MT04, MT05, MT07, MT10",
+       "method": "MT02, MT03, MT04, MT05, MT07, MT10, MT13, MT14, MT15, MT16, MT22",
        "target": ""
       },
       {
@@ -5247,6 +6310,20 @@
        "message": "paid ultimate of origin 2025 (1,448,649.37) is below the incurred to date (3,511,628.47): IBNR -2,062,979.10",
        "method": "MT02",
        "target": "2025"
+      },
+      {
+       "code": "weight capped",
+       "measure": "incurred",
+       "message": "origin 2023: cumulative development factor 0.9507 is below 1 (reported share above 1); the weight on the chain ladder is capped at 1",
+       "method": "MT13",
+       "target": "2023"
+      },
+      {
+       "code": "curve not used",
+       "measure": "paid",
+       "message": "inverse power slope b = 0.4247 is not above 1, so the product diverges",
+       "method": "MT14",
+       "target": ""
       }
      ],
      "inflation": {
@@ -5516,7 +6593,7 @@
     "segment": "NON_LIFE",
     "summary": {
      "anchor": "line-2",
-     "diagnostics": 10,
+     "diagnostics": 12,
      "ibnr_selected": "1,990,063",
      "incurred": "20,418,156",
      "line": "NON_LIFE · MOTOR_TPL",
@@ -5661,7 +6738,7 @@
        "code": "thin evidence",
        "measure": "all",
        "message": "only 4 origin periods: thin evidence; factors, ratios and ranges rest on few observations (fewer than 8)",
-       "method": "MT02, MT03, MT04, MT05, MT07, MT10",
+       "method": "MT02, MT03, MT04, MT05, MT07, MT10, MT13, MT16, MT22",
        "target": ""
       },
       {
@@ -6044,7 +7121,11 @@
   "module": "M04",
   "question": "What will claims finally cost, and how sure are we?",
   "reasons": [
-   "MT06 Mack standard error did not run for 8 of 8 triangles: too few link ratios to estimate variance"
+   "MT06 Mack standard error did not run for 8 of 8 triangles: too few link ratios to estimate variance",
+   "MT11 bootstrap did not run for 4 of 4 groups: the bootstrap needs a chain ladder on at least 5 origin periods",
+   "MT12 Munich chain ladder did not run for 4 of 4 groups: Munich chain ladder needs at least 5 origin periods",
+   "MT14 tail factor fitting did not run for 7 of 8 triangles: too few factors above 1 to fit a tail",
+   "MT15 separation did not run for 1 of 4 groups: separation needs claim counts per origin"
   ],
   "selection_measure": "incurred",
   "spec": "M04 v1.0.0",
@@ -6063,7 +7144,7 @@
    },
    {
     "anchor": "line-1",
-    "diagnostics": 6,
+    "diagnostics": 7,
     "ibnr_selected": "-81,214",
     "incurred": "18,575,490",
     "line": "NON_LIFE · MOTOR_OD",
@@ -6074,7 +7155,7 @@
    },
    {
     "anchor": "line-2",
-    "diagnostics": 10,
+    "diagnostics": 12,
     "ibnr_selected": "1,990,063",
     "incurred": "20,418,156",
     "line": "NON_LIFE · MOTOR_TPL",

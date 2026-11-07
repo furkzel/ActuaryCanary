@@ -3,7 +3,7 @@ version: 1.0.0
 title_en: Severity distribution fitting with goodness of fit
 title_tr: Hasar şiddeti dağılımı uydurma ve uyum iyiliği
 status: reviewed
-implemented: false
+implemented: true
 definition: >-
   Fits lognormal, gamma, Weibull and Pareto distributions to individual claim sizes by
   maximum likelihood, per segment and line, tests the fit, selects one, and gives quantiles,

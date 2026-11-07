@@ -1,5 +1,5 @@
 id: CV06
-version: 1.0.0
+version: 1.1.0
 title_en: Precision and rounding
 title_tr: Hassasiyet ve yuvarlama
 status: reviewed
@@ -14,7 +14,14 @@ rules:
   - >-
     Totals and ratios are computed from unrounded values. Where displayed parts do not add
     up to the displayed total, the table says so in a footnote.
-  - Exported data files carry unrounded values; only the report page and printable document round.
+  - >-
+    Exported data files carry unrounded values, with one exception: the data files of the tier B
+    reserving methods and of the severity and extreme-value methods (MT11 to MT18, MT22 and
+    AE02), and the rows of those methods in the diagnostics file, carry every floating-point
+    value rounded to 10 significant digits, to the nearest decimal, by the one shared rule. This is not presentation rounding: the digits left out are
+    the last bits that optimisers, linear algebra libraries and maths libraries do not agree on
+    from one platform to the next, so that the same run writes the same bytes everywhere.
+  - Only the report page and the printable document round for presentation.
 formulas:
   - name: half away from zero
     expression: '\mathrm{round}(x, d) = \mathrm{sign}(x) \cdot \left\lfloor |x| \cdot 10^{d} + \tfrac{1}{2} \right\rfloor \cdot 10^{-d}'
@@ -38,6 +45,9 @@ defaults:
   - name: score_decimals
     default: 0
     description: Data quality score on a 0 to 100 scale.
+  - name: file_significant_digits
+    default: 10
+    description: Significant digits of a floating-point value in a data file of MT11 to MT18, MT22 and AE02.
 change_log:
   - version: 0.1.0
     date: 2026-10-20
@@ -45,3 +55,8 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-10-27
+    change: >-
+      Data files of MT11 to MT18, MT22 and AE02 carry floats to 10 significant digits (owner
+      approved, record 0626); other data files stay unrounded.

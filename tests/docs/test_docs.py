@@ -108,8 +108,10 @@ def test_the_worked_example_is_what_the_code_gives(note: str) -> None:
 def test_every_tier_a_method_has_a_note() -> None:
     notes = {p.name for p in (ROOT / "docs" / "methods").glob("*.md")}
     for path in (ROOT / "spec" / "methods").glob("MT*.yaml"):
-        if not yaml.safe_load(path.read_text(encoding="utf-8")).get("implemented", True):
-            continue  # planned for a later version (decision 0200); its note comes when built
+        spec = yaml.safe_load(path.read_text(encoding="utf-8"))
+        if not spec.get("implemented", True) or spec["tier"] != "A":
+            continue  # planned for a later version (decision 0200); the notes of the tier B
+            # methods come with the report 1.2 item (P27, record 0620)
         assert f"{path.stem}.md" in notes, f"no note for {path.stem}"
     assert set(worked_examples.EXAMPLES) == {n.removesuffix(".md") for n in notes}
 

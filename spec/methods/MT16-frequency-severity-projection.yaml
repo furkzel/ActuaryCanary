@@ -3,7 +3,7 @@ version: 1.0.0
 title_en: Frequency–severity projection
 title_tr: Frekans–şiddet projeksiyonu
 status: reviewed
-implemented: false
+implemented: true
 definition: >-
   Ultimate as ultimate claim count times ultimate severity: counts are developed with the
   chain ladder on the reported-count triangle, frequency is related to earned exposure,

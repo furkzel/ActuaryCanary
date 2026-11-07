@@ -1,0 +1,21 @@
+# 0627 — The golden test compares the three optimiser-based severity files cell by cell with a tolerance
+
+## Context
+Record 0626 wrote every float of the tier B and severity files to 10 significant digits, and the golden copy of the tiny baseline still fails on Ubuntu for `severity_parameters.csv`: found with the Linux wheels of `uv.lock` in WSL, two cells (the Pareto II standard errors) differ by 3.7e-7 relative. On the demo, `severity_parameters.csv`, `severity_fits.csv` and `severity_plots.csv` differ by up to 9.6e-6. The cause is the central-difference Hessian with step 1e-4, which turns one last bit of the log-likelihood into 1e-6 to 1e-5 in a standard error, and the flat likelihood of Pareto II, which moves the estimate itself. Rounding to ten digits cannot close this; rounding to five digits would only move the problem to values near a rounding boundary (0626, way 2).
+
+## Decision
+Owner decision, way 3 of 0626:
+- **The golden test compares `severity_parameters.csv`, `severity_fits.csv` and `severity_plots.csv` cell by cell with a tolerance, not by SHA-256 and size.** For these files the golden copy holds the cells (the column names and one csv line per row, under `reproducibility.outputs` of `tests/report/golden/baseline_tiny.json`, in place of `sha256` and `size`). The test reads the file of the run and compares: column names (names and order), text cells and the number of rows exactly; numeric cells with relative tolerance 1e-4 and absolute tolerance 1e-12 (`math.isclose`); NaN equals NaN and an infinity equals the same infinity. Every other file keeps its hash and size comparison.
+- **One named constant** `TOLERANCE_FILES` in `tests/report/golden_tolerance.py`, with a comment that gives the reason. A test (`test_the_tolerance_files_are_optimiser_based_outputs_of_mt17_or_mt18`) fails if an entry is blank, repeated, not a file that MT17 or MT18 writes (`SeverityRun.files()`), or not among the outputs of the run.
+- **The manifest keeps the real hashes.** `manifest.json` of a run and of the examples, and the report page, still hold the SHA-256 and size of every file; only the golden copy of the report data, which the golden test reads, changes form. Nothing in `src/` changed: MT17, MT18, their specifications, the writer and the ten-digit rule are as in 0626, and no run id moved (baseline `384dff36d777725f`, messy_headers `560f3c96c9ab3dca`, demo `465a16bea5dd8a65`).
+- **Why 1e-4.** The largest difference seen between platforms is 9.6e-6 (0626), ten times below; a real change of a fit (another family selected, another threshold, a changed convergence) moves a cell by far more. The absolute 1e-12 lets a value that is zero on one platform and 1e-13 on another pass.
+- **Deferred, not done here:** way 1 of 0626 (analytic second derivatives and a tighter convergence of the Pareto II and generalised Pareto fits, which moves MT17 and MT18 results by about 1e-5 once). It is a hardening item to be scheduled before release 1.2.0; after it the three files return to hash comparison and `TOLERANCE_FILES` becomes empty.
+
+## Result
+- `just golden`: the golden copy changed only in the three entries (3 hashes and 3 sizes out of it, the cells in); `just examples`: no diff, and the three run ids are the ones above.
+- Under Linux (the Linux wheels of `uv.lock` run by the python3 of WSL Ubuntu 24.04), the whole golden model of a fresh tiny baseline run equals the stored copy: the test passes. Largest relative difference per file against the Windows cells: `severity_parameters.csv` 3.75e-7, `severity_fits.csv` 0, `severity_plots.csv` 0; no cell outside the tolerance. Demo, Linux against Windows: `severity_parameters.csv` 9.60e-6, `severity_fits.csv` 1.22e-7, `severity_plots.csv` 4.09e-7, no cell outside the tolerance, and no other file of the demo run differs in SHA-256 except the tier A files `measures.csv` and `reserve_range.csv` (3.7e-15, in no golden).
+- Ubuntu on the CI runner is confirmed only by the pull request; the WSL run is the evidence.
+
+## Consequences
+- A platform difference in one of the three files up to the tolerance no longer fails the golden test; a real change of a cell above it does, with the file, row, column and both values in the message.
+- The cells of `severity_plots.csv` (244 lines) are in the golden file, so a change of the tiny baseline fits makes a larger diff there.

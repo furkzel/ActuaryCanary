@@ -2,6 +2,16 @@
 
 Written for users. Versions follow semantic versioning; each specification file also carries its own version and change log.
 
+## Unreleased
+
+### What is new
+
+- **Tier B reserving methods in the run.** For every segment and line the run now also fits the over-dispersed Poisson bootstrap (reserve distribution with percentiles, value at risk and simulated payments), the Munich chain ladder, Benktander blends, a fitted tail factor (shown, not applied unless you select it), the separation method and the frequency–severity projection, and back-tests the selection at 12, 24 and 36 months with the error of each method. A method that cannot run on a line says why, under "What did not run and why"; it never gives a number instead.
+- **Claim sizes and extreme values.** Claim size distributions (lognormal, gamma, Weibull, Pareto) and a peaks-over-threshold fit of the tail are written per segment and line. The large-loss threshold stays the 99th percentile of claim sizes; the extreme-value threshold is only shown beside it. `project.yaml` may set another percentile or fixed thresholds in a `large_loss` section.
+- **More outputs**, listed in the guide. The seeds and defaults of these methods are part of the run id.
+
+Run ids of the three examples changed; the reserving tables of tier A (triangles, factors, chain ladder, ultimates, reserve range, cash flows, measures, lineage) are byte-identical to 1.1.0.
+
 ## 1.1.0 (2026-10-25, the preparation date: the release date is the date the owner pushes the tag `v1.1.0`)
 
 ### What is new
