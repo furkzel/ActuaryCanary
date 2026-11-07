@@ -2,6 +2,31 @@
  "assumptions": {
   "by_kind": [
    {
+    "entries": 1,
+    "method": "CV10",
+    "name": "curve id"
+   },
+   {
+    "entries": 1,
+    "method": "CV10",
+    "name": "discount date"
+   },
+   {
+    "entries": 1,
+    "method": "CV10",
+    "name": "max curve age days"
+   },
+   {
+    "entries": 1,
+    "method": "CV10",
+    "name": "tail payment years"
+   },
+   {
+    "entries": 1,
+    "method": "CV10",
+    "name": "timing"
+   },
+   {
     "entries": 24,
     "method": "MT02",
     "name": "selected factor"
@@ -210,16 +235,21 @@
     "entries": 4,
     "method": "MT22",
     "name": "past selections"
+   },
+   {
+    "entries": 1,
+    "method": "RS05",
+    "name": "line correlation"
    }
   ],
   "by_who": [
    {
-    "entries": 220,
+    "entries": 226,
     "who": "default"
    }
   ],
   "judgements": [],
-  "total": 220
+  "total": 226
  },
  "banners": [
   "Only 4 origin periods (2022 to 2025) are loaded for 4 of 4 lines, fewer than the 8 the methods need for solid evidence: every factor, ratio and range rests on few observations, and the differences between methods show how much the answer depends on the method, not how precise it is."
@@ -228,7 +258,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "384dff36d777725f"
+    "value": "e923a8e4302875b1"
    },
    {
     "label": "Valuation date",
@@ -2637,7 +2667,7 @@
   },
   {
    "banner": false,
-   "evidence": "MT06 v1.1.0, RS03 v1.0.0",
+   "evidence": "MT06 v1.1.0, RS03 v1.1.0",
    "files": [
     "reserve_range.csv"
    ],
@@ -2679,7 +2709,7 @@
    "scope": "run",
    "section": "not-run",
    "specs": [],
-   "text": "Modules that ran with some measures or methods missing: 3 (M03 Claims experience, M04 Reserving (indicative), M06 Anomalies and large losses).",
+   "text": "Modules that ran with some measures or methods missing: 4 (M03 Claims experience, M04 Reserving (indicative), M06 Anomalies and large losses, M12 Uncertainty and risk).",
    "title": "Modules limited"
   }
  ],
@@ -3358,6 +3388,27 @@
      "MT18 extreme values did not run for NON_LIFE / PROPERTY: 5 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
      "MT18 extreme values did not run for NON_LIFE / MOTOR_OD: 67 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)"
     ]
+   },
+   {
+    "load": "",
+    "missing": [
+     "RS04: no discounted figures: no curve is named: name one with --curve or a register entry (CV10, curve_id)",
+     "RS05: no simulated reserve distribution: LIFE / GROUP_TERM_LIFE: MT06 did not run: no Mack range; LIFE / GROUP_TERM_LIFE: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / MOTOR_OD: MT06 did not run: no Mack range; NON_LIFE / MOTOR_OD: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / MOTOR_TPL: MT06 did not run: no Mack range; NON_LIFE / MOTOR_TPL: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / PROPERTY: MT06 did not run: no Mack range; NON_LIFE / PROPERTY: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range"
+    ],
+    "module": "M12 Uncertainty and risk",
+    "state": "limited",
+    "why": [
+     "RS04: no discounted figures: no curve is named: name one with --curve or a register entry (CV10, curve_id)",
+     "RS05: no simulated reserve distribution: LIFE / GROUP_TERM_LIFE: MT06 did not run: no Mack range; LIFE / GROUP_TERM_LIFE: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / MOTOR_OD: MT06 did not run: no Mack range; NON_LIFE / MOTOR_OD: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / MOTOR_TPL: MT06 did not run: no Mack range; NON_LIFE / MOTOR_TPL: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / PROPERTY: MT06 did not run: no Mack range; NON_LIFE / PROPERTY: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range",
+     "LIFE / GROUP_TERM_LIFE: MT06 did not run: no Mack range",
+     "LIFE / GROUP_TERM_LIFE: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range",
+     "NON_LIFE / MOTOR_OD: MT06 did not run: no Mack range",
+     "NON_LIFE / MOTOR_OD: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range",
+     "NON_LIFE / MOTOR_TPL: MT06 did not run: no Mack range",
+     "NON_LIFE / MOTOR_TPL: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range",
+     "NON_LIFE / PROPERTY: MT06 did not run: no Mack range",
+     "NON_LIFE / PROPERTY: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range"
+    ]
    }
   ]
  },
@@ -3389,6 +3440,14 @@
       "loaded": true,
       "rows": "846",
       "score": "100.0"
+     },
+     {
+      "concept": "interest_rates",
+      "first": "–",
+      "last": "–",
+      "loaded": false,
+      "rows": "–",
+      "score": "–"
      },
      {
       "concept": "market",
@@ -4045,8 +4104,8 @@
   "outputs": [
    {
     "name": "quality.json",
-    "sha256": "e735faf47b83b66216f63b85f85a7f26f5907fb39c94499a515a3190e68df018",
-    "size": "31,685"
+    "sha256": "3613abc6fd7f8ebd66a815510c0efad990bbdb6593fa750af5774d86e6b63aed",
+    "size": "32,813"
    },
    {
     "name": "triangles.csv",
@@ -4070,7 +4129,7 @@
    },
    {
     "name": "lineage.csv",
-    "sha256": "9bf1e1c7428c22311e966ea204ac9a8843be87e621ed39018e48f22cf1caa318",
+    "sha256": "98d395daeb881c57896f460495fabd03a2865f951f62c71b4fee85e596b63a18",
     "size": "51,042"
    },
    {
@@ -4080,13 +4139,13 @@
    },
    {
     "name": "modules.json",
-    "sha256": "bad541cbefdd9a1e5550ab8114bb1242472dfd676bfb1b4ad05b48eecfe376d3",
-    "size": "19,651"
+    "sha256": "6b14e875c0695dc9c6f4e7bd7894b4157ff8c1127a7a20839d630869f3a5d964",
+    "size": "23,268"
    },
    {
     "name": "assumptions.csv",
-    "sha256": "848b98920f27243543f39e197fa31ee41d577ff12f1bd4262c04d528f96d899f",
-    "size": "26,746"
+    "sha256": "bb1780296a66e2dbc3cf072b2f916ceb0b973a4aad550ed49e36098b6d78ffde",
+    "size": "27,171"
    },
    {
     "name": "ultimates.csv",
@@ -4532,6 +4591,16 @@
     "name": "extreme_yearly_summary.csv",
     "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
     "size": "13"
+   },
+   {
+    "name": "risk_measures.csv",
+    "sha256": "dab03ede78c7c497d37b4b10cda5a5cfaaa4af504961387287964c4734e582aa",
+    "size": "263"
+   },
+   {
+    "name": "risk_cash_flows.csv",
+    "sha256": "1585e303802dda7a683c9465ebd481c0ddfecfb95bafc92d575daaa30954010c",
+    "size": "1,299"
    }
   ],
   "randomness": [
@@ -4548,7 +4617,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "384dff36d777725f",
+  "run_id": "e923a8e4302875b1",
   "settings": [
    {
     "name": "bases.currency",
@@ -4589,6 +4658,46 @@
    {
     "name": "currency_view",
     "value": "REPORTING"
+   },
+   {
+    "name": "discount.curve_id",
+    "value": ""
+   },
+   {
+    "name": "discount.discount_date",
+    "value": ""
+   },
+   {
+    "name": "discount.max_curve_age_days",
+    "value": "31"
+   },
+   {
+    "name": "discount.tail_payment_years",
+    "value": "5"
+   },
+   {
+    "name": "discount.timing",
+    "value": "mid_period"
+   },
+   {
+    "name": "discount_used.available",
+    "value": "False"
+   },
+   {
+    "name": "discount_used.discount_date_used",
+    "value": "2025-12-31"
+   },
+   {
+    "name": "discount_used.reason",
+    "value": "no curve is named: name one with --curve or a register entry (CV10, curve_id)"
+   },
+   {
+    "name": "discount_used.tail_payment_years_used",
+    "value": "5"
+   },
+   {
+    "name": "discount_used.timing_used",
+    "value": "mid_period"
    },
    {
     "name": "language",
@@ -4910,12 +5019,12 @@
    {
     "id": "AL01",
     "title": "Column aliases",
-    "version": "1.0.0"
+    "version": "1.1.0"
    },
    {
     "id": "AL02",
     "title": "Value aliases",
-    "version": "1.0.0"
+    "version": "1.1.0"
    },
    {
     "id": "CV01",
@@ -5115,7 +5224,7 @@
    {
     "id": "RS03",
     "title": "Reserve range and risk measures",
-    "version": "1.0.0"
+    "version": "1.1.0"
    },
    {
     "id": "AE01",
@@ -5160,6 +5269,21 @@
    {
     "id": "M06",
     "title": "Anomalies and large losses",
+    "version": "1.1.0"
+   },
+   {
+    "id": "M12",
+    "title": "Uncertainty and risk",
+    "version": "1.1.0"
+   },
+   {
+    "id": "RS04",
+    "title": "Discounted unpaid claims",
+    "version": "1.1.0"
+   },
+   {
+    "id": "RS05",
+    "title": "Simulated reserve distribution and risk measures",
     "version": "1.1.0"
    },
    {
@@ -5247,7 +5371,7 @@
    "factors": "Link ratio of every origin (dots) and the factor selected (bar), RS01 v1.0.0, MT02 v1.0.0; the tail factor is in the table. Rows of factors.csv.",
    "heatmaps": "Cumulative cells by origin and development age, GROSS, NOMINAL, TRY; paid on its own one-hue ramp, incurred on another; the further a cell stands from the page colour, the larger it is (MT01 v1.0.0, CV04 v1.0.0).",
    "methods": "Ultimate per origin by method on the incurred triangle (MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0), and the selected ultimate (diamond, MT10 v1.0.0). The spread between methods shows how much the answer depends on the method; it is not a confidence interval.",
-   "range": "Selected reserve (diamond) with the 25th to 75th percentile (dark bar) and the 5th to 95th percentile (light bar); the Mack coefficient of variation applied to the selected reserve, lognormal approximation (MT06 v1.1.0, RS03 v1.0.0). The upper percentiles are in the table.",
+   "range": "Selected reserve (diamond) with the 25th to 75th percentile (dark bar) and the 5th to 95th percentile (light bar); the Mack coefficient of variation applied to the selected reserve, lognormal approximation (MT06 v1.1.0, RS03 v1.1.0). The upper percentiles are in the table.",
    "summary": "TRY, GROSS, NOMINAL, TRY. Chain ladder MT02 v1.0.0 on paid and incurred triangles MT01 v1.0.0; selected ultimate MT10 v1.0.0; IBNR = ultimate − incurred at the valuation date RS02 v1.0.0. Rounded per CV06 v1.1.0; totals from unrounded values. Rows of ultimates.csv and lineage.csv (RS02)."
   },
   "lines": [
@@ -7212,7 +7336,7 @@
      "change": "+9,945,580",
      "label": "Reserve estimate (IBNR, selected)",
      "note": "no range: the Mack standard error did not run",
-     "source": "RS02 v1.0.0, MT10 v1.0.0, RS03 v1.0.0 · GROSS, TRY, NOMINAL",
+     "source": "RS02 v1.0.0, MT10 v1.0.0, RS03 v1.1.0 · GROSS, TRY, NOMINAL",
      "value": "10,604,971 TRY"
     }
    ]
@@ -7250,7 +7374,7 @@
      "change": "−2,595,803",
      "label": "Reserve estimate (IBNR, selected)",
      "note": "no range: the Mack standard error did not run",
-     "source": "RS02 v1.0.0, MT10 v1.0.0, RS03 v1.0.0 · GROSS, TRY, NOMINAL",
+     "source": "RS02 v1.0.0, MT10 v1.0.0, RS03 v1.1.0 · GROSS, TRY, NOMINAL",
      "value": "1,927,034 TRY"
     }
    ]

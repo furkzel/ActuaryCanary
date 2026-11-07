@@ -1,9 +1,8 @@
 id: interest_rates
-version: 1.0.0
+version: 1.1.0
 title_en: Interest rates and yield curves
 title_tr: Faiz oranları ve getiri eğrileri
 status: reviewed
-implemented: false
 definition: >-
   Interest rates by curve, date and tenor: the points of a yield curve, or a single rate
   series as a curve with one tenor. Used to discount future cash flows (CV10).
@@ -129,7 +128,7 @@ validation:
     rule: PAR and FORWARD rows have a tenor_months divisible by 12 (CV10).
     action: Other PAR and FORWARD rows are excluded and listed.
 notes: >-
-  Draft for a later version (the uncertainty and discounting item). A separate concept rather than new kinds of the market
+  A separate concept rather than new kinds of the market
   concept, because a curve point needs a tenor and a rate convention that FX rates and price
   indices do not have (decision 0201). A single rate series, such as a central bank policy
   rate, is a curve with one tenor.
@@ -143,3 +142,9 @@ change_log:
   - version: 1.0.0
     date: 2026-10-25
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-11-07
+    change: >-
+      Built by P26 (record 0321): DV-IRT-01 to -07 and -10 exclude rows when the data is read, DV-IRT-08 and
+      DV-IRT-09 are evaluated for the curve a run names. No rule changed.
+      Amended by the uncertainty and discounting work item (P26); the owner has not reviewed this version yet.

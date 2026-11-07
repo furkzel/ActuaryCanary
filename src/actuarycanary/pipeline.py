@@ -19,6 +19,7 @@ from actuarycanary import __version__
 from actuarycanary.canonical.amounts import INCREMENTAL, TO_DATE
 from actuarycanary.canonical.feeds import CanonicalError, CanonicalFeed, Finding, canonicalise
 from actuarycanary.convert.bases import ValueBasis
+from actuarycanary.convert.discount import DiscountContext, DiscountSettings, resolve_discount
 from actuarycanary.convert.market import ConversionError, MarketData
 from actuarycanary.convert.rates import DevelopmentRates, development_rates
 from actuarycanary.convert.views import (
@@ -85,6 +86,11 @@ from actuarycanary.modules.reserving_output import (
 )
 from actuarycanary.modules.runner import AnalysisResult, run_modules
 from actuarycanary.modules.tier_b_inputs import TierBInputs, tier_b_source
+from actuarycanary.modules.uncertainty import (
+    UncertaintyResult,
+    line_correlation,
+    run_uncertainty,
+)
 from actuarycanary.quality.engine import evaluate
 from actuarycanary.quality.model import QualityReport
 from actuarycanary.quality.output import QUALITY_NAME, quality_json
@@ -126,7 +132,8 @@ MARKET = "market"
 POLICIES = "policies"
 # Read, checked for the quality report and used by the measures; market and policies also feed
 # the triangles when a setting asks for them.
-CHECKED_CONCEPTS = ("policies", "premiums", "expenses", "market")
+INTEREST_RATES = "interest_rates"
+CHECKED_CONCEPTS = ("policies", "premiums", "expenses", "market", INTEREST_RATES)
 # Specifications whose rules this run applies; recorded with their versions.
 SPECS_USED = (
     "claim_valuations",
@@ -151,6 +158,10 @@ ESTIMATES_NAME = "chain_ladder.csv"
 FACTORS_NAME = "factors.csv"
 MEASURES_NAME = "measures.csv"
 MODULES_NAME = "modules.json"
+RISK_NAME = "risk_measures.csv"
+RISK_CASH_FLOWS_NAME = "risk_cash_flows.csv"
+RISK_DISTRIBUTION_NAME = "risk_distribution.parquet"
+DISCOUNT_CURVE_NAME = "discount_curve.csv"
 
 Progress = Callable[[str], None]
 # Shown the sheets whose layout has no saved profile; returns them accepted, edited or skipped.
@@ -185,6 +196,9 @@ class RunSettings(BaseModel):
     # the judgements of the user: selected factors, exclusions, priors, future inflation,
     # overrides (record 0037); part of the settings, so of the run id
     assumptions: AssumptionsRegister = Field(default_factory=AssumptionsRegister)
+    # the curve and the date of the discounted figures (CV10, records 0322 and 0327); part of the
+    # settings, so of the run id
+    discount: DiscountSettings = Field(default_factory=DiscountSettings)
 
     @field_validator("currency_view")
     @classmethod
@@ -232,6 +246,8 @@ class RunResult:
     anomalies: AnomalyResult
     report_data: dict[str, Any]  # every number and text of the report page (golden test)
     severity: severity_run.SeverityRun  # MT17 and MT18 over the claim sizes
+    uncertainty: UncertaintyResult | str  # M12, or the reason it has nothing to show
+    discount: DiscountContext  # the curve of the discounted figures, or why there is none
 
 
 def recognise_folder(
@@ -387,6 +403,31 @@ def _with_cut_off_used(record: dict[str, Any], cut_off: date) -> dict[str, Any]:
             triangles["development_rate_date"] or cut_off.isoformat()
         )
     return {**record, "triangles": triangles}
+
+
+def _with_discount_used(record: dict[str, Any], discount: DiscountContext) -> dict[str, Any]:
+    """The curve and the dates actually used next to the discount settings (record 0327). They
+    follow from the inputs and settings in the run id, so they are not inputs to the id."""
+    used: dict[str, Any] = {
+        "available": discount.available,
+        "discount_date_used": discount.discount_date.isoformat(),
+        "timing_used": discount.timing.value,
+        "tail_payment_years_used": discount.tail_payment_years,
+    }
+    if discount.curve is not None:
+        curve = discount.curve
+        used |= {
+            "curve_id_used": curve.curve_id,
+            "curve_date_used": curve.curve_date.isoformat(),
+            "curve_age_days": discount.curve_age_days,
+            "currency": curve.currency,
+            "rate_type": curve.rate_type,
+            "compounding": curve.compounding,
+            "source": curve.source,
+        }
+    else:
+        used["reason"] = discount.reason
+    return {**record, "discount_used": used}
 
 
 def _rate_findings(rates: DevelopmentRates) -> list[Finding]:
@@ -592,7 +633,22 @@ def run(
     it; others are passed to `confirm`, and what it returns is saved as profiles. Without
     `confirm` the proposals are used as they are and nothing is saved.
     """
-    settings = settings or RunSettings()
+    declared = settings or RunSettings()
+    # the DISCOUNTED basis leaves the amounts of the past as they are (CV10): the triangles and
+    # the measures of the past are built on the NOMINAL basis; the declared settings are what the
+    # manifest and the run id record
+    discounted = declared.triangles.value_basis is ValueBasis.DISCOUNTED
+    settings = (
+        declared.model_copy(
+            update={
+                "triangles": declared.triangles.model_copy(
+                    update={"value_basis": ValueBasis.NOMINAL}
+                )
+            }
+        )
+        if discounted
+        else declared
+    )
     step = progress or (lambda _: None)
     metadata = load_metadata()
     try:
@@ -710,6 +766,16 @@ def run(
         price_index=price_index,
     )
 
+    rates_frame = checked[INTEREST_RATES].frame if INTEREST_RATES in checked else None
+    discount = resolve_discount(
+        settings.discount,
+        settings.assumptions,
+        rates_frame,
+        triangles.cut_off,
+        None if original else currency,
+    )
+    if discounted and not discount.available:
+        raise InputError(f"the discounted basis needs a curve: {discount.reason}")
     sources = {c: tuple(i.recognition.label for i in by_concept[c]) for c in checked}
     quality = evaluate(
         specs,
@@ -721,10 +787,14 @@ def run(
         reporting_currency=None if original else currency,
         price_index=price_index,
         adjusted=adjusted,
+        discount=discount,
     )
     rate_notes = tuple(_rate_findings(rates)) if market is not None and not adjusted else ()
     findings = (
-        tuple(f for feed in feeds.values() for f in feed.findings) + rate_notes + triangles.findings
+        tuple(f for feed in feeds.values() for f in feed.findings)
+        + rate_notes
+        + triangles.findings
+        + discount.findings
     )
     measure_inputs = MeasureInputs(
         feeds=with_refs(measure_frames),
@@ -787,25 +857,34 @@ def run(
     step("Fitting claim sizes and extreme values")
     severity = severity_run.run_severity(measure_inputs, settings.assumptions)
     measure_inputs.extreme_value_note = severity.comparison
-    reserving = replace(reserving, extra_assumptions=severity.entries)
+    step("Computing the reserve ranges and the discounted figures")
+    uncertainty = run_uncertainty(reserving, discount, settings.assumptions)
+    _, correlation_entry = line_correlation(settings.assumptions)
+    reserving = replace(
+        reserving,
+        extra_assumptions=(*severity.entries, *discount.entries, correlation_entry),
+    )
 
     step("Flagging anomalies")
     anomalies = run_anomalies(valuations, claims, rates, triangles.cut_off)
 
     step("Computing measures and running modules")
     basis_label = Basis(reinsurance, CurrencyView.REPORTING, value_basis).label()
-    measure_inputs.methods = ReservingPort(reserving, basis_label, frozenset({"MT08", "MT09"}))
+    measure_inputs.methods = ReservingPort(
+        reserving, basis_label, frozenset({"MT08", "MT09"}), uncertainty
+    )
     analysis = run_modules(
         specs,
         measure_inputs,
         quality,
         period,
         reinsurance,
-        value_basis,
+        ValueBasis.DISCOUNTED if discounted else value_basis,
         cache=cache,
         notes={
             "M03": severity.notes.get("M03", ()),
             "M04": not_run_notes(reserving),
+            "M12": [uncertainty] if isinstance(uncertainty, str) else uncertainty.notes,
             "M06": [*anomalies.reasons, *severity.notes.get("M06", ())],
         },
         view=view,
@@ -814,7 +893,7 @@ def run(
     inputs = _input_records(
         [*concepts, *[c for c in checked_only if c not in concepts]], by_concept
     )
-    extra = ["CV02"] if adjusted else []
+    extra = [*(["CV02"] if adjusted else []), *(["CV10"] if discount.available else [])]
     ran = [
         i
         for module in sorted(specs.modules.values(), key=lambda m: m.id)
@@ -835,7 +914,7 @@ def run(
     used = list(dict.fromkeys([*used, specs.finding_rules.id]))
     catalogue = {f.spec.id: f.spec for f in specs.files}
     spec_records = [SpecRecord(s, catalogue[s].version, catalogue[s].title_en) for s in used]
-    settings_record = _settings_record(settings, currency, price_index, market_read, large_loss)
+    settings_record = _settings_record(declared, currency, price_index, market_read, large_loss)
     applied = [
         {
             "file": m["file"],
@@ -852,7 +931,9 @@ def run(
     out.mkdir(parents=True, exist_ok=True)
     # the resolved cut-off is recorded next to the setting; it follows from the inputs and
     # settings already in the run id, so it is not an input to the id (record 0023)
-    settings_used = _with_cut_off_used(settings_record, triangles.cut_off)
+    settings_used = _with_discount_used(
+        _with_cut_off_used(settings_record, triangles.cut_off), discount
+    )
 
     step("Writing the tables")
     outputs = [write_output(out, QUALITY_NAME, quality_json(quality))]
@@ -883,6 +964,15 @@ def run(
         outputs.append(write_parquet_table(out, name, table))
     for name, table in severity.files().items():
         outputs.append(write_table(out, name, table))
+    if isinstance(uncertainty, UncertaintyResult):
+        outputs.append(write_table(out, RISK_NAME, uncertainty.risk))
+        outputs.append(write_table(out, RISK_CASH_FLOWS_NAME, uncertainty.cash_flows))
+        if uncertainty.distribution.width:
+            outputs.append(
+                write_parquet_table(out, RISK_DISTRIBUTION_NAME, uncertainty.distribution)
+            )
+        if uncertainty.curve.height:
+            outputs.append(write_table(out, DISCOUNT_CURVE_NAME, uncertainty.curve))
     randomness = [
         {"method": "MT09", "seed": isolation_forest.SEED, "purpose": "isolation forest"},
         *[row for row in tier_b_registry.randomness(RUN_SEED) if row["method"] in ran_methods],
@@ -951,4 +1041,6 @@ def run(
         anomalies,
         report_data,
         severity,
+        uncertainty,
+        discount,
     )

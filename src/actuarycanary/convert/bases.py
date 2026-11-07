@@ -61,6 +61,8 @@ class ReinsuranceBasis(StrEnum):
 class ValueBasis(StrEnum):
     NOMINAL = "NOMINAL"
     INFLATION_ADJUSTED = "INFLATION_ADJUSTED"
+    # CV10: future cash flows discounted at a named curve; the amounts of the past stay nominal
+    DISCOUNTED = "DISCOUNTED"
 
 
 class BasisUnavailableError(ConversionError):

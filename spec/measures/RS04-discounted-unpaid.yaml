@@ -1,9 +1,8 @@
 id: RS04
-version: 1.0.0
+version: 1.1.0
 title_en: Discounted unpaid claims
 title_tr: İskonto edilmiş ödenmemiş hasarlar
 status: reviewed
-implemented: false
 definition: >-
   The selected unpaid claims (selected ultimate minus paid) as a present value at the
   discount date, from the projected cash flows by calendar period and the chosen yield
@@ -54,6 +53,12 @@ edge_cases:
     handling: The paid chain-ladder pattern spreads the selected unpaid, labelled.
   - case: Calendar period of a cash flow beyond the curve's last tenor
     handling: Discounted with the flat last forward rate (CV10) and counted in a note.
+  - case: Paid chain-ladder reserve of an origin is zero but the selected unpaid is not
+    handling: The selected unpaid falls in the first future calendar period and the origin is flagged.
+  - case: The paid chain ladder has a tail factor above 1
+    handling: >-
+      The tail amount is spread over the extra periods in the shape of the fitted tail curve
+      (MT14) or, for a tail given as a number, evenly over tail_payment_years (CV10).
 interpretation: >-
   What the unpaid claims are worth today at the chosen curve. The discount effect grows
   with interest rates and with the length of the tail; in high-rate markets it is large and
@@ -75,3 +80,8 @@ change_log:
   - version: 1.0.0
     date: 2026-10-25
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-11-07
+    change: >-
+      Built by P26 (record 0324): zero chain-ladder reserve with a selected unpaid, the tail flows.
+      Amended by the uncertainty and discounting work item (P26); the owner has not reviewed this version yet.

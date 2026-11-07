@@ -53,7 +53,8 @@ canary demo                         # the example data that ships with the progr
 | --- | --- | --- |
 | `--basis gross\|ceded\|net` | Reinsurance basis ([CV03](../spec/conventions/CV03-gross-ceded-net.yaml)) | gross |
 | `--currency TRY` | Reporting currency | from `project.yaml` |
-| `--value nominal\|inflation-adjusted` | Value basis; the adjusted basis restates paid to the prices of one date ([MT07](methods/MT07-inflation-adjusted-chain-ladder.md)) | nominal |
+| `--value nominal\|inflation-adjusted\|discounted` | Value basis; the adjusted basis restates paid to the prices of one date ([MT07](methods/MT07-inflation-adjusted-chain-ladder.md)); the discounted basis shows the unpaid and its range as a present value at a yield curve ([CV10](../spec/conventions/CV10-discounting.yaml)), and needs `--curve` | nominal |
+| `--curve ID`, `--discount-date YYYY-MM-DD` | The `curve_id` of `interest_rates.xlsx` to discount with, and the date the present values refer to. A curve named without `--value discounted` gives the same discounted figures beside the nominal ones | no curve, the cut-off |
 | `--value-date YYYY-MM-DD`, `--price-index SERIES` | Prices of this date, from this index series | cut-off, series of `project.yaml` |
 | `--origin-axis accident\|report\|underwriting\|first_valuation` | What defines the origin period of a claim | accident |
 | `--origin-period`, `--development-period` | Length of origin and development periods (month, quarter, half, year) | year, year |
@@ -127,6 +128,7 @@ The Mack standard error assumes independent origins and stable development. On l
 | `triangles.csv`, `factors.csv`, `chain_ladder.csv` | Triangles of every group and basis; link ratios and selected factors; projected triangles |
 | `ultimates.csv`, `reserve_range.csv` | Ultimate and IBNR by method and the selection (RS02); the Mack range (RS03) |
 | `cash_flows.csv` | Expected future payments of the inflation-adjusted method |
+| `risk_measures.csv`, `risk_cash_flows.csv`, `risk_distribution.parquet`, `discount_curve.csv` | Uncertainty and risk (M12): the reserve range of every line and of all lines from the Mack lognormal (RS03) and from the bootstrap (RS05) with VaR and TVaR, labelled and with the estimator stated; the expected payments of the selected unpaid by calendar period and their present value (RS04); the simulated reserves, nominal and discounted; the points of the curve used. Lines are added with the correlation in the register (default 0, independence) — see [decision 0323](decisions/0323-lines-are-added-with-a-correlation-of-zero-unless-the-register-says-otherwise.md) |
 | `measures.csv`, `lineage.csv`, `lineage_atoms.csv` | Every measure value; for each, the source rows it came from. In format 2 `lineage.csv` names, per value, the groups of rows (atoms) and `lineage_atoms.csv` lists each atom once (35 MB for a million claim rows and four million premium rows; format 1, one file, 352 MB) |
 | `modules.json`, `quality.json` | What each module ran and why; the data quality findings |
 | `assumptions.csv`, `diagnostics.csv`, `anomalies.csv` | The register in force; the method diagnostics; every anomaly flag |
@@ -141,9 +143,9 @@ The same inputs, settings and software always give the same run id and byte-iden
 
 | Folder | What it is | Run id |
 | --- | --- | --- |
-| [examples/demo](../examples/demo/) | A synthetic insurer, ten accident years 2016–2025 and about 2,600 claims in four lines; no thin-evidence warning. The one to try first. | `465a16bea5dd8a65` |
-| [examples/baseline](../examples/baseline/) | The same insurer at tiny size, four accident years 2022–2025, with a few faults injected on purpose | `384dff36d777725f` |
-| [examples/messy_headers](../examples/messy_headers/) | The baseline as real files arrive: headers renamed, misspelt or in Turkish, title rows above the header, dates as text, labels in Turkish, repeated rows and personal-data columns | `560f3c96c9ab3dca` |
+| [examples/demo](../examples/demo/) | A synthetic insurer, ten accident years 2016–2025 and about 2,600 claims in four lines; no thin-evidence warning. The one to try first. | `b804dc99618c2275` |
+| [examples/baseline](../examples/baseline/) | The same insurer at tiny size, four accident years 2022–2025, with a few faults injected on purpose | `e923a8e4302875b1` |
+| [examples/messy_headers](../examples/messy_headers/) | The baseline as real files arrive: headers renamed, misspelt or in Turkish, title rows above the header, dates as text, labels in Turkish, repeated rows and personal-data columns | `62c502fb0177dbea` |
 
 Each example folder has the six input files and a `report/` folder with the report and manifest of its run (the report as the platform wrote it, the manifest with its fingerprints). The messy example is the one to use for the mapping confirmation: `canary run examples/messy_headers` asks about every sheet. The data are synthetic, generated from a fixed seed by [synthetic/scenarios/](../synthetic/scenarios/); no personal or company data is anywhere in the repository.
 

@@ -651,6 +651,152 @@ def _policies_rules(
     return frame, found
 
 
+RATE_MIN, RATE_MAX = -0.05, 2.0  # DV-IRT-04
+MONTHS_PER_YEAR = 12
+
+
+def _interest_rate_rules(
+    frame: pl.DataFrame, spec: DataConceptSpec
+) -> tuple[pl.DataFrame, list[Finding | None]]:
+    """DV-IRT-01 to -07 and -10: the rows that cannot be a point of a curve are excluded."""
+    found: list[Finding | None] = []
+    concept = "interest_rates"
+    required = ("curve_id", "date", "tenor_months", "rate", "rate_type", "currency")
+    missing = pl.any_horizontal(pl.col(c).is_null() for c in required)
+    found.append(
+        finding(
+            concept,
+            "DV-IRT-01",
+            "BLOCKING",
+            "rows without curve_id, date, tenor_months, rate, rate_type or currency excluded",
+            frame.filter(missing),
+        )
+    )
+    frame = frame.filter(~missing)
+
+    if "compounding" in frame.columns:
+        frame = frame.with_columns(pl.col("compounding").fill_null("ANNUAL"))
+    mapped = pl.col("rate_type").is_in(
+        next(f.classes for f in spec.fields if f.name == "rate_type")
+    )
+    if "compounding" in frame.columns:
+        classes = next(f.classes for f in spec.fields if f.name == "compounding")
+        mapped = mapped & pl.col("compounding").is_in(classes)
+    found.append(
+        finding(
+            concept,
+            "DV-IRT-02",
+            "WARNING",
+            f"rate_type or compounding labels outside the classes become {UNMAPPED} and the "
+            "rows are excluded",
+            frame.filter(~mapped),
+        )
+    )
+    frame = frame.filter(mapped)
+
+    bad_tenor = ~(
+        (pl.col("tenor_months") > 0) & (pl.col("tenor_months") == pl.col("tenor_months").round(0))
+    )
+    found.append(
+        finding(
+            concept,
+            "DV-IRT-03",
+            "WARNING",
+            "tenor_months is not a positive whole number: rows excluded",
+            frame.filter(bad_tenor),
+        )
+    )
+    frame = frame.filter(~bad_tenor).with_columns(pl.col("tenor_months").cast(pl.Int64))
+
+    bad_rate = ~pl.col("rate").is_between(RATE_MIN, RATE_MAX)
+    found.append(
+        finding(
+            concept,
+            "DV-IRT-04",
+            "WARNING",
+            f"rate outside {RATE_MIN} to {RATE_MAX} (a year): rows excluded; a rate given in per "
+            "cent (25 for 0.25) is the usual cause",
+            frame.filter(bad_rate),
+        )
+    )
+    frame = frame.filter(~bad_rate)
+
+    invalid = _invalid_currency()
+    found.append(
+        finding(
+            concept,
+            "DV-IRT-05",
+            "WARNING",
+            "currency is not a valid ISO 4217 code: rows excluded",
+            frame.filter(invalid),
+        )
+    )
+    frame = frame.filter(~invalid)
+    # the currency of a curve is the one of most of its rows, then of the earliest row
+    home = (
+        frame.group_by("curve_id", "currency")
+        .agg(pl.len().alias("n"), pl.col(SOURCE_ROW).min().alias("first"))
+        .sort("curve_id", "n", "first", descending=[False, True, False])
+        .unique("curve_id", keep="first", maintain_order=True)
+        .select("curve_id", pl.col("currency").alias("home"))
+    )
+    frame = frame.join(home, on="curve_id", how="left")
+    other = pl.col("currency") != pl.col("home")
+    found.append(
+        finding(
+            concept,
+            "DV-IRT-05",
+            "WARNING",
+            "rows of a curve in a second currency excluded",
+            frame.filter(other),
+        )
+    )
+    frame = frame.filter(~other).drop("home")
+
+    key = ["curve_id", "date", "tenor_months"]
+    frame = frame.sort(SOURCE_ROW)
+    last = frame.select(pl.struct(key).is_last_distinct()).to_series()
+    found.append(
+        finding(
+            concept,
+            "DV-IRT-06",
+            "WARNING",
+            "several rates for one curve, date and tenor: the later source row is kept",
+            frame.filter(~last),
+        )
+    )
+    frame = frame.filter(last)
+
+    mixed = pl.col("rate_type").n_unique().over("curve_id", "date") > 1
+    if "compounding" in frame.columns:
+        mixed = mixed | (pl.col("compounding").n_unique().over("curve_id", "date") > 1)
+    found.append(
+        finding(
+            concept,
+            "DV-IRT-07",
+            "WARNING",
+            "a curve on one date with more than one rate_type or compounding: that curve on "
+            "that date excluded",
+            frame.filter(mixed),
+        )
+    )
+    frame = frame.filter(~mixed)
+
+    whole_year = pl.col("rate_type").is_in(["PAR", "FORWARD"]) & (
+        pl.col("tenor_months") % MONTHS_PER_YEAR != 0
+    )
+    found.append(
+        finding(
+            concept,
+            "DV-IRT-10",
+            "WARNING",
+            "PAR and FORWARD rows need a tenor of whole years: rows excluded",
+            frame.filter(whole_year),
+        )
+    )
+    return frame.filter(~whole_year), found
+
+
 _RULES: dict[
     str, Callable[[pl.DataFrame, DataConceptSpec], tuple[pl.DataFrame, list[Finding | None]]]
 ] = {
@@ -659,6 +805,7 @@ _RULES: dict[
     "market": _market_rules,
     "premiums": _premiums_rules,
     "policies": _policies_rules,
+    "interest_rates": _interest_rate_rules,
 }
 
 

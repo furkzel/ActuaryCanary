@@ -1,5 +1,5 @@
 id: AL02
-version: 1.0.0
+version: 1.1.0
 title_en: Value aliases
 title_tr: Değer eşleştirmeleri
 status: reviewed
@@ -311,6 +311,41 @@ values:
         - PRICE INDEX
         - INDEX
         - INFLATION INDEX
+  - field: rate_type
+    concepts: [interest_rates]
+    classes:
+      SPOT:
+        - SIFIR KUPON
+        - SPOT FAİZ
+        - ZERO
+        - ZERO COUPON
+        - SPOT RATE
+      PAR:
+        - PAR GETİRİ
+        - KUPONLU
+        - PAR YIELD
+        - PAR RATE
+        - SWAP RATE
+      FORWARD:
+        - VADELİ
+        - İLERİ VADELİ
+        - FORWARD RATE
+  - field: compounding
+    concepts: [interest_rates]
+    classes:
+      ANNUAL:
+        - YILLIK
+        - YILLIK BİLEŞİK
+        - ANNUALLY
+        - EFFECTIVE ANNUAL
+      CONTINUOUS:
+        - SÜREKLİ
+        - SÜREKLİ BİLEŞİK
+        - CONTINUOUSLY COMPOUNDED
+      SIMPLE:
+        - BASİT
+        - BASİT FAİZ
+        - MONEY MARKET
 change_log:
   - version: 0.1.0
     date: 2026-10-20
@@ -318,3 +353,8 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-11-07
+    change: >-
+      Value aliases of rate_type and compounding of the concept interest_rates moved from AL04 (P26, record 0320).
+      Amended by the work item; the owner has not reviewed this version yet.

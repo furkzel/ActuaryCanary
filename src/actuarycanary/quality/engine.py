@@ -7,6 +7,7 @@ from datetime import date
 import polars as pl
 
 from actuarycanary.canonical.feeds import CanonicalFeed
+from actuarycanary.convert.discount import DiscountContext
 from actuarycanary.quality.checks import CANONICAL_RULES, CAST_RULE, CHECKS, Context, from_canonical
 from actuarycanary.quality.model import (
     DIMENSIONS,
@@ -30,6 +31,12 @@ PERIOD_FIELDS = {
     "premiums": "booking_date",
     "expenses": "period",
     "market": "date",
+    "interest_rates": "date",
+}
+# rules about the curve a run discounts with; evaluated only when the run names one (CV10)
+CURVE_RULES = {
+    "DV-IRT-08": "no curve is named for discounting",
+    "DV-IRT-09": "no usable curve is named for discounting",
 }
 DATA_MODULE = "M01"  # the quality report itself; never blocked by data faults
 
@@ -200,6 +207,7 @@ def evaluate(
     reporting_currency: str | None = None,
     price_index: str | None = None,
     adjusted: bool = False,
+    discount: DiscountContext | None = None,
 ) -> QualityReport:
     """The quality report of the loaded feeds. `raw` holds each concept's table as read, before
     the canonical rules, so that rows read and source references are complete. The reporting
@@ -207,7 +215,9 @@ def evaluate(
     frames = {c: feed.frame for c, feed in feeds.items()}
     if cut_off is None and "claim_valuations" in frames:
         cut_off = _range(frames["claim_valuations"], "valuation_date")[1]
-    ctx = Context(frames, catalogue.data, cut_off, reporting_currency, price_index, adjusted)
+    ctx = Context(
+        frames, catalogue.data, cut_off, reporting_currency, price_index, adjusted, discount
+    )
     outcomes: list[Outcome] = []
     not_evaluated: list[tuple[str, str]] = []
     for concept, feed in feeds.items():
@@ -219,7 +229,8 @@ def evaluate(
             if check is None:
                 not_evaluated.append((rule.id, "no check is implemented for this rule yet"))
             elif (outcome := check(ctx)) is None:
-                not_evaluated.append((rule.id, "the fields it needs are not loaded"))
+                why = CURVE_RULES.get(rule.id, "the fields it needs are not loaded")
+                not_evaluated.append((rule.id, why))
             else:
                 outcomes.append(outcome)
     for concept, spec in catalogue.data.items():

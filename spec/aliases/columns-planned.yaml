@@ -1,5 +1,5 @@
 id: AL03
-version: 0.1.0
+version: 0.2.0
 title_en: Column aliases of planned concepts
 title_tr: Planlanan kavramların sütun adı eşleştirmeleri
 status: draft
@@ -117,7 +117,6 @@ columns:
       - reinsurance_transactions
       - recoveries
       - ledger
-      - interest_rates
       - life_in_force
       - life_events
       - fund_flows
@@ -426,67 +425,6 @@ columns:
       - ACCOUNT CLASS
       - ACCOUNT TYPE
       - ACCOUNT CATEGORY
-  - field: curve_id
-    concepts: [interest_rates]
-    aliases:
-      - EĞRİ
-      - EĞRİ KODU
-      - GETİRİ EĞRİSİ
-      - CURVE
-      - CURVE ID
-      - CURVE CODE
-      - YIELD CURVE
-  - field: date
-    concepts: [interest_rates]
-    aliases:
-      - TARİH
-      - EĞRİ TARİHİ
-      - GÖZLEM TARİHİ
-      - DATE
-      - CURVE DATE
-      - AS OF DATE
-  - field: tenor_months
-    concepts: [interest_rates]
-    aliases:
-      - VADE
-      - VADE AY
-      - VADE AYI
-      - TENOR
-      - TENOR MONTHS
-      - MATURITY MONTHS
-  - field: rate
-    concepts: [interest_rates]
-    aliases:
-      - ORAN
-      - FAİZ
-      - FAİZ ORANI
-      - GETİRİ
-      - RATE
-      - YIELD
-      - INTEREST RATE
-  - field: rate_type
-    concepts: [interest_rates]
-    aliases:
-      - ORAN TİPİ
-      - ORAN TÜRÜ
-      - EĞRİ TİPİ
-      - RATE TYPE
-      - CURVE TYPE
-      - TYPE
-  - field: compounding
-    concepts: [interest_rates]
-    aliases:
-      - BİLEŞİKLEŞTİRME
-      - FAİZ ESASI
-      - COMPOUNDING
-      - COMPOUNDING BASIS
-  - field: source
-    concepts: [interest_rates]
-    aliases:
-      - KAYNAK
-      - VERİ KAYNAĞI
-      - SOURCE
-      - PROVIDER
   - field: contract_id
     concepts: [life_in_force, life_events, fund_flows]
     aliases:
@@ -739,3 +677,7 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First seed for the concepts planned in P20.
+  - version: 0.2.0
+    date: 2026-11-07
+    change: >-
+      The entries of interest_rates moved to AL01 with the build of the concept (P26).

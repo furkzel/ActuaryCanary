@@ -20,6 +20,7 @@ from actuarycanary.cli.confirm import confirm_tables
 from actuarycanary.cli.demo import find_demo_folder
 from actuarycanary.cli.welcome import demo_closing_lines, show_welcome
 from actuarycanary.convert.bases import ReinsuranceBasis, ValueBasis
+from actuarycanary.convert.discount import DiscountSettings
 from actuarycanary.convert.market import ConversionError
 from actuarycanary.io.excel import RawTable
 from actuarycanary.manifest.metadata import load_metadata
@@ -55,6 +56,7 @@ class CurrencyViewOption(StrEnum):
 class ValueOption(StrEnum):
     NOMINAL = "nominal"
     INFLATION_ADJUSTED = "inflation-adjusted"
+    DISCOUNTED = "discounted"
 
 
 app = typer.Typer(help="Auditable, early-warning actuarial reporting.")
@@ -268,7 +270,8 @@ def run_command(
         typer.Option(
             "--value",
             case_sensitive=False,
-            help="Value basis: nominal or inflation-adjusted to the value date (CV02).",
+            help="Value basis: nominal, inflation-adjusted to the value date (CV02) or "
+            "discounted at the curve named with --curve (CV10).",
         ),
     ] = ValueOption.NOMINAL,
     value_date: Annotated[
@@ -278,6 +281,21 @@ def run_command(
     price_index: Annotated[
         str | None,
         typer.Option("--price-index", help="Price index series_id; default from project.yaml."),
+    ] = None,
+    curve: Annotated[
+        str | None,
+        typer.Option(
+            "--curve",
+            help="curve_id of interest_rates to discount with (CV10); needed by --value "
+            "discounted, and gives the discounted figures of module M12 on any basis.",
+        ),
+    ] = None,
+    discount_date: Annotated[
+        str | None,
+        typer.Option(
+            "--discount-date",
+            help="Date the present values refer to, YYYY-MM-DD; default the cut-off.",
+        ),
     ] = None,
     yes: Annotated[
         bool,
@@ -345,6 +363,10 @@ def run_command(
             ),
             assumptions=(
                 AssumptionsRegister.from_yaml(assumptions) if assumptions else AssumptionsRegister()
+            ),
+            discount=DiscountSettings(
+                curve_id=curve,
+                discount_date=date.fromisoformat(discount_date) if discount_date else None,
             ),
         )
     except (ValueError, OSError) as error:

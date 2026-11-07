@@ -1,9 +1,8 @@
 id: RS05
-version: 1.0.0
+version: 1.1.0
 title_en: Simulated reserve distribution and risk measures
 title_tr: Simüle edilmiş karşılık dağılımı ve risk ölçüleri
 status: reviewed
-implemented: false
 definition: >-
   Mean, standard deviation, coefficient of variation, percentiles, value at risk and tail
   value at risk of the reserve from the bootstrap simulations (MT11), per origin and in
@@ -24,6 +23,21 @@ requires:
   - claim_valuations.paid_to_date
 optional: [claims.occurrence_date, claims.segment, claims.line, interest_rates.curve_id]
 uses: [MT11, RS03, CV10]
+parameters:
+  - name: line_correlation
+    default: 0
+    description: >-
+      Correlation between the reserves of two lines when the lines are added to an all-lines
+      total (a constant correlation between every pair of lines, between 0 and 1). The default
+      0 is independence; the value in force is a row of the assumptions register. The
+      simulations add by a Gaussian rank reordering of the lines with this correlation; the
+      Mack lognormal adds the standard errors with it (RS03).
+  - name: var_level
+    default: 0.995
+    description: Value-at-risk level, as in MT06 and MT11.
+  - name: tvar_level
+    default: 0.99
+    description: Tail value-at-risk level, as in MT06 and MT11.
 edge_cases:
   - case: MT11 did not run
     handling: Not available, with MT11's reason; RS03 is still shown.
@@ -31,6 +45,25 @@ edge_cases:
     handling: The simulated distribution is shifted multiplicatively to the selected mean and labelled "bootstrap CV applied to the selected reserve", as RS03 does.
   - case: Negative simulated totals
     handling: Kept in the distribution; their share is noted.
+  - case: Estimator of the tail value at risk from a finite sample
+    handling: >-
+      The mean of the simulated values at or above the empirical quantile at the tail level
+      (linear interpolation between the two nearest order statistics). With n simulations
+      about n (1 - level) values enter; the output states the estimator, n and the number of
+      values used. The closed form of RS03 (lognormal) is exact; the two differ by sampling
+      error.
+  - case: All lines together
+    handling: >-
+      Simulation b of every line is added (the lines are simulated from independent streams,
+      so the sum is of independent reserves) after the rank reordering of line_correlation;
+      the lines need the same number of simulations. When the bootstrap did not run for a line
+      there is no simulated total of all lines, and the output names the lines without one.
+  - case: DISCOUNTED basis
+    handling: >-
+      Discounted per simulation from the simulated cash flows of MT11 by calendar period
+      (CV10), so it exists for a line as a whole and for all lines; MT11 keeps no cash flows
+      by origin, so an origin has its expected discounted unpaid (RS04) and no discounted
+      distribution. The distribution is scaled with the same ratio as the nominal one.
   - case: Origin with no future cash flow (fully developed)
     handling: Its simulated reserve is zero in every simulation and it is shown as such.
 interpretation: >-
@@ -51,3 +84,9 @@ change_log:
   - version: 1.0.0
     date: 2026-10-25
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-11-07
+    change: >-
+      Built by P26 (record 0325): the estimator of the tail value at risk, the line correlation,
+      all lines together, what the DISCOUNTED basis covers.
+      Amended by the uncertainty and discounting work item (P26); the owner has not reviewed this version yet.

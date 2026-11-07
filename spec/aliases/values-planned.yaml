@@ -1,5 +1,5 @@
 id: AL04
-version: 0.1.0
+version: 0.2.0
 title_en: Value aliases of planned concepts
 title_tr: Planlanan kavramların değer eşleştirmeleri
 status: draft
@@ -239,41 +239,6 @@ values:
       OTHER:
         - DİĞER
         - OTHER
-  - field: rate_type
-    concepts: [interest_rates]
-    classes:
-      SPOT:
-        - SIFIR KUPON
-        - SPOT FAİZ
-        - ZERO
-        - ZERO COUPON
-        - SPOT RATE
-      PAR:
-        - PAR GETİRİ
-        - KUPONLU
-        - PAR YIELD
-        - PAR RATE
-        - SWAP RATE
-      FORWARD:
-        - VADELİ
-        - İLERİ VADELİ
-        - FORWARD RATE
-  - field: compounding
-    concepts: [interest_rates]
-    classes:
-      ANNUAL:
-        - YILLIK
-        - YILLIK BİLEŞİK
-        - ANNUALLY
-        - EFFECTIVE ANNUAL
-      CONTINUOUS:
-        - SÜREKLİ
-        - SÜREKLİ BİLEŞİK
-        - CONTINUOUSLY COMPOUNDED
-      SIMPLE:
-        - BASİT
-        - BASİT FAİZ
-        - MONEY MARKET
   - field: status
     concepts: [life_in_force]
     classes:
@@ -486,3 +451,7 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First seed for the concepts planned in P20.
+  - version: 0.2.0
+    date: 2026-11-07
+    change: >-
+      The entries of interest_rates moved to AL02 with the build of the concept (P26).
