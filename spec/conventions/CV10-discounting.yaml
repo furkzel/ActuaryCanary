@@ -1,9 +1,8 @@
 id: CV10
-version: 1.0.0
+version: 1.1.0
 title_en: Discounting
 title_tr: İskonto
 status: reviewed
-implemented: false
 definition: >-
   On the DISCOUNTED value basis, projected future cash flows are discounted to the discount
   date with a chosen yield curve: how the curve is read, turned into zero rates and
@@ -55,6 +54,20 @@ rules:
   - >-
     The report shows the curve id, curve date, source and the discount effect (nominal minus
     discounted) next to every discounted figure.
+  - >-
+    Whole-year points missing between two given PAR or FORWARD tenors are filled by linear
+    interpolation of the rate in the tenor; the bootstrap and the accumulation stop at the
+    last whole-year tenor given, and beyond it the last forward rate is held flat.
+  - >-
+    The run option --curve and the register entry (CV10, curve_id) name the curve; the option
+    is recorded as a register entry by "run settings", and a register entry of the user wins
+    over the option. --discount-date and the register entry (CV10, discount_date) set the
+    discount date in the same way.
+  - >-
+    The DISCOUNTED value basis leaves every amount of the past as it is (first rule): the
+    triangles are built on the NOMINAL basis, and the basis selects the discounted figures of
+    RS04 and RS05 as the ones a module reports first. It is not combined with
+    INFLATION_ADJUSTED.
 formulas:
   - name: zero rate from annual compounding
     expression: 'z(t) = \ln(1 + r)'
@@ -111,3 +124,9 @@ change_log:
   - version: 1.0.0
     date: 2026-10-25
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-11-07
+    change: >-
+      Built by P26 (record 0322): interpolation of missing whole-year PAR and FORWARD points, how the
+      curve and the discount date are named, what the DISCOUNTED basis does to the triangles.
+      Amended by the uncertainty and discounting work item (P26); the owner has not reviewed this version yet.

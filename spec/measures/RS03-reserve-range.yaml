@@ -1,5 +1,5 @@
 id: RS03
-version: 1.0.0
+version: 1.1.0
 title_en: Reserve range and risk measures
 title_tr: Karşılık aralığı ve risk ölçüleri
 status: reviewed
@@ -30,6 +30,14 @@ edge_cases:
     handling: The coefficient of variation se / R of the Mack chain ladder is applied to the selected reserve and labelled (MT06).
   - case: Label
     handling: 'Every figure carries the label "approximation: Mack standard error with lognormal assumption".'
+  - case: All lines together (module M12)
+    handling: >-
+      The selected reserves add; the standard errors add as the square root of the sum of
+      squares plus twice the line correlation times the products of the standard errors of
+      each pair of lines (default correlation 0, the assumption is in the register, RS05); the
+      lognormal is fitted to that mean and standard error and labelled.
+  - case: The simulated range
+    handling: RS05 gives the bootstrap range of the same reserve; M12 shows both side by side.
 interpretation: >-
   How uncertain the reserve estimate is. The coefficient of variation is the comparable
   figure across lines; VaR and TVaR are indicative tail figures, not capital requirements.
@@ -49,3 +57,8 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-11-07
+    change: >-
+      The range across lines and the pointer to RS05 (P26, record 0323).
+      Amended by the uncertainty and discounting work item (P26); the owner has not reviewed this version yet.

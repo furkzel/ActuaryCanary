@@ -1,5 +1,5 @@
 id: CV02
-version: 1.0.0
+version: 1.1.0
 title_en: Inflation adjustment
 title_tr: Enflasyon düzeltmesi
 status: reviewed
@@ -27,7 +27,7 @@ rules:
     Projections on this basis are at value-date prices. They are turned into nominal
     amounts only with an explicit future inflation assumption (MT07); without one, only
     value-date-price results are shown, labelled as such.
-  - DISCOUNTED values are not part of version 1.0.
+  - DISCOUNTED values follow CV10; the INFLATION_ADJUSTED and DISCOUNTED bases are not combined.
 formulas:
   - name: restatement
     expression: 'x^{\mathrm{adj}}_k = x_k \cdot \frac{I(t_{\mathrm{value}})}{I(t_k)}'
@@ -60,3 +60,8 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-11-07
+    change: >-
+      The rule that DISCOUNTED values do not exist is replaced by a reference to CV10 (P26).
+      Amended by the uncertainty and discounting work item (P26); the owner has not reviewed this version yet.
