@@ -2421,6 +2421,116 @@
       "why": "MT18 default: fewest excesses for a fit at a threshold"
     },
     {
+      "default": "closed",
+      "method": "MT19",
+      "name": "event",
+      "scope": "LIFE/survival",
+      "target": "",
+      "value": "closed",
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: the event is the first closing in any closed status"
+    },
+    {
+      "default": "line",
+      "method": "MT19",
+      "name": "covariates",
+      "scope": "LIFE/survival",
+      "target": "",
+      "value": "line",
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: the line is the covariate of the Cox model"
+    },
+    {
+      "default": "efron",
+      "method": "MT19",
+      "name": "ties",
+      "scope": "LIFE/survival",
+      "target": "",
+      "value": "efron",
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: Efron handling of tied event times"
+    },
+    {
+      "default": 0.95,
+      "method": "MT19",
+      "name": "confidence",
+      "scope": "LIFE/survival",
+      "target": "",
+      "value": 0.95,
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: 95 per cent intervals"
+    },
+    {
+      "default": "days",
+      "method": "MT19",
+      "name": "time_unit",
+      "scope": "LIFE/survival",
+      "target": "",
+      "value": "days",
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: curves and percentiles in days"
+    },
+    {
+      "default": "closed",
+      "method": "MT19",
+      "name": "event",
+      "scope": "NON_LIFE/survival",
+      "target": "",
+      "value": "closed",
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: the event is the first closing in any closed status"
+    },
+    {
+      "default": "line",
+      "method": "MT19",
+      "name": "covariates",
+      "scope": "NON_LIFE/survival",
+      "target": "",
+      "value": "line",
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: the line is the covariate of the Cox model"
+    },
+    {
+      "default": "efron",
+      "method": "MT19",
+      "name": "ties",
+      "scope": "NON_LIFE/survival",
+      "target": "",
+      "value": "efron",
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: Efron handling of tied event times"
+    },
+    {
+      "default": 0.95,
+      "method": "MT19",
+      "name": "confidence",
+      "scope": "NON_LIFE/survival",
+      "target": "",
+      "value": 0.95,
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: 95 per cent intervals"
+    },
+    {
+      "default": "days",
+      "method": "MT19",
+      "name": "time_unit",
+      "scope": "NON_LIFE/survival",
+      "target": "",
+      "value": "days",
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: curves and percentiles in days"
+    },
+    {
       "default": null,
       "method": "CV10",
       "name": "curve_id",
@@ -2867,13 +2977,13 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "768b83e0caecd7a3c1ca878b332a2a297b7e62e570c61b3533d852b1f9eea41f",
-      "size": 5000847
+      "sha256": "af9492b8188645e0daee88bd58f649ba7fb72caa60c46602dc862bd17378ea8a",
+      "size": 5058069
     },
     {
       "name": "quality.json",
-      "sha256": "a4fcb6c6d772925c0a350bf6f9f50a6a9ae340917f48ff5479e0c401435cb54d",
-      "size": 33573
+      "sha256": "afaadc31842c194d0ee91ad51ac12bf67bbc0c43330084228064d4eb01985785",
+      "size": 33603
     },
     {
       "name": "triangles.csv",
@@ -2907,13 +3017,13 @@
     },
     {
       "name": "modules.json",
-      "sha256": "6b14e875c0695dc9c6f4e7bd7894b4157ff8c1127a7a20839d630869f3a5d964",
-      "size": 23268
+      "sha256": "88a06ce96b1aad923f57c7e8638adbbca91f80c4d2844f1ce3d121e7964c212a",
+      "size": 23556
     },
     {
       "name": "assumptions.csv",
-      "sha256": "bb1780296a66e2dbc3cf072b2f916ceb0b973a4aad550ed49e36098b6d78ffde",
-      "size": 27171
+      "sha256": "6f799c0b1e435da547c5d6f1b6caa26de5126567f601578c5fc3be2e35fba6d7",
+      "size": 28225
     },
     {
       "name": "ultimates.csv",
@@ -2932,8 +3042,8 @@
     },
     {
       "name": "diagnostics.csv",
-      "sha256": "fe723c248538400ec66fcf32a249d9e70304a6e93b7d468c7992945e4c08fc2c",
-      "size": 6169
+      "sha256": "1d9468fc2e11a60fc36498d1313a4cb6d3618ac9d59ceef7a7439da79cad01a7",
+      "size": 8260
     },
     {
       "name": "anomalies.csv",
@@ -3066,6 +3176,56 @@
       "size": 13
     },
     {
+      "name": "survival_groups.csv",
+      "sha256": "6e67ab2e8c77b7a753c15a53d7c463a5858da9cc3fcbadb55699850d06729ece",
+      "size": 1220
+    },
+    {
+      "name": "survival_curves.csv",
+      "sha256": "923879296dfee52b98df9a7c7509ccb3cce5be89eeea0a4b9a1f83708ebfa6ee",
+      "size": 45877
+    },
+    {
+      "name": "survival_time_percentiles.csv",
+      "sha256": "4d66383f8c22cb54887b7f1fa56307bbe09f96a788d59540ffb8b2f3d8ac8e2a",
+      "size": 3352
+    },
+    {
+      "name": "survival_cox_models.csv",
+      "sha256": "0a259437c186e5ba606789c26d342dc8cbf156b70af32200478f10266ebfb7eb",
+      "size": 487
+    },
+    {
+      "name": "survival_cox_coefficients.csv",
+      "sha256": "3dfc0524f837e87633c044b495e61b44515d1f5e90fefd0f8cda036884fc486c",
+      "size": 431
+    },
+    {
+      "name": "survival_proportional_hazards_test.csv",
+      "sha256": "cf4b5da0f057ef500fed70b7499f7400d0d35206d7a2a472a5a87ba56d217861",
+      "size": 181
+    },
+    {
+      "name": "survival_baseline.csv",
+      "sha256": "854b2fedf32fe8a730b89f608f89aff6f37f3c041e7778c8ee0704b9b6250507",
+      "size": 6921
+    },
+    {
+      "name": "survival_schoenfeld_residuals.csv",
+      "sha256": "4e06c51d66aae42faf6633141b568ba00f29fcbcb8a56ebeafdf499efb5bb54e",
+      "size": 11951
+    },
+    {
+      "name": "survival_cohorts.csv",
+      "sha256": "13d0af15693225df6ac60d9ccdf5476c7d5d9e6a0895809d5848a6f72d7c6fff",
+      "size": 360
+    },
+    {
+      "name": "sensitivity.csv",
+      "sha256": "66b4fa00edfd15419d6e5055fbd59885eb77191f068c0f1de227b369e74c9bdd",
+      "size": 6079
+    },
+    {
       "name": "risk_measures.csv",
       "sha256": "dab03ede78c7c497d37b4b10cda5a5cfaaa4af504961387287964c4734e582aa",
       "size": 263
@@ -3093,7 +3253,7 @@
       "seed": 1
     }
   ],
-  "run_id": "62c502fb0177dbea",
+  "run_id": "50b4544ddd98dcb8",
   "settings": {
     "assumptions": {
       "entries": []
@@ -3157,6 +3317,14 @@
       },
       "selection_measure": "incurred"
     },
+    "report": {
+      "sensitivity": {
+        "curve_step": 0.01,
+        "factor_step": 0.1,
+        "inflation_step": 0.01,
+        "tail_step": 0.01
+      }
+    },
     "reporting_currency": "TRY",
     "severity": {
       "MT17": {
@@ -3201,6 +3369,25 @@
         ]
       },
       "seed": 1
+    },
+    "survival": {
+      "MT19": {
+        "confidence": 0.95,
+        "covariates": [
+          "line"
+        ],
+        "curve_rows": 400,
+        "event": "closed",
+        "min_events": 20,
+        "percentiles": [
+          0.25,
+          0.5,
+          0.75
+        ],
+        "significance": 0.01,
+        "ties": "efron",
+        "time_unit": "days"
+      }
     },
     "tier_b": {
       "methods": {
@@ -3418,7 +3605,7 @@
     {
       "id": "M03",
       "title": "Claims experience",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "CL02",
@@ -3483,7 +3670,7 @@
     {
       "id": "M04",
       "title": "Reserving (indicative)",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "RS03",
@@ -3533,7 +3720,7 @@
     {
       "id": "M06",
       "title": "Anomalies and large losses",
-      "version": "1.1.0"
+      "version": "1.2.0"
     },
     {
       "id": "M12",
@@ -3616,6 +3803,11 @@
       "version": "1.0.0"
     },
     {
+      "id": "MT19",
+      "title": "Survival analysis (Kaplan–Meier and Cox)",
+      "version": "1.1.0"
+    },
+    {
       "id": "AE02",
       "title": "Back-test error of a projection",
       "version": "1.0.0"
@@ -3623,7 +3815,7 @@
     {
       "id": "RP01",
       "title": "Key finding rules",
-      "version": "1.1.0"
+      "version": "1.2.0"
     }
   ],
   "tables_not_used": []

@@ -45,7 +45,7 @@ canary run <folder>                 # the six files in <folder>
 canary demo                         # the example data that ships with the program
 ```
 
-`canary demo` is a command of its own, for a first look: it runs on [examples/demo](../examples/demo/) without asking, writes the report to `out/<run id>/` and opens it in the browser (`--no-open` does not open it, `--out` changes the output folder). It gives the same run id and outputs as `canary run examples/demo --yes`; it does not take your files, so for those use `canary run`.
+`canary demo` is a command of its own, for a first look: it runs on [examples/demo](../examples/demo/) without asking, writes the report to `out/<run id>/` and opens it in the browser (`--no-open` does not open it, `--out` changes the output folder). It names the curve `TRY_GOV` of the demo's `interest_rates.xlsx`, so its report carries the discounted basis beside the nominal one, and it gives the same run id and outputs as `canary run examples/demo --yes --curve TRY_GOV`; it does not take your files, so for those use `canary run`.
 
 `canary run` reads and recognises the sheets, asks you to confirm any new layout, checks quality, builds the triangles, runs the methods and writes the report and its manifest to `out/<run id>/`. The options that change what is computed:
 
@@ -143,9 +143,9 @@ The same inputs, settings and software always give the same run id and byte-iden
 
 | Folder | What it is | Run id |
 | --- | --- | --- |
-| [examples/demo](../examples/demo/) | A synthetic insurer, ten accident years 2016–2025 and about 2,600 claims in four lines; no thin-evidence warning. The one to try first. | `b804dc99618c2275` |
-| [examples/baseline](../examples/baseline/) | The same insurer at tiny size, four accident years 2022–2025, with a few faults injected on purpose | `e923a8e4302875b1` |
-| [examples/messy_headers](../examples/messy_headers/) | The baseline as real files arrive: headers renamed, misspelt or in Turkish, title rows above the header, dates as text, labels in Turkish, repeated rows and personal-data columns | `62c502fb0177dbea` |
+| [examples/demo](../examples/demo/) | A synthetic insurer, ten accident years 2016–2025 and about 2,600 claims in four lines; no thin-evidence warning. The one to try first. | `5051bffa374d4614` |
+| [examples/baseline](../examples/baseline/) | The same insurer at tiny size, four accident years 2022–2025, with a few faults injected on purpose | `bd4528a4bbd8153d` |
+| [examples/messy_headers](../examples/messy_headers/) | The baseline as real files arrive: headers renamed, misspelt or in Turkish, title rows above the header, dates as text, labels in Turkish, repeated rows and personal-data columns | `50b4544ddd98dcb8` |
 
 Each example folder has the six input files and a `report/` folder with the report and manifest of its run (the report as the platform wrote it, the manifest with its fingerprints). The messy example is the one to use for the mapping confirmation: `canary run examples/messy_headers` asks about every sheet. The data are synthetic, generated from a fixed seed by [synthetic/scenarios/](../synthetic/scenarios/); no personal or company data is anywhere in the repository.
 

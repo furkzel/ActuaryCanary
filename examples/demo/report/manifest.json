@@ -2949,14 +2949,124 @@
       "why": "MT18 default: fewest excesses for a fit at a threshold"
     },
     {
+      "default": "closed",
+      "method": "MT19",
+      "name": "event",
+      "scope": "LIFE/survival",
+      "target": "",
+      "value": "closed",
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: the event is the first closing in any closed status"
+    },
+    {
+      "default": "line",
+      "method": "MT19",
+      "name": "covariates",
+      "scope": "LIFE/survival",
+      "target": "",
+      "value": "line",
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: the line is the covariate of the Cox model"
+    },
+    {
+      "default": "efron",
+      "method": "MT19",
+      "name": "ties",
+      "scope": "LIFE/survival",
+      "target": "",
+      "value": "efron",
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: Efron handling of tied event times"
+    },
+    {
+      "default": 0.95,
+      "method": "MT19",
+      "name": "confidence",
+      "scope": "LIFE/survival",
+      "target": "",
+      "value": 0.95,
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: 95 per cent intervals"
+    },
+    {
+      "default": "days",
+      "method": "MT19",
+      "name": "time_unit",
+      "scope": "LIFE/survival",
+      "target": "",
+      "value": "days",
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: curves and percentiles in days"
+    },
+    {
+      "default": "closed",
+      "method": "MT19",
+      "name": "event",
+      "scope": "NON_LIFE/survival",
+      "target": "",
+      "value": "closed",
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: the event is the first closing in any closed status"
+    },
+    {
+      "default": "line",
+      "method": "MT19",
+      "name": "covariates",
+      "scope": "NON_LIFE/survival",
+      "target": "",
+      "value": "line",
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: the line is the covariate of the Cox model"
+    },
+    {
+      "default": "efron",
+      "method": "MT19",
+      "name": "ties",
+      "scope": "NON_LIFE/survival",
+      "target": "",
+      "value": "efron",
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: Efron handling of tied event times"
+    },
+    {
+      "default": 0.95,
+      "method": "MT19",
+      "name": "confidence",
+      "scope": "NON_LIFE/survival",
+      "target": "",
+      "value": 0.95,
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: 95 per cent intervals"
+    },
+    {
+      "default": "days",
+      "method": "MT19",
+      "name": "time_unit",
+      "scope": "NON_LIFE/survival",
+      "target": "",
+      "value": "days",
+      "when": null,
+      "who": "default",
+      "why": "MT19 default: curves and percentiles in days"
+    },
+    {
       "default": null,
       "method": "CV10",
       "name": "curve_id",
       "scope": "*",
       "target": "",
-      "value": null,
+      "value": "TRY_GOV",
       "when": null,
-      "who": "default",
+      "who": "run settings",
       "why": "named by --curve"
     },
     {
@@ -3140,6 +3250,18 @@
         }
       ],
       "size": 81380
+    },
+    {
+      "concept": "interest_rates",
+      "name": "interest_rates.xlsx",
+      "sha256": "6268e92564163ec2b5c45437745354a1ef397673f909ccbf1cfa0e0607133cb7",
+      "sheets": [
+        {
+          "name": "interest_rates",
+          "rows": 2520
+        }
+      ],
+      "size": 88850
     }
   ],
   "lineage_format": 2,
@@ -3385,13 +3507,13 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "f9ca390b245c16f3e0006709105d8ad2350c7ca56f71d203f11bfa576bcca1a7",
-      "size": 5072856
+      "sha256": "764fa71e57e04424b98c4820ea054c7a1cd9cb31fce5fec68ec9a911716381fb",
+      "size": 5212502
     },
     {
       "name": "quality.json",
-      "sha256": "f0e6d6962915dc9f7b61654a675be4ea658a8efc3b92305dcd2af08f341bd6e8",
-      "size": 32551
+      "sha256": "dde0e7142c283c0e32303e2836fefaccf0633789e9be0d71337c9f090df5569f",
+      "size": 35858
     },
     {
       "name": "triangles.csv",
@@ -3410,13 +3532,13 @@
     },
     {
       "name": "measures.csv",
-      "sha256": "816dd43464a557b6a2256bdfe37e38f7971330842c52bc52a58dd7fe84e5ea9e",
-      "size": 1445813
+      "sha256": "5d98867e6632e6a39c14fb44aa9e1a2512371d441fa46e92f2e27d4eda839e65",
+      "size": 1460078
     },
     {
       "name": "lineage.csv",
-      "sha256": "da3e55e7488396f5a330a53a4dacaeb906f1d199d99e20da66d3af1905bfec26",
-      "size": 174294
+      "sha256": "21fac9efb8c3afb0a9155280dd4c293b9bec16913b9390363cf495eb4a577109",
+      "size": 178504
     },
     {
       "name": "lineage_atoms.csv",
@@ -3425,13 +3547,13 @@
     },
     {
       "name": "modules.json",
-      "sha256": "1e12b47b4e046f0d04abbabbe5b1b9f5ee4024b2f3cef5a0248a772400c3c9ff",
-      "size": 25502
+      "sha256": "2a73e37544a6eab8fe808907cf77099aadb4bcce938794bcfda3f13a959dfd29",
+      "size": 25582
     },
     {
       "name": "assumptions.csv",
-      "sha256": "9de2fecd0cd60db71f5c78c8a3ec4ab02dd0e6649ff8c80f00c9b69cb9901e53",
-      "size": 33271
+      "sha256": "cb1ccf23eee0758be33f69cb76cdbc9e97ebca16abb00581e23dc88570d319f4",
+      "size": 34335
     },
     {
       "name": "ultimates.csv",
@@ -3450,8 +3572,8 @@
     },
     {
       "name": "diagnostics.csv",
-      "sha256": "d882cb092e086103608625c6e16ed8cfd3a7faf8aec2d837af6adb92f1cbce21",
-      "size": 5428
+      "sha256": "848f58715ea24d10d5857eb49e54f23e43923b26b5e356718132d893fd4e5fa5",
+      "size": 6724
     },
     {
       "name": "anomalies.csv",
@@ -3589,19 +3711,74 @@
       "size": 330
     },
     {
+      "name": "survival_groups.csv",
+      "sha256": "342e6e5a25a9f6348329b57cfd7c0962e288b54a7faf94768e3839a6f884eb5b",
+      "size": 1953
+    },
+    {
+      "name": "survival_curves.csv",
+      "sha256": "08abd178476bc5209e6ce37e18bb707a040cdbeb14c7e6a99c40fba87087b85c",
+      "size": 353376
+    },
+    {
+      "name": "survival_time_percentiles.csv",
+      "sha256": "4e84fbd0c74bfde4d14928fd0bf03168aeae8e80aae98a553bc8838ecfe2a8da",
+      "size": 4986
+    },
+    {
+      "name": "survival_cox_models.csv",
+      "sha256": "f92ad011af237e8b2b8891c8abda1ed72137f5adc5e607ffd710adabc2fdc332",
+      "size": 492
+    },
+    {
+      "name": "survival_cox_coefficients.csv",
+      "sha256": "d709d8621b06fcf0fad056ea6d82e3b6e47c39b8c281ab3ba5f8b4ace821a277",
+      "size": 442
+    },
+    {
+      "name": "survival_proportional_hazards_test.csv",
+      "sha256": "2be340608688d8ed2fceec1abaac674aacd5f3d653e93d32b68f41a3ee17a540",
+      "size": 186
+    },
+    {
+      "name": "survival_baseline.csv",
+      "sha256": "83dfedbde78c6b67bbf69c4efb3e842e5382e5be6f1e43c5f7780e2f54cf8643",
+      "size": 7183
+    },
+    {
+      "name": "survival_schoenfeld_residuals.csv",
+      "sha256": "f877ca848d782ad97e5c79ab16d2dfe38f7ef6db09e6927c388441697c4f5ce1",
+      "size": 32979
+    },
+    {
+      "name": "survival_cohorts.csv",
+      "sha256": "e636086f6a713a969ea7c4cf4771a7f5c5e2f55331a6a5d19ccede18b7792c76",
+      "size": 762
+    },
+    {
+      "name": "sensitivity.csv",
+      "sha256": "76b6c98fd9446bde34d389f5c0d4a67ee0e3db2aed2ba13e54bf90019128d286",
+      "size": 5621
+    },
+    {
       "name": "risk_measures.csv",
-      "sha256": "608edb627b211e7e7220cc59d0b5961d57945b9b6075403d80ff302b0991c784",
-      "size": 20217
+      "sha256": "702087dc3525aa6998919b4c6f71306d9949e1717e89842ed6731d1a25e2d887",
+      "size": 29306
     },
     {
       "name": "risk_cash_flows.csv",
-      "sha256": "6933721dc753db426117fef800d56c89e09b5322890103609e40239167a63e0d",
-      "size": 3821
+      "sha256": "f9d6adf953c4e11f40301269fa18dcd0c9498073c1faaace612cdf8c22f0555b",
+      "size": 4887
     },
     {
       "name": "risk_distribution.parquet",
-      "sha256": "56d797b266ebccdb5d21b0153a3b21d4341e3c2d24e070604030690ba641233a",
-      "size": 74324
+      "sha256": "15f97a75374b44663d0a1eb8a4c1709c72b227d09c49e7a52c702846109a4fdf",
+      "size": 124827
+    },
+    {
+      "name": "discount_curve.csv",
+      "sha256": "2f8133e025995dd2b0bd72b4e24e10a288e8bf1eecbdd0a92a767177b09513a7",
+      "size": 502
     }
   ],
   "randomness": [
@@ -3631,7 +3808,7 @@
       "seed": 1
     }
   ],
-  "run_id": "b804dc99618c2275",
+  "run_id": "5051bffa374d4614",
   "settings": {
     "assumptions": {
       "entries": []
@@ -3651,16 +3828,22 @@
     },
     "currency_view": "REPORTING",
     "discount": {
-      "curve_id": null,
+      "curve_id": "TRY_GOV",
       "discount_date": null,
       "max_curve_age_days": 31,
       "tail_payment_years": 5,
       "timing": "mid_period"
     },
     "discount_used": {
-      "available": false,
+      "available": true,
+      "compounding": "ANNUAL",
+      "currency": "TRY",
+      "curve_age_days": 0,
+      "curve_date_used": "2025-12-31",
+      "curve_id_used": "TRY_GOV",
       "discount_date_used": "2025-12-31",
-      "reason": "no curve is named: name one with --curve or a register entry (CV10, curve_id)",
+      "rate_type": "SPOT",
+      "source": "SYNTHETIC",
       "tail_payment_years_used": 5,
       "timing_used": "mid_period"
     },
@@ -3694,6 +3877,14 @@
         "threshold": 3.5
       },
       "selection_measure": "incurred"
+    },
+    "report": {
+      "sensitivity": {
+        "curve_step": 0.01,
+        "factor_step": 0.1,
+        "inflation_step": 0.01,
+        "tail_step": 0.01
+      }
     },
     "reporting_currency": "TRY",
     "severity": {
@@ -3739,6 +3930,25 @@
         ]
       },
       "seed": 1
+    },
+    "survival": {
+      "MT19": {
+        "confidence": 0.95,
+        "covariates": [
+          "line"
+        ],
+        "curve_rows": 400,
+        "event": "closed",
+        "min_events": 20,
+        "percentiles": [
+          0.25,
+          0.5,
+          0.75
+        ],
+        "significance": 0.01,
+        "ties": "efron",
+        "time_unit": "days"
+      }
     },
     "tier_b": {
       "methods": {
@@ -3889,6 +4099,11 @@
       "version": "1.0.0"
     },
     {
+      "id": "CV10",
+      "title": "Discounting",
+      "version": "1.1.0"
+    },
+    {
       "id": "market",
       "title": "Market series",
       "version": "1.1.0"
@@ -3907,6 +4122,11 @@
       "id": "expenses",
       "title": "Expenses",
       "version": "1.0.0"
+    },
+    {
+      "id": "interest_rates",
+      "title": "Interest rates and yield curves",
+      "version": "1.1.0"
     },
     {
       "id": "M01",
@@ -3956,7 +4176,7 @@
     {
       "id": "M03",
       "title": "Claims experience",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "CL02",
@@ -4021,7 +4241,7 @@
     {
       "id": "M04",
       "title": "Reserving (indicative)",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "RS03",
@@ -4071,7 +4291,7 @@
     {
       "id": "M06",
       "title": "Anomalies and large losses",
-      "version": "1.1.0"
+      "version": "1.2.0"
     },
     {
       "id": "M12",
@@ -4174,6 +4394,11 @@
       "version": "1.1.0"
     },
     {
+      "id": "MT19",
+      "title": "Survival analysis (Kaplan–Meier and Cox)",
+      "version": "1.1.0"
+    },
+    {
       "id": "AE02",
       "title": "Back-test error of a projection",
       "version": "1.0.0"
@@ -4181,7 +4406,7 @@
     {
       "id": "RP01",
       "title": "Key finding rules",
-      "version": "1.1.0"
+      "version": "1.2.0"
     }
   ],
   "tables_not_used": []
