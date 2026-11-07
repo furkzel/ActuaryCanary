@@ -54,11 +54,12 @@ def test_the_large_loss_and_settlement_parts_read_their_files(default_run: RunRe
     assert "no frozen reference" in survival["footnotes"]["information"]
 
 
+@pytest.mark.slow  # reads the 5 MB page: over 0.5 s on this machine (the first read of the file)
 def test_the_value_basis_without_a_curve_is_nominal_with_no_switch(default_run: RunResult) -> None:
     bases = default_run.report_data["bases"]
     assert [x["id"] for x in bases["items"]] == ["NOMINAL"]
     assert bases["shown"] == "NOMINAL" and not bases["switch"]
-    page = default_run.report.read_text(encoding="utf-8")
+    page = default_run.report.read_text(encoding="utf-8").split("<script>", 1)[0]  # no plotly
     assert 'data-basis-shown="NOMINAL"' in page
     assert not re.search(r'<[a-z]+ [^>]*data-basis="DISCOUNTED"', page)  # no hidden block
 

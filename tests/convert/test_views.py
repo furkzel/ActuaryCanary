@@ -148,8 +148,9 @@ def test_the_original_view_enters_the_run_id_and_the_page_says_how_amounts_are_k
     manifest = (original.folder / "manifest.json").read_text(encoding="utf-8")
     assert '"currency": "ORIGINAL"' in manifest and '"currency_conversion": "none"' in manifest
     tiles = {t["segment"]: t["tiles"] for t in original.report_data["tiles"]}
-    # LIFE has one currency: its tiles stand; NON_LIFE has two and is not added
-    assert len(tiles["LIFE"]) == 4
+    # LIFE has one currency: its tiles stand (with the selected unpaid of record 0344); NON_LIFE
+    # has two and is not added
+    assert len(tiles["LIFE"]) == 5 and tiles["LIFE"][-1]["label"] == "Selected unpaid, nominal"
     assert [t["label"] for t in tiles["NON_LIFE"]] == ["Amounts in several currencies"]
     findings = [f["text"] for f in original.report_data["key_findings"]]
     assert not any(text.startswith("NON_LIFE: selected ultimate") for text in findings)
