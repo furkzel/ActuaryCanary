@@ -29,6 +29,11 @@ NEWTON_POLISH = 3
 MAX_ITERATIONS = 200
 DIVERGED = 20.0  # a coefficient beyond this (a hazard ratio of 5e8) means no finite maximum
 MAX_LEVELS_FOR_PAIR_COUNTS = 400
+# A covariate whose standardised column adds a singular value of at most this share of the
+# largest one to the columns before it is collinear with them (record 0307). Below 1e-6 the
+# information matrix has a condition number above 1e12 and the standard errors keep fewer than
+# four digits; floating-point noise in an exact dependence is of the order 1e-16.
+COLLINEARITY_TOLERANCE = 1e-6
 
 
 @dataclass(frozen=True)
@@ -57,6 +62,31 @@ def _prepare(
     share = rank / np.repeat(sizes, sizes) if ties == EFRON else np.zeros(len(event_rows))
     risk_start = np.searchsorted(t, times, side="left")
     return _Data(xs, event_rows, group, risk_start, group_start, sizes, share, times), order
+
+
+def collinear_covariates(x: np.ndarray, names: tuple[str, ...]) -> list[str]:
+    """The names of the covariates that add no rank to the columns before them, decided before
+    any fit and without the optimiser. The columns are centred and scaled to unit variance; a
+    constant column adds nothing; a column is kept when the numerical rank of the kept columns
+    plus it grows, the rank being the number of singular values above
+    COLLINEARITY_TOLERANCE times the largest one."""
+    xs = np.asarray(x, dtype=np.float64).reshape(len(x), -1)
+    offending: list[str] = []
+    kept: list[np.ndarray] = []
+    for j, name in enumerate(names):
+        column = xs[:, j]
+        scale = float(np.max(np.abs(column))) if column.size else 0.0
+        if column.size == 0 or float(np.ptp(column)) <= COLLINEARITY_TOLERANCE * scale:
+            offending.append(name)  # constant: it cancels out of the partial likelihood
+            continue
+        standard = (column - column.mean()) / column.std()
+        trial = np.column_stack([*kept, standard])
+        singular = np.linalg.svd(trial, compute_uv=False)
+        if int(np.sum(singular > COLLINEARITY_TOLERANCE * singular[0])) < trial.shape[1]:
+            offending.append(name)
+        else:
+            kept.append(standard)
+    return offending
 
 
 def _suffix(values: np.ndarray, start: np.ndarray) -> np.ndarray:
@@ -189,6 +219,13 @@ def cox_fit(
         return Skipped(METHOD, "no events")
     if p == 0:
         return Skipped(METHOD, "no covariate")
+    offending = collinear_covariates(xs, names)
+    if offending:
+        return Skipped(
+            METHOD,
+            f"covariates are collinear: {', '.join(offending)} add no rank to the others "
+            "(constant, or a combination of the covariates before them)",
+        )
     data, _ = _prepare(t, e, xs, ties)
     null = _loglik_and_gradient(np.zeros(p), data)[0]
     cache: dict[bytes, tuple[float, np.ndarray, np.ndarray]] = {}

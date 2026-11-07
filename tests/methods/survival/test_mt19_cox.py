@@ -174,6 +174,58 @@ def test_collinear_covariates_are_skipped() -> None:
     x = np.column_stack([a, 2 * a])
     fit = cox_fit(rng.exponential(size=40), rng.random(40) < 0.8, x, ("a", "b"))
     assert isinstance(fit, Skipped) and "collinear" in fit.reason
+    assert "b" in fit.reason and "a add" not in fit.reason  # b adds no rank, a is kept
+
+
+def _pair(ratio: float, n: int = 60) -> np.ndarray:
+    """Two standardised columns whose singular values are in the ratio `ratio` (the angle between
+    them is 2 atan(ratio)), built from two orthogonal centred columns."""
+    rng = np.random.default_rng(7)
+    u, v = rng.normal(size=(2, n))
+    u, v = u - u.mean(), v - v.mean()
+    v = v - (v @ u) / (u @ u) * u
+    u, v = u / u.std(), v / v.std()
+    angle = 2.0 * math.atan(ratio)
+    return np.column_stack([u, math.cos(angle) * u + math.sin(angle) * v])
+
+
+def _skipped_as_collinear(x: np.ndarray) -> bool:
+    rng = np.random.default_rng(3)
+    fit = cox_fit(rng.exponential(size=len(x)), rng.random(len(x)) < 0.8, x, ("a", "b"))
+    return isinstance(fit, Skipped) and "collinear" in fit.reason
+
+
+def test_near_collinearity_is_decided_by_the_tolerance_and_nothing_else() -> None:
+    tol = cox_module.COLLINEARITY_TOLERANCE
+    assert cox_module.collinear_covariates(_pair(0.5 * tol), ("a", "b")) == ["b"]
+    assert cox_module.collinear_covariates(_pair(2.0 * tol), ("a", "b")) == []
+    assert _skipped_as_collinear(_pair(0.5 * tol))
+    assert not _skipped_as_collinear(_pair(2.0 * tol))
+
+
+def test_the_check_does_not_depend_on_the_scale_or_the_position_of_a_column() -> None:
+    rng = np.random.default_rng(5)
+    a, c = rng.normal(size=50), rng.normal(size=50)
+    x = np.column_stack([1e6 * a + 3e7, c, -3e-4 * a + 2.0])
+    assert cox_module.collinear_covariates(x, ("a", "c", "d")) == ["d"]
+
+
+def test_a_constant_column_is_collinear_and_named() -> None:
+    rng = np.random.default_rng(2)
+    x = np.column_stack([rng.normal(size=30), np.full(30, 0.1), np.zeros(30)])
+    assert cox_module.collinear_covariates(x, ("a", "k", "z")) == ["k", "z"]
+    fit = cox_fit(rng.exponential(size=30), rng.random(30) < 0.8, x, ("a", "k", "z"))
+    assert isinstance(fit, Skipped) and "collinear" in fit.reason and "k, z" in fit.reason
+
+
+def test_well_conditioned_covariates_are_not_flagged_and_still_fit() -> None:
+    rng = np.random.default_rng(11)
+    x = rng.normal(size=(80, 2))
+    time = rng.exponential(size=80) * np.exp(-0.5 * x[:, 0])
+    assert cox_module.collinear_covariates(x, ("a", "b")) == []
+    fit = cox_fit(time, rng.random(80) < 0.8, x, ("a", "b"))
+    assert not isinstance(fit, Skipped)
+    assert fit.coefficient.shape == (2,) and np.all(np.isfinite(fit.standard_error))
 
 
 def test_a_covariate_that_separates_the_events_has_no_maximum() -> None:
