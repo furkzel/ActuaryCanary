@@ -254,7 +254,9 @@ def _run(rule: str, rows: Rows) -> Any:
 
 
 def test_every_check_has_a_case() -> None:
-    assert set(CASES) == set(CHECKS)
+    # DV-IRT-08 and -09 judge the curve a run names, not a frame; they are tested in
+    # tests/canonical/test_feeds_interest_rates.py
+    assert set(CASES) | {"DV-IRT-08", "DV-IRT-09"} == set(CHECKS)
 
 
 @pytest.mark.parametrize("rule", sorted(CASES))

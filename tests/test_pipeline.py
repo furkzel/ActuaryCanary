@@ -73,6 +73,8 @@ def test_baseline_tiny_outputs_inputs_and_groups(default_run: RunResult) -> None
             "thresholds", "candidates", "gpd_fit", "tail_quantiles", "return_levels",
             "threshold_comparison", "mean_excess", "excess_plot", "yearly", "yearly_summary",
         )),
+        "risk_measures.csv",  # M12; no simulations on the tiny baseline, so no distribution file
+        "risk_cash_flows.csv",
     ]  # fmt: skip
     assert [i["name"] for i in one["inputs"]] == [
         "claim_valuations.xlsx",
@@ -254,6 +256,7 @@ def test_run_says_which_modules_ran_and_why_others_did_not(default_run: RunResul
         "M04": "limited",
         "M05": "ran",
         "M06": "limited",
+        "M12": "limited",  # no curve is named, and the 4 x 4 triangles are too small to bootstrap
     }
     # the 4 x 4 triangles of the tiny baseline are too small for the Mack variance (record 0041)
     assert "MT06 Mack standard error did not run" in " ".join(
@@ -261,7 +264,15 @@ def test_run_says_which_modules_ran_and_why_others_did_not(default_run: RunResul
     )
     assert default_run.analysis.get("M04").methods_missing == ()
     listed = json.loads((default_run.folder / "modules.json").read_text(encoding="utf-8"))
-    assert [m["module"] for m in listed["modules"]] == ["M01", "M02", "M03", "M04", "M05", "M06"]
+    assert [m["module"] for m in listed["modules"]] == [
+        "M01",
+        "M02",
+        "M03",
+        "M04",
+        "M05",
+        "M06",
+        "M12",
+    ]
 
 
 @pytest.mark.slow

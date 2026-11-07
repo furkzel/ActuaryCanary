@@ -122,7 +122,7 @@ def test_coverage_lists_every_concept_and_what_was_not_loaded() -> None:
         unreadable={"claims": "columns missing"},
     )
     by = {c.concept: c for c in r.coverage}
-    assert len(by) == 6
+    assert len(by) == 7  # six of version 1.0 and interest_rates (P26)
     cv_cover = by["claim_valuations"]
     assert cv_cover.loaded and cv_cover.rows == 3
     assert (cv_cover.first, cv_cover.last) == (date(2024, 1, 31), date(2024, 3, 31))

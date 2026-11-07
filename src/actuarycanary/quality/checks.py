@@ -13,6 +13,7 @@ from datetime import date
 import polars as pl
 
 from actuarycanary.canonical.feeds import CURRENCY_CODE, Finding
+from actuarycanary.convert.discount import DiscountContext
 from actuarycanary.convert.market import (
     FX_PERIOD_AVERAGE,
     FX_PERIOD_END,
@@ -48,6 +49,8 @@ class Context:
     reporting_currency: str | None = None
     price_index: str | None = None
     adjusted: bool = False  # the run restates amounts with the price index (CV02)
+    # the curve a run discounts with (CV10); None: DV-IRT-08 and -09 are not evaluated
+    discount: DiscountContext | None = None
 
 
 Check = Callable[[Context], Outcome | None]
@@ -574,6 +577,28 @@ def monthly_change_is_reasonable(ctx: Context) -> Outcome | None:  # DV-MKT-08
     return _outcome("DV-MKT-08", "market", scored.height, flagged)
 
 
+def curve_is_current(ctx: Context) -> Outcome | None:  # DV-IRT-08
+    """The curve named for discounting has a date on or before the discount date and is no older
+    than max_curve_age_days; an unusable curve is the finding."""
+    discount = ctx.discount
+    if discount is None:
+        return None
+    hit = [f.message for f in discount.findings if f.rule == "DV-IRT-08"]
+    if discount.curve is None:
+        if "DV-IRT-08" not in discount.reason:
+            return None  # no curve named, not loaded or unusable for another reason
+        hit.append(discount.reason)  # no date on or before the discount date
+    return Outcome("DV-IRT-08", "interest_rates", 1, len(hit), "; ".join(hit))
+
+
+def forwards_are_reasonable(ctx: Context) -> Outcome | None:  # DV-IRT-09
+    discount = ctx.discount
+    if discount is None or discount.curve is None:
+        return None
+    hit = [f for f in discount.findings if f.rule == "DV-IRT-09"]
+    return Outcome("DV-IRT-09", "interest_rates", 1, len(hit), "; ".join(f.message for f in hit))
+
+
 CHECKS: dict[str, Check] = {
     "DV-CLV-07": paid_never_decreases,
     "DV-CLV-08": amounts_not_negative,
@@ -622,6 +647,8 @@ CHECKS: dict[str, Check] = {
     "DV-MKT-06": monthly_series_complete,
     "DV-MKT-07": series_cover_conversions,
     "DV-MKT-08": monthly_change_is_reasonable,
+    "DV-IRT-08": curve_is_current,
+    "DV-IRT-09": forwards_are_reasonable,
 }
 
 # Rules the canonical step applies while it builds the feed; its findings are the evidence.
@@ -643,6 +670,16 @@ CANONICAL_RULES: dict[str, tuple[str, ...]] = {
         "DV-PRM-04",
         "DV-PRM-05",
         "DV-PRM-08",
+    ),
+    "interest_rates": (
+        "DV-IRT-01",
+        "DV-IRT-02",
+        "DV-IRT-03",
+        "DV-IRT-04",
+        "DV-IRT-05",
+        "DV-IRT-06",
+        "DV-IRT-07",
+        "DV-IRT-10",
     ),
     "policies": (
         "DV-POL-01",

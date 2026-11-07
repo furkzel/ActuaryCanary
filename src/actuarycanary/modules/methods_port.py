@@ -25,6 +25,11 @@ from actuarycanary.modules.reserving import (
     earlier_result,
 )
 from actuarycanary.modules.reserving_tier_b_output import ae02_table
+from actuarycanary.modules.uncertainty import (
+    BOOTSTRAP_SOURCE,
+    EXPECTED_SOURCE,
+    UncertaintyResult,
+)
 from actuarycanary.structures.triangles import MEASURES
 
 IMPLEMENTED = frozenset(
@@ -86,9 +91,16 @@ def selection_of(result: ReservingResult, valuation_date: date) -> Selection | N
 class ReservingPort:
     """`MethodsPort` over a reserving result and, when M06 ran, the anomaly methods."""
 
-    def __init__(self, result: ReservingResult, basis: str, extra: frozenset[str] = frozenset()):
+    def __init__(
+        self,
+        result: ReservingResult,
+        basis: str,
+        extra: frozenset[str] = frozenset(),
+        uncertainty: UncertaintyResult | str | None = None,
+    ):
         self._result = result
         self._basis = basis
+        self._uncertainty = uncertainty
         self._built = IMPLEMENTED | extra
         self._selections: dict[date, Selection | NotAvailable] = {}
         self._tables: dict[str, pl.DataFrame] = {}
@@ -106,7 +118,38 @@ class ReservingPort:
             self._selections[valuation_date] = selection_of(self._result, valuation_date)
         return self._selections[valuation_date]
 
+    def _uncertainty_table(self, measure_id: str, basis: str) -> pl.DataFrame | NotAvailable:
+        """RS04 and RS05 (M12). They exist on the reinsurance and currency basis of the run and on
+        the value basis they define (RS04 DISCOUNTED, RS05 NOMINAL and DISCOUNTED)."""
+        run, asked = self._basis.split(", "), basis.split(", ")
+        if basis and asked[:2] != run[:2]:
+            return NotAvailable(f"the methods ran on the basis {self._basis}, not on {basis}")
+        found = self._uncertainty
+        if found is None:
+            return NotAvailable("uncertainty and risk (M12) did not run")
+        if isinstance(found, str):
+            return NotAvailable(found)
+        discounted = measure_id == "RS04" or (len(asked) == 3 and asked[2] == "DISCOUNTED")
+        if discounted and not found.discount.available:
+            return NotAvailable(f"no discounted figures: {found.discount.reason}")
+        source = EXPECTED_SOURCE if measure_id == "RS04" else BOOTSTRAP_SOURCE
+        table = found.risk.filter(
+            (pl.col("source") == source)
+            & (pl.col("value_basis") == ("DISCOUNTED" if discounted else "NOMINAL"))
+        )
+        if table.height == 0:
+            return NotAvailable(
+                "no simulated reserve distribution: "
+                + ("; ".join(found.notes) or "MT11 did not run")
+                if measure_id == "RS05"
+                else "no expected cash flows could be built"
+            )
+        keep = [c for c in table.columns if table[c].null_count() < table.height or c == "note"]
+        return table.select(keep)
+
     def measure(self, measure_id: str, basis: str = "") -> pl.DataFrame | NotAvailable:
+        if measure_id in ("RS04", "RS05"):
+            return self._uncertainty_table(measure_id, basis)
         wrong = self._wrong_basis(basis)
         if wrong:
             return wrong

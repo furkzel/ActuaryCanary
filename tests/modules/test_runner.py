@@ -49,7 +49,7 @@ def states(analysis) -> dict[str, ModuleState]:
 
 def test_modules_run_when_their_concepts_are_present(full) -> None:
     analysis = full
-    assert [m.module for m in analysis.modules] == ["M01", "M02", "M03", "M04", "M05", "M06"]
+    assert [m.module for m in analysis.modules] == ["M01", "M02", "M03", "M04", "M05", "M06", "M12"]
     found = states(analysis)
     assert all(state is not ModuleState.SKIPPED for state in found.values()), found
     assert found["M01"] is ModuleState.RAN
@@ -105,7 +105,15 @@ def test_results_list_each_measure_view_once_and_the_json_names_every_module(ful
     keys = [(r.measure, r.request) for r in analysis.results()]
     assert len(keys) == len(set(keys))
     data = json.loads(analysis_json(analysis))
-    assert [m["module"] for m in data["modules"]] == ["M01", "M02", "M03", "M04", "M05", "M06"]
+    assert [m["module"] for m in data["modules"]] == [
+        "M01",
+        "M02",
+        "M03",
+        "M04",
+        "M05",
+        "M06",
+        "M12",
+    ]
     m02 = data["modules"][1]
     assert m02["state"] in ("ran", "limited") and m02["measures"]
     assert {"measure", "spec_version", "available", "rows", "reason"} <= set(m02["measures"][0])

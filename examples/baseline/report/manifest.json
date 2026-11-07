@@ -2419,6 +2419,72 @@
       "when": null,
       "who": "default",
       "why": "MT18 default: fewest excesses for a fit at a threshold"
+    },
+    {
+      "default": null,
+      "method": "CV10",
+      "name": "curve_id",
+      "scope": "*",
+      "target": "",
+      "value": null,
+      "when": null,
+      "who": "default",
+      "why": "named by --curve"
+    },
+    {
+      "default": "cut-off",
+      "method": "CV10",
+      "name": "discount_date",
+      "scope": "*",
+      "target": "",
+      "value": "2025-12-31",
+      "when": null,
+      "who": "default",
+      "why": "set by --discount-date"
+    },
+    {
+      "default": "mid_period",
+      "method": "CV10",
+      "name": "timing",
+      "scope": "*",
+      "target": "",
+      "value": "mid_period",
+      "when": null,
+      "who": "default",
+      "why": "CV10 default"
+    },
+    {
+      "default": 31.0,
+      "method": "CV10",
+      "name": "max_curve_age_days",
+      "scope": "*",
+      "target": "",
+      "value": 31.0,
+      "when": null,
+      "who": "default",
+      "why": "CV10 default"
+    },
+    {
+      "default": 5.0,
+      "method": "CV10",
+      "name": "tail_payment_years",
+      "scope": "*",
+      "target": "",
+      "value": 5.0,
+      "when": null,
+      "who": "default",
+      "why": "CV10 default"
+    },
+    {
+      "default": 0.0,
+      "method": "RS05",
+      "name": "line_correlation",
+      "scope": "*",
+      "target": "",
+      "value": 0.0,
+      "when": null,
+      "who": "default",
+      "why": "independence between lines, the sum of independent reserves"
     }
   ],
   "data_findings": [
@@ -2785,13 +2851,13 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "f0d083a41da378e0322f64cb8492313daee18bd3ad4c65fead0865e14d4f64ea",
-      "size": 4991960
+      "sha256": "09f94893457624f5fe45e5eeeccb6a313aed5b9c16f6ccfb5a4ae1becc373f2e",
+      "size": 5000559
     },
     {
       "name": "quality.json",
-      "sha256": "e735faf47b83b66216f63b85f85a7f26f5907fb39c94499a515a3190e68df018",
-      "size": 31685
+      "sha256": "3613abc6fd7f8ebd66a815510c0efad990bbdb6593fa750af5774d86e6b63aed",
+      "size": 32813
     },
     {
       "name": "triangles.csv",
@@ -2815,7 +2881,7 @@
     },
     {
       "name": "lineage.csv",
-      "sha256": "9bf1e1c7428c22311e966ea204ac9a8843be87e621ed39018e48f22cf1caa318",
+      "sha256": "98d395daeb881c57896f460495fabd03a2865f951f62c71b4fee85e596b63a18",
       "size": 51042
     },
     {
@@ -2825,13 +2891,13 @@
     },
     {
       "name": "modules.json",
-      "sha256": "bad541cbefdd9a1e5550ab8114bb1242472dfd676bfb1b4ad05b48eecfe376d3",
-      "size": 19651
+      "sha256": "6b14e875c0695dc9c6f4e7bd7894b4157ff8c1127a7a20839d630869f3a5d964",
+      "size": 23268
     },
     {
       "name": "assumptions.csv",
-      "sha256": "848b98920f27243543f39e197fa31ee41d577ff12f1bd4262c04d528f96d899f",
-      "size": 26746
+      "sha256": "bb1780296a66e2dbc3cf072b2f916ceb0b973a4aad550ed49e36098b6d78ffde",
+      "size": 27171
     },
     {
       "name": "ultimates.csv",
@@ -2982,6 +3048,16 @@
       "name": "extreme_yearly_summary.csv",
       "sha256": "425bb0edd705e4efb90c9bf7e2e50fef8e783ecd2479604d1c34d1c2b63d9205",
       "size": 13
+    },
+    {
+      "name": "risk_measures.csv",
+      "sha256": "dab03ede78c7c497d37b4b10cda5a5cfaaa4af504961387287964c4734e582aa",
+      "size": 263
+    },
+    {
+      "name": "risk_cash_flows.csv",
+      "sha256": "1585e303802dda7a683c9465ebd481c0ddfecfb95bafc92d575daaa30954010c",
+      "size": 1299
     }
   ],
   "randomness": [
@@ -3001,7 +3077,7 @@
       "seed": 1
     }
   ],
-  "run_id": "384dff36d777725f",
+  "run_id": "e923a8e4302875b1",
   "settings": {
     "assumptions": {
       "entries": []
@@ -3020,6 +3096,20 @@
       "tail_factor": 1.0
     },
     "currency_view": "REPORTING",
+    "discount": {
+      "curve_id": null,
+      "discount_date": null,
+      "max_curve_age_days": 31,
+      "tail_payment_years": 5,
+      "timing": "mid_period"
+    },
+    "discount_used": {
+      "available": false,
+      "discount_date_used": "2025-12-31",
+      "reason": "no curve is named: name one with --curve or a register entry (CV10, curve_id)",
+      "tail_payment_years_used": 5,
+      "timing_used": "mid_period"
+    },
     "language": "en",
     "large_loss": {
       "percentile": 0.99,
@@ -3177,12 +3267,12 @@
     {
       "id": "AL01",
       "title": "Column aliases",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "AL02",
       "title": "Value aliases",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "CV01",
@@ -3382,7 +3472,7 @@
     {
       "id": "RS03",
       "title": "Reserve range and risk measures",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "AE01",
@@ -3427,6 +3517,21 @@
     {
       "id": "M06",
       "title": "Anomalies and large losses",
+      "version": "1.1.0"
+    },
+    {
+      "id": "M12",
+      "title": "Uncertainty and risk",
+      "version": "1.1.0"
+    },
+    {
+      "id": "RS04",
+      "title": "Discounted unpaid claims",
+      "version": "1.1.0"
+    },
+    {
+      "id": "RS05",
+      "title": "Simulated reserve distribution and risk measures",
       "version": "1.1.0"
     },
     {
