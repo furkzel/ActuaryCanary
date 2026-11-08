@@ -32,6 +32,7 @@ def test_every_policy_runs_for_its_term_and_is_cancelled_inside_its_cover(baseli
     assert (p.issue <= p.start).all()
 
 
+@pytest.mark.slow  # 0.9 s
 def test_policy_counts_scale_with_the_portfolio_scale():
     scenario = load_scenario("baseline")
     small = simulate(scenario, SizeSpec(portfolio_scale=0.001, years=(2024, 2025)))

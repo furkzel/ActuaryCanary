@@ -1,10 +1,13 @@
 """The tolerance comparison of the golden test (decision 0627)."""
 
 import copy
+import json
+from pathlib import Path
 
 import pytest
 
 from actuarycanary.pipeline import RunResult
+from tests.report import golden_tolerance
 from tests.report.golden_tolerance import (
     TOLERANCE_FILES,
     compare_tables,
@@ -12,6 +15,8 @@ from tests.report.golden_tolerance import (
     split_tables,
     table_record,
 )
+
+EXAMPLE_FILE = "tolerance_example.csv"  # the list is empty; the mechanism is tried on this name
 
 BASE = table_record("group,family,shape,se\nMOTOR_OD,pareto2,1.2345678,0.5\nPROPERTY,gamma,2.0,\n")
 
@@ -94,19 +99,25 @@ def test_quoted_cells_with_commas_are_one_cell() -> None:
     assert not compare_tables(stored, table_record('a,b\n"x, z",1.0\n')).equal
 
 
+@pytest.fixture
+def listed(monkeypatch: pytest.MonkeyPatch) -> str:
+    monkeypatch.setattr(golden_tolerance, "TOLERANCE_FILES", (EXAMPLE_FILE,))
+    return EXAMPLE_FILE
+
+
 def _model(table: dict) -> dict:
     return {
         "other": 1,
         "reproducibility": {
             "outputs": [
                 {"name": "triangles.csv", "sha256": "ab", "size": "9"},
-                {"name": TOLERANCE_FILES[0], **table},
+                {"name": EXAMPLE_FILE, **table},
             ]
         },
     }
 
 
-def test_differences_compare_tables_by_tolerance_and_the_rest_exactly() -> None:
+def test_differences_compare_tables_by_tolerance_and_the_rest_exactly(listed: str) -> None:
     stored = _model(BASE)
     near = table_record(
         "group,family,shape,se\nMOTOR_OD,pareto2,1.2345679,0.5\nPROPERTY,gamma,2.0,\n"
@@ -117,7 +128,7 @@ def test_differences_compare_tables_by_tolerance_and_the_rest_exactly() -> None:
     other = _model(BASE)
     other["reproducibility"]["outputs"][0]["sha256"] = "cd"
     assert differences(stored, other) == ["the report data differs outside the tolerance files"]
-    assert split_tables(stored)[1][TOLERANCE_FILES[0]] == BASE
+    assert split_tables(stored)[1][listed] == BASE
 
 
 def test_the_tolerance_files_are_optimiser_based_outputs_of_mt17_or_mt18(
@@ -131,3 +142,14 @@ def test_the_tolerance_files_are_optimiser_based_outputs_of_mt17_or_mt18(
     assert set(TOLERANCE_FILES) <= written, sorted(set(TOLERANCE_FILES) - written)
     outputs = {o["name"] for o in default_run.report_data["reproducibility"]["outputs"]}
     assert set(TOLERANCE_FILES) <= outputs
+
+
+def test_the_list_is_empty_so_every_output_file_is_compared_by_hash_and_size() -> None:
+    """The three severity files of MT17 and MT18 are byte-equal across platforms since the
+    analytic second derivatives (record 0360); the golden copy holds their SHA-256 again."""
+    assert TOLERANCE_FILES == ()
+    stored = json.loads(
+        (Path(__file__).parent / "golden" / "baseline_tiny.json").read_text(encoding="utf-8")
+    )
+    for entry in stored["reproducibility"]["outputs"]:
+        assert "sha256" in entry and "size" in entry and "rows" not in entry, entry["name"]

@@ -2961,7 +2961,7 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "2137522138849a58a891df04d606119fd1620c21fc46b300b54abb5d3f1c7a79",
+      "sha256": "e6699dea61e4fddfc1b9e18f4c0d3f3a7cf366cc42981a2f34df1456828c4167",
       "size": 5057781
     },
     {
@@ -3066,12 +3066,12 @@
     },
     {
       "name": "severity_parameters.csv",
-      "sha256": "d4caaf1aac272b6edfd3904be122d0fe87771f7b72000fa2518837f2be635507",
-      "size": 500
+      "sha256": "af31c7d3ca2b0fc85954a5063e58d7c3e18ad6b7ee341225c43482883e092768",
+      "size": 501
     },
     {
       "name": "severity_fits.csv",
-      "sha256": "f5bce07bef55073e0b4e90eb009d22b98920bb4414440da413f2e3699ea5e4b4",
+      "sha256": "53afea51bf3385e8501e714c103f2984f8a8e74d6a2898282465a134a7dfb7bb",
       "size": 716
     },
     {
@@ -3091,8 +3091,8 @@
     },
     {
       "name": "severity_plots.csv",
-      "sha256": "2067f85633d001837d3055b08dba5b2df4f6ba8c63c35585e65c613348f7ed1d",
-      "size": 24768
+      "sha256": "168a092947cf7554d51b096bc7f495c02048b50e4316dcf5abb942bd10614772",
+      "size": 24773
     },
     {
       "name": "severity_trend.csv",
@@ -3237,7 +3237,7 @@
       "seed": 1
     }
   ],
-  "run_id": "bd4528a4bbd8153d",
+  "run_id": "e2621d7cd5037408",
   "settings": {
     "assumptions": {
       "entries": []
@@ -3784,7 +3784,7 @@
     {
       "id": "MT17",
       "title": "Severity distribution fitting with goodness of fit",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "MT19",

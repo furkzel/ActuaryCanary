@@ -12,17 +12,15 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-# Optimiser-based outputs of MT17 and MT18 whose last digits depend on the platform: the
-# standard errors come from a central-difference Hessian that turns one last bit of the
-# log-likelihood into 1e-6 to 1e-5, and a flat likelihood (Pareto II) moves the estimate itself,
-# so rounding to ten digits cannot make their bytes equal (records 0626 and 0627). Every other
-# file keeps its hash and size. When the severity fits get an analytic Hessian and a tighter
-# convergence (a later hardening item), this list becomes empty again.
-TOLERANCE_FILES: tuple[str, ...] = (
-    "severity_parameters.csv",
-    "severity_fits.csv",
-    "severity_plots.csv",
-)
+# Files that are compared cell by cell with a tolerance instead of by hash. The list is empty:
+# the three optimiser-based severity files of MT17 and MT18 (`severity_parameters.csv`,
+# `severity_fits.csv`, `severity_plots.csv`) were on it from record 0627 because a
+# central-difference Hessian and a flat Pareto II likelihood made their last digits depend on the
+# platform; the analytic second derivatives and the tighter convergence of record 0360 made them
+# byte-equal on Windows, on Linux and under other BLAS kernels, so they are hashed again. A file
+# goes back on the list only for a platform difference that cannot be removed at its source, with
+# a decision record; the mechanism and its tests stay.
+TOLERANCE_FILES: tuple[str, ...] = ()
 
 RELATIVE_TOLERANCE = 1e-4
 ABSOLUTE_TOLERANCE = 1e-12

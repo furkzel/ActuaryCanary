@@ -158,3 +158,14 @@ def test_planned_column_alias_conflicting_with_al01_is_rejected() -> None:
 def test_module_with_undefined_blocking_rule_is_rejected(catalogue: SpecCatalogue) -> None:
     broken = catalogue.modules["M06"].model_copy(update={"blocking_rules": ["DV-CLV-99"]})
     assert "M06: blocking rule DV-CLV-99 is not defined" in _reference_problems(catalogue, broken)
+
+
+def test_the_specs_of_the_package_are_read_once_and_a_root_is_read_afresh(tmp_path: Path) -> None:
+    """Reading and checking 1,200 files takes about 0.7 s, and a test run asks for the catalogue
+    from a dozen modules (record 0362): the package's own specs are kept per process, a given
+    root never is."""
+    assert load_specs() is load_specs()
+    assert load_specs(planned=True) is load_specs(planned=True)
+    assert load_specs(planned=True) is not load_specs()
+    with pytest.raises(SpecError):  # an empty root is not served from the package's catalogue
+        load_specs(tmp_path)

@@ -15,7 +15,7 @@ from dataclasses import dataclass
 import numpy as np
 from scipy import stats
 
-from actuarycanary.methods.severity.numeric import numerical_hessian, root, standard_errors
+from actuarycanary.methods.severity.numeric import root, standard_errors
 
 MIN_XI = -0.5  # below it the maximum likelihood estimator is not regular (MT18)
 CHI2_95 = float(stats.chi2.ppf(0.95, 1))
@@ -24,6 +24,8 @@ S_GRID_NEGATIVE = -np.array([0.002, 0.01, 0.03, 0.08, 0.2, 0.4, 0.6, 0.8, 0.92, 
 GOLDEN = (math.sqrt(5.0) - 1.0) / 2.0
 GOLDEN_STEPS = 44
 SERIES_BELOW = 1e-6  # |xi| under which the log-likelihood uses the exponential limit
+ROOT_TOLERANCE = 1e-14  # of the width of the bracket: the root of the score to the last bits
+INTERVAL_TOLERANCE = 1e-14  # absolute, in xi: the ends of the profile interval
 
 
 @dataclass(frozen=True)
@@ -61,7 +63,10 @@ def _polish(y: np.ndarray, mean: float, low: float, high: float, s: float) -> fl
     k_low, k_high = low / mean, high / mean
     try:
         if _score(y, k_low) < 0.0 < _score(y, k_high):
-            return root(lambda k: _score(y, k), k_low, k_high, xtol=1e-15) * mean
+            return (
+                root(lambda k: _score(y, k), k_low, k_high, xtol=ROOT_TOLERANCE * (k_high - k_low))
+                * mean
+            )
     except (ValueError, ZeroDivisionError, FloatingPointError):
         pass
     return s
@@ -228,13 +233,45 @@ def bootstrap_p_value(
     return observed, (1 + exceed) / (len(boot) + 1)
 
 
+# Series of H(w) = (1 / (1 + w)^2 - 2 g(w)) / w with g(w) = (ln(1 + w) - w / (1 + w)) / w^2, which
+# is the part of the second derivative in xi that cancels for a small w = xi y / sigma:
+# H(w) = sum_m (-1)^(m+1) (m + 1) (m + 2) / (m + 3) w^m. Below SERIES_W the series (17 terms,
+# error under 1e-17) replaces the closed form, which loses about log10(1 / |w|) digits.
+SERIES_W = 0.1
+_H_COEFFICIENTS = [(-1.0) ** (m + 1) * (m + 1) * (m + 2) / (m + 3) for m in range(18)]
+
+
+def _h_function(w: np.ndarray) -> np.ndarray:
+    """H(w) of the second derivative in xi, elementwise (record 0360)."""
+    small = np.abs(w) < SERIES_W
+    safe = np.where(small, 1.0, w)
+    with np.errstate(invalid="ignore", divide="ignore", over="ignore"):
+        g = (np.log1p(safe) - safe / (1.0 + safe)) / safe**2
+        closed = (1.0 / (1.0 + safe) ** 2 - 2.0 * g) / safe
+    series = np.zeros_like(w)
+    for coefficient in reversed(_H_COEFFICIENTS):  # Horner
+        series = series * np.where(small, w, 0.0) + coefficient
+    return np.where(small, series, closed)
+
+
 def information(y: np.ndarray, xi: float, sigma: float) -> np.ndarray:
-    """Observed information matrix of (xi, sigma)."""
+    """Observed information matrix of (xi, sigma): the Hessian of the negative log-likelihood
+    from analytic second derivatives (NaN where 1 + xi y / sigma is not positive).
 
-    def negative(theta: np.ndarray) -> float:
-        return -loglik(y, float(theta[0]), float(theta[1]))
-
-    return numerical_hessian(negative, np.array([xi, sigma]))
+    With z = y / sigma, t = 1 + xi z and w = xi z, per observation:
+    d2/dsigma2 = (1 - (xi + 1) z (2 + xi z) / t^2) / sigma^2 (summed, with n for the 1),
+    d2/dxi dsigma = z (1 - z) / (sigma t^2), d2/dxi2 = z^3 H(w) + z^2 / t^2.
+    """
+    y = np.asarray(y, dtype=np.float64)
+    n = len(y)
+    z = y / sigma
+    t = 1.0 + xi * z
+    if not np.all(t > 0.0):
+        return np.full((2, 2), np.nan)
+    d_sigma_sigma = (n - (xi + 1.0) * float(np.sum(z * (2.0 + xi * z) / t**2))) / sigma**2
+    d_xi_sigma = float(np.sum(z * (1.0 - z) / t**2)) / sigma
+    d_xi_xi = float(np.sum(z**3 * _h_function(xi * z) + z**2 / t**2))
+    return -np.array([[d_xi_xi, d_xi_sigma], [d_xi_sigma, d_sigma_sigma]])
 
 
 def standard_errors_of(y: np.ndarray, fitted: GpdFit) -> tuple[float, float]:
@@ -288,7 +325,7 @@ def profile_interval(y: np.ndarray, fitted: GpdFit, level: float = 0.95) -> tupl
             if math.isnan(g):
                 return math.nan
             if g < 0:
-                return root(gap, min(inner, outer), max(inner, outer))
+                return root(gap, min(inner, outer), max(inner, outer), xtol=INTERVAL_TOLERANCE)
             inner, step = outer, step * 2.0
         return math.nan
 

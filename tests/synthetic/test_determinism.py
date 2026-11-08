@@ -2,6 +2,7 @@
 
 import numpy as np
 import polars as pl
+import pytest
 
 from actuarycanary.synthetic.build import simulate
 from tests.synthetic.conftest import simulate_with
@@ -14,6 +15,7 @@ def _same_tables(a, b) -> bool:
     return all(a.truth[k].equals(b.truth[k]) for k in a.truth)
 
 
+@pytest.mark.slow  # 0.8 s
 def test_the_same_seed_gives_the_same_tables_and_truth(baseline):
     assert _same_tables(baseline, simulate("baseline", "tiny"))
 
@@ -43,6 +45,7 @@ def test_changing_one_line_leaves_the_others_untouched(baseline):
     assert (baseline.policies.premium == changed.policies.premium).all()
 
 
+@pytest.mark.slow  # 0.9 s
 def test_the_market_does_not_depend_on_the_portfolio_size(baseline):
     other = simulate_with({"sizes": {"tiny": {"portfolio_scale": 0.004}}})
     assert (other.market.cpi == baseline.market.cpi).all()

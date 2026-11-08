@@ -73,15 +73,29 @@ def excess(curve: Curve, a: float, b: float, x: np.ndarray) -> np.ndarray:
     return np.exp(a) * x ** (-b)
 
 
+REMAINDER_CHUNK = 4096  # periods looked at per step while the increment is above the floor
+
+
 def _remainder(curve: Curve, a: float, b: float, first: int, periods: int) -> float:
     """rho: the product over the periods after the extension, as far as 1e6 periods from the
     end of the triangle or until the increment is below 1e-12, minus 1 (equal to the product
-    over every x >= first divided by tau, minus 1, without the cancellation)."""
-    x = np.arange(first + periods, first + REMAINDER_PERIODS, dtype=float)
-    increments = excess(curve, a, b, x)
-    below = np.flatnonzero(increments < REMAINDER_INCREMENT)
-    if len(below):
-        increments = increments[: below[0]]
+    over every x >= first divided by tau, minus 1, without the cancellation).
+
+    The increments are taken a chunk at a time and the search stops at the first one below the
+    floor, so the common case (a few hundred periods) does not build a million-element array;
+    the values and their order are the same, and so is the sum."""
+    position, stop = first + periods, first + REMAINDER_PERIODS
+    parts: list[np.ndarray] = []
+    while position < stop:
+        x = np.arange(position, min(position + REMAINDER_CHUNK, stop), dtype=float)
+        increments = excess(curve, a, b, x)
+        below = np.flatnonzero(increments < REMAINDER_INCREMENT)
+        if len(below):
+            parts.append(increments[: below[0]])
+            break
+        parts.append(increments)
+        position += REMAINDER_CHUNK
+    increments = np.concatenate(parts) if parts else np.empty(0)
     return float(np.expm1(np.log1p(increments).sum()))
 
 

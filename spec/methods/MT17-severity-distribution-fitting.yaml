@@ -1,5 +1,5 @@
 id: MT17
-version: 1.0.0
+version: 1.1.0
 title_en: Severity distribution fitting with goodness of fit
 title_tr: Hasar şiddeti dağılımı uydurma ve uyum iyiliği
 status: reviewed
@@ -64,7 +64,7 @@ algorithm:
       loaded (CV02), as CV08 does.
   - step: Maximum likelihood per family, with location fixed at zero; with truncation, the conditional likelihood.
     formula: '\hat\theta = \arg\max_\theta \sum_k \ln f_\theta(x_k) - n \ln\big(1 - F_\theta(d)\big)'
-  - step: Standard errors from the observed information (numerical Hessian of the log-likelihood).
+  - step: Standard errors from the observed information (analytic second derivatives of the log-likelihood; with truncation, the gamma shape term of the correction is differentiated numerically).
     formula: '\widehat{\mathrm{Var}}(\hat\theta) = \big[-\nabla^2 \ell(\hat\theta)\big]^{-1}'
   - step: >-
       Goodness of fit per family; p-values by parametric bootstrap (refit on each sample), on
@@ -134,3 +134,10 @@ change_log:
   - version: 1.0.0
     date: 2026-10-25
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-11-08
+    change: >-
+      Standard errors come from analytic second derivatives of the log-likelihood instead of a
+      central-difference Hessian (record 0360); a single Pareto II fit finishes at the root of
+      its score. Results move by about 1e-5 once (standard errors) and 3e-7 (Pareto II
+      estimates); tolerances are unchanged.

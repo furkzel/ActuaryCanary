@@ -47,7 +47,15 @@ def expected_violations(folder: Path) -> dict[str, int]:
     }
 
 
-@pytest.fixture(scope="module", params=SCENARIOS)
+# the layout scenario is read by the recognition tests too; its copy of each reader test here
+# takes about 9 s of the fast suite together (record 0363), so it runs with `just test-all`
+@pytest.fixture(
+    scope="module",
+    params=[
+        pytest.param(name, marks=pytest.mark.slow if name != "baseline" else ())
+        for name in SCENARIOS
+    ],
+)
 def folder(request) -> Path:
     return FIXTURES / request.param
 

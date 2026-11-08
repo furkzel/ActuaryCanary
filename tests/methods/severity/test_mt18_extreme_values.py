@@ -17,6 +17,7 @@ from actuarycanary.methods.severity import evt, gpd
 from actuarycanary.methods.severity.evt import extreme_values, forward_stop
 from tests.benchmarks.load import load_reference
 from tests.methods.severity.helpers import (
+    finite_difference_hessian,
     gpd_samples,
     sizes_frame,
     spliced_quantile,
@@ -167,6 +168,53 @@ def test_standard_errors_follow_the_information_of_a_large_sample() -> None:
     # asymptotic standard error of xi for a generalised Pareto: (1 + xi) / sqrt(n)
     assert se_xi == pytest.approx((1 + fit.xi) / math.sqrt(len(excess)), rel=0.15)
     assert se_sigma > 0
+
+
+@pytest.mark.parametrize("xi", [-0.3, 0.0, 1e-8, 1e-3, 0.05, 0.4, 1.2])
+def test_analytic_information_equals_finite_differences_of_the_loglik(xi: float) -> None:
+    rng = np.random.default_rng(int(1000 * xi) + 5000)
+    sigma = 500.0
+    excess = np.asarray(stats.genpareto.rvs(xi, scale=sigma, size=300, random_state=rng))
+    reference = finite_difference_hessian(
+        lambda t: -gpd.loglik(excess, float(t[0]), float(t[1])),
+        np.array([xi, sigma]),
+        np.array([1e-3, 1e-3 * sigma]),
+    )
+    np.testing.assert_allclose(gpd.information(excess, xi, sigma), reference, rtol=1e-4)
+
+
+def test_the_information_of_the_exponential_limit_is_the_closed_form() -> None:
+    y = np.array([120.0, 340.0, 75.0, 910.0, 2200.0, 15.0])
+    sigma, n = 400.0, len(y)
+    z = y / sigma
+    expected = -np.array(
+        [
+            [float(np.sum(z**2 - 2.0 * z**3 / 3.0)), float(np.sum(z * (1.0 - z))) / sigma],
+            [float(np.sum(z * (1.0 - z))) / sigma, (n - 2.0 * float(z.sum())) / sigma**2],
+        ]
+    )
+    np.testing.assert_allclose(gpd.information(y, 0.0, sigma), expected, rtol=1e-13)
+
+
+def test_the_series_and_the_closed_form_of_the_second_derivative_in_xi_meet() -> None:
+    def closed(w: float) -> float:
+        g = (math.log1p(w) - w / (1.0 + w)) / w**2
+        return (1.0 / (1.0 + w) ** 2 - 2.0 * g) / w
+
+    def series(w: float) -> float:
+        return sum((-1.0) ** (m + 1) * (m + 1) * (m + 2) / (m + 3) * w**m for m in range(60))
+
+    inside, outside = gpd.SERIES_W * (1 - 1e-6), gpd.SERIES_W * (1 + 1e-6)
+    for w in (inside, -inside, outside, -outside, 0.5, -0.5, 3.0):
+        got = float(gpd._h_function(np.array([w]))[0])
+        assert got == pytest.approx(closed(w) if abs(w) >= 0.1 else series(w), rel=1e-12)
+    for w in (inside, -inside, outside, -outside):  # the two forms agree on both sides
+        assert closed(w) == pytest.approx(series(w), rel=1e-12)
+    assert float(gpd._h_function(np.array([0.0]))[0]) == pytest.approx(-2.0 / 3.0, rel=1e-15)
+
+
+def test_the_information_is_undefined_where_the_density_is_not_positive() -> None:
+    assert np.isnan(gpd.information(np.array([1.0, 5.0]), -0.5, 1.0)).all()
 
 
 def test_profile_interval_is_where_twice_the_loglik_drop_is_the_chi_square_quantile() -> None:

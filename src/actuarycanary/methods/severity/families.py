@@ -158,11 +158,12 @@ def _safeguarded_newton(
     return x, last <= CONVERGED_WITHIN
 
 
-def mle_matrix(family: str, x: Array) -> tuple[Array, Array, Array]:
+def mle_matrix(family: str, x: Array, *, polish: bool = False) -> tuple[Array, Array, Array]:
     """Maximum-likelihood parameters (a, b) of each row of `x` (B, n), no truncation, and a
     boolean per row: False where the estimate sits at the edge of its range or did not converge
     (a Pareto II whose likelihood still rises towards an infinite shape, a sample of equal
-    values)."""
+    values). `polish` finishes the Pareto II rows at the root of the score (single fits; the
+    bootstrap does not need it); the other families are Newton solutions to the last bits."""
     _check(family)
     x = np.asarray(x, dtype=np.float64)
     rows = x.shape[0]
@@ -208,12 +209,12 @@ def mle_matrix(family: str, x: Array) -> tuple[Array, Array, Array]:
         scale = peak * ((z ** c[:, None]).mean(axis=1)) ** (1.0 / c)
         return c, scale, (spread > 0) & converged
     # Pareto II: the generalised Pareto with xi > 0
-    xi, sigma, _, boundary = gpd.fit_matrix(x, positive_only=True)
+    xi, sigma, _, boundary = gpd.fit_matrix(x, positive_only=True, polish=polish)
     return 1.0 / xi, sigma / xi, ~boundary & np.isfinite(xi) & (xi > 0)
 
 
 def _start(family: str, x: Array) -> Array:
-    a, b, _ = mle_matrix(family, x[None, :])
+    a, b, _ = mle_matrix(family, x[None, :])  # only a start for the truncated search
     return np.array([a[0], b[0]])
 
 
@@ -240,7 +241,7 @@ def mle(family: str, x: Array, truncation: float = 0.0) -> tuple[float, float, b
     """Maximum-likelihood (a, b) of one sample; `truncation` d > 0 conditions on X > d."""
     x = np.asarray(x, dtype=np.float64)
     if truncation <= 0.0:
-        a, b, ok = mle_matrix(family, x[None, :])
+        a, b, ok = mle_matrix(family, x[None, :], polish=True)
         return float(a[0]), float(b[0]), bool(ok[0])
     start = _start(family, x)
     negative = _truncated_negative_loglik(family, x, truncation)
@@ -280,6 +281,94 @@ def loglik(family: str, x: Array, a: float, b: float, truncation: float = 0.0) -
     return value
 
 
+def _hessian_of_loglik(family: str, x: Array, a: float, b: float) -> Array:
+    """Second derivatives of the log-likelihood sum(ln f(x_k)) in (a, b), by the closed forms
+    (record 0360): no step size, no cancellation, so a last bit of the sums does not travel."""
+    n = len(x)
+    if family == LOGNORMAL:
+        r = np.log(x) - a
+        return np.array(
+            [
+                [-n / b**2, -2.0 * float(r.sum()) / b**3],
+                [-2.0 * float(r.sum()) / b**3, n / b**2 - 3.0 * float(np.sum(r * r)) / b**4],
+            ]
+        )
+    if family == GAMMA:
+        return np.array(
+            [
+                [-n * float(special.polygamma(1, a)), -n / b],
+                [-n / b, n * a / b**2 - 2.0 * float(x.sum()) / b**3],
+            ]
+        )
+    if family == WEIBULL:
+        log_ratio = np.log(x / b)
+        power = np.exp(a * log_ratio)  # (x / scale) ^ shape
+        total = float(power.sum())
+        cross = (total - n) / b + a / b * float(np.sum(power * log_ratio))
+        return np.array(
+            [
+                [-n / a**2 - float(np.sum(power * log_ratio**2)), cross],
+                [cross, n * a / b**2 - a * (1.0 + a) * total / b**2],
+            ]
+        )
+    # Pareto II
+    cross = float(np.sum(x / (b + x))) / b
+    return np.array(
+        [
+            [-n / a**2, cross],
+            [cross, n / b**2 - (a + 1.0) * float(np.sum(1.0 / b**2 - 1.0 / (b + x) ** 2))],
+        ]
+    )
+
+
+def _hessian_of_log_survival(family: str, point: float, a: float, b: float) -> Array:
+    """Second derivatives in (a, b) of ln P(X > point): the correction of a truncated
+    likelihood, which carries -n ln P(X > d). Closed forms for the lognormal, Weibull and
+    Pareto II; the gamma has no closed form for its shape, so this one scalar term is
+    differentiated numerically (it does not depend on the sample)."""
+    if family == LOGNORMAL:
+        z = (math.log(point) - a) / b
+        hazard = math.exp(float(-0.5 * z * z - HALF_LOG_2PI - special.log_ndtr(-z)))
+        curvature = hazard * (z - hazard)  # second derivative of ln Phi(-z) in z
+        return np.array(
+            [
+                [curvature, curvature * z - hazard],
+                [curvature * z - hazard, curvature * z * z - 2.0 * hazard * z],
+            ]
+        ) / (b * b)
+    if family == WEIBULL:
+        log_ratio = math.log(point / b)
+        power = math.exp(a * log_ratio)
+        cross = -power / b * (a * log_ratio + 1.0)
+        return -np.array(
+            [
+                [power * log_ratio**2, cross],
+                [cross, a * (1.0 + a) * power / b**2],
+            ]
+        )
+    if family == PARETO:
+        cross = point / (b * (b + point))
+        return np.array([[0.0, cross], [cross, a * (1.0 / (b + point) ** 2 - 1.0 / b**2)]])
+
+    def log_survival(theta: Array) -> float:
+        return float(np.log(special.gammaincc(theta[0], point / theta[1])))
+
+    return numerical_hessian(log_survival, np.array([a, b]))
+
+
+def observed_information(
+    family: str, x: Array, a: float, b: float, truncation: float = 0.0
+) -> Array:
+    """Observed information, the Hessian of the negative log-likelihood in (a, b), from
+    analytic second derivatives (conditioned on X > d when `truncation` is positive)."""
+    _check(family)
+    x = np.asarray(x, dtype=np.float64)
+    information = -_hessian_of_loglik(family, x, a, b)
+    if truncation > 0.0:
+        information = information + len(x) * _hessian_of_log_survival(family, truncation, a, b)
+    return information
+
+
 @dataclass(frozen=True)
 class Estimate:
     family: str
@@ -306,15 +395,14 @@ class Estimate:
 
 
 def estimate(family: str, x: Array, truncation: float = 0.0) -> Estimate:
-    """Maximum likelihood with standard errors from the observed information (numerical Hessian
-    of the log-likelihood in the parameters of the family)."""
+    """Maximum likelihood with standard errors from the observed information (analytic second
+    derivatives of the log-likelihood in the parameters of the family)."""
     x = np.asarray(x, dtype=np.float64)
     a, b, ok = mle(family, x, truncation)
     value = loglik(family, x, a, b, truncation)
     a_se = b_se = math.nan
     if ok and np.isfinite(value):
-        negative = _truncated_negative_loglik(family, x, truncation)
-        se = standard_errors(numerical_hessian(negative, np.array([a, b])))
+        se = standard_errors(observed_information(family, x, a, b, truncation))
         a_se, b_se = float(se[0]), float(se[1])
     return Estimate(
         family, a, b, value, len(x), ok and bool(np.isfinite(value)), a_se, b_se, truncation
