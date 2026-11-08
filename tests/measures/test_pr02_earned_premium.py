@@ -6,6 +6,7 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
+from actuarycanary.measures import premium_measures
 from actuarycanary.structures.periods import Period
 from tests.measures.helpers import measure, one, table, values
 from tests.measures.shared import BOOKED, _earning_inputs, premium_inputs, pt, year_policy
@@ -32,3 +33,22 @@ def test_pr_measures_say_so_when_policies_are_missing() -> None:
     rows = [pt("T1", "WRITTEN", BOOKED, 100.0)]
     for measure_id in ("PR02", "PR03", "PR06"):
         assert measure(premium_inputs(rows), measure_id).reason == "policies is not loaded"
+
+
+def test_the_same_breakdown_on_the_same_basis_builds_the_structure_once(monkeypatch) -> None:
+    built = []
+    original = premium_measures.earned_premium
+
+    def counting(*args, **kwargs):
+        built.append(args[4])  # the breakdown columns
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(premium_measures, "earned_premium", counting)
+    inputs = _earning_inputs()
+    first = measure(inputs, "PR02", "calendar_period", period=Period.MONTH)
+    second = measure(inputs, "PR02", "calendar_period", period=Period.MONTH)
+    assert len(built) == 1
+    assert first.frame is not None and second.frame is not None
+    assert first.frame.equals(second.frame)
+    measure(inputs, "PR02", "calendar_period", period=Period.YEAR)  # another period: built again
+    assert len(built) == 2

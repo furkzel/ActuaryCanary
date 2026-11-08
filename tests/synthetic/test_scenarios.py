@@ -43,6 +43,7 @@ def test_baseline_reserve_bias_follows_the_baseline_practice_change(baseline):
     assert ratio[day >= to_day(date(2022, 1, 1))].mean() == pytest.approx(1.15, abs=0.2)
 
 
+@pytest.mark.slow  # 1.2 s
 def test_reserve_strengthening_shows_in_incurred_not_in_paid_development():
     base, changed = simulate("baseline", "tiny"), simulate("reserve_bias_change", "tiny")
     assert base.world.p_amount.sum() == changed.world.p_amount.sum()  # the world itself is the same
@@ -54,6 +55,7 @@ def test_reserve_strengthening_shows_in_incurred_not_in_paid_development():
     assert open_reserve(changed) != open_reserve(base)
 
 
+@pytest.mark.slow  # 1.2 s
 def test_high_inflation_raises_the_price_level_and_the_nominal_cost_of_the_same_claims():
     base, high = simulate("baseline", "tiny"), simulate("high_inflation", "tiny")
     cut_off = np.array([to_day(date(2025, 12, 31))])
@@ -88,6 +90,7 @@ THREE_SHOCKS = {
 }
 
 
+@pytest.mark.slow  # 1.0 s
 def test_fixed_large_claims_land_on_the_chosen_days():
     sim = simulate_with(THREE_SHOCKS)
     w = sim.world

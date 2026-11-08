@@ -18,3 +18,22 @@ jobs:
       - uses: extractions/setup-just@v2
       - run: uv sync
       - run: just check
+  # The time budget of the medium run (tests/test_performance.py, 45 s cold and 30 s warm) needs
+  # a reference machine. This job runs it on the Ubuntu runner and prints the time of each step;
+  # it never fails the workflow (record 0361). Read the numbers in the log of this job.
+  budget:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - uses: extractions/setup-just@v2
+      - run: uv sync
+      - run: just synth baseline medium
+      - name: Time of each step, cold and warm
+        run: just bench
+      - name: Budget test
+        if: always()
+        run: uv run pytest tests/test_performance.py -k medium_runs_inside_its_budget -n0 -q -rs

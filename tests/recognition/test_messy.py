@@ -51,6 +51,7 @@ def recognised() -> tuple[Recognised, Recognised]:
     return _recognise(BASELINE, CACHE), _recognise(MESSY, CACHE)
 
 
+@pytest.mark.slow  # 1.6 s with its fixture
 def test_messy_maps_to_the_same_canonical_frames_as_baseline(
     recognised: tuple[Recognised, Recognised],
 ) -> None:

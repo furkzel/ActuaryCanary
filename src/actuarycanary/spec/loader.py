@@ -111,12 +111,20 @@ def duplicate_id_problems(files: list[SpecFile]) -> list[str]:
     return [f"spec id {spec_id} is used {n} times" for spec_id, n in counts.items() if n > 1]
 
 
+_LOADED: dict[bool, SpecCatalogue] = {}  # the specs of the package itself, by `planned`
+
+
 def load_specs(root: Path | None = None, *, planned: bool = False) -> SpecCatalogue:
     """Load all specs; raise SpecError listing every invalid file, repeated ID or bad reference.
 
     References are checked on every spec, planned ones included, and again on the built specs
     alone, so that a built spec never depends on a planned one. The result holds the built
-    specs, which is what a run uses; `planned=True` returns every spec (index, tests)."""
+    specs, which is what a run uses; `planned=True` returns every spec (index, tests).
+
+    The specs of the package (no `root`) are read and checked once per process: they are files of
+    the installed package, and the catalogue is immutable. A `root` is always read afresh."""
+    if root is None and planned in _LOADED:
+        return _LOADED[planned]
     files, problems = read_spec_files(root or find_spec_root())
     problems += duplicate_id_problems(files)
     if problems:
@@ -126,7 +134,10 @@ def load_specs(root: Path | None = None, *, planned: bool = False) -> SpecCatalo
     problems = list(dict.fromkeys([*reference_problems(catalogue), *reference_problems(built)]))
     if problems:
         raise SpecError(problems)
-    return catalogue if planned else built
+    loaded = catalogue if planned else built
+    if root is None:
+        _LOADED[planned] = loaded
+    return loaded
 
 
 def index_rows(catalogue: SpecCatalogue) -> list[tuple[str, str, str, str, str, str, str]]:

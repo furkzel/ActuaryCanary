@@ -6,6 +6,7 @@ from datetime import date
 import numpy as np
 import pytest
 
+from actuarycanary.methods import tail as tail_module
 from actuarycanary.methods.assumptions import Assumption, AssumptionError, AssumptionsRegister
 from actuarycanary.methods.chain_ladder import ChainLadder, Skipped
 from actuarycanary.methods.judgement_tier_b import chain_ladder_with_tail
@@ -164,3 +165,32 @@ def test_selection_errors() -> None:
         chain_ladder_with_tail(tri, register=both, **options)
     with pytest.raises(AssumptionError, match="allowed"):
         chain_ladder_with_tail(tri, register=_selected("cubic"), **options)
+
+
+def _remainder_over_the_whole_range(curve: Curve, a: float, b: float, first: int, periods: int):
+    """The remainder as it was written before it was taken a chunk at a time (record 0361)."""
+    x = np.arange(first + periods, first + tail_module.REMAINDER_PERIODS, dtype=float)
+    increments = excess(curve, a, b, x)
+    below = np.flatnonzero(increments < tail_module.REMAINDER_INCREMENT)
+    if len(below):
+        increments = increments[: below[0]]
+    return float(np.expm1(np.log1p(increments).sum()))
+
+
+@pytest.mark.parametrize(
+    ("curve", "a", "b"),
+    [
+        (Curve.EXPONENTIAL_DECAY, 0.3, -0.45),  # stops after a few dozen periods
+        (Curve.EXPONENTIAL_DECAY, 1.0, -0.004),  # stops after thousands of periods: many chunks
+        (Curve.EXPONENTIAL_DECAY, -2.0, -2.5),  # below the floor from the first period
+        (Curve.INVERSE_POWER, 0.2, 2.5),
+        (Curve.INVERSE_POWER, 0.5, 1.6),  # about 1e7 periods to the floor: the cap of 1e6 ends it
+        (Curve.INVERSE_POWER, -30.0, 3.0),  # below the floor at once
+    ],
+)
+@pytest.mark.parametrize(("first", "periods"), [(11, 0), (11, 100), (15, 250)])
+def test_the_remainder_taken_in_chunks_is_the_whole_range_remainder_to_the_last_bit(
+    curve: Curve, a: float, b: float, first: int, periods: int
+) -> None:
+    got = tail_module._remainder(curve, a, b, first, periods)
+    assert got == _remainder_over_the_whole_range(curve, a, b, first, periods)

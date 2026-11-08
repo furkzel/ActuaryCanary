@@ -116,7 +116,11 @@ def test_every_tier_a_method_has_a_note() -> None:
     assert set(worked_examples.EXAMPLES) == {n.removesuffix(".md") for n in notes}
 
 
-@pytest.mark.parametrize("example", EXAMPLES)
+# the baseline example is checked in the fast suite; the other two take 1.2 s each (record 0363)
+@pytest.mark.parametrize(
+    "example",
+    [e if e == "baseline" else pytest.param(e, marks=pytest.mark.slow) for e in EXAMPLES],
+)
 def test_an_example_has_its_six_files_and_a_report_that_matches_its_manifest(
     example: str,
 ) -> None:

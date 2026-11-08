@@ -290,9 +290,15 @@ def _earned(
     """Earned premium by the requested policy dimensions, calendar period and currency."""
     dims = policy_dims(request)
     settings = settings_for(inputs, request, **extra)
-    structure = earned_premium(
-        inputs.feeds[PREMIUMS], inputs.feeds[POLICIES], settings, inputs.market, dims, REF
-    )
+    # several measures ask for the same breakdown on the same basis; the structure is built once
+    # per run and kept with the other per-run results (the feeds do not change during a run)
+    key = ("earned_premium", tuple(dims), settings.model_dump_json())
+    structure = inputs.cache.get(key)
+    if structure is None:
+        structure = earned_premium(
+            inputs.feeds[PREMIUMS], inputs.feeds[POLICIES], settings, inputs.market, dims, REF
+        )
+        inputs.cache[key] = structure
     notes = [*finding_notes(structure.findings), *left_over_notes(structure.not_converted)]
     return structure.frame.rename({"period": "calendar_period"}), notes
 
