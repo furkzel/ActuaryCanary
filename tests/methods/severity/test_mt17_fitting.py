@@ -13,10 +13,17 @@ import pytest
 from scipy import special, stats
 
 from actuarycanary.methods.severity import families as fam
-from actuarycanary.methods.severity import fitting, gof
+from actuarycanary.methods.severity import fitting, gof, gpd
 from actuarycanary.methods.severity.fitting import NO_FAMILY_FITS, SELECTED_BY_AIC, fit_severity
 from tests.benchmarks.load import load_reference
-from tests.methods.severity.helpers import CLOSED, NIL, OPEN, severity_samples, sizes_frame
+from tests.methods.severity.helpers import (
+    CLOSED,
+    NIL,
+    OPEN,
+    finite_difference_hessian,
+    severity_samples,
+    sizes_frame,
+)
 
 REFERENCE = load_reference("MT17-severity-fits")["values"]
 SAMPLE_NAMES = ("lognormal", "gamma", "weibull", "pareto")
@@ -95,8 +102,8 @@ def test_truncated_fit_conditions_on_the_truncation_point() -> None:
 def test_standard_errors_of_the_lognormal_are_the_closed_forms() -> None:
     x = severity_samples()["lognormal"]
     est = fam.estimate(fam.LOGNORMAL, x)
-    assert est.a_se == pytest.approx(est.b / math.sqrt(len(x)), rel=1e-5)
-    assert est.b_se == pytest.approx(est.b / math.sqrt(2.0 * len(x)), rel=1e-5)
+    assert est.a_se == pytest.approx(est.b / math.sqrt(len(x)), rel=1e-12)
+    assert est.b_se == pytest.approx(est.b / math.sqrt(2.0 * len(x)), rel=1e-12)
 
 
 def test_standard_errors_of_the_gamma_are_the_inverse_information() -> None:
@@ -107,11 +114,63 @@ def test_standard_errors_of_the_gamma_are_the_inverse_information() -> None:
         [[special.polygamma(1, a), 1.0 / theta], [1.0 / theta, a / theta**2]]
     )
     se = np.sqrt(np.diag(np.linalg.inv(information)))
-    assert est.a_se == pytest.approx(se[0], rel=1e-5)
-    assert est.b_se == pytest.approx(se[1], rel=1e-5)
+    assert est.a_se == pytest.approx(se[0], rel=1e-10)
+    assert est.b_se == pytest.approx(se[1], rel=1e-10)
 
 
 # ------------------------------------------------------------------ frozen scipy references
+
+
+@pytest.mark.parametrize("truncated", [False, True])
+@pytest.mark.parametrize("family", fam.FAMILIES)
+def test_analytic_information_equals_finite_differences_of_the_loglik(
+    family: str, truncated: bool
+) -> None:
+    truth = {
+        fam.LOGNORMAL: (9.0, 1.1),
+        fam.GAMMA: (2.0, 3000.0),
+        fam.WEIBULL: (1.4, 8000.0),
+        fam.PARETO: (2.5, 9000.0),
+    }[family]
+    drawn = fam.sample(
+        family, np.array([truth[0]]), np.array([truth[1]]), 400, np.random.default_rng(3)
+    )[0]
+    d = float(np.quantile(drawn, 0.2)) if truncated else 0.0
+    x = drawn[drawn > d] if truncated else drawn
+    a, b = truth
+    analytic = fam.observed_information(family, x, a, b, d)
+    reference = finite_difference_hessian(
+        lambda t: -fam.loglik(family, x, float(t[0]), float(t[1]), d),
+        np.array([a, b]),
+        np.array([2e-3 * a, 2e-3 * b]),
+    )
+    np.testing.assert_allclose(analytic, reference, rtol=1e-5)
+
+
+def test_the_pareto_ii_information_is_the_generalised_pareto_one_moved_by_the_jacobian() -> None:
+    # at the maximum the gradient is zero, so the Hessian of a reparametrisation is J' H J
+    x = severity_samples()["pareto"]
+    est = fam.estimate(fam.PARETO, x)
+    xi, sigma = 1.0 / est.a, est.b / est.a
+    in_xi_sigma = gpd.information(x, xi, sigma)
+    jacobian = np.array(
+        [[-1.0 / est.a**2, 0.0], [-est.b / est.a**2, 1.0 / est.a]]
+    )  # d(xi, sigma) / d(alpha, theta)
+    expected = jacobian.T @ in_xi_sigma @ jacobian
+    np.testing.assert_allclose(
+        fam.observed_information(fam.PARETO, x, est.a, est.b), expected, rtol=1e-7
+    )
+
+
+def test_a_single_pareto_ii_fit_sits_at_the_root_of_the_score() -> None:
+    # the golden-section search alone leaves the score at about 1e-8; the single fit finishes
+    # at the root, so the estimate does not depend on the last bits of the log-likelihood
+    for x in (severity_samples()["pareto"], severity_samples()["lognormal"]):
+        a, b, ok = fam.mle(fam.PARETO, x)
+        assert ok
+        n = len(x)
+        assert abs(n / a - float(np.log1p(x / b).sum())) / n < 1e-12
+        assert abs(-n / b + (a + 1.0) / b * float(np.sum(x / (b + x)))) * b / n < 1e-12
 
 
 @pytest.mark.parametrize("sample", SAMPLE_NAMES)

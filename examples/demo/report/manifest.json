@@ -3507,7 +3507,7 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "764fa71e57e04424b98c4820ea054c7a1cd9cb31fce5fec68ec9a911716381fb",
+      "sha256": "52a1691bdaa457ae8150527abedd3633f1a0fb6f286d0bab2a95c6ee18e621d7",
       "size": 5212502
     },
     {
@@ -3617,12 +3617,12 @@
     },
     {
       "name": "severity_parameters.csv",
-      "sha256": "bbe607773ff92557bbd42f64775841aeffbee3baabae3e33c50537eb164381de",
-      "size": 1874
+      "sha256": "1a9606099dfe394fbe5d0603f531ed4248c81d564f8ae38e5d2a9c1fa3b0beca",
+      "size": 1872
     },
     {
       "name": "severity_fits.csv",
-      "sha256": "be9230f8c8acfeea9be99d2bd3c92448be3c768fd4352e09421b4674e57cb423",
+      "sha256": "3853d1fe2c282d526f070035d35c1279127e3cbf577225005f8df66df3a8ac62",
       "size": 2472
     },
     {
@@ -3642,8 +3642,8 @@
     },
     {
       "name": "severity_plots.csv",
-      "sha256": "8237758756a9964ebee4774eef1f6071be284f6f1de2ad8b0b68172bdbebc7da",
-      "size": 233495
+      "sha256": "8a605f4433a7e1d5f92a18304849cdfd6f57040c0030c88611821d4c2499720b",
+      "size": 233489
     },
     {
       "name": "severity_trend.csv",
@@ -3667,23 +3667,23 @@
     },
     {
       "name": "extreme_candidates.csv",
-      "sha256": "0866e18b9769e7630e937ab42f3a671f603c18cd914daa418867f1164a4dd7db",
-      "size": 2845
+      "sha256": "14d83fcb80416c0240a15494156b2855be9a9b5307c267eae089050221957c28",
+      "size": 2849
     },
     {
       "name": "extreme_gpd_fit.csv",
-      "sha256": "1190613d9387511b8720ace4b436371a7a2affd7363f82097696b91ac86f9db9",
+      "sha256": "1fb00b5795dd114bd8e5f5b427faccac9e82304972b0fafa90c86ed63c5f7946",
       "size": 536
     },
     {
       "name": "extreme_tail_quantiles.csv",
-      "sha256": "24e150e6ebc3bfd3e0704f80be0a910e2eb3adda519078fb5d89c5f43b5dc0b2",
-      "size": 489
+      "sha256": "08d1926a82623882f7eb7fe4210bf0004049b7769d2eba17bdd667a2557040d0",
+      "size": 488
     },
     {
       "name": "extreme_return_levels.csv",
-      "sha256": "79a910f0493bcc3057a654f4ff981d34d20e671f5c807fc192a705364cfc4107",
-      "size": 531
+      "sha256": "0e06fe7d5a0e80bd20c048a3682cab1b63dca2aba15aa76ec86cea415ccc8ecc",
+      "size": 532
     },
     {
       "name": "extreme_threshold_comparison.csv",
@@ -3697,8 +3697,8 @@
     },
     {
       "name": "extreme_excess_plot.csv",
-      "sha256": "d1b5945caebef45ed4703ace8afc474426552a598ad43a4eab5cdaa9f20a1df1",
-      "size": 22735
+      "sha256": "8cc0f972ebfc940e2b1e2069414833afa765720116c67f051dc65b5e39bfa0e3",
+      "size": 22733
     },
     {
       "name": "extreme_yearly.csv",
@@ -3808,7 +3808,7 @@
       "seed": 1
     }
   ],
-  "run_id": "5051bffa374d4614",
+  "run_id": "1b18cc3fa726e09f",
   "settings": {
     "assumptions": {
       "entries": []
@@ -4386,7 +4386,7 @@
     {
       "id": "MT17",
       "title": "Severity distribution fitting with goodness of fit",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "MT18",

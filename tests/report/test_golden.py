@@ -1,7 +1,7 @@
 """Golden test of the report (decision 0074): every number and text behind the page of the tiny
 baseline, as normalised JSON, equals the stored copy. The HTML bytes are not compared. Output
-files are held as SHA-256 and size, except the optimiser-based files of MT17 and MT18, which are
-held as cells and compared with a tolerance (decision 0627, `golden_tolerance.py`).
+files are held as SHA-256 and size; a file named in `TOLERANCE_FILES` of `golden_tolerance.py` would
+be held as cells and compared with a tolerance (decision 0627; the list is empty since 0360).
 
 A deliberate change of numbers or wording is accepted by rewriting the copy:
 `just golden`, then review the diff of tests/report/golden/baseline_tiny.json.

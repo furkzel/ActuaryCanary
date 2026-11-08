@@ -1,6 +1,6 @@
 """Shared builders of the severity tests: a frame of claim sizes and the frozen references."""
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from functools import cache
 from pathlib import Path
 
@@ -83,3 +83,31 @@ def spliced_quantile(p: float, u0: float, tail_share: float, xi: float, scale: f
     """The true p-quantile of `spliced_sizes` above its start: P(X > x) = tail_share x
     (1 + xi (x - u0) / scale)^(-1 / xi)."""
     return u0 + scale / xi * (((1.0 - p) / tail_share) ** (-xi) - 1.0)
+
+
+def finite_difference_hessian(
+    f: Callable[[np.ndarray], float], theta: np.ndarray, steps: np.ndarray
+) -> np.ndarray:
+    """Hessian of `f` by central differences with Richardson extrapolation (steps h and 2h):
+    error of order h^4, an independent check of the analytic second derivatives (the product
+    code no longer differences anything)."""
+    theta = np.asarray(theta, dtype=float)
+    n = len(theta)
+    unit = np.eye(n)
+
+    def second(i: int, j: int, scale: float) -> float:
+        hi, hj = scale * steps[i], scale * steps[j]
+        if i == j:
+            return (f(theta + hi * unit[i]) - 2.0 * f(theta) + f(theta - hi * unit[i])) / hi**2
+        return (
+            f(theta + hi * unit[i] + hj * unit[j])
+            - f(theta + hi * unit[i] - hj * unit[j])
+            - f(theta - hi * unit[i] + hj * unit[j])
+            + f(theta - hi * unit[i] - hj * unit[j])
+        ) / (4.0 * hi * hj)
+
+    out = np.empty((n, n))
+    for i in range(n):
+        for j in range(i, n):
+            out[i, j] = out[j, i] = (4.0 * second(i, j, 1.0) - second(i, j, 2.0)) / 3.0
+    return out
