@@ -294,7 +294,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "e2621d7cd5037408"
+    "value": "bf50c4eaba669edc"
    },
    {
     "label": "Valuation date",
@@ -3714,7 +3714,7 @@
    }
   }
  },
- "findings_spec": "RP01 v1.2.0",
+ "findings_spec": "RP01 v1.2.1",
  "further_findings": [
   {
    "banner": false,
@@ -6018,7 +6018,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "e2621d7cd5037408",
+  "run_id": "bf50c4eaba669edc",
   "settings": [
    {
     "name": "bases.currency",
@@ -6497,7 +6497,7 @@
    {
     "id": "CV06",
     "title": "Precision and rounding",
-    "version": "1.1.0"
+    "version": "1.1.1"
    },
    {
     "id": "CV07",
@@ -6817,7 +6817,7 @@
    {
     "id": "RP01",
     "title": "Key finding rules",
-    "version": "1.2.0"
+    "version": "1.2.1"
    }
   ]
  },
@@ -6830,7 +6830,7 @@
    "heatmaps": "Cumulative cells by origin and development age, GROSS, NOMINAL, TRY; paid on its own one-hue ramp, incurred on another; the further a cell stands from the page colour, the larger it is (MT01 v1.0.0, CV04 v1.0.0).",
    "methods": "Ultimate per origin by method on the incurred triangle (MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0), and the selected ultimate (diamond, MT10 v1.0.0). The spread between methods shows how much the answer depends on the method; it is not a confidence interval.",
    "range": "Selected reserve (diamond) with the 25th to 75th percentile (dark bar) and the 5th to 95th percentile (light bar); the Mack coefficient of variation applied to the selected reserve, lognormal approximation (MT06 v1.1.0, RS03 v1.1.0). The upper percentiles are in the table.",
-   "summary": "TRY, GROSS, NOMINAL, TRY. Chain ladder MT02 v1.0.0 on paid and incurred triangles MT01 v1.0.0; selected ultimate MT10 v1.0.0; IBNR = ultimate − incurred at the valuation date RS02 v1.0.0. Rounded per CV06 v1.1.0; totals from unrounded values. Rows of ultimates.csv and lineage.csv (RS02)."
+   "summary": "TRY, GROSS, NOMINAL, TRY. Chain ladder MT02 v1.0.0 on paid and incurred triangles MT01 v1.0.0; selected ultimate MT10 v1.0.0; IBNR = ultimate − incurred at the valuation date RS02 v1.0.0. Rounded per CV06 v1.1.1; totals from unrounded values. Rows of ultimates.csv and lineage.csv (RS02)."
   },
   "lines": [
    {
@@ -6881,24 +6881,6 @@
       ],
       "text": "Factors resting on fewer than 3 origins: 4 (paid 24-36, paid 36-48, incurred 24-36, incurred 36-48).",
       "title": "Few link ratios in the line"
-     },
-     {
-      "banner": false,
-      "evidence": "MT22 v1.0.0, AE02 v1.0.0, MT10 v1.0.0",
-      "files": [
-       "back_test.csv"
-      ],
-      "key": "LIFE · GROUP_TERM_LIFE",
-      "rule": "KF28",
-      "scope": "line",
-      "section": "line-0",
-      "specs": [
-       "MT22",
-       "AE02",
-       "MT10"
-      ],
-      "text": "Rerun on the data known 12 months earlier, the selected ultimate was off by -20.5% on average over 3 origins against what was known later; the method has erred in one direction on this line before.",
-      "title": "The selection missed in the back test"
      }
     ],
     "methods": {
@@ -7485,24 +7467,6 @@
       ],
       "text": "Factors resting on fewer than 3 origins: 4 (paid 24-36, paid 36-48, incurred 24-36, incurred 36-48).",
       "title": "Few link ratios in the line"
-     },
-     {
-      "banner": false,
-      "evidence": "MT22 v1.0.0, AE02 v1.0.0, MT10 v1.0.0",
-      "files": [
-       "back_test.csv"
-      ],
-      "key": "NON_LIFE · MOTOR_OD",
-      "rule": "KF28",
-      "scope": "line",
-      "section": "line-1",
-      "specs": [
-       "MT22",
-       "AE02",
-       "MT10"
-      ],
-      "text": "Rerun on the data known 12 months earlier, the selected ultimate was off by 7.1% on average over 3 origins against what was known later; the method has erred in one direction on this line before.",
-      "title": "The selection missed in the back test"
      }
     ],
     "methods": {

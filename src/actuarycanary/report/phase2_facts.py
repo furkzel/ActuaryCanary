@@ -4,8 +4,9 @@ fitted tail and the tail sensitivity, the generalised Pareto shape, the settleme
 range of all lines and the discount effect.
 
 A fact that the run could not compute is absent, so a rule naming it does not fire. Thresholds
-that belong to a method are read from it (the generalised Pareto shape of no finite variance
-from the large-loss page, the cohort significance from MT19's analysis).
+that belong to a method are read from it (the cohort significance and the least number of
+events of a report year from MT19's analysis); the limits that only a rule uses are the named
+settings of the rule file (`settings` of RP01), put among the facts by `scoped_facts`.
 """
 
 from collections.abc import Mapping
@@ -27,7 +28,6 @@ from actuarycanary.modules.uncertainty import (
 )
 from actuarycanary.report.facts import FactSet, _put, selected_reserve
 from actuarycanary.report.frames import of_line, of_segment, value
-from actuarycanary.report.large_loss_section import INFINITE_VARIANCE
 from actuarycanary.report.sensitivity import SENSITIVITY_NAME, TAIL_STEP
 
 Tables = Mapping[str, pl.DataFrame]
@@ -35,6 +35,35 @@ Tables = Mapping[str, pl.DataFrame]
 
 def _table(tables: Tables, name: str) -> pl.DataFrame:
     return tables.get(name, pl.DataFrame())
+
+
+def add_back_test_facts(facts: FactSet, tables: Tables, segment: str, line: str) -> None:
+    """The bias of the selection (MT10) at the first back-test horizon, and the share of the
+    back-tested origins whose error has the sign of that bias (KF28)."""
+    rows = of_line(_table(tables, tier_b_output.BACK_TEST_NAME), segment, line)
+    back = [
+        r
+        for r in rows
+        if r["kind"] == "summary" and r["method"] == "MT10" and value(r["bias"]) is not None
+    ]
+    if not back:
+        return
+    first = min(back, key=lambda r: int(r["horizon_months"]))
+    bias = float(value(first["bias"]) or 0.0)
+    _put(facts, "back_test_bias", bias, "ratio")
+    _put(facts, "back_test_bias_size", abs(bias), "ratio")
+    _put(facts, "back_test_horizon", value(first["horizon_months"]), "count")
+    _put(facts, "back_test_origins", value(first["origins"]), "count")
+    errors = [
+        value(r["error"])
+        for r in rows
+        if r["kind"] == "error"
+        and r["method"] == "MT10"
+        and r["horizon_months"] == first["horizon_months"]
+    ]
+    known = [e for e in errors if e is not None]
+    if known and bias != 0:
+        _put(facts, "back_test_sign_share", sum(e * bias > 0 for e in known) / len(known), "ratio")
 
 
 def add_line_facts(facts: FactSet, tables: Tables, group: GroupReserving) -> None:
@@ -58,18 +87,7 @@ def add_line_facts(facts: FactSet, tables: Tables, group: GroupReserving) -> Non
         _put(facts, "munich_gap", gap, "ratio")
         _put(facts, "munich_gap_size", abs(gap), "ratio")
 
-    back = [
-        r
-        for r in of_line(_table(tables, tier_b_output.BACK_TEST_NAME), segment, line)
-        if r["kind"] == "summary" and r["method"] == "MT10" and value(r["bias"]) is not None
-    ]
-    if back:
-        first = min(back, key=lambda r: int(r["horizon_months"]))
-        bias = float(value(first["bias"]) or 0.0)
-        _put(facts, "back_test_bias", bias, "ratio")
-        _put(facts, "back_test_bias_size", abs(bias), "ratio")
-        _put(facts, "back_test_horizon", value(first["horizon_months"]), "count")
-        _put(facts, "back_test_origins", value(first["origins"]), "count")
+    add_back_test_facts(facts, tables, segment, line)
 
     sensitivity = of_line(_table(tables, SENSITIVITY_NAME), segment, line)
     fitted = next((r for r in sensitivity if r["variant"] == "tail_fitted"), None)
@@ -90,7 +108,6 @@ def add_line_facts(facts: FactSet, tables: Tables, group: GroupReserving) -> Non
         _put(facts, "gpd_shape", value(gpd[0]["xi"]), "factor")
         _put(facts, "gpd_threshold", value(gpd[0]["threshold"]), "amount")
         _put(facts, "gpd_exceedances", value(gpd[0]["exceedances"]), "count")
-    _put(facts, "gpd_shape_limit", INFINITE_VARIANCE, "factor")
 
 
 def add_segment_facts(facts: FactSet, tables: Tables, segment: str) -> None:
@@ -108,6 +125,22 @@ def add_segment_facts(facts: FactSet, tables: Tables, segment: str) -> None:
             "count",
         )
     _put(facts, "cohort_significance", survival.SIGNIFICANCE, "factor")
+    years = {
+        str(r["report_year"])
+        for r in of_segment(_table(tables, "survival_cohorts.csv"), segment)
+        if (value(r["events"]) or 0) >= survival.MIN_EVENTS
+    }
+    year_medians = [
+        t
+        for r in of_segment(_table(tables, "survival_time_percentiles.csv"), segment)
+        if r["grouping"] == "report_year"
+        and str(r["group"]) in years
+        and value(r["percentile"]) == 0.5
+        and (t := value(r["time"])) is not None
+        and t > 0
+    ]
+    if len(year_medians) >= 2:
+        _put(facts, "cohort_median_ratio", max(year_medians) / min(year_medians), "factor")
     medians = [
         r
         for r in of_segment(_table(tables, "survival_time_percentiles.csv"), segment)
@@ -156,4 +189,4 @@ def add_run_facts(facts: FactSet, uncertainty: UncertaintyResult | str | None) -
             _put(facts, "discount_share", 1 - present / before, "ratio")
 
 
-__all__ = ["add_line_facts", "add_run_facts", "add_segment_facts"]
+__all__ = ["add_back_test_facts", "add_line_facts", "add_run_facts", "add_segment_facts"]

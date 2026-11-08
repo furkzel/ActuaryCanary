@@ -2961,8 +2961,8 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "e6699dea61e4fddfc1b9e18f4c0d3f3a7cf366cc42981a2f34df1456828c4167",
-      "size": 5057781
+      "sha256": "d9af69a40a3df0c45f1c3f0a429dc6480b3ec1f17c3eec513262242805118881",
+      "size": 5057257
     },
     {
       "name": "quality.json",
@@ -3237,7 +3237,7 @@
       "seed": 1
     }
   ],
-  "run_id": "e2621d7cd5037408",
+  "run_id": "bf50c4eaba669edc",
   "settings": {
     "assumptions": {
       "entries": []
@@ -3479,7 +3479,7 @@
     {
       "id": "CV06",
       "title": "Precision and rounding",
-      "version": "1.1.0"
+      "version": "1.1.1"
     },
     {
       "id": "CV07",
@@ -3799,7 +3799,7 @@
     {
       "id": "RP01",
       "title": "Key finding rules",
-      "version": "1.2.0"
+      "version": "1.2.1"
     }
   ],
   "tables_not_used": []

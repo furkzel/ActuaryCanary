@@ -13,9 +13,10 @@ from actuarycanary.modules.anomalies import ANOMALY_COLUMNS, AnomalyResult
 from actuarycanary.modules.methods_port import range_table, ultimates_table
 from actuarycanary.modules.reserving import ReservingResult
 
-# The methods whose rows in diagnostics.csv carry floats to 10 significant digits (CV06 1.1.0)
+# The methods whose rows in diagnostics.csv carry floats to 10 significant digits (CV06 1.1.0;
+# MT19 since P27b, record 0348)
 ROUNDED_METHODS = frozenset(
-    ("MT11", "MT12", "MT13", "MT14", "MT15", "MT16", "MT17", "MT18", "MT22", "AE02")
+    ("MT11", "MT12", "MT13", "MT14", "MT15", "MT16", "MT17", "MT18", "MT19", "MT22", "AE02")
 )
 ASSUMPTIONS_NAME = "assumptions.csv"
 ANOMALIES_NAME = "anomalies.csv"

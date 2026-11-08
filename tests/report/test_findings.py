@@ -1,6 +1,7 @@
 """The finding rules of RP01 (spec/report/findings.yaml): each fires on its condition and only
 then, fills its template from facts, and names facts the run computes (decision 0070)."""
 
+import polars as pl
 import pytest
 
 from actuarycanary.pipeline import RunResult
@@ -15,6 +16,7 @@ from actuarycanary.report.findings import (
     sentence,
 )
 from actuarycanary.report.model import scoped_facts
+from actuarycanary.report.phase2_facts import add_back_test_facts, add_segment_facts
 from actuarycanary.spec.loader import load_specs
 from actuarycanary.spec.models import FindingRule
 
@@ -50,16 +52,26 @@ CASES: dict[str, tuple[dict[str, float], dict[str, float]]] = {
     ),
     # RP01 1.2.0 (record 0345)
     "KF27": ({"munich_gap_size": 0.12}, {"munich_gap_size": 0.04}),
-    "KF28": ({"back_test_bias_size": 0.08}, {"back_test_bias_size": 0.01}),
+    "KF28": (
+        {
+            "back_test_bias_size": 0.08,
+            "back_test_sign_share": 0.9,
+            "back_test_sign_share_limit": 0.75,
+        },
+        {
+            "back_test_bias_size": 0.01,
+            "back_test_sign_share": 0.9,
+            "back_test_sign_share_limit": 0.75,
+        },
+    ),
     "KF29": ({"tail_fitted_change": 0.23}, {"tail_fitted_change": 0.0}),
     "KF30": ({"tail_up_change": 0.4}, {"tail_up_change": 0.1}),
-    "KF31": (
-        {"gpd_shape": 0.68, "gpd_shape_limit": 0.5},
-        {"gpd_shape": 0.35, "gpd_shape_limit": 0.5},
-    ),
+    "KF31": ({"gpd_shape": 0.68}, {"gpd_shape": 0.35}),
     "KF32": (
-        {"cohort_logrank_p": 0.001, "cohort_significance": 0.01},
-        {"cohort_logrank_p": 0.47, "cohort_significance": 0.01},
+        {"cohort_logrank_p": 0.001, "cohort_significance": 0.01}
+        | {"cohort_median_ratio": 1.6, "cohort_median_ratio_limit": 1.25},
+        {"cohort_logrank_p": 0.47, "cohort_significance": 0.01}
+        | {"cohort_median_ratio": 1.6, "cohort_median_ratio_limit": 1.25},
     ),
     "KF33": ({"range_upper_width": 0.46}, {"range_upper_width": 0.1}),
     "KF34": ({"discount_share": 0.44}, {"discount_share": 0.0}),
@@ -151,3 +163,95 @@ def test_the_tiny_baseline_says_its_evidence_is_thin(default_run: RunResult) -> 
     assert model["banners"] == [first["text"]]
     assert len(model["key_findings"]) <= 8
     assert "KF15" not in {f["rule"] for f in model["further_findings"]}  # every module ran
+
+
+# RP01 1.2.1 (record 0347): the part of the condition that the sentence needs
+
+SIGN_LIMIT = {"back_test_sign_share_limit": 0.75}
+RATIO_LIMIT = {"cohort_median_ratio_limit": 1.25}
+
+
+def _fires(rule_id: str, values: dict[str, float]) -> bool:
+    return holds(RULES[rule_id], _facts(RULES[rule_id], values))
+
+
+def test_the_rule_file_names_its_settings() -> None:
+    assert load_specs().finding_rules.settings == SIGN_LIMIT | RATIO_LIMIT
+
+
+def test_kf28_needs_one_sign_in_the_errors_of_the_back_test() -> None:
+    big = {"back_test_bias_size": 0.08} | SIGN_LIMIT
+    assert _fires("KF28", big | {"back_test_sign_share": 0.75})
+    assert not _fires("KF28", big | {"back_test_sign_share": 0.6})
+    assert not _fires("KF28", big)  # a run without the share does not say "one direction"
+
+
+def test_kf31_has_the_fixed_shape_and_no_other_limit_can_be_given() -> None:
+    rule = RULES["KF31"]
+    assert [(c.fact, c.op, c.other) for c in parse_condition(rule.condition)] == [
+        ("gpd_shape", ">=", "0.5")
+    ]
+    assert "gpd_shape_limit" not in facts_named(rule)
+    assert "0.5" in rule.template and "0,5" in rule.template_tr
+    assert "gpd_shape_limit" not in load_specs().finding_rules.settings
+    # a limit given as a fact changes nothing: the rule does not read it
+    assert not _fires("KF31", {"gpd_shape": 0.49, "gpd_shape_limit": 0.3})
+    assert _fires("KF31", {"gpd_shape": 0.5, "gpd_shape_limit": 0.9})
+
+
+def test_kf32_needs_an_effect_besides_the_test() -> None:
+    significant = {"cohort_logrank_p": 0.001, "cohort_significance": 0.01} | RATIO_LIMIT
+    assert _fires("KF32", significant | {"cohort_median_ratio": 1.25})
+    assert not _fires("KF32", significant | {"cohort_median_ratio": 1.1})
+    assert not _fires("KF32", significant)  # fewer than two report years with 20 closings
+
+
+def _back_test(errors: list[float], bias: float) -> dict[str, pl.DataFrame]:
+    summary = {"kind": "summary", "method": "MT10", "horizon_months": 12, "origins": len(errors)}
+    rows = [{"kind": "error", "method": "MT10", "horizon_months": 12, "error": e} for e in errors]
+    rows += [{"kind": "error", "method": "MT10", "horizon_months": 24, "error": -1.0}]
+    rows += [summary | {"bias": bias}]
+    frame = pl.DataFrame(
+        [{"segment": "S", "line": "L", "bias": None, "origins": None} | r for r in rows]
+    )
+    return {"back_test.csv": frame}
+
+
+def test_the_sign_share_counts_the_origins_with_the_sign_of_the_mean() -> None:
+    facts: dict[str, Fact] = {}
+    add_back_test_facts(facts, _back_test([0.1, 0.2, 0.3, -0.05], 0.1), "S", "L")
+    assert facts["back_test_sign_share"].value == 0.75
+    assert facts["back_test_bias_size"].value == 0.1
+    negative: dict[str, Fact] = {}
+    add_back_test_facts(negative, _back_test([0.1, -0.2, -0.3, 0.0], -0.1), "S", "L")
+    assert negative["back_test_sign_share"].value == 0.5  # a zero error has no sign
+
+
+def _cohorts(events: dict[str, int], medians: dict[str, float | None]) -> dict[str, pl.DataFrame]:
+    cohorts = [{"segment": "S", "report_year": y, "events": n, "logrank_p": 0.001}
+               for y, n in events.items()]  # fmt: skip
+    percentiles = [
+        {"segment": "S", "grouping": "report_year", "group": y, "percentile": 0.5, "time": t}
+        for y, t in medians.items()
+    ]
+    return {
+        "survival_cohorts.csv": pl.DataFrame(cohorts),
+        "survival_time_percentiles.csv": pl.DataFrame(percentiles),
+    }
+
+
+def test_the_median_ratio_uses_the_report_years_with_twenty_events() -> None:
+    tables = _cohorts(
+        {"2021": 40, "2022": 25, "2023": 19, "2024": 30},
+        {"2021": 100.0, "2022": 150.0, "2023": 900.0, "2024": None},
+    )
+    facts: dict[str, Fact] = {}
+    add_segment_facts(facts, tables, "S")
+    assert facts["cohort_median_ratio"].value == 1.5  # 2023 has 19 events, 2024 no median
+    alone: dict[str, Fact] = {}
+    add_segment_facts(
+        alone,
+        _cohorts({"2021": 40, "2022": 5}, {"2021": 1.0, "2022": 9.0}),
+        "S",
+    )
+    assert "cohort_median_ratio" not in alone

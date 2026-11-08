@@ -308,6 +308,8 @@ class FindingRule(_Strict):
 class FindingRulesSpec(SpecBase):
     id: str = Field(pattern=r"^RP\d{2}$")
     rules: list[FindingRule] = Field(min_length=1)
+    # limits only the rules use, by name; a condition reads one like any other fact (RP01 1.2.1)
+    settings: dict[str, float] = {}
 
 
 AnySpec = (

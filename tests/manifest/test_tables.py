@@ -23,7 +23,7 @@ def test_the_specification_names_the_digits_the_writer_keeps() -> None:
     cv06 = next(f.spec for f in load_specs().files if f.spec.id == "CV06")
     assert isinstance(cv06, ConventionSpec)
     default = next(p for p in cv06.defaults if p.name == "file_significant_digits")
-    assert cv06.version == "1.1.0" and default.default == SIGNIFICANT_DIGITS
+    assert cv06.version == "1.1.1" and default.default == SIGNIFICANT_DIGITS
 
 
 def significant_digits_ok(value: float) -> bool:
