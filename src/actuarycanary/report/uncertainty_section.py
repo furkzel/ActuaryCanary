@@ -1,0 +1,571 @@
+"""The uncertainty page (M12, record 0342): the selected reserve with its range, the Mack
+lognormal range (RS03) and the bootstrap (RS05) side by side, the distribution of the
+simulated reserve with VaR and TVaR, the effect of the fitted tail (MT14), the expected cash
+flows nominal and discounted (RS04, CV10) with the curve, the assumptions behind the totals
+and the calibration evidence.
+
+Every block names the value basis it shows (NOMINAL or DISCOUNTED), so the page can switch
+between the bases the run computed without a new run (record 0344). Numbers are cells of
+`risk_measures.csv`, `risk_cash_flows.csv`, `risk_distribution.parquet`, `discount_curve.csv`,
+`back_test.csv` and `sensitivity.csv`, rounded for the page only.
+"""
+
+import math
+from collections.abc import Callable, Mapping
+from typing import Any
+
+import numpy as np
+import polars as pl
+
+from actuarycanary.modules import reserving_tier_b_output as tier_b_output
+from actuarycanary.modules.uncertainty import (
+    ALL_LINES,
+    BOOTSTRAP_SOURCE,
+    DISCOUNTED,
+    EXPECTED_SOURCE,
+    MACK_SOURCE,
+    NOMINAL,
+    TOTAL,
+    UncertaintyResult,
+)
+from actuarycanary.report import numbers
+from actuarycanary.report.charts import INK, MUTED, _layout, _round
+from actuarycanary.report.frames import table, text, value
+from actuarycanary.report.language import t
+
+BASES = (NOMINAL, DISCOUNTED)
+BINS = 40  # bars of the histogram of the simulated reserve
+LOW = 0.05  # the headline range: 5th to 95th percentile
+BASIS_TOKENS = {NOMINAL: "--value-nominal", DISCOUNTED: "--value-discounted"}
+SOURCE_LABELS = {
+    MACK_SOURCE: "Mack, lognormal approximation (RS03)",
+    BOOTSTRAP_SOURCE: "Bootstrap (RS05, MT11)",
+    EXPECTED_SOURCE: "Expected cash flows (RS04)",
+}
+
+
+def basis_colour(basis: str) -> str:
+    return f"var({BASIS_TOKENS[basis]})"
+
+
+def _line_name(segment: str, line: str) -> str:
+    return t(ALL_LINES) if segment == ALL_LINES else f"{segment} · {line}"
+
+
+def _totals(risk: pl.DataFrame) -> list[dict[str, Any]]:
+    if not risk.height:
+        return []
+    return risk.filter(pl.col("origin_period") == TOTAL).to_dicts()
+
+
+def _column(segment: str, line: str, basis: str) -> str:
+    name = ALL_LINES if segment == ALL_LINES else f"{segment} / {line}"
+    return f"{name} (discounted)" if basis == DISCOUNTED else name
+
+
+def _lognormal_low(mean: float | None, sd: float | None, p: float = LOW) -> float | None:
+    """The p-quantile of the lognormal with this mean and standard deviation (RS03)."""
+    if mean is None or sd is None or mean <= 0 or sd <= 0:
+        return None
+    from scipy.stats import norm
+
+    s2 = math.log1p((sd / mean) ** 2)
+    return float(math.exp(math.log(mean) - s2 / 2 + math.sqrt(s2) * norm.ppf(p)))
+
+
+def _sims(distribution: pl.DataFrame, column: str) -> np.ndarray | None:
+    if column not in distribution.columns:
+        return None
+    return distribution[column].drop_nulls().to_numpy().astype(float)
+
+
+def headline(risk: pl.DataFrame, distribution: pl.DataFrame, basis: str) -> list[dict[str, Any]]:
+    """Per line and for all lines: the reserve with its 5th to 95th percentile and the
+    coefficient of variation, from the bootstrap where it ran, else from Mack."""
+    out = []
+    rows = _totals(risk)
+    keys = list(dict.fromkeys((r["segment"], r["line"]) for r in rows))
+    for segment, line in keys:
+        mine = [r for r in rows if (r["segment"], r["line"]) == (segment, line)]
+        boot = next(
+            (r for r in mine if r["source"] == BOOTSTRAP_SOURCE and r["value_basis"] == basis), None
+        )
+        mack = next(
+            (r for r in mine if r["source"] == MACK_SOURCE and r["value_basis"] == basis), None
+        )
+        expected = next(
+            (r for r in mine if r["source"] == EXPECTED_SOURCE and r["value_basis"] == basis), None
+        )
+        chosen = boot or mack
+        if chosen is None and expected is None:
+            continue
+        low = None
+        if boot is not None:
+            sims = _sims(distribution, _column(segment, line, basis))
+            low = float(np.quantile(sims, LOW)) if sims is not None and sims.size else None
+        elif mack is not None:
+            low = _lognormal_low(value(mack["mean"]), value(mack["standard_deviation"]))
+        reserve = value((chosen or expected or {}).get("mean"))
+        out.append(
+            {
+                "line": _line_name(segment, line),
+                "reserve": numbers.amount(reserve),
+                "low": numbers.amount(low),
+                "high": numbers.amount(value(chosen["p95"])) if chosen else numbers.EMPTY,
+                "cv": numbers.ratio(value(chosen["coefficient_of_variation"]))
+                if chosen
+                else numbers.EMPTY,
+                "source": t(SOURCE_LABELS[chosen["source"]])
+                if chosen
+                else t(SOURCE_LABELS[EXPECTED_SOURCE]),
+                "effect": numbers.amount(value(expected["discount_effect"])) if expected else "",
+            }
+        )
+    return out
+
+
+def ranges(risk: pl.DataFrame, basis: str) -> list[dict[str, Any]]:
+    """RS03 and RS05 side by side per line and for all lines on one basis."""
+    out = []
+    for r in _totals(risk):
+        if r["value_basis"] != basis or r["source"] == EXPECTED_SOURCE:
+            continue
+        out.append(
+            {
+                "line": _line_name(r["segment"], r["line"]),
+                "source": t(SOURCE_LABELS.get(str(r["source"]), str(r["source"]))),
+                "cells": [
+                    numbers.amount(value(r["mean"])),
+                    numbers.ratio(value(r["coefficient_of_variation"])),
+                    numbers.amount(value(r["p50"])),
+                    numbers.amount(value(r["p75"])),
+                    numbers.amount(value(r["p95"])),
+                    numbers.amount(value(r["value_at_risk"])),
+                    numbers.amount(value(r["tail_value_at_risk"])),
+                ],
+                "simulations": numbers.count(value(r["simulations"])),
+                "label": text(r["label"]),
+                "note": text(r["note"]),
+            }
+        )
+    return out
+
+
+def range_figure(risk: pl.DataFrame, basis: str, currency: str) -> dict[str, Any] | None:
+    """The ranges drawn as ranges: a light bar from the median to the 99.5th percentile, a dark
+    bar from the 75th to the 95th, the mean as a diamond, one row per line and source."""
+    rows = [
+        r
+        for r in _totals(risk)
+        if r["value_basis"] == basis
+        and r["source"] != EXPECTED_SOURCE
+        and value(r["p50"]) is not None
+    ]
+    if not rows:
+        return None
+    colour = basis_colour(basis)
+    data: list[dict[str, Any]] = []
+    labels = []
+    for r in rows:
+        source = t("bootstrap") if r["source"] == BOOTSTRAP_SOURCE else t("Mack")
+        label = f"{_line_name(r['segment'], r['line'])} · {source}"
+        labels.append(label)
+        for low, high, width, opacity, name in (
+            ("p50", "p99_5", 8, 0.35, t("median to 99.5th percentile")),
+            ("p75", "p95", 14, 0.9, t("75th to 95th percentile")),
+        ):
+            data.append(
+                {
+                    "type": "scatter",
+                    "mode": "lines",
+                    "x": [_round(value(r[low])), _round(value(r[high]))],
+                    "y": [label, label],
+                    "line": {"color": colour, "width": width},
+                    "opacity": opacity,
+                    "hovertemplate": t(
+                        "{label}: %{x:,.0f} {currency}<extra></extra>",
+                        label=name,
+                        currency=currency,
+                    ),
+                }
+            )
+        data.append(
+            {
+                "type": "scatter",
+                "mode": "markers",
+                "x": [_round(value(r["mean"]))],
+                "y": [label],
+                "marker": {"color": INK, "symbol": "diamond", "size": 10},
+                "hovertemplate": t("Mean: %{x:,.0f} {currency}<extra></extra>", currency=currency),
+            }
+        )
+    title = (
+        t("Reserve ranges, present value, {currency}", currency=currency)
+        if basis == DISCOUNTED
+        else t("Reserve ranges, nominal, {currency}", currency=currency)
+    )
+    return {
+        "data": data,
+        "layout": _layout(
+            title,
+            t("Reserve ({currency})", currency=currency),
+            "",
+            yaxis={"type": "category", "autorange": "reversed", "automargin": True},
+            height=max(180, 60 + 36 * len(labels)),
+            margin={"l": 200, "r": 16, "t": 40, "b": 48},
+        ),
+    }
+
+
+def histogram(
+    risk: pl.DataFrame, distribution: pl.DataFrame, basis: str, currency: str
+) -> list[tuple[str, dict[str, Any]]]:
+    """One histogram per simulated column on this basis (a line with a bootstrap, and all lines
+    when every line has one), with the mean, VaR and TVaR as vertical lines."""
+    out = []
+    for r in _totals(risk):
+        if r["source"] != BOOTSTRAP_SOURCE or r["value_basis"] != basis:
+            continue
+        sims = _sims(distribution, _column(r["segment"], r["line"], basis))
+        if sims is None or not sims.size:
+            continue
+        counts, edges = np.histogram(sims, bins=BINS)
+        centres = (edges[:-1] + edges[1:]) / 2
+        marks = [
+            (value(r["mean"]), t("mean"), "solid"),
+            (
+                value(r["value_at_risk"]),
+                t("VaR {level}", level=numbers.ratio(value(r["var_level"]))),
+                "dash",
+            ),
+            (
+                value(r["tail_value_at_risk"]),
+                t("TVaR {level}", level=numbers.ratio(value(r["tvar_level"]))),
+                "dot",
+            ),
+        ]
+        layout = _layout(
+            t("Simulated reserve, {line}", line=_line_name(r["segment"], r["line"])),
+            t("Reserve ({currency})", currency=currency),
+            t("Simulations"),
+            height=260,
+        )
+        layout["shapes"] = [
+            {
+                "type": "line",
+                "x0": _round(x),
+                "x1": _round(x),
+                "yref": "paper",
+                "y0": 0,
+                "y1": 1,
+                "line": {"color": INK if dash == "solid" else MUTED, "dash": dash, "width": 1.5},
+            }
+            for x, _, dash in marks
+            if x is not None
+        ]
+        layout["annotations"] = [
+            {
+                "x": _round(x),
+                "y": 1,
+                "yref": "paper",
+                "text": name,
+                "showarrow": False,
+                "yanchor": "bottom",
+                "font": {"size": 10},
+            }
+            for x, name, _ in marks
+            if x is not None
+        ]
+        figure = {
+            "data": [
+                {
+                    "type": "bar",
+                    "x": [_round(float(c)) for c in centres],
+                    "y": [int(c) for c in counts],
+                    "marker": {"color": basis_colour(basis)},
+                    "hovertemplate": t(
+                        "%{x:,.0f} {currency}: %{y} simulations<extra></extra>", currency=currency
+                    ),
+                }
+            ],
+            "layout": layout,
+        }
+        out.append((f"{r['segment']}-{r['line']}", figure))
+    return out
+
+
+def cash_flows(frame: pl.DataFrame, discounted: bool) -> list[dict[str, Any]]:
+    """Expected cash flows of all lines by calendar period: nominal, and discounted with the
+    discount factor of the period when a curve is used."""
+    if not frame.height:
+        return []
+    summed = (
+        frame.group_by("period", maintain_order=True)
+        .agg(
+            pl.col("payment_date").first(),
+            pl.col("years").first(),
+            pl.col("discount_factor").first(),
+            pl.col("expected_nominal").sum(),
+            pl.col("expected_discounted").sum(),
+        )
+        .sort("period")
+        .filter(pl.col("expected_nominal").abs() > 0)
+    )
+    return [
+        {
+            "period": numbers.count(value(r["period"])),
+            "date": r["payment_date"].isoformat() if r["payment_date"] else "",
+            "factor": numbers.factor(value(r["discount_factor"])) if discounted else numbers.EMPTY,
+            "nominal": numbers.amount(value(r["expected_nominal"])),
+            "discounted": numbers.amount(value(r["expected_discounted"]))
+            if discounted
+            else numbers.EMPTY,
+        }
+        for r in summed.to_dicts()
+    ]
+
+
+def cash_flow_figure(frame: pl.DataFrame, discounted: bool, currency: str) -> dict[str, Any] | None:
+    rows = cash_flows(frame, discounted)
+    if not rows:
+        return None
+    summed = (
+        frame.group_by("period", maintain_order=True)
+        .agg(pl.col("expected_nominal").sum(), pl.col("expected_discounted").sum())
+        .sort("period")
+        .filter(pl.col("expected_nominal").abs() > 0)
+    )
+    periods = [str(int(p)) for p in summed["period"]]
+    data = [
+        {
+            "type": "bar",
+            "name": t("nominal"),
+            "x": periods,
+            "y": [_round(value(v)) for v in summed["expected_nominal"]],
+            "marker": {"color": basis_colour(NOMINAL)},
+            "hovertemplate": t("nominal: %{y:,.0f} {currency}<extra></extra>", currency=currency),
+        }
+    ]
+    if discounted:
+        data.append(
+            {
+                "type": "bar",
+                "name": t("present value"),
+                "x": periods,
+                "y": [_round(value(v)) for v in summed["expected_discounted"]],
+                "marker": {"color": basis_colour(DISCOUNTED)},
+                "hovertemplate": t(
+                    "present value: %{y:,.0f} {currency}<extra></extra>", currency=currency
+                ),
+            }
+        )
+    return {
+        "data": data,
+        "layout": _layout(
+            t("Expected payments of all lines by future period, {currency}", currency=currency),
+            t("Period after the valuation date"),
+            t("Payments ({currency})", currency=currency),
+            xaxis={"title": {"text": t("Period after the valuation date")}, "type": "category"},
+            barmode="group",
+            showlegend=discounted,
+            height=280,
+        ),
+    }
+
+
+def curve(result: UncertaintyResult, frame: pl.DataFrame) -> dict[str, Any] | None:
+    found = result.discount.curve
+    if found is None:
+        return None
+    return {
+        "rows": [
+            (t("Curve"), found.curve_id),
+            (t("Curve date"), found.curve_date.isoformat()),
+            (t("Currency"), found.currency),
+            (t("Rate type"), found.rate_type),
+            (t("Compounding"), found.compounding),
+            (t("Source"), found.source or numbers.EMPTY),
+            (t("Discount date"), result.discount.discount_date.isoformat()),
+            (t("Payment timing"), t(result.discount.timing.value.replace("_", " "))),
+            (t("Years of the tail payments"), str(result.discount.tail_payment_years)),
+        ],
+        "points": [
+            {
+                "tenor": numbers.factor(value(r["tenor_years"])),
+                "zero": numbers.ratio(value(r["zero_rate"])),
+                "factor": numbers.factor(value(r["discount_factor"])),
+                "forward": numbers.ratio(value(r["forward_rate"])),
+            }
+            for r in frame.to_dicts()
+        ],
+    }
+
+
+def statements(result: UncertaintyResult) -> dict[str, Any]:
+    """What the totals rest on (records 0323 and 0325): the line correlation, the TVaR
+    estimator, the simulations and the tail count, and when an all-lines simulation exists."""
+    risk = result.risk
+    boot = [r for r in _totals(risk) if r["source"] == BOOTSTRAP_SOURCE]
+    mack = [r for r in _totals(risk) if r["source"] == MACK_SOURCE]
+    simulated = sorted(
+        {_line_name(r["segment"], r["line"]) for r in boot if r["segment"] != ALL_LINES}
+    )
+    lines = sorted(
+        {_line_name(r["segment"], r["line"]) for r in _totals(risk) if r["segment"] != ALL_LINES}
+    )
+    total = any(r["segment"] == ALL_LINES for r in boot)
+    first = boot[0] if boot else None
+    return {
+        "correlation": numbers.factor(result.correlation),
+        "independent": result.correlation == 0,
+        "boot_estimator": text(first["estimator"]) if first else "",
+        "mack_estimator": text(mack[0]["estimator"]) if mack else "",
+        "simulations": numbers.count(value(first["simulations"])) if first else "",
+        "tail_count": numbers.count(value(first["tail_count"])) if first else "",
+        "tvar_level": numbers.ratio(value(first["tvar_level"])) if first else "",
+        "simulated": simulated,
+        "lines": len(lines),
+        "all_lines_total": total,
+    }
+
+
+def _share(part: float | None, whole: float | None) -> float | None:
+    return part / whole if part is not None and whole else None
+
+
+def calibration(tables: Mapping[str, pl.DataFrame]) -> list[dict[str, Any]]:
+    """The share of later outcomes inside the ranges of earlier valuations (AE02 range
+    calibration of back_test.csv), summed over the lines per method and horizon."""
+    frame = table(tables, tier_b_output.BACK_TEST_NAME)
+    if not frame.height:
+        return []
+    found = frame.filter(pl.col("kind") == "range_calibration")
+    if not found.height:
+        return []
+    summed = (
+        found.group_by("method", "horizon_months")
+        .agg(pl.col("origins").sum(), pl.col("inside").sum(), pl.len().alias("lines"))
+        .sort("method", "horizon_months")
+    )
+    return [
+        {
+            "method": r["method"],
+            "horizon": numbers.count(value(r["horizon_months"])),
+            "lines": numbers.count(value(r["lines"])),
+            "origins": numbers.count(value(r["origins"])),
+            "share": numbers.ratio(_share(value(r["inside"]), value(r["origins"]))),
+        }
+        for r in summed.to_dicts()
+    ]
+
+
+def tail_effects(tables: Mapping[str, pl.DataFrame]) -> list[dict[str, Any]]:
+    frame = table(tables, "sensitivity.csv")
+    if not frame.height:
+        return []
+    return [
+        {
+            "line": f"{r['segment']} · {r['line']}",
+            "base": numbers.amount(value(r["base"])),
+            "value": numbers.amount(value(r["value"])),
+            "change": numbers.change_ratio(value(r["relative"])),
+            "note": text(r["note"]),
+        }
+        for r in frame.filter(pl.col("variant") == "tail_fitted").to_dicts()
+    ]
+
+
+def uncertainty_page(
+    uncertainty: UncertaintyResult | str | None,
+    tables: Mapping[str, pl.DataFrame],
+    spec: Callable[..., str],
+    figures: dict[str, Any],
+    currency: str,
+) -> dict[str, Any]:
+    if not isinstance(uncertainty, UncertaintyResult):
+        return {"reason": uncertainty or t("M12 did not run"), "bases": []}
+    discounted = uncertainty.discount.available
+    bases = [NOMINAL, DISCOUNTED] if discounted else [NOMINAL]
+    blocks = []
+    for basis in bases:
+        range_id = f"uncertainty-range-{basis.lower()}"
+        found = range_figure(uncertainty.risk, basis, currency)
+        if found is not None:
+            figures[range_id] = found
+        histograms = []
+        for key, figure in histogram(uncertainty.risk, uncertainty.distribution, basis, currency):
+            figure_id = f"uncertainty-histogram-{basis.lower()}-{key}".replace(" ", "-").replace(
+                "/", "-"
+            )
+            figures[figure_id] = figure
+            histograms.append(figure_id)
+        blocks.append(
+            {
+                "basis": basis,
+                "label": t("present value") if basis == DISCOUNTED else t("nominal"),
+                "headline": headline(uncertainty.risk, uncertainty.distribution, basis),
+                "ranges": ranges(uncertainty.risk, basis),
+                "range_figure": range_id if found is not None else "",
+                "histograms": histograms,
+            }
+        )
+    flows_id = "uncertainty-cash-flows"
+    flows = cash_flow_figure(uncertainty.cash_flows, discounted, currency)
+    if flows is not None:
+        figures[flows_id] = flows
+    return {
+        "reason": "",
+        "bases": bases,
+        "blocks": blocks,
+        "cash_flows": cash_flows(uncertainty.cash_flows, discounted),
+        "cash_flow_figure": flows_id if flows is not None else "",
+        "discounted": discounted,
+        "discount_reason": "" if discounted else uncertainty.discount.reason,
+        "curve": curve(uncertainty, uncertainty.curve),
+        "statements": statements(uncertainty),
+        "calibration": calibration(tables),
+        "tail_effects": tail_effects(tables),
+        "notes": list(uncertainty.notes),
+        "footnotes": {
+            "headline": t(
+                "The reserve is the selected unpaid (RS02 with MT10) as M12 ranges it: the "
+                "bootstrap ({rs05}) where it ran on the line, else the Mack approximation "
+                "({rs03}); the 5th percentile comes from risk_distribution.parquet or the "
+                "lognormal of RS03. Indicative ranges, never capital requirements.",
+                rs05=spec("RS05", "MT11"),
+                rs03=spec("RS03", "MT06"),
+            ),
+            "ranges": t(
+                "Rows Total and All lines of risk_measures.csv ({specs}). VaR at 99.5% and "
+                "TVaR at 99%; both sources are approximations of the uncertainty of the "
+                "selected reserve, labelled as such in the file.",
+                specs=spec("RS03", "RS05", "M12"),
+            ),
+            "figure": t(
+                "Ranges drawn as ranges: light bar from the median to the 99.5th percentile, "
+                "dark bar from the 75th to the 95th, the mean as a diamond."
+            ),
+            "histogram": t(
+                "Histogram of the simulated reserve ({spec}); the lines mark the mean, the "
+                "VaR and the TVaR of the row in risk_measures.csv; simulations in "
+                "risk_distribution.parquet.",
+                spec=spec("RS05"),
+            ),
+            "cash_flows": t(
+                "Expected payments of the selected unpaid by period after the valuation date, "
+                "all lines added ({specs}); rows of risk_cash_flows.csv.",
+                specs=spec("RS04", "CV10"),
+            ),
+            "calibration": t(
+                "Share of the incurred known later that fell inside the range given at an "
+                "earlier valuation, summed over the lines (AE02 rows of back_test.csv, {spec}). "
+                "Coverage on model data is in records 0075 (Mack), 0282 (bootstrap) and 0325 "
+                "(this module); Mack ranges are known to be too narrow on inflation-driven or "
+                "long-tailed lines (record 0062).",
+                spec=spec("MT22", "AE02"),
+            ),
+        },
+    }
+
+
+__all__ = ["BASES", "basis_colour", "uncertainty_page"]

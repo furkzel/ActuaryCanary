@@ -4,6 +4,9 @@ from pathlib import Path
 
 EXAMPLES_FOLDER = "examples"
 DEMO_FOLDER = "demo"
+# the demo ships the generator's interest-rate workbook and names its curve, so that its report
+# carries the discounted basis beside the nominal one (record 0346)
+DEMO_CURVE = "TRY_GOV"
 
 
 def find_demo_folder(start: Path | None = None) -> Path:

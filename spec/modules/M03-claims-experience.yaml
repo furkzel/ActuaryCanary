@@ -1,5 +1,5 @@
 id: M03
-version: 1.0.0
+version: 1.1.0
 title_en: Claims experience
 title_tr: Hasar deneyimi
 status: reviewed
@@ -13,10 +13,30 @@ required_all: [claim_valuations]
 required_any: []
 optional: [claims, policies, market]
 measures: [CL01, CL02, CL03, CL04, CL05, CL06, CL07, CL08, CL09, CL10, CL11, CL12, RC01, RC02]
-methods: [MT01]
+methods: [MT01, MT17, MT19]
 skip_reason: >-
   Claims experience did not run: no claim valuations were loaded. Load
   claim_valuations.xlsx to enable it; add claims.xlsx for segments, lines and delays.
+outputs:
+  - severity_groups.csv (MT17 per segment and line - claims used, status and the reason when no family was fitted)
+  - severity_fits.csv (MT17 log-likelihood, AIC, BIC, Kolmogorov-Smirnov and Anderson-Darling tests per family)
+  - severity_parameters.csv (MT17 parameters with standard errors per family)
+  - severity_selected.csv (MT17 family selected per segment and line, and why)
+  - severity_quantiles.csv (MT17 quantiles of the selected family)
+  - severity_limited_expected_values.csv (MT17 limited expected values and layer costs)
+  - severity_plots.csv (MT17 QQ, PP and tail plot data)
+  - severity_trend.csv and severity_trend_summary.csv (MT17 severity by origin year and its trend)
+  - survival_groups.csv (MT19 claims, events, censored and month-end dates per group)
+  - survival_curves.csv (MT19 Kaplan-Meier curves with intervals by line, report year and covariate)
+  - survival_time_percentiles.csv (MT19 25th, 50th and 75th percentile of time to settlement with intervals)
+  - survival_cohorts.csv (MT19 share censored by report year and the log-rank test)
+  - survival_cox_models.csv and survival_cox_coefficients.csv (MT19 Cox model, hazard ratios with intervals, or the reason no model ran)
+  - survival_proportional_hazards_test.csv and survival_schoenfeld_residuals.csv (MT19 Grambsch-Therneau test and residuals; information until a reference is frozen)
+  - survival_baseline.csv (MT19 Breslow baseline survival; information)
+report_page:
+  - Claims by line - counts, paid, case reserve, incurred, reporting delay, settlement time and large-loss share.
+  - Settlement speed (MT19) - Kaplan-Meier curves by line with intervals, the median time to settlement per line, the hazard ratios of the Cox model with the thin-evidence warnings; the Grambsch-Therneau test, the concordance and the baseline are labelled information.
+  - Claim sizes (MT17) - shown on the large-loss page with the extreme values of M06.
 notes: >-
   The blueprint lists "Claim + claim transactions or snapshots". Version 1.0 runs with
   claim valuations alone (decision 0004); measures that need claims (CL05, CL07, CL08)
@@ -28,3 +48,10 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-11-07
+    change: >-
+      The report item (P27, records 0340 and 0341): MT17 (wired in code by P25b, record 0621,
+      and not listed then, record 0622) and MT19 (built by P25c and called from this module
+      now) are listed, with the files they write and the outline of the page. The owner has
+      not reviewed this version yet.

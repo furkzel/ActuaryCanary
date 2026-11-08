@@ -48,7 +48,23 @@ CASES: dict[str, tuple[dict[str, float], dict[str, float]]] = {
         {"anomaly_rate": 0.2, "anomaly_rate_limit": 0.05},
         {"anomaly_rate": 0.01, "anomaly_rate_limit": 0.05},
     ),
+    # RP01 1.2.0 (record 0345)
+    "KF27": ({"munich_gap_size": 0.12}, {"munich_gap_size": 0.04}),
+    "KF28": ({"back_test_bias_size": 0.08}, {"back_test_bias_size": 0.01}),
+    "KF29": ({"tail_fitted_change": 0.23}, {"tail_fitted_change": 0.0}),
+    "KF30": ({"tail_up_change": 0.4}, {"tail_up_change": 0.1}),
+    "KF31": (
+        {"gpd_shape": 0.68, "gpd_shape_limit": 0.5},
+        {"gpd_shape": 0.35, "gpd_shape_limit": 0.5},
+    ),
+    "KF32": (
+        {"cohort_logrank_p": 0.001, "cohort_significance": 0.01},
+        {"cohort_logrank_p": 0.47, "cohort_significance": 0.01},
+    ),
+    "KF33": ({"range_upper_width": 0.46}, {"range_upper_width": 0.1}),
+    "KF34": ({"discount_share": 0.44}, {"discount_share": 0.0}),
 }
+NEW_IN_1_2 = {f"KF{n}" for n in range(27, 35)}
 
 
 def _facts(rule: FindingRule, values: dict[str, float]) -> dict[str, Fact]:
@@ -118,6 +134,7 @@ def test_every_fact_a_rule_names_is_computed_for_its_scope(default_run: RunResul
     missing = {
         (rule.id, name)
         for rule in RULES.values()
+        if rule.id not in NEW_IN_1_2  # need methods the tiny data cannot run: the slow test
         for name in facts_named(rule)
         if name not in known[rule.scope]
     }

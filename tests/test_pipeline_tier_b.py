@@ -61,8 +61,8 @@ def test_the_methods_that_ran_enter_the_manifest_with_their_seeds_and_defaults(
 ) -> None:
     manifest = _manifest(default_run)
     ids = {s["id"] for s in manifest["specs"]}
-    assert {"MT13", "MT14", "MT15", "MT16", "MT22", "AE02", "MT17"} <= ids
-    assert not ids & {"MT11", "MT12", "MT18", "MT19"}  # did not run, or not built
+    assert {"MT13", "MT14", "MT15", "MT16", "MT22", "AE02", "MT17", "MT19"} <= ids
+    assert not ids & {"MT11", "MT12", "MT18"}  # did not run on four origin years
     rows = {r["method"]: r for r in manifest["randomness"]}
     assert set(rows) == {"MT09", "MT17", "MT22"} and all(r["seed"] == 1 for r in rows.values())
     assert manifest["settings"]["tier_b"] == registry.settings(1)

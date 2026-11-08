@@ -1,5 +1,5 @@
 id: M06
-version: 1.1.0
+version: 1.2.0
 title_en: Anomalies and large losses
 title_tr: Anomaliler ve büyük hasarlar
 status: reviewed
@@ -12,10 +12,21 @@ required_all: [claim_valuations]
 required_any: []
 optional: [claims, policies, market]
 measures: [CL12]
-methods: [MT08, MT09]
+methods: [MT08, MT09, MT17, MT18]
 skip_reason: >-
   Anomalies and large losses did not run: no claim valuations were loaded. Load
   claim_valuations.xlsx to enable it; add claims.xlsx for lines and catastrophe codes.
+outputs:
+  - anomalies.csv (MT08 and MT09 flags with their rows)
+  - extreme_thresholds.csv and extreme_candidates.csv (MT18 threshold per segment and line from the ForwardStop scan, or the reason)
+  - extreme_gpd_fit.csv (MT18 generalised Pareto fit with the profile interval of the shape)
+  - extreme_tail_quantiles.csv and extreme_return_levels.csv (MT18 tail quantiles, expected shortfall and return levels)
+  - extreme_threshold_comparison.csv (MT18 threshold beside the CV08 threshold, with the claims and incurred above each)
+  - extreme_mean_excess.csv and extreme_excess_plot.csv (MT18 mean excess and parameter stability)
+  - extreme_yearly.csv and extreme_yearly_summary.csv (MT18 exceedances per year, their dispersion and trend)
+report_page:
+  - Anomalies - share flagged by line with the MT08 limit, the largest flags with their rows.
+  - Large losses - the fitted severity families of MT17 with the selection, the CV08 threshold and the MT18 threshold side by side, the exceedances per year, the generalised Pareto fit, tail quantiles and return levels.
 notes: >-
   Large-loss classes follow CV08: the 99th percentile of claim sizes per segment and line
   unless project.yaml sets another percentile or fixed thresholds. The extreme-value
@@ -33,3 +44,10 @@ change_log:
     change: >-
       Owner decision (record 0601): the large-loss threshold of M06 is CV08's, overridable in
       project.yaml; MT18's threshold is only reported beside it.
+  - version: 1.2.0
+    date: 2026-11-07
+    change: >-
+      The report item (P27, record 0340): MT18, wired in code by P25b (record 0621) and not
+      listed then (record 0622), is listed with the files it writes and the outline of the
+      page; MT17 is listed too, because MT18 and the large-loss page use its fits. The threshold rule of 1.1.0 is unchanged. The owner has not reviewed this version
+      yet.

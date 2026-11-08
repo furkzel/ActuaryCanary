@@ -55,7 +55,7 @@ from actuarycanary.methods.seeding import RUN_SEED
 from actuarycanary.methods.selection import BF_BELOW_MATURITY
 from actuarycanary.methods.severity import LargeLossError, LargeLossSettings, parse_large_loss
 from actuarycanary.modules import reserving_tier_b_output as tier_b_output
-from actuarycanary.modules import severity_run
+from actuarycanary.modules import severity_run, survival_run
 from actuarycanary.modules.anomalies import AnomalyResult, run_anomalies
 from actuarycanary.modules.methods_port import ReservingPort
 from actuarycanary.modules.output import analysis_json
@@ -111,6 +111,7 @@ from actuarycanary.recognition.tables import (
 )
 from actuarycanary.recognition.values import ValueMapping
 from actuarycanary.report import language
+from actuarycanary.report import sensitivity as report_sensitivity
 from actuarycanary.report.model import ReportInputs, build_model, earlier_valuation
 from actuarycanary.report.modules_section import render_modules_section
 from actuarycanary.report.quality_section import render_quality_section
@@ -248,6 +249,8 @@ class RunResult:
     severity: severity_run.SeverityRun  # MT17 and MT18 over the claim sizes
     uncertainty: UncertaintyResult | str  # M12, or the reason it has nothing to show
     discount: DiscountContext  # the curve of the discounted figures, or why there is none
+    survival: survival_run.SurvivalRun  # MT19 over the claims (M03)
+    report_tables: dict[str, pl.DataFrame]  # the tables beyond tier A that the report reads
 
 
 def recognise_folder(
@@ -379,7 +382,10 @@ def _settings_record(
     # project.yaml, so that a change of any of them gives another run id (records 0281, 0620)
     record["tier_b"] = tier_b_registry.settings(RUN_SEED)
     record["severity"] = severity_run.settings()
+    record["survival"] = survival_run.settings()
     record["large_loss"] = large_loss.manifest_record()
+    # the variants of the sensitivity tables of the report (record 0343)
+    record["report"] = {"sensitivity": report_sensitivity.settings()}
     record["bases"] = {
         "reinsurance": settings.triangles.reinsurance_basis.value,
         "currency": settings.currency_view,
@@ -857,12 +863,21 @@ def run(
     step("Fitting claim sizes and extreme values")
     severity = severity_run.run_severity(measure_inputs, settings.assumptions)
     measure_inputs.extreme_value_note = severity.comparison
+    step("Analysing the settlement speed")
+    survival = survival_run.run_survival(measure_inputs, settings.assumptions)
     step("Computing the reserve ranges and the discounted figures")
     uncertainty = run_uncertainty(reserving, discount, settings.assumptions)
     _, correlation_entry = line_correlation(settings.assumptions)
+    step("Rerunning the methods for the sensitivity tables")
+    sensitivity = report_sensitivity.run_sensitivity(reserving, settings.assumptions, uncertainty)
     reserving = replace(
         reserving,
-        extra_assumptions=(*severity.entries, *discount.entries, correlation_entry),
+        extra_assumptions=(
+            *severity.entries,
+            *survival.entries,
+            *discount.entries,
+            correlation_entry,
+        ),
     )
 
     step("Flagging anomalies")
@@ -882,7 +897,7 @@ def run(
         ValueBasis.DISCOUNTED if discounted else value_basis,
         cache=cache,
         notes={
-            "M03": severity.notes.get("M03", ()),
+            "M03": [*severity.notes.get("M03", ()), *survival.notes.get("M03", ())],
             "M04": not_run_notes(reserving),
             "M12": [uncertainty] if isinstance(uncertainty, str) else uncertainty.notes,
             "M06": [*anomalies.reasons, *severity.notes.get("M06", ())],
@@ -904,6 +919,7 @@ def run(
         "MT08",
         "MT09",
         *severity_run.methods_run(severity),
+        *survival_run.methods_run(survival),
         *tier_b_output.measures_run(reserving),
     ]
     used = [
@@ -953,18 +969,37 @@ def run(
         (CASH_FLOWS_NAME, cash_flows_csv(reserving)),
         (
             DIAGNOSTICS_NAME,
-            diagnostics_csv(reserving, severity_run.diagnostic_rows(severity)),
+            diagnostics_csv(
+                reserving,
+                [
+                    *severity_run.diagnostic_rows(severity),
+                    *survival_run.diagnostic_rows(survival),
+                ],
+            ),
         ),
         (ANOMALIES_NAME, anomalies_csv(anomalies)),
     ):
         outputs.append(write_output(out, name, content))
+    # the tables of the methods beyond tier A, written and shown by the report (record 0340)
+    report_tables: dict[str, pl.DataFrame] = {
+        **tier_b_output.tables(reserving),
+        **severity.files(),
+        **survival.files(),
+        report_sensitivity.SENSITIVITY_NAME: sensitivity,
+    }
     for name, table in tier_b_output.tables(reserving).items():
         outputs.append(write_table(out, name, table))
     for name, table in tier_b_output.distribution_frames(reserving).items():
         outputs.append(write_parquet_table(out, name, table))
     for name, table in severity.files().items():
         outputs.append(write_table(out, name, table))
+    for name, table in survival.files().items():
+        outputs.append(write_table(out, name, table))
+    outputs.append(write_table(out, report_sensitivity.SENSITIVITY_NAME, sensitivity))
     if isinstance(uncertainty, UncertaintyResult):
+        report_tables |= {RISK_NAME: uncertainty.risk, RISK_CASH_FLOWS_NAME: uncertainty.cash_flows}
+        if uncertainty.curve.height:
+            report_tables[DISCOUNT_CURVE_NAME] = uncertainty.curve
         outputs.append(write_table(out, RISK_NAME, uncertainty.risk))
         outputs.append(write_table(out, RISK_CASH_FLOWS_NAME, uncertainty.cash_flows))
         if uncertainty.distribution.width:
@@ -1001,6 +1036,12 @@ def run(
                 lineage=lineage.summary(),
                 randomness=tuple(randomness),
                 mappings=tuple(mappings),
+                tables=report_tables,
+                uncertainty=uncertainty,
+                discount=discount,
+                survival_information=survival.information,
+                survival_diagnostics=tuple(survival_run.diagnostic_rows(survival)),
+                declared_value=declared.triangles.value_basis.value,
             )
         )
     with language.using(settings.language):
@@ -1043,4 +1084,6 @@ def run(
         severity,
         uncertainty,
         discount,
+        survival,
+        report_tables,
     )

@@ -73,6 +73,11 @@ def test_baseline_tiny_outputs_inputs_and_groups(default_run: RunResult) -> None
             "thresholds", "candidates", "gpd_fit", "tail_quantiles", "return_levels",
             "threshold_comparison", "mean_excess", "excess_plot", "yearly", "yearly_summary",
         )),
+        *(f"survival_{n}.csv" for n in (  # MT19 from M03 (record 0341)
+            "groups", "curves", "time_percentiles", "cox_models", "cox_coefficients",
+            "proportional_hazards_test", "baseline", "schoenfeld_residuals", "cohorts",
+        )),
+        "sensitivity.csv",  # record 0343
         "risk_measures.csv",  # M12; no simulations on the tiny baseline, so no distribution file
         "risk_cash_flows.csv",
     ]  # fmt: skip
@@ -385,7 +390,11 @@ def test_assumptions_diagnostics_and_anomalies_are_written_and_listed_in_the_man
     diagnostics = _csv(default_run, "diagnostics.csv")
     counts = default_run.reserving.diagnostics_by_group()
     # the methods of the triangles by group, then MT17 and MT18 by claim size (record 0621)
-    assert diagnostics.height == sum(counts.values()) + len(default_run.severity.diagnostics)
+    assert diagnostics.height == (
+        sum(counts.values())
+        + len(default_run.severity.diagnostics)
+        + len(default_run.survival.diagnostics)
+    )
     listed = json.loads((default_run.folder / "modules.json").read_text(encoding="utf-8"))
     assert {(d["segment"], d["line"]): d["count"] for d in listed["diagnostics"]} == counts
     assert {"THIN_EVIDENCE", "FEW_LINK_RATIOS", "LATE_DEVELOPMENT", "NEGATIVE_IBNR"} <= set(

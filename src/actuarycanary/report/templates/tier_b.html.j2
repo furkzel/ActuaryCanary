@@ -1,0 +1,44 @@
+{#- The tier B blocks of one reserving page (record 0340); `tb` is the line's tier B body. -#}
+{% if tb.not_run %}<ul>{% for n in tb.not_run %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+{% for d in tb.method_diagnostics %}<p class="evidence">{{ tr("Diagnostics of {method}", method=d.method) }}: {{ d.messages|join("; ") }}</p>{% endfor %}
+{% for d in tb.tier_a_diagnostics %}<p class="evidence">{{ tr("Diagnostics of {method}", method=d.method) }}: {{ d.messages|join("; ") }}</p>{% endfor %}
+
+{% if tb.tails %}<h3>{{ tr("Tail fits (MT14)") }}</h3>
+<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Triangle") }}</th><th>{{ tr("Curve") }}</th><th>R²</th><th>{{ tr("Tail factor") }}</th><th>{{ tr("Beyond the extension") }}</th><th>{{ tr("Tail used by the run") }}</th><th class="text">{{ tr("Note") }}</th></tr></thead>
+  <tbody>{% for x in tb.tails.rows %}<tr><td>{{ x.measure }}</td><td>{{ x.curve }}{% if x.chosen %} ({{ tr("chosen") }}){% endif %}</td><td>{{ x.r_squared }}</td><td>{{ x.tail }}</td><td>{{ x.remainder }}</td><td>{{ x.used }}</td><td class="text">{{ x.note }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% if tb.tails.effect %}<p>{{ tr("With the tail of the chosen curves the selected IBNR would be {value} instead of {base} ({change}).", value=tb.tails.effect.value, base=tb.tails.effect.base, change=tb.tails.effect.change) }}</p>{% endif %}
+{% if tb.tails.diagnostics %}<p class="evidence">{{ tr("Diagnostics of {method}", method="MT14") }}: {{ tb.tails.diagnostics|join("; ") }}</p>{% endif %}
+<p class="footnote">{{ tb.footnotes.tails }}</p>{% endif %}
+
+{% if tb.munich %}<h3>{{ tr("Munich chain ladder, paid and incurred (MT12)") }}</h3>
+<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Origin") }}</th><th>{{ tr("Chain ladder, paid") }}</th><th>{{ tr("Munich, paid") }}</th><th>{{ tr("Chain ladder, incurred") }}</th><th>{{ tr("Munich, incurred") }}</th><th>{{ tr("Paid over incurred, chain ladder") }}</th><th>{{ tr("Paid over incurred, Munich") }}</th></tr></thead>
+  <tbody>{% for r in tb.munich.rows %}<tr><td>{{ r.origin }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+</table></div>
+<p>{{ tb.munich.lambdas|join("; ") }}</p>
+{% if tb.munich.diagnostics %}<p class="evidence">{{ tr("Diagnostics of {method}", method="MT12") }}: {{ tb.munich.diagnostics|join("; ") }}</p>{% endif %}
+<p class="footnote">{{ tb.footnotes.munich }}</p>{% endif %}
+
+<h3>{{ tr("Bootstrap of the paid triangle (MT11)") }}</h3>
+{% if tb.bootstrap.cells %}<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Chain-ladder reserve") }}</th><th>{{ tr("Mean") }}</th><th>{{ tr("CV") }}</th><th>{{ tr("75th percentile") }}</th><th>{{ tr("95th percentile") }}</th><th>{{ tr("99.5th percentile") }}</th><th>{{ tr("TVaR 99%") }}</th></tr></thead>
+  <tbody><tr>{% for c in tb.bootstrap.cells %}<td>{{ c }}</td>{% endfor %}</tr></tbody>
+</table></div>
+<p class="footnote">{{ tb.footnotes.bootstrap }} {{ tr("The range of the selected reserve is on the uncertainty page.") }}</p>
+{% else %}<p>{{ tr("The bootstrap did not run on this line: {reason}.", reason=tb.bootstrap.reason or "–") }}</p>{% endif %}
+{% if tb.bootstrap.diagnostics %}<p class="evidence">{{ tr("Diagnostics of {method}", method="MT11") }}: {{ tb.bootstrap.diagnostics|join("; ") }}</p>{% endif %}
+
+{% if tb.back_test %}{% set bt = tb.back_test %}<h3>{{ tr("Back test (MT22, AE02)") }}</h3>
+{% if bt.rows %}<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Method") }}</th><th>{{ tr("Horizon (months)") }}</th><th>{{ tr("Origins") }}</th><th>{{ tr("Bias") }}</th><th>{{ tr("Mean absolute error") }}</th><th>{{ tr("Root mean square error") }}</th></tr></thead>
+  <tbody>{% for r in bt.rows %}<tr><td>{{ r.method }}</td><td>{{ r.horizon }}</td><td>{{ r.origins }}</td><td>{{ r.bias }}</td><td>{{ r.mae }}</td><td>{{ r.rmse }}</td></tr>{% endfor %}</tbody>
+</table></div>{% endif %}
+{% if bt.calibration %}<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Range of") }}</th><th>{{ tr("Horizon (months)") }}</th><th>{{ tr("Origins") }}</th><th>{{ tr("Inside") }}</th><th>{{ tr("Share inside the range") }}</th></tr></thead>
+  <tbody>{% for r in bt.calibration %}<tr><td>{{ r.method }}</td><td>{{ r.horizon }}</td><td>{{ r.origins }}</td><td>{{ r.inside }}</td><td>{{ r.share }}</td></tr>{% endfor %}</tbody>
+</table></div>{% endif %}
+{% if bt.notes %}<ul class="why">{% for n in bt.notes %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+{% if bt.diagnostics %}<p class="evidence">{{ tr("Diagnostics of {method}", method="MT22") }}: {{ bt.diagnostics|join("; ") }}</p>{% endif %}
+<p class="footnote">{{ tb.footnotes.back_test }}</p>{% endif %}

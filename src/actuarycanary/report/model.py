@@ -18,6 +18,7 @@ import numpy as np
 import polars as pl
 
 from actuarycanary.canonical.feeds import Finding
+from actuarycanary.convert.discount import DiscountContext
 from actuarycanary.convert.views import ORIGINAL, UNIT_LABEL, currency_of
 from actuarycanary.manifest.metadata import ProjectMetadata
 from actuarycanary.manifest.run import InputRecord, OutputRecord, SpecRecord
@@ -25,6 +26,7 @@ from actuarycanary.methods.assumptions import Assumption
 from actuarycanary.modules.anomalies import AnomalyResult
 from actuarycanary.modules.reserving import SELECTION_MEASURE, GroupReserving, ReservingResult
 from actuarycanary.modules.runner import AnalysisResult, ModuleOutcome, ModuleState
+from actuarycanary.modules.uncertainty import UncertaintyResult
 from actuarycanary.quality.model import QualityReport
 from actuarycanary.quality.output import show_score
 from actuarycanary.report import charts, language, numbers
@@ -41,9 +43,15 @@ from actuarycanary.report.facts import (
     segment_premium,
     selected_reserve,
 )
-from actuarycanary.report.findings import KEY_FINDINGS, Facts, KeyFinding, evaluate
+from actuarycanary.report.findings import KEY_FINDINGS, Fact, Facts, KeyFinding, evaluate
 from actuarycanary.report.language import t
+from actuarycanary.report.large_loss_section import large_loss_page
 from actuarycanary.report.methods_section import assumption_rows, group_methods
+from actuarycanary.report.phase2_facts import add_line_facts, add_run_facts, add_segment_facts
+from actuarycanary.report.sensitivity_section import sensitivity_page
+from actuarycanary.report.survival_section import survival_page
+from actuarycanary.report.tier_b_section import line_tier_b, merged_ultimates, ultimate_columns
+from actuarycanary.report.uncertainty_section import uncertainty_page
 from actuarycanary.spec.catalogue import SpecCatalogue
 from actuarycanary.structures.triangles import MEASURES, THIN_CELL_CLAIMS
 
@@ -54,6 +62,7 @@ MODULE_ANCHORS = {
     "M04": "reserving",
     "M05": "profitability",
     "M06": "anomalies",
+    "M12": "uncertainty",
 }
 TOP_FLAGS = 10  # anomaly flags listed on the page; all are in anomalies.csv
 
@@ -77,6 +86,13 @@ class ReportInputs:
     randomness: tuple[Mapping[str, Any], ...] = ()
     mappings: tuple[Mapping[str, Any], ...] = ()
     lineage: Mapping[str, int] = field(default_factory=dict)  # Lineage.summary(), either format
+    # the output tables of the methods beyond tier A by file name (records 0340 to 0343)
+    tables: Mapping[str, pl.DataFrame] = field(default_factory=dict)
+    uncertainty: UncertaintyResult | str | None = None  # M12, or why it has nothing to show
+    discount: DiscountContext | None = None
+    survival_information: tuple[str, ...] = ()  # what the MT19 dates were (record 0305)
+    survival_diagnostics: tuple[Mapping[str, Any], ...] = ()  # MT19 rows of diagnostics.csv
+    declared_value: str = "NOMINAL"  # the value basis the run was asked for
 
 
 class _Specs:
@@ -232,6 +248,7 @@ def _tile(
     against: str,
     source: str,
     note: str = "",
+    basis: str = "",
 ) -> dict[str, str]:
     return {
         "label": label,
@@ -240,7 +257,52 @@ def _tile(
         "against": against,
         "source": source,
         "note": note,
+        "basis": basis,  # empty: shown on every basis; else only when that basis is shown
     }
+
+
+def _unpaid_tiles(
+    r: ReportInputs, segment: str, spec: _Specs, currency: str
+) -> list[dict[str, str]]:
+    """The selected unpaid of the segment's lines, nominal and as a present value (record 0344);
+    lines of one segment are added, segments never."""
+    if not isinstance(r.uncertainty, UncertaintyResult):
+        return []
+    lines = [x for x in r.uncertainty.lines if x.key[0] == segment]
+    if not lines:
+        return []
+    nominal = sum(x.selected_total for x in lines)
+    tiles = [
+        _tile(
+            t("Selected unpaid, nominal"),
+            f"{numbers.amount(nominal)} {currency}",
+            "",
+            "",
+            f"{spec('RS02', 'MT10')} · {t('NOMINAL')}",
+            basis="NOMINAL",
+        )
+    ]
+    risk = r.uncertainty.risk
+    if r.uncertainty.discount.available and risk.height:
+        found = risk.filter(
+            (pl.col("source") == "expected_cash_flows")
+            & (pl.col("origin_period") == "Total")
+            & (pl.col("segment") == segment)
+        )
+        if found.height == len(lines):
+            present = float(found["mean"].sum())
+            curve = r.uncertainty.discount.curve
+            tiles.append(
+                _tile(
+                    t("Selected unpaid, present value"),
+                    f"{numbers.amount(present)} {currency}",
+                    numbers.change_amount(present - nominal),
+                    t("against nominal"),
+                    f"{spec('RS04', 'CV10')} · {curve.curve_id if curve else ''}",
+                    basis="DISCOUNTED",
+                )
+            )
+    return tiles
 
 
 def _earlier_groups(r: ReportInputs) -> dict[tuple[str, ...], GroupReserving]:
@@ -358,6 +420,7 @@ def _tiles(r: ReportInputs, spec: _Specs, segment_sets: dict[str, FactSet]) -> l
                 range_note,
             )
         )
+        tiles += _unpaid_tiles(r, segment, spec, currency)
         out.append(
             {"segment": segment, "colour": charts.SEGMENT_TOKENS.get(segment, ""), "tiles": tiles}
         )
@@ -589,9 +652,16 @@ def _claims_page(r: ReportInputs, spec: _Specs, figures: dict[str, Any]) -> dict
     if figure is not None:
         figures["claims-incurred"] = figure
     basis = basis_text(results["CL03"].request.basis.label()) if results["CL03"] else ""
+    survival_diagnostics = [
+        {"severity": str(d["severity"]), "message": str(d["message"])}
+        for d in r.survival_diagnostics
+    ]
     return {
         "rows": rows,
         "figure": "claims-incurred" if figure is not None else "",
+        "survival": survival_page(
+            r.tables, r.survival_information, survival_diagnostics, spec, figures
+        ),
         "footnote": t(
             "{currency}, {basis}; all origin periods to the valuation date. Claim counts "
             "{cl04}; paid {cl01}, case reserve {cl02}, incurred {cl03}; mean reporting delay "
@@ -737,7 +807,9 @@ def _anomalies_page(
         if flags.height
         else flags
     )
+    currency = shown_currency(r.reserving.triangles.reporting_currency)
     return {
+        "large": large_loss_page(r.tables, spec, figures, currency),
         "rows": rows,
         "figure": "anomalies-rate" if figure is not None else "",
         "limit": numbers.ratio(robust_z.MAX_FLAG_RATE),
@@ -847,7 +919,8 @@ def _reserving(
                     ]
                     for m in MEASURES
                 },
-                "methods": group_methods(group),
+                "methods": _methods_with_tier_b(r, group),
+                "tier_b": line_tier_b(r.tables, group, spec),
                 "thin_cells": thin_cells,
                 "findings": line_findings.get(anchor, []),
                 "summary": summary[-1],
@@ -857,6 +930,8 @@ def _reserving(
         "basis": basis,
         "currency": currency,
         "summary": summary,
+        "unpaid": _unpaid_by_basis(r),
+        "sensitivity": sensitivity_page(r.tables, spec),
         "lines": lines,
         "selection_measure": SELECTION_MEASURE,
         "footnotes": {
@@ -901,6 +976,61 @@ def _reserving(
                 specs=spec("MT06", "RS03"),
             ),
         },
+    }
+
+
+def _methods_with_tier_b(r: ReportInputs, group: GroupReserving) -> dict[str, Any]:
+    """The tier A tables of the line with the tier B ultimates beside the tier A ones."""
+    methods = group_methods(group)
+    columns, _ = ultimate_columns(r.tables, group)
+    return {**methods, "ultimates": merged_ultimates(methods["ultimates"], columns)}
+
+
+def _unpaid_by_basis(r: ReportInputs) -> list[dict[str, Any]]:
+    """The selected unpaid per line on every basis the run computed: nominal, and the present
+    value of its expected cash flows (RS04) when a curve is used (record 0344)."""
+    risk = r.uncertainty.risk if isinstance(r.uncertainty, UncertaintyResult) else None
+    if risk is None or not risk.height:
+        return []
+    expected = {
+        (x["segment"], x["line"]): x
+        for x in risk.filter(
+            (pl.col("source") == "expected_cash_flows") & (pl.col("origin_period") == "Total")
+        ).to_dicts()
+    }
+    rows = []
+    for line_risk in r.uncertainty.lines:  # type: ignore[union-attr]
+        key = line_risk.key
+        found = expected.get(key)
+        rows.append(
+            {
+                "line": f"{key[0]} · {key[1]}",
+                "nominal": numbers.amount(line_risk.selected_total),
+                "present": numbers.amount(_value(found["mean"])) if found else numbers.EMPTY,
+                "effect": numbers.amount(_value(found["discount_effect"]))
+                if found
+                else numbers.EMPTY,
+            }
+        )
+    return rows
+
+
+def _bases(r: ReportInputs) -> dict[str, Any]:
+    """The value bases the page carries (record 0344): nominal always, discounted when the run
+    used a curve; the page opens on the basis the run was asked for."""
+    available = r.discount is not None and r.discount.available
+    items = [{"id": "NOMINAL", "label": t("nominal")}]
+    if available:
+        items.append({"id": "DISCOUNTED", "label": t("discounted (present value)")})
+    shown = r.declared_value if r.declared_value in {i["id"] for i in items} else "NOMINAL"
+    return {
+        "items": items,
+        "shown": shown,
+        "switch": len(items) > 1,
+        "other_runs": t(
+            "Other reinsurance, currency or inflation bases are a new run: canary run with "
+            "--basis, --currency or --value."
+        ),
     }
 
 
@@ -1050,10 +1180,16 @@ def scoped_facts(
     rates: dict[tuple[str, str], tuple[int, int]],
     titles: Mapping[str, str] | None = None,
     skip_segments: frozenset[str] | None = None,
+    tables: Mapping[str, pl.DataFrame] | None = None,
+    uncertainty: UncertaintyResult | str | None = None,
 ) -> tuple[dict[str, list[tuple[str, str, Facts]]], dict[str, FactSet]]:
-    """The fact sets of every scope as (key, anchor, facts), and the segment facts."""
+    """The fact sets of every scope as (key, anchor, facts), and the segment facts. `tables`
+    are the output tables of the run and `uncertainty` M12, for the rules of RP01 1.2.0."""
     currency = shown_currency(reserving.triangles.reporting_currency)
+    tables = tables or {}
     lines = {line_name(g.group): line_facts(g, rates, currency) for g in reserving.groups}
+    for g in reserving.groups:
+        add_line_facts(lines[line_name(g.group)], tables, g)
     premium = segment_premium(analysis)
     ratios = segment_loss_ratios(analysis)
     triangles = reserving.triangles
@@ -1075,7 +1211,12 @@ def scoped_facts(
         )
         for s in sorted({g.group[0] for g in reserving.groups})
     }
+    for segment, found in segments.items():
+        if found:
+            add_segment_facts(found, tables, segment)
     run = run_facts(reserving, analysis, quality, rates, lines, titles)
+    run.setdefault("currency", Fact(currency, "text"))
+    add_run_facts(run, uncertainty)
     scoped: dict[str, list[tuple[str, str, Facts]]] = {
         "run": [("", "", run)],
         "segment": [(s, "glance", f) for s, f in segments.items()],
@@ -1101,13 +1242,18 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
         for s in {g.group[0] for g in r.reserving.groups}
         if mixed_currencies([g for g in r.reserving.groups if g.group[0] == s], r)
     )
-    scoped, segment_sets = scoped_facts(r.reserving, r.analysis, r.quality, rates, titles, mixed)
+    scoped, segment_sets = scoped_facts(
+        r.reserving, r.analysis, r.quality, rates, titles, mixed, r.tables, r.uncertainty
+    )
     fired = evaluate(r.catalogue.finding_rules.rules, scoped)
     headline = [f for f in fired if f.scope != "line"]
+    # a line sentence is shown on the reserving page of its line, whatever section its evidence
+    # names (KF26 links the anomalies page, KF30 the sensitivity tables, KF31 large losses)
+    anchors = {key: anchor for key, anchor, _ in scoped["line"]}
     line_findings: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for f in fired:
         if f.scope == "line":
-            line_findings[f.section].append({**f.record(), "evidence": spec(*f.specs)})
+            line_findings[anchors[f.key]].append({**f.record(), "evidence": spec(*f.specs)})
     pages: list[dict[str, Any]] = []
     builders: dict[str, Callable[[], dict[str, Any]]] = {
         "M01": lambda: _data_page(r, spec),
@@ -1115,6 +1261,13 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
         "M03": lambda: _claims_page(r, spec, figures),
         "M05": lambda: _profitability_page(r, spec, figures),
         "M06": lambda: _anomalies_page(r, spec, figures, rates),
+        "M12": lambda: uncertainty_page(
+            r.uncertainty,
+            r.tables,
+            spec,
+            figures,
+            shown_currency(r.reserving.triangles.reporting_currency),
+        ),
     }
     for outcome in r.analysis.modules:
         if outcome.state is ModuleState.SKIPPED or outcome.module not in builders:
@@ -1125,6 +1278,7 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
     reserving_outcome = next((m for m in r.analysis.modules if m.module == "M04"), None)
     return {
         "language": language.current(),
+        "bases": _bases(r),
         "disclaimer": t(" ".join(r.metadata.report.disclaimer.split())),
         "label": t("Indicative — not an official reserve or price"),
         "findings_spec": spec(r.catalogue.finding_rules.id),

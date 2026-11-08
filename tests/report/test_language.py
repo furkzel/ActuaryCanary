@@ -8,6 +8,7 @@ import html
 import re
 from pathlib import Path
 
+import polars as pl
 import pytest
 
 from actuarycanary.pipeline import RunResult, RunSettings, run
@@ -26,6 +27,21 @@ SAME = {
     "cape cod",
     "{label}: %{x:,.0f} {currency}<extra></extra>",
     "segment",
+    # names of methods and distributions, and words Turkish writes the same (record 0340)
+    "nominal",
+    "Nominal",
+    "nominal: %{y:,.0f} {currency}<extra></extra>",
+    "lambda {measure} {value} ({note})",
+    "Bootstrap (RS05, MT11)",
+    "bootstrap",
+    "Mack",
+    "Mack: {estimator}.",
+    "VaR {level}",
+    "TVaR {level}",
+    "lognormal",
+    "Weibull",
+    "Pareto II",
+    "Segment",
 }
 
 
@@ -70,7 +86,7 @@ def test_numbers_use_the_separators_of_the_language() -> None:
 
 def test_every_rule_of_rp01_has_a_turkish_sentence_with_the_same_facts() -> None:
     rules = SPECS.finding_rules.rules
-    assert len(rules) == 23 and SPECS.finding_rules.version == "1.1.0"
+    assert len(rules) == 31 and SPECS.finding_rules.version == "1.2.0"
     placeholder = re.compile(r"\{([a-z][a-z0-9_]*)\}")
     for rule in rules:
         assert set(placeholder.findall(rule.template)) == set(placeholder.findall(rule.template_tr))
@@ -138,6 +154,15 @@ def _content(result: RunResult) -> list[str]:
         found += list(outcome.reasons)
         for measure in outcome.measures:
             found += [measure.reason, *measure.notes]
+    # the text cells of the tables beyond tier A (notes, reasons, labels of the files) and the
+    # MT19 information lines: data of the run, English like every data message (record 0224)
+    for frame in result.report_tables.values():
+        for column, dtype in frame.schema.items():
+            if dtype == pl.String:
+                found += [x for x in frame[column].drop_nulls().unique().to_list() if x]
+    found += list(result.survival.information)
+    found += [d.message for d in result.survival.diagnostics]
+    found += [d.message for d in result.severity.diagnostics]
     return [" ".join(x.split()) for x in found if x]
 
 

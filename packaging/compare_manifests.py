@@ -1,7 +1,8 @@
 """Compare two run manifests: same run id, inputs, specs, settings and SHA-256 of every output.
 
 Used by the release smoke test: `canary demo` of the built program against
-`canary run examples/demo --yes` from source. Standard library only.
+`canary run examples/demo --yes --curve TRY_GOV` from source (the demo names its curve,
+record 0346). Standard library only.
 
     python packaging/compare_manifests.py <manifest.json> <manifest.json>
 """

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ m.language }}">
+<html lang="{{ m.language }}" data-basis-shown="{{ m.bases.shown }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,6 +15,7 @@
   --segment-health: #e87ba4; --segment-other: #898781;
   --ramp-paid: "#cde2fb,#9ec5f4,#6da7ec,#3987e5,#256abf,#184f95,#0d366b";
   --ramp-incurred: "#fde5d9,#f9c4a9,#f4a27b,#ee8354,#eb6834,#c24f1f,#8f3a15";
+  --value-nominal: #6b6a64; --value-discounted: #1f8a99;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -27,6 +28,7 @@
     --segment-health: #d55181; --segment-other: #898781;
     --ramp-paid: "#0d366b,#184f95,#256abf,#3987e5,#6da7ec,#9ec5f4,#cde2fb";
     --ramp-incurred: "#5a240c,#8f3a15,#c24f1f,#d95926,#ee8354,#f4a27b,#f9c4a9";
+    --value-nominal: #a3a29a; --value-discounted: #45b3c3;
   }
 }
 :root[data-theme="dark"] {
@@ -39,6 +41,7 @@
   --segment-health: #d55181; --segment-other: #898781;
   --ramp-paid: "#0d366b,#184f95,#256abf,#3987e5,#6da7ec,#9ec5f4,#cde2fb";
   --ramp-incurred: "#5a240c,#8f3a15,#c24f1f,#d95926,#ee8354,#f4a27b,#f9c4a9";
+  --value-nominal: #a3a29a; --value-discounted: #45b3c3;
 }
 * { box-sizing: border-box; }
 body {
@@ -95,11 +98,21 @@ code { font-size: 0.88em; overflow-wrap: anywhere; }
 nav ul { padding-left: 20px; columns: 2; }
 ul.why li { font-size: 0.85rem; }
 .legend-note { font-size: 0.82rem; color: var(--text-muted); }
+html[data-basis-shown="NOMINAL"] [data-basis="DISCOUNTED"],
+html[data-basis-shown="DISCOUNTED"] [data-basis="NOMINAL"] { display: none; }
+.basis-switch {
+  position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center;
+  margin: 8px 0; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-2);
+}
+.basis-switch label { cursor: pointer; }
+.basis-switch .n { font-size: 0.82rem; color: var(--text-muted); }
+th.tier { text-align: center; border-bottom: 2px solid var(--border); }
 @page { size: A4; margin: 14mm 12mm; }
 @media print {
   body { font-size: 10.5pt; background: #fff; }
   main { max-width: none; padding: 0; }
-  nav, summary { display: none; }
+  nav, summary, .basis-switch input { display: none; }
+  .basis-switch { position: static; }
   section.page { break-before: page; }
   h2 { margin-top: 0; }
   .chart, .tile, table, .banner { break-inside: avoid; }
@@ -128,6 +141,12 @@ ul.why li { font-size: 0.85rem; }
     {% for r in m.cover.rows %}<dt>{{ r.label }}</dt><dd>{% if loop.first %}<code>{{ r.value }}</code>{% else %}{{ r.value }}{% endif %}</dd>
     {% endfor %}
   </dl>
+  {% set bs = m.bases %}
+  <div class="basis-switch" role="group" aria-label="{{ tr("Value basis shown") }}">
+    <strong>{{ tr("Value basis shown") }}:</strong>
+    {% for x in bs["items"] %}<label><input type="radio" name="basis" value="{{ x.id }}"{% if x.id == bs.shown %} checked{% endif %}{% if not bs.switch %} disabled{% endif %}> {{ x.label }}</label>
+    {% endfor %}<span class="n">{% if bs.switch %}{{ tr("Switching shows figures this run computed already; nothing is recomputed.") }}{% else %}{{ tr("This run computed one value basis; name a curve with --curve for the discounted figures.") }}{% endif %} {{ bs.other_runs }}</span>
+  </div>
 </header>
 
 <nav>
@@ -174,7 +193,7 @@ ul.why li { font-size: 0.85rem; }
   <div class="tiles-segment">
     <h3><span class="swatch" style="background: var({{ s.colour or '--segment-other' }})"></span>{{ s.segment }}</h3>
     <div class="tiles">
-      {% for tile in s.tiles %}<div class="tile"><div class="k">{{ tile.label }}</div><div class="v">{{ tile.value }}</div><div class="d">{{ tile.change }} {{ tile.against }}</div>{% if tile.note %}<div class="n">{{ tile.note }}</div>{% endif %}<div class="s">{{ tile.source }}</div></div>
+      {% for tile in s.tiles %}<div class="tile"{% if tile.basis %} data-basis="{{ tile.basis }}"{% endif %}><div class="k">{{ tile.label }}</div><div class="v">{{ tile.value }}</div><div class="d">{{ tile.change }} {{ tile.against }}</div>{% if tile.note %}<div class="n">{{ tile.note }}</div>{% endif %}<div class="s">{{ tile.source }}</div></div>
       {% endfor %}
     </div>
   </div>
@@ -216,6 +235,8 @@ ul.why li { font-size: 0.85rem; }
     <tbody>{% for r in b.rows %}<tr title="{{ r.ref }}"><td>{{ r.line }}</td><td>{{ r.reported }}</td><td>{{ r.open }}</td><td>{{ r.paid }}</td><td>{{ r.case }}</td><td>{{ r.incurred }}</td><td>{{ r.delay }}</td><td>{{ r.settlement }}</td><td>{{ r.large_share }}</td></tr>{% endfor %}</tbody>
   </table></div>
   <p class="footnote">{{ b.footnote }} {{ tr("Hover a row for the measure rows behind it (lineage.csv).") }}</p>
+  {% if b.survival %}{% set sv = b.survival %}{% include "survival.html.j2" %}{% endif %}
+  <p>{{ trh("The fitted claim-size distributions (MT17) are on the <a href=\"#large-losses\">large-loss part</a> of the anomalies page.") }}</p>
   {% elif p.module == "M05" %}
   <div class="charts">{% for l in b.lines %}{{ figure(l.figure, tr("Ultimate loss ratio by origin, {line}", line=l.line)) }}{% endfor %}</div>
   <p class="footnote">{{ b.figure_note }}</p>
@@ -242,6 +263,9 @@ ul.why li { font-size: 0.85rem; }
     <tbody>{% for f in b.top %}<tr><td>{{ f.method }}</td><td>{{ f.claim }}</td><td>{{ f.line }}</td><td>{{ f.date }}</td><td>{{ f.variable }}</td><td>{{ f.score }}</td><td class="text">{{ f.reason }}</td><td class="text">{{ f.source }}</td></tr>{% endfor %}</tbody>
   </table></div>
   <p class="footnote">{{ tr("Source rows are spreadsheet rows; anomalies.csv has every flag.") }}</p>{% endif %}
+  {% set ll = b.large %}{% include "large_loss.html.j2" %}
+  {% elif p.module == "M12" %}
+  {% include "uncertainty.html.j2" %}
   {% endif %}
 </section>
 {% endfor %}
@@ -257,6 +281,19 @@ ul.why li { font-size: 0.85rem; }
   </table></div>
   <p class="footnote">{{ rv.footnotes.summary }}</p>
   <p class="legend-note">{{ trh("Colours: <span class=\"swatch\" style=\"background: var(--basis-paid)\"></span> paid, <span class=\"swatch\" style=\"background: var(--basis-incurred)\"></span> incurred, wherever they appear; the selected ultimate is drawn in ink.") }}</p>
+  {% if rv.unpaid %}<h3>{{ tr("Selected unpaid by value basis") }}</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>{{ tr("Segment · line") }}</th><th>{{ tr("Unpaid, nominal") }}</th>{% if m.bases.switch %}<th data-basis="DISCOUNTED">{{ tr("Present value") }}</th><th data-basis="DISCOUNTED">{{ tr("Discount effect") }}</th>{% endif %}</tr></thead>
+    <tbody>{% for x in rv.unpaid %}<tr><td>{{ x.line }}</td><td>{{ x.nominal }}</td>{% if m.bases.switch %}<td data-basis="DISCOUNTED">{{ x.present }}</td><td data-basis="DISCOUNTED">{{ x.effect }}</td>{% endif %}</tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="footnote">{{ trh("Selected unpaid = selected ultimate − paid (RS02 with MT10); its present value discounts the expected cash flows (RS04) with the curve on the <a href=\"#uncertainty\">uncertainty page</a>.") }}</p>{% endif %}
+  {% if rv.sensitivity %}<h3 id="sensitivity">{{ tr("Sensitivity of the reserve") }}</h3>
+  {% for blk in rv.sensitivity.blocks %}<div class="scroll" data-basis="{{ blk.basis }}"><table class="wide">
+    <thead><tr><th>{{ tr("Segment · line") }}</th><th class="text">{{ tr("Assumption") }}</th><th class="text">{{ tr("Change of the assumption") }}</th><th class="text">{{ tr("Quantity") }}</th><th>{{ tr("This run") }}</th><th>{{ tr("With the change") }}</th><th>{{ tr("Difference") }}</th><th>{{ tr("Difference, relative") }}</th></tr></thead>
+    <tbody>{% for x in blk.rows %}<tr{% if x.note %} title="{{ x.note }}"{% endif %}><td>{{ x.line }}</td><td class="text">{{ x.assumption }}</td><td class="text">{{ x.change }}</td><td class="text">{{ x.quantity }}</td><td>{{ x.base }}</td><td>{{ x.value }}</td><td>{{ x.difference }}</td><td>{{ x.relative }}</td></tr>{% endfor %}</tbody>
+  </table></div>{% endfor %}
+  {% if rv.sensitivity.reasons %}<ul class="why">{% for x in rv.sensitivity.reasons %}<li>{{ x }}</li>{% endfor %}</ul>{% endif %}
+  <p class="footnote">{{ rv.sensitivity.footnote }} {{ tr("Hover a row for its note.") }}</p>{% endif %}
 </section>
 
 {% for l in rv.lines %}
@@ -264,7 +301,7 @@ ul.why li { font-size: 0.85rem; }
 <section id="{{ l.anchor }}" class="page">
   <h2>{{ tr("Reserving: {name}", name=l.name) }}</h2>
   {{ label() }}
-  {% if l.findings %}<ul>{% for f in l.findings %}<li>{{ f.text }} <span class="evidence">{{ tr("rule") }} {{ f.rule }} · {{ f.files|join(", ") }}</span></li>{% endfor %}</ul>{% endif %}
+  {% if l.findings %}<ul>{% for f in l.findings %}<li>{{ f.text }} <span class="evidence">{{ tr("rule") }} {{ f.rule }} · {{ f.files|join(", ") }}{% if f.section != l.anchor %} · <a href="#{{ f.section }}">{{ tr(f.section) }}</a>{% endif %}</span></li>{% endfor %}</ul>{% endif %}
 
   <h3>{{ tr("Development triangles") }}</h3>
   <div class="charts">{{ figure(l.figures.heatmap_paid, tr("Heatmap of the cumulative paid triangle, {name}", name=l.name)) }}{{ figure(l.figures.heatmap_incurred, tr("Heatmap of the cumulative incurred triangle, {name}", name=l.name)) }}</div>
@@ -289,11 +326,13 @@ ul.why li { font-size: 0.85rem; }
   {{ figure(l.figures.methods, tr("Ultimate by method, {name}", name=l.name)) }}
   <p class="footnote">{{ rv.footnotes.methods }}</p>
   <div class="scroll"><table class="wide">
-    <thead><tr><th>{{ tr("Origin") }}</th>{% for h in mm.ultimates.headers %}<th>{{ h }}</th>{% endfor %}<th>{{ tr("Selected") }}</th><th class="text">{{ tr("Chosen") }}</th></tr></thead>
+    <thead>{% set na = mm.ultimates.tiers|select("equalto", "A")|list|length %}{% set nb = mm.ultimates.tiers|select("equalto", "B")|list|length %}{% if nb %}<tr><th></th><th class="tier" colspan="{{ na }}">{{ tr("Tier A") }}</th><th class="tier" colspan="{{ nb }}">{{ tr("Tier B") }}</th><th colspan="2"></th></tr>{% endif %}<tr><th>{{ tr("Origin") }}</th>{% for h in mm.ultimates.headers %}<th>{{ h }}</th>{% endfor %}<th>{{ tr("Selected") }}</th><th class="text">{{ tr("Chosen") }}</th></tr></thead>
     <tbody>{% for r in mm.ultimates.rows %}<tr{% if r.total %} class="total"{% endif %}><td>{{ r.origin }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}<td>{{ r.selected }}</td><td class="text nowrap">{{ r.chosen }}</td></tr>{% endfor %}</tbody>
   </table></div>
   <ul class="why">{% for r in mm.ultimates.rows if r.why %}<li>{{ r.origin }}: {{ r.why }}</li>{% endfor %}</ul>
   {% if mm.not_run %}<ul>{% for n in mm.not_run %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+  <p class="footnote">{{ l.tier_b.footnotes.ultimates }}</p>
+  {% set tb = l.tier_b %}{% include "tier_b.html.j2" %}
 
   <h3>{{ tr("Reserve range") }}</h3>
   {% if l.figures.range %}{{ figure(l.figures.range, tr("Selected reserve and its range, {name}", name=l.name)) }}
@@ -447,6 +486,34 @@ ul.why li { font-size: 0.85rem; }
     });
   }
   draw();
+  // the value basis shown (record 0344): every basis the run computed is in the page, so a
+  // switch only shows other blocks and resizes their charts; nothing is recomputed
+  var radios = Array.prototype.slice.call(document.querySelectorAll('input[name="basis"]'));
+  function setBasis(basis) {
+    root.setAttribute("data-basis-shown", basis);
+    radios.forEach(function (r) { r.checked = r.value === basis; });
+    Array.prototype.forEach.call(
+      document.querySelectorAll('[data-basis="' + basis + '"] .chart'),
+      function (el) { if (el.data) { Plotly.Plots.resize(el); } }
+    );
+  }
+  radios.forEach(function (r) {
+    r.addEventListener("change", function () { if (r.checked) { setBasis(r.value); } });
+  });
+  if (window.location.hash === "#measure-switch" && radios.length > 1) {
+    // measured by the slow test of the switch: each switch until the page is laid out again
+    var start = root.getAttribute("data-basis-shown"), times = [];
+    for (var k = 0; k < 3; k++) {
+      radios.forEach(function (r) {
+        var t0 = performance.now();
+        setBasis(r.value);
+        void document.body.offsetHeight;
+        times.push((performance.now() - t0).toFixed(1));
+      });
+    }
+    setBasis(start);
+    root.setAttribute("data-switch-ms", times.join(","));
+  }
   if (window.matchMedia) {
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
   }
