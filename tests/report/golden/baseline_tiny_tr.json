@@ -294,7 +294,7 @@
   "rows": [
    {
     "label": "Çalıştırma kimliği",
-    "value": "0698a73e313af299"
+    "value": "b83b4526a8e04040"
    },
    {
     "label": "Değerleme tarihi",
@@ -4275,7 +4275,7 @@
     }
    ],
    "plain": "Ultimates that blend the chain ladder and Bornhuetter–Ferguson by maturity: the Benktander (iterated Bornhuetter–Ferguson) estimate, a credibility mix of the chain ladder and Bornhuetter–Ferguson with weight 1 - q^k, as a principled alternative to the hard switch of MT10.",
-   "spec": "MT13 v1.0.0",
+   "spec": "MT13 v1.0.1",
    "title": "Benktander karışımları"
   },
   {
@@ -4333,7 +4333,7 @@
     }
    ],
    "plain": "Splits average paid per claim into a development pattern and a calendar-period index (Taylor 1977), so that calendar-year effects such as claims inflation are measured instead of being folded into development factors, then projects with an explicit future index.",
-   "spec": "MT15 v1.0.0",
+   "spec": "MT15 v1.0.1",
    "title": "Ayrıştırma yöntemi (separation)"
   },
   {
@@ -6051,7 +6051,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "0698a73e313af299",
+  "run_id": "b83b4526a8e04040",
   "settings": [
    {
     "name": "bases.currency",
@@ -6800,7 +6800,7 @@
    {
     "id": "MT13",
     "title": "Benktander karışımları",
-    "version": "1.0.0"
+    "version": "1.0.1"
    },
    {
     "id": "MT14",
@@ -6810,7 +6810,7 @@
    {
     "id": "MT15",
     "title": "Ayrıştırma yöntemi (separation)",
-    "version": "1.0.0"
+    "version": "1.0.1"
    },
    {
     "id": "MT16",
@@ -7324,7 +7324,7 @@
       "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.2.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
       "munich": "Ayrı zincir merdivenlerin (MT02 v1.0.0) yanında Munich zincir merdiven (MT12 v1.0.0); Munich yöntemi ödenen / gerçekleşen oranını gözlenen düzeyine yaklaştırır. tier_b_ultimates.csv ve tier_b_parameters.csv satırları.",
       "tails": "Seçilen faktörlere uydurulan kuyruk eğrileri (MT14 v1.0.0); tier_b_parameters.csv satırları. Varsayım kaydı bir eğri seçmedikçe çalıştırma MT02 kuyruğunu kullanır; seçilen eğrinin etkisi sensitivity.csv içinde bir satırdır.",
-      "ultimates": "Kademe A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.0, MT15 v1.0.0, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
+      "ultimates": "Kademe A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
      },
      "method_diagnostics": [],
      "munich": null,
@@ -7924,7 +7924,7 @@
       "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.2.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
       "munich": "Ayrı zincir merdivenlerin (MT02 v1.0.0) yanında Munich zincir merdiven (MT12 v1.0.0); Munich yöntemi ödenen / gerçekleşen oranını gözlenen düzeyine yaklaştırır. tier_b_ultimates.csv ve tier_b_parameters.csv satırları.",
       "tails": "Seçilen faktörlere uydurulan kuyruk eğrileri (MT14 v1.0.0); tier_b_parameters.csv satırları. Varsayım kaydı bir eğri seçmedikçe çalıştırma MT02 kuyruğunu kullanır; seçilen eğrinin etkisi sensitivity.csv içinde bir satırdır.",
-      "ultimates": "Kademe A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.0, MT15 v1.0.0, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
+      "ultimates": "Kademe A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
      },
      "method_diagnostics": [
       {
@@ -8621,7 +8621,7 @@
       "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.2.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
       "munich": "Ayrı zincir merdivenlerin (MT02 v1.0.0) yanında Munich zincir merdiven (MT12 v1.0.0); Munich yöntemi ödenen / gerçekleşen oranını gözlenen düzeyine yaklaştırır. tier_b_ultimates.csv ve tier_b_parameters.csv satırları.",
       "tails": "Seçilen faktörlere uydurulan kuyruk eğrileri (MT14 v1.0.0); tier_b_parameters.csv satırları. Varsayım kaydı bir eğri seçmedikçe çalıştırma MT02 kuyruğunu kullanır; seçilen eğrinin etkisi sensitivity.csv içinde bir satırdır.",
-      "ultimates": "Kademe A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.0, MT15 v1.0.0, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
+      "ultimates": "Kademe A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
      },
      "method_diagnostics": [
       {
@@ -9212,7 +9212,7 @@
       "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.2.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
       "munich": "Ayrı zincir merdivenlerin (MT02 v1.0.0) yanında Munich zincir merdiven (MT12 v1.0.0); Munich yöntemi ödenen / gerçekleşen oranını gözlenen düzeyine yaklaştırır. tier_b_ultimates.csv ve tier_b_parameters.csv satırları.",
       "tails": "Seçilen faktörlere uydurulan kuyruk eğrileri (MT14 v1.0.0); tier_b_parameters.csv satırları. Varsayım kaydı bir eğri seçmedikçe çalıştırma MT02 kuyruğunu kullanır; seçilen eğrinin etkisi sensitivity.csv içinde bir satırdır.",
-      "ultimates": "Kademe A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.0, MT15 v1.0.0, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
+      "ultimates": "Kademe A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
      },
      "method_diagnostics": [],
      "munich": null,

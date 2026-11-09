@@ -1,5 +1,5 @@
 id: MT13
-version: 1.0.0
+version: 1.0.1
 title_en: Benktander blends
 title_tr: Benktander karışımları
 status: reviewed
@@ -83,7 +83,10 @@ validation:
     description: >-
       On the synthetic baseline (medium), the blended ultimate, summed per line over all
       accident years, is within tolerance of the true ultimate; per accident year reported as
-      information beside chain ladder and Bornhuetter–Ferguson.
+      information beside chain ladder and Bornhuetter–Ferguson. The tolerance applies to the
+      baseline scenario only; on high_inflation the chain-ladder family is expected to be biased
+      by the inflation that MT07 exists to handle, so a ratio outside the tolerance there is
+      information, not a failure.
     tolerance: 5 per cent per line, 10 per cent for MOTOR_TPL
 references:
   - Benktander, G. (1976). An approach to credibility in calculating IBNR for casualty excess reinsurance. The Actuarial Review.
@@ -104,3 +107,9 @@ change_log:
   - version: 1.0.0
     date: 2026-10-25
     change: Reviewed and accepted by the owner.
+  - version: 1.0.1
+    date: 2026-11-09
+    change: >-
+      One sentence in the ground-truth validation: the tolerance applies to the baseline scenario
+      only, and a ratio outside it on high_inflation is information (decision 0367). No algorithm,
+      parameter or number changes. The owner has not reviewed this version.

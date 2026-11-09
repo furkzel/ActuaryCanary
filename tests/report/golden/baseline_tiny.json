@@ -294,7 +294,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "fecc00f2e344bce0"
+    "value": "0f8a1a92415341c1"
    },
    {
     "label": "Valuation date",
@@ -4243,7 +4243,7 @@
     }
    ],
    "plain": "Ultimates that blend the chain ladder and Bornhuetter–Ferguson by maturity: the Benktander (iterated Bornhuetter–Ferguson) estimate, a credibility mix of the chain ladder and Bornhuetter–Ferguson with weight 1 - q^k, as a principled alternative to the hard switch of MT10.",
-   "spec": "MT13 v1.0.0",
+   "spec": "MT13 v1.0.1",
    "title": "Benktander blends"
   },
   {
@@ -4301,7 +4301,7 @@
     }
    ],
    "plain": "Splits average paid per claim into a development pattern and a calendar-period index (Taylor 1977), so that calendar-year effects such as claims inflation are measured instead of being folded into development factors, then projects with an explicit future index.",
-   "spec": "MT15 v1.0.0",
+   "spec": "MT15 v1.0.1",
    "title": "Separation method"
   },
   {
@@ -6019,7 +6019,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "fecc00f2e344bce0",
+  "run_id": "0f8a1a92415341c1",
   "settings": [
    {
     "name": "bases.currency",
@@ -6768,7 +6768,7 @@
    {
     "id": "MT13",
     "title": "Benktander blends",
-    "version": "1.0.0"
+    "version": "1.0.1"
    },
    {
     "id": "MT14",
@@ -6778,7 +6778,7 @@
    {
     "id": "MT15",
     "title": "Separation method",
-    "version": "1.0.0"
+    "version": "1.0.1"
    },
    {
     "id": "MT16",
@@ -7292,7 +7292,7 @@
       "bootstrap": "Over-dispersed Poisson bootstrap on the paid triangle (MT11 v1.2.0); row Total of bootstrap_summary.csv, simulations in bootstrap_distribution_<line>.parquet.",
       "munich": "Munich chain ladder (MT12 v1.0.0) beside the separate chain ladders (MT02 v1.0.0); the Munich method brings paid over incurred closer to its observed level. Rows of tier_b_ultimates.csv and tier_b_parameters.csv.",
       "tails": "Tail curves fitted to the selected factors (MT14 v1.0.0); rows of tier_b_parameters.csv. The run uses the MT02 tail unless the assumptions register selects a curve; the effect of the chosen curve is a row of sensitivity.csv.",
-      "ultimates": "Tier A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Tier B beside them: MT12 v1.0.0, MT13 v1.0.0, MT15 v1.0.0, MT16 v1.0.0; rows of ultimates.csv and tier_b_ultimates.csv. The frequency–severity ultimate is at value-date prices when the price index is loaded."
+      "ultimates": "Tier A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Tier B beside them: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; rows of ultimates.csv and tier_b_ultimates.csv. The frequency–severity ultimate is at value-date prices when the price index is loaded."
      },
      "method_diagnostics": [],
      "munich": null,
@@ -7892,7 +7892,7 @@
       "bootstrap": "Over-dispersed Poisson bootstrap on the paid triangle (MT11 v1.2.0); row Total of bootstrap_summary.csv, simulations in bootstrap_distribution_<line>.parquet.",
       "munich": "Munich chain ladder (MT12 v1.0.0) beside the separate chain ladders (MT02 v1.0.0); the Munich method brings paid over incurred closer to its observed level. Rows of tier_b_ultimates.csv and tier_b_parameters.csv.",
       "tails": "Tail curves fitted to the selected factors (MT14 v1.0.0); rows of tier_b_parameters.csv. The run uses the MT02 tail unless the assumptions register selects a curve; the effect of the chosen curve is a row of sensitivity.csv.",
-      "ultimates": "Tier A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Tier B beside them: MT12 v1.0.0, MT13 v1.0.0, MT15 v1.0.0, MT16 v1.0.0; rows of ultimates.csv and tier_b_ultimates.csv. The frequency–severity ultimate is at value-date prices when the price index is loaded."
+      "ultimates": "Tier A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Tier B beside them: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; rows of ultimates.csv and tier_b_ultimates.csv. The frequency–severity ultimate is at value-date prices when the price index is loaded."
      },
      "method_diagnostics": [
       {
@@ -8589,7 +8589,7 @@
       "bootstrap": "Over-dispersed Poisson bootstrap on the paid triangle (MT11 v1.2.0); row Total of bootstrap_summary.csv, simulations in bootstrap_distribution_<line>.parquet.",
       "munich": "Munich chain ladder (MT12 v1.0.0) beside the separate chain ladders (MT02 v1.0.0); the Munich method brings paid over incurred closer to its observed level. Rows of tier_b_ultimates.csv and tier_b_parameters.csv.",
       "tails": "Tail curves fitted to the selected factors (MT14 v1.0.0); rows of tier_b_parameters.csv. The run uses the MT02 tail unless the assumptions register selects a curve; the effect of the chosen curve is a row of sensitivity.csv.",
-      "ultimates": "Tier A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Tier B beside them: MT12 v1.0.0, MT13 v1.0.0, MT15 v1.0.0, MT16 v1.0.0; rows of ultimates.csv and tier_b_ultimates.csv. The frequency–severity ultimate is at value-date prices when the price index is loaded."
+      "ultimates": "Tier A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Tier B beside them: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; rows of ultimates.csv and tier_b_ultimates.csv. The frequency–severity ultimate is at value-date prices when the price index is loaded."
      },
      "method_diagnostics": [
       {
@@ -9180,7 +9180,7 @@
       "bootstrap": "Over-dispersed Poisson bootstrap on the paid triangle (MT11 v1.2.0); row Total of bootstrap_summary.csv, simulations in bootstrap_distribution_<line>.parquet.",
       "munich": "Munich chain ladder (MT12 v1.0.0) beside the separate chain ladders (MT02 v1.0.0); the Munich method brings paid over incurred closer to its observed level. Rows of tier_b_ultimates.csv and tier_b_parameters.csv.",
       "tails": "Tail curves fitted to the selected factors (MT14 v1.0.0); rows of tier_b_parameters.csv. The run uses the MT02 tail unless the assumptions register selects a curve; the effect of the chosen curve is a row of sensitivity.csv.",
-      "ultimates": "Tier A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Tier B beside them: MT12 v1.0.0, MT13 v1.0.0, MT15 v1.0.0, MT16 v1.0.0; rows of ultimates.csv and tier_b_ultimates.csv. The frequency–severity ultimate is at value-date prices when the price index is loaded."
+      "ultimates": "Tier A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Tier B beside them: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; rows of ultimates.csv and tier_b_ultimates.csv. The frequency–severity ultimate is at value-date prices when the price index is loaded."
      },
      "method_diagnostics": [],
      "munich": null,

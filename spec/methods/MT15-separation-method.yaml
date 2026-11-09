@@ -1,5 +1,5 @@
 id: MT15
-version: 1.0.0
+version: 1.0.1
 title_en: Separation method
 title_tr: Ayrıştırma yöntemi (separation)
 status: reviewed
@@ -94,6 +94,15 @@ notes: >-
   says so. A tail from MT14 or an assumed tail factor is applied outside the method, to the
   ultimates, as selected in the assumptions register (as for MT02), and is shown as a
   separate line. No other tail source is allowed.
+
+  Limitation: the model n(i) r(j) lambda(i + j) has no term for the average size of a claim by
+  origin. Any growth of that size from one origin to the next (for example sums insured that
+  are set at the price level of the policy start, so that a later origin carries larger claims
+  whose amounts are never indexed afterwards) is not absorbed by n(i), which counts claims; it
+  is carried by the diagonals and shows as calendar inflation in lambda. The fitted index then
+  measures origin-level growth together with calendar inflation, and the comparison with the
+  true claims inflation of a line is not meaningful for a line of that kind (decision 0368). The
+  same holds, to a lesser degree, for a development pattern that changes with the origin year.
 references:
   - Taylor, G. C. (1977). Separation of inflation and other effects from the distribution of non-life insurance claim delays. ASTIN Bulletin.
   - 'Taylor, G. (2000). Loss Reserving: An Actuarial Perspective. Kluwer.'
@@ -107,3 +116,9 @@ change_log:
   - version: 1.0.0
     date: 2026-10-25
     change: Reviewed and accepted by the owner.
+  - version: 1.0.1
+    date: 2026-11-09
+    change: >-
+      Limitation note: growth of the average claim size by origin is aliased into the calendar
+      index, so the index of a sum-insured line is not calendar inflation (decision 0368). No
+      algorithm, parameter or number changes. The owner has not reviewed this version.
