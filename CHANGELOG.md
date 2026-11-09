@@ -2,16 +2,30 @@
 
 Written for users. Versions follow semantic versioning; each specification file also carries its own version and change log.
 
-## Unreleased
+## 1.2.0 (2026-11-09, the preparation date: the release date is the date the owner pushes the tag `v1.2.0`)
 
 ### What is new
 
 - **Tier B reserving methods in the run.** For every segment and line the run now also fits the over-dispersed Poisson bootstrap (reserve distribution with percentiles, value at risk and simulated payments), the Munich chain ladder, Benktander blends, a fitted tail factor (shown, not applied unless you select it), the separation method and the frequency–severity projection, and back-tests the selection at 12, 24 and 36 months with the error of each method. A method that cannot run on a line says why, under "What did not run and why"; it never gives a number instead.
-- **Claim sizes and extreme values.** Claim size distributions (lognormal, gamma, Weibull, Pareto) and a peaks-over-threshold fit of the tail are written per segment and line. The large-loss threshold stays the 99th percentile of claim sizes; the extreme-value threshold is only shown beside it. `project.yaml` may set another percentile or fixed thresholds in a `large_loss` section.
+- **Claim sizes and extreme values.** Claim size distributions (lognormal, gamma, Weibull, Pareto) and a peaks-over-threshold fit of the tail are written per segment and line. The large-loss threshold stays the 99th percentile of claim sizes; the extreme-value threshold is only shown beside it. `project.yaml` may set another percentile or fixed thresholds in a `large_loss` section. The standard errors of the severity fits use analytic second derivatives, and a single Pareto II fit now finishes.
+- **Survival analysis.** Kaplan–Meier curves with confidence intervals and percentiles, and Cox regression with its tests, are available and appear in the report.
+- **Uncertainty.** Reserve ranges from the Mack method and from the bootstrap, with value at risk and tail value at risk, and a simulated total of all lines.
+- **Discounting.** Interest rates are read as a feed (`interest_rates`), yield curves are built from them, and unpaid amounts and cash flows can be shown as present values (`--value discounted --curve <curve_id>`). The demo ships an `interest_rates.xlsx` with the curve `TRY_GOV` and names it, so its report carries the discounted figures.
+- **Sensitivity tables** of the reserve to the main choices are rerun inside the run.
+- **Value basis switch in the report.** The page switches between the nominal and the discounted basis without a new run.
+- **New finding rules** KF27 to KF34 on the tier B results; KF28 needs a consistent sign of the back-test errors, KF31 tests a fixed shape and KF32 needs a ratio of 1.25 between the longest and the shortest median settlement time.
 - **The bootstrap on short-tail lines.** Late development columns that carry no payments (or only small recoveries) are cut before the bootstrap is fitted, so the bootstrap range and the simulated total of all lines now exist for lines that used to fall back to the Mack range; the cut is stated in the output files and on the uncertainty page.
+- **Platform-identical output files.** The tier B, severity and survival files are written to 10 significant digits and are byte-identical on Windows and Linux.
+- **Turkish golden copy.** The Turkish report is held to a golden copy of its own, beside the English one.
 - **More outputs**, listed in the guide. The seeds and defaults of these methods are part of the run id.
 
-Run ids of the three examples changed; the reserving tables of tier A (triangles, factors, chain ladder, ultimates, reserve range, cash flows, measures, lineage) are byte-identical to 1.1.0.
+Run ids of the three examples changed.
+
+### Known limits
+
+- The medium-size run takes longer than its time budget on slow machines; the CI `budget` job is the reference.
+- `just bench` on the large scenario takes more than two minutes on a laptop.
+- Premium by underwriting period is not built; Mack and bootstrap ranges still disagree by more than 30 % on some demo lines; the line correlation in the simulated total is 0.
 
 ## 1.1.0 (2026-10-25, the preparation date: the release date is the date the owner pushes the tag `v1.1.0`)
 
