@@ -66,6 +66,7 @@ def test_every_fact_of_the_new_rules_is_computed_on_the_demo(demo: RunResult) ->
     scoped, _ = scoped_facts(
         demo.reserving, demo.analysis, demo.quality, anomaly_rates(demo.anomalies),
         tables=demo.report_tables, uncertainty=demo.uncertainty,
+        settings=load_specs().finding_rules.settings,
     )  # fmt: skip
     known = {scope: set().union(*(set(f) for _, _, f in sets)) for scope, sets in scoped.items()}
     missing = {(r.id, n) for r in rules for n in facts_named(r) if n not in known[r.scope]}

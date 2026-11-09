@@ -119,6 +119,7 @@ def test_no_float_of_a_new_file_has_more_digits_than_the_rule_allows(
     assert {"tier_b_ultimates.csv", "tier_b_parameters.csv", "severity_parameters.csv"} <= set(
         checked
     )
+    assert {"survival_groups.csv", "survival_time_percentiles.csv"} <= set(checked)  # MT19
     cells = 0
     for name in checked:
         frame = _csv(default_run, name)
@@ -131,6 +132,7 @@ def test_no_float_of_a_new_file_has_more_digits_than_the_rule_allows(
         pl.col("method").is_in(sorted(ROUNDED_METHODS))
     )
     assert diagnostics["value"].drop_nulls().len() > 0
+    assert "MT19" in ROUNDED_METHODS and "MT19" in set(diagnostics["method"])
     for value in (v for v in diagnostics["value"].drop_nulls().to_list() if math.isfinite(v)):
         assert float(f"{value:.{SIGNIFICANT_DIGITS - 1}e}") == value, ("diagnostics.csv", value)
 
@@ -235,3 +237,22 @@ def test_on_the_medium_baseline_m06_shows_the_mt18_threshold_beside_cv08s_and_do
     reasons = " ".join(result.analysis.get("M04").reasons)
     assert "MT11 bootstrap did not run" in reasons  # late columns paid nothing (record 0285)
     assert {"MT12", "MT13", "MT15", "MT16", "MT22"} <= {s["id"] for s in _manifest(result)["specs"]}
+
+
+def test_the_mt19_rows_of_the_diagnostics_file_carry_ten_digits() -> None:
+    """Record 0348: the p-value of the proportional-hazards test keeps no last bits."""
+    from io import StringIO
+
+    from actuarycanary.modules.reserving_output import diagnostics_csv
+
+    row = {
+        "segment": "S", "line": "L", "measure": "", "method": "MT19",
+        "code": "NON_PROPORTIONAL_HAZARDS", "severity": "INFO", "target": "x",
+        "value": 0.012345678901234, "message": "m",
+    }  # fmt: skip
+    other = {**row, "method": "MT02", "code": "OTHER"}
+    result = type("Result", (), {"groups": []})()
+    frame = pl.read_csv(StringIO(diagnostics_csv(result, [row, other])))  # type: ignore[arg-type]
+    by_method = dict(zip(frame["method"], frame["value"], strict=True))
+    assert by_method["MT19"] == 0.01234567890
+    assert by_method["MT02"] == 0.012345678901234  # tier A rows stay unrounded

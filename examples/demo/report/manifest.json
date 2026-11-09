@@ -3507,8 +3507,8 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "52a1691bdaa457ae8150527abedd3633f1a0fb6f286d0bab2a95c6ee18e621d7",
-      "size": 5212502
+      "sha256": "6b48e1dc26ecd063ee0bc13c37e8c6fd1336ca7229ae2881f86762518e12f895",
+      "size": 5212237
     },
     {
       "name": "quality.json",
@@ -3572,8 +3572,8 @@
     },
     {
       "name": "diagnostics.csv",
-      "sha256": "848f58715ea24d10d5857eb49e54f23e43923b26b5e356718132d893fd4e5fa5",
-      "size": 6724
+      "sha256": "164a7a44254ab2a69fb9fc1bfc8b4cf698f9ba5f5c56a72deb8575277379d8e2",
+      "size": 6717
     },
     {
       "name": "anomalies.csv",
@@ -3808,7 +3808,7 @@
       "seed": 1
     }
   ],
-  "run_id": "1b18cc3fa726e09f",
+  "run_id": "1611800ad5c3a6a6",
   "settings": {
     "assumptions": {
       "entries": []
@@ -4056,7 +4056,7 @@
     {
       "id": "CV06",
       "title": "Precision and rounding",
-      "version": "1.1.0"
+      "version": "1.1.1"
     },
     {
       "id": "CV07",
@@ -4406,7 +4406,7 @@
     {
       "id": "RP01",
       "title": "Key finding rules",
-      "version": "1.2.0"
+      "version": "1.2.1"
     }
   ],
   "tables_not_used": []

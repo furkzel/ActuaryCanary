@@ -1,5 +1,5 @@
 id: CV06
-version: 1.1.0
+version: 1.1.1
 title_en: Precision and rounding
 title_tr: Hassasiyet ve yuvarlama
 status: reviewed
@@ -16,8 +16,8 @@ rules:
     up to the displayed total, the table says so in a footnote.
   - >-
     Exported data files carry unrounded values, with one exception: the data files of the tier B
-    reserving methods and of the severity and extreme-value methods (MT11 to MT18, MT22 and
-    AE02), and the rows of those methods in the diagnostics file, carry every floating-point
+    reserving methods, of the severity and extreme-value methods and of the survival analysis
+    (MT11 to MT19, MT22 and AE02), and the rows of those methods in the diagnostics file, carry every floating-point
     value rounded to 10 significant digits, to the nearest decimal, by the one shared rule. This is not presentation rounding: the digits left out are
     the last bits that optimisers, linear algebra libraries and maths libraries do not agree on
     from one platform to the next, so that the same run writes the same bytes everywhere.
@@ -47,7 +47,7 @@ defaults:
     description: Data quality score on a 0 to 100 scale.
   - name: file_significant_digits
     default: 10
-    description: Significant digits of a floating-point value in a data file of MT11 to MT18, MT22 and AE02.
+    description: Significant digits of a floating-point value in a data file of MT11 to MT19, MT22 and AE02.
 change_log:
   - version: 0.1.0
     date: 2026-10-20
@@ -60,3 +60,10 @@ change_log:
     change: >-
       Data files of MT11 to MT18, MT22 and AE02 carry floats to 10 significant digits (owner
       approved, record 0626); other data files stay unrounded.
+  - version: 1.1.1
+    date: 2026-11-08
+    change: >-
+      MT19 joins the list: its data files already went through the shared writer, and its rows
+      in the diagnostics file now carry 10 significant digits too, so that the same run writes
+      the same bytes on every platform (work item P27b, record 0348). Not reviewed by the owner
+      yet.

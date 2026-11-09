@@ -1182,9 +1182,11 @@ def scoped_facts(
     skip_segments: frozenset[str] | None = None,
     tables: Mapping[str, pl.DataFrame] | None = None,
     uncertainty: UncertaintyResult | str | None = None,
+    settings: Mapping[str, float] | None = None,
 ) -> tuple[dict[str, list[tuple[str, str, Facts]]], dict[str, FactSet]]:
     """The fact sets of every scope as (key, anchor, facts), and the segment facts. `tables`
-    are the output tables of the run and `uncertainty` M12, for the rules of RP01 1.2.0."""
+    are the output tables of the run and `uncertainty` M12, for the rules of RP01 1.2.0;
+    `settings` are the named limits of the rule file, a fact in every set (RP01 1.2.1)."""
     currency = shown_currency(reserving.triangles.reporting_currency)
     tables = tables or {}
     lines = {line_name(g.group): line_facts(g, rates, currency) for g in reserving.groups}
@@ -1217,6 +1219,9 @@ def scoped_facts(
     run = run_facts(reserving, analysis, quality, rates, lines, titles)
     run.setdefault("currency", Fact(currency, "text"))
     add_run_facts(run, uncertainty)
+    for name, limit in (settings or {}).items():
+        for facts in (*lines.values(), *(f for f in segments.values() if f), run):
+            facts[name] = Fact(limit, "factor")
     scoped: dict[str, list[tuple[str, str, Facts]]] = {
         "run": [("", "", run)],
         "segment": [(s, "glance", f) for s, f in segments.items()],
@@ -1243,7 +1248,15 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
         if mixed_currencies([g for g in r.reserving.groups if g.group[0] == s], r)
     )
     scoped, segment_sets = scoped_facts(
-        r.reserving, r.analysis, r.quality, rates, titles, mixed, r.tables, r.uncertainty
+        r.reserving,
+        r.analysis,
+        r.quality,
+        rates,
+        titles,
+        mixed,
+        r.tables,
+        r.uncertainty,
+        r.catalogue.finding_rules.settings,
     )
     fired = evaluate(r.catalogue.finding_rules.rules, scoped)
     headline = [f for f in fired if f.scope != "line"]

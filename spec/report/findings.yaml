@@ -1,5 +1,5 @@
 id: RP01
-version: 1.2.0
+version: 1.2.1
 title_en: Key finding rules
 title_tr: Temel bulgu kuralları
 status: draft
@@ -20,6 +20,10 @@ notes: >-
   show the run and segment sentences with the lowest priority numbers first, at most eight;
   the rest follow under "further findings". A rule with `banner` is also shown at the top of
   the cover and of every analytic page.
+settings:
+  # Limits that only these rules use; a condition reads a setting like any other fact.
+  back_test_sign_share_limit: 0.75
+  cohort_median_ratio_limit: 1.25
 rules:
   - id: KF01
     title: Thin evidence
@@ -439,7 +443,7 @@ rules:
     title: The selection missed in the back test
     scope: line
     priority: 8
-    condition: back_test_bias_size >= 0.05
+    condition: back_test_bias_size >= 0.05 and back_test_sign_share >= back_test_sign_share_limit
     template: >-
       Rerun on the data known {back_test_horizon} months earlier, the selected ultimate was
       off by {back_test_bias} on average over {back_test_origins} origins against what was
@@ -493,15 +497,15 @@ rules:
     title: Heavy tail of large claims
     scope: line
     priority: 11
-    condition: gpd_shape >= gpd_shape_limit
+    condition: gpd_shape >= 0.5
     template: >-
       Above {gpd_threshold} {currency} the {gpd_exceedances} largest claims have a fitted
-      generalised Pareto shape of {gpd_shape}, at least {gpd_shape_limit}: the fitted tail
+      generalised Pareto shape of {gpd_shape}, at least 0.5: the fitted tail
       has no finite variance, so single claims can dominate the results of this line.
     title_tr: Büyük hasarlarda kalın kuyruk
     template_tr: >-
       {gpd_threshold} {currency} üzerindeki en büyük {gpd_exceedances} hasarın uydurulan
-      genelleştirilmiş Pareto biçim parametresi {gpd_shape}, yani en az {gpd_shape_limit}:
+      genelleştirilmiş Pareto biçim parametresi {gpd_shape}, yani en az 0,5:
       uydurulan kuyruğun sonlu varyansı yoktur, bu branşın sonuçlarını tek tek hasarlar
       belirleyebilir.
     evidence:
@@ -512,7 +516,7 @@ rules:
     title: Settlement speed differs between report years
     scope: segment
     priority: 14
-    condition: cohort_logrank_p < cohort_significance
+    condition: cohort_logrank_p < cohort_significance and cohort_median_ratio >= cohort_median_ratio_limit
     template: >-
       {segment}: claims of different report years settle at different speeds (log-rank test
       over {cohort_years} report years, p-value {cohort_logrank_p}); the development of the
@@ -583,3 +587,16 @@ change_log:
       tail, KF31 heavy tail of large claims, KF32 settlement speed by report year, KF33 width
       of the reserve range, KF34 discount effect. KF01 to KF26 are unchanged. Not reviewed
       by the owner yet (gate G5).
+  - version: 1.2.1
+    date: 2026-11-08
+    change: >-
+      Three rules say no more than their conditions prove (work item P27b, record 0347).
+      KF28 also requires that the errors of the back test keep one sign: the share of the
+      back-tested origins whose error has the sign of the mean bias must reach the new
+      setting back_test_sign_share_limit (0.75). KF31 tests the fixed shape 0.5 written in
+      the rule, the only shape from which the fitted tail has no finite variance; the
+      configurable limit and its placeholder are gone. KF32 also requires an effect: the
+      longest median settlement time over the shortest, across the report years with at
+      least 20 closings, must reach the new setting cohort_median_ratio_limit (1.25). The
+      sentences keep their wording (KF31 names 0.5 instead of a placeholder). The file gains
+      a settings block for the two limits. Not reviewed by the owner yet (gate G5).
