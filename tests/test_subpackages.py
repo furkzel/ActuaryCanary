@@ -17,6 +17,7 @@ SUBPACKAGES = [
     "spec",
     "cli",
     "synthetic",
+    "ui",
 ]
 
 

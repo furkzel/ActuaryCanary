@@ -39,3 +39,13 @@ def test_the_bundle_definition_requires_the_demo_data() -> None:
     spec = (ROOT / "packaging" / "canary.spec").read_text(encoding="utf-8")
     assert '"examples" / "demo"' in spec and "SystemExit" in spec
     assert (ROOT / "examples" / "demo" / "claim_valuations.xlsx").is_file()
+
+
+def test_the_bundle_carries_the_files_of_the_browser_interface() -> None:
+    spec = (ROOT / "packaging" / "canary.spec").read_text(encoding="utf-8")
+    assert (
+        'collect_data_files("actuarycanary")' in spec
+    )  # takes every non-Python file of the package
+    ui = ROOT / "src" / "actuarycanary" / "ui"
+    for name in ("templates/index.html.j2", "static/app.js", "static/app.css", "strings.yaml"):
+        assert (ui / name).is_file(), name
