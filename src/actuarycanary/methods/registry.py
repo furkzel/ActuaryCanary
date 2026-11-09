@@ -50,7 +50,7 @@ ENTRIES: tuple[MethodEntry, ...] = (
         "cumulative paid and incurred triangles on the same grid", measure="paid+incurred",
     ),
     MethodEntry(
-        "MT13", "1.0.0", benktander.benktander,
+        "MT13", "1.0.1", benktander.benktander,
         "MT02 result and the MT03 or MT04 result (or the prior ultimate per origin)",
         measure="incurred",
     ),
@@ -61,7 +61,7 @@ ENTRIES: tuple[MethodEntry, ...] = (
         measure="paid",
     ),
     MethodEntry(
-        "MT15", "1.0.0", separation.separation,
+        "MT15", "1.0.1", separation.separation,
         "incremental paid triangle (square) and claim counts per origin (MT16 ultimate counts)",
         measure="paid",
     ),
