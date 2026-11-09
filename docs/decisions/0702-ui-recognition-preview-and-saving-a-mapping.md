@@ -1,0 +1,16 @@
+# 0702 — The mapping screen: a preview of the recognition and the saving of a confirmed mapping
+
+## Context
+The terminal asks about each sheet whose layout has no saved profile (`cli/confirm.py`) while `pipeline.run` is already going. A page cannot be asked in the middle of a run in the same way, and the person should see the mapping before pressing run.
+
+## Decision
+- **Preview.** `ui/scan.py` does for each spreadsheet what `pipeline.recognise_folder` does (read through the cache, `recognise_table`, a saved profile when the sheet is not in the canonical layout, `detect_amounts`), file by file, so that one file that cannot be read (locked, damaged, not a workbook) is reported with its reason and the others are still shown. A test compares the preview with `recognise_folder` on the messy example, sheet by sheet.
+- **What is shown** is the information of the terminal confirmation: per sheet the concept, the score of the chosen candidate (the confidence), the other candidates, the header row and the rows above it, the amounts kind for `claim_valuations`, and per column the source header, the canonical field, the layer, the confidence and the evidence; personal-data columns are shown as dropped and cannot be changed. Files that have no sheet with a concept, or cannot be read, are listed apart with the reason of the recogniser (or the error).
+- **Editing** uses the functions of the terminal edit: `with_concept` (then `detect_amounts`), `with_amounts`, `with_field`. The page sends the final state of a sheet; the server applies the columns that differ, those set to unused first so that a field can move to another column, and refuses (code `mapping_conflict`) a state that two columns claim one field. A field taken from another column leaves that column unused, as in the terminal.
+- **Saving** makes a `MappingProfile` with `to_profile` and writes it with `save_profile` into the profiles folder (0701), keyed by the fingerprint of the headers. Two sheets with the same headers given different answers in one request are refused (`profile_conflict`). A sheet in the canonical layout has nothing to confirm (the pipeline does not look up profiles for it, as in `recognise_folder`) and is shown read-only; a canonical sheet whose amounts look per-period is not canonical for this purpose (`detect_amounts` sets it to automatic), so it can be confirmed.
+- **Running.** The page runs with `confirm=None`, which is `--yes` of the command line: saved profiles are used and sheets without one are read as proposed, nothing saved. A person who wants the mapping kept confirms it first (the button "Confirm and save", or "Confirm, save and run").
+- The sheets the page sends are those the person changed and those still only proposed; a saved profile is rewritten only when changed, so its confirmation date stays.
+
+## Consequences
+- The next run, from the page or from the terminal, reads the same profile; a test saves an edit, scans again, and shows `recognise_folder` giving the saved source and the same mappings, and a slow test runs the pipeline and reads `source: saved` in the manifest.
+- Choosing a concept for a sheet that the recogniser did not recognise works as `concept=name` in the terminal; "skip this sheet" as `concept=-`.
