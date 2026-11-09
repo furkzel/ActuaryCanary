@@ -294,7 +294,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "bf50c4eaba669edc"
+    "value": "fecc00f2e344bce0"
    },
    {
     "label": "Valuation date",
@@ -5586,9 +5586,9 @@
      "calibration": "Share of the incurred known later that fell inside the range given at an earlier valuation, summed over the lines (AE02 rows of back_test.csv, MT22 v1.0.0, AE02 v1.0.0). Coverage on model data is in records 0075 (Mack), 0282 (bootstrap) and 0325 (this module); Mack ranges are known to be too narrow on inflation-driven or long-tailed lines (record 0062).",
      "cash_flows": "Expected payments of the selected unpaid by period after the valuation date, all lines added (RS04 v1.1.0, CV10 v1.1.0); rows of risk_cash_flows.csv.",
      "figure": "Ranges drawn as ranges: light bar from the median to the 99.5th percentile, dark bar from the 75th to the 95th, the mean as a diamond.",
-     "headline": "The reserve is the selected unpaid (RS02 with MT10) as M12 ranges it: the bootstrap (RS05 v1.1.0, MT11 v1.1.0) where it ran on the line, else the Mack approximation (RS03 v1.1.0, MT06 v1.1.0); the 5th percentile comes from risk_distribution.parquet or the lognormal of RS03. Indicative ranges, never capital requirements.",
+     "headline": "The reserve is the selected unpaid (RS02 with MT10) as M12 ranges it: the bootstrap (RS05 v1.1.0, MT11 v1.2.0) where it ran on the line, else the Mack approximation (RS03 v1.1.0, MT06 v1.1.0); the 5th percentile comes from risk_distribution.parquet or the lognormal of RS03. Indicative ranges, never capital requirements.",
      "histogram": "Histogram of the simulated reserve (RS05 v1.1.0); the lines mark the mean, the VaR and the TVaR of the row in risk_measures.csv; simulations in risk_distribution.parquet.",
-     "ranges": "Rows Total and All lines of risk_measures.csv (RS03 v1.1.0, RS05 v1.1.0, M12 v1.1.0). VaR at 99.5% and TVaR at 99%; both sources are approximations of the uncertainty of the selected reserve, labelled as such in the file."
+     "ranges": "Rows Total and All lines of risk_measures.csv (RS03 v1.1.0, RS05 v1.1.0, M12 v1.1.1). VaR at 99.5% and TVaR at 99%; both sources are approximations of the uncertainty of the selected reserve, labelled as such in the file."
     },
     "notes": [
      "LIFE / GROUP_TERM_LIFE: MT06 did not run: no Mack range",
@@ -5605,6 +5605,7 @@
      "all_lines_total": false,
      "boot_estimator": "",
      "correlation": "0.000",
+     "cut": "",
      "independent": true,
      "lines": 0,
      "mack_estimator": "",
@@ -5658,7 +5659,7 @@
     "NON_LIFE / PROPERTY: MT06 did not run: no Mack range",
     "NON_LIFE / PROPERTY: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range"
    ],
-   "spec": "M12 v1.1.0",
+   "spec": "M12 v1.1.1",
    "state": "limited",
    "title": "Uncertainty and risk"
   }
@@ -6018,7 +6019,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "bf50c4eaba669edc",
+  "run_id": "fecc00f2e344bce0",
   "settings": [
    {
     "name": "bases.currency",
@@ -6727,7 +6728,7 @@
    {
     "id": "M12",
     "title": "Uncertainty and risk",
-    "version": "1.1.0"
+    "version": "1.1.1"
    },
    {
     "id": "RS04",
@@ -7288,7 +7289,7 @@
      },
      "footnotes": {
       "back_test": "Back test (MT22 v1.0.0, AE02 v1.0.0): each method rerun on the data known at an earlier valuation and compared with the incurred known later; error = estimate over reference − 1. The first 3 horizons are shown; back_test.csv has every horizon and origin.",
-      "bootstrap": "Over-dispersed Poisson bootstrap on the paid triangle (MT11 v1.1.0); row Total of bootstrap_summary.csv, simulations in bootstrap_distribution_<line>.parquet.",
+      "bootstrap": "Over-dispersed Poisson bootstrap on the paid triangle (MT11 v1.2.0); row Total of bootstrap_summary.csv, simulations in bootstrap_distribution_<line>.parquet.",
       "munich": "Munich chain ladder (MT12 v1.0.0) beside the separate chain ladders (MT02 v1.0.0); the Munich method brings paid over incurred closer to its observed level. Rows of tier_b_ultimates.csv and tier_b_parameters.csv.",
       "tails": "Tail curves fitted to the selected factors (MT14 v1.0.0); rows of tier_b_parameters.csv. The run uses the MT02 tail unless the assumptions register selects a curve; the effect of the chosen curve is a row of sensitivity.csv.",
       "ultimates": "Tier A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Tier B beside them: MT12 v1.0.0, MT13 v1.0.0, MT15 v1.0.0, MT16 v1.0.0; rows of ultimates.csv and tier_b_ultimates.csv. The frequency–severity ultimate is at value-date prices when the price index is loaded."
@@ -7888,7 +7889,7 @@
      },
      "footnotes": {
       "back_test": "Back test (MT22 v1.0.0, AE02 v1.0.0): each method rerun on the data known at an earlier valuation and compared with the incurred known later; error = estimate over reference − 1. The first 3 horizons are shown; back_test.csv has every horizon and origin.",
-      "bootstrap": "Over-dispersed Poisson bootstrap on the paid triangle (MT11 v1.1.0); row Total of bootstrap_summary.csv, simulations in bootstrap_distribution_<line>.parquet.",
+      "bootstrap": "Over-dispersed Poisson bootstrap on the paid triangle (MT11 v1.2.0); row Total of bootstrap_summary.csv, simulations in bootstrap_distribution_<line>.parquet.",
       "munich": "Munich chain ladder (MT12 v1.0.0) beside the separate chain ladders (MT02 v1.0.0); the Munich method brings paid over incurred closer to its observed level. Rows of tier_b_ultimates.csv and tier_b_parameters.csv.",
       "tails": "Tail curves fitted to the selected factors (MT14 v1.0.0); rows of tier_b_parameters.csv. The run uses the MT02 tail unless the assumptions register selects a curve; the effect of the chosen curve is a row of sensitivity.csv.",
       "ultimates": "Tier A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Tier B beside them: MT12 v1.0.0, MT13 v1.0.0, MT15 v1.0.0, MT16 v1.0.0; rows of ultimates.csv and tier_b_ultimates.csv. The frequency–severity ultimate is at value-date prices when the price index is loaded."
@@ -8585,7 +8586,7 @@
      },
      "footnotes": {
       "back_test": "Back test (MT22 v1.0.0, AE02 v1.0.0): each method rerun on the data known at an earlier valuation and compared with the incurred known later; error = estimate over reference − 1. The first 3 horizons are shown; back_test.csv has every horizon and origin.",
-      "bootstrap": "Over-dispersed Poisson bootstrap on the paid triangle (MT11 v1.1.0); row Total of bootstrap_summary.csv, simulations in bootstrap_distribution_<line>.parquet.",
+      "bootstrap": "Over-dispersed Poisson bootstrap on the paid triangle (MT11 v1.2.0); row Total of bootstrap_summary.csv, simulations in bootstrap_distribution_<line>.parquet.",
       "munich": "Munich chain ladder (MT12 v1.0.0) beside the separate chain ladders (MT02 v1.0.0); the Munich method brings paid over incurred closer to its observed level. Rows of tier_b_ultimates.csv and tier_b_parameters.csv.",
       "tails": "Tail curves fitted to the selected factors (MT14 v1.0.0); rows of tier_b_parameters.csv. The run uses the MT02 tail unless the assumptions register selects a curve; the effect of the chosen curve is a row of sensitivity.csv.",
       "ultimates": "Tier A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Tier B beside them: MT12 v1.0.0, MT13 v1.0.0, MT15 v1.0.0, MT16 v1.0.0; rows of ultimates.csv and tier_b_ultimates.csv. The frequency–severity ultimate is at value-date prices when the price index is loaded."
@@ -9176,7 +9177,7 @@
      },
      "footnotes": {
       "back_test": "Back test (MT22 v1.0.0, AE02 v1.0.0): each method rerun on the data known at an earlier valuation and compared with the incurred known later; error = estimate over reference − 1. The first 3 horizons are shown; back_test.csv has every horizon and origin.",
-      "bootstrap": "Over-dispersed Poisson bootstrap on the paid triangle (MT11 v1.1.0); row Total of bootstrap_summary.csv, simulations in bootstrap_distribution_<line>.parquet.",
+      "bootstrap": "Over-dispersed Poisson bootstrap on the paid triangle (MT11 v1.2.0); row Total of bootstrap_summary.csv, simulations in bootstrap_distribution_<line>.parquet.",
       "munich": "Munich chain ladder (MT12 v1.0.0) beside the separate chain ladders (MT02 v1.0.0); the Munich method brings paid over incurred closer to its observed level. Rows of tier_b_ultimates.csv and tier_b_parameters.csv.",
       "tails": "Tail curves fitted to the selected factors (MT14 v1.0.0); rows of tier_b_parameters.csv. The run uses the MT02 tail unless the assumptions register selects a curve; the effect of the chosen curve is a row of sensitivity.csv.",
       "ultimates": "Tier A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Tier B beside them: MT12 v1.0.0, MT13 v1.0.0, MT15 v1.0.0, MT16 v1.0.0; rows of ultimates.csv and tier_b_ultimates.csv. The frequency–severity ultimate is at value-date prices when the price index is loaded."

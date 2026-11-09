@@ -109,6 +109,7 @@ class LineRisk:
     discounted_sims: np.ndarray | None = None
     discount_factors: np.ndarray | None = None  # per period
     payment_dates: tuple[date, ...] = ()
+    cut_note: str = ""  # MT11 fitted on a triangle cut after its last positive column (0349)
 
     @property
     def selected_total(self) -> float:
@@ -274,6 +275,10 @@ def _line(
         reason = boot.reason if isinstance(boot, Skipped) else "MT11 did not run"
         notes.append(f"{reason}: no bootstrap range")
         boot = None
+    cut_note = ""
+    if boot is not None and boot.cut_columns:
+        cut_note = boot.cut_note(group.triangles["paid"].ages)
+        notes.append(f"bootstrap {cut_note}")
     line = LineRisk(key, origins, selected, label, mack_cv, mack_total, tuple(notes), mack_same)
     if not isinstance(chain, ChainLadder):
         return line
@@ -318,6 +323,7 @@ def _line(
         boot=boot, shifted=shifted, origin_sims=origin_sims, total_sims=total_sims,
         cash_flow_sims=cash_sims, flows=flows, flow_notes=line.flow_notes, periods=periods,
         discounted_sims=discounted, discount_factors=factors, payment_dates=dates,
+        cut_note=cut_note,
     )  # fmt: skip
 
 
@@ -432,8 +438,11 @@ def _risk_rows(
                     )
                 )
             rows.append(
-                _sample_row(base(TOTAL), sample_risk(line.total_sims, *levels), NOMINAL, label)
-            )
+                _sample_row(
+                    base(TOTAL), sample_risk(line.total_sims, *levels), NOMINAL, label,
+                    note=line.cut_note,
+                )
+            )  # fmt: skip
             if line.discounted_sims is not None:
                 risk = sample_risk(line.discounted_sims, *levels)
                 nominal_mean = float(line.total_sims.mean())

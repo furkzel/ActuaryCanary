@@ -1099,6 +1099,8 @@ entries:
     tr: "Branşlar, varsayım kaydında belirlenen {value} korelasyonla toplanır (RS05 line_correlation, kayıt 0323)."
   - en: "Bootstrap: {simulations} simulations; {estimator}; the TVaR at {level} is the mean of the {tail} largest simulations."
     tr: "Bootstrap: {simulations} simülasyon; {estimator}; {level} düzeyindeki TVaR, en büyük {tail} simülasyonun ortalamasıdır."
+  - en: "Where the last development columns carry no positive paid amount, the bootstrap is fitted on the triangle cut after the last column with a positive amount and the columns cut carry no simulated development (columns cut: {list}; record 0349)."
+    tr: "Son gelişim sütunlarında pozitif ödeme tutarı yoksa bootstrap, pozitif tutarlı son sütundan sonra kesilen üçgene uydurulur ve kesilen sütunlarda simüle edilmiş gelişim yoktur (kesilen sütunlar: {list}; kayıt 0349)."
   - en: "Mack: {estimator}."
     tr: "Mack: {estimator}."
   - en: "A simulated total of all lines exists because every line has a bootstrap."

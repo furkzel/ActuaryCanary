@@ -188,6 +188,15 @@ def parameters_table(result: ReservingResult) -> pl.DataFrame:
             add("MT11", "paid", "tail_factor", "", boot.tail_factor)
             add("MT11", "paid", "bias", "", boot.bias, "mean simulated reserve over the "
                 "chain-ladder reserve, minus 1")  # fmt: skip
+            if boot.cut_columns:
+                ages = group.triangles["paid"].ages
+                whole = boot.full_chain_reserve
+                share = f"{boot.cut_reserve_difference / whole:+.2%} of" if whole else "against"
+                add("MT11", "paid", "columns_cut", "", float(boot.columns_cut),
+                    boot.cut_note(ages))  # fmt: skip
+                add("MT11", "paid", "cut_reserve_difference", "", boot.cut_reserve_difference,
+                    f"chain-ladder reserve of the cut triangle minus that of the whole triangle "
+                    f"({share} the whole-triangle reserve)")  # fmt: skip
         munich = tier_b.munich
         if isinstance(munich, Munich):
             n_paid, n_incurred = munich.n_pairs
@@ -293,7 +302,7 @@ def bootstrap_summary(result: ReservingResult) -> pl.DataFrame:
             )  # fmt: skip
         rows.append(
             {**base, "origin_period": "Total", "reserve_chain_ladder": float(reserve.sum()),
-             **_summary_row(total), "note": ""}
+             **_summary_row(total), "note": boot.cut_note(group.triangles["paid"].ages)}
         )  # fmt: skip
     schema = _summary_schema(
         {

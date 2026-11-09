@@ -1,5 +1,5 @@
 id: MT11
-version: 1.1.0
+version: 1.2.0
 title_en: Over-dispersed Poisson bootstrap
 title_tr: Aşırı yayılımlı Poisson bootstrap
 status: reviewed
@@ -25,8 +25,17 @@ assumptions:
       Unscaled Pearson residuals show no trend against origin, development, calendar
       diagonal or fitted value; their spread is similar across columns (otherwise use the
       column-wise scale option).
-  - statement: Every column of incremental paid sums to a positive amount.
-    check: Column sums of the incremental triangle; a non-positive column stops the method.
+  - statement: >-
+      Every column of incremental paid up to the last column with a positive sum sums to a
+      positive amount. The trailing columns whose sum is zero or less (fully developed late
+      columns of a short-tail line, with zero increments or small recoveries) carry no
+      development: the model is fitted and simulated on the triangle cut after the last column
+      with a positive sum, and the cut columns have chain-ladder factors of 1.
+    check: >-
+      Column sums of the incremental triangle; a non-positive column that is not part of the
+      trailing block stops the method; the trailing block is cut and reported (columns_cut,
+      cut_columns); the reserve of the cut triangle against the chain-ladder reserve of the
+      whole triangle (cut_reserve_difference).
   - statement: >-
       Residuals are exchangeable across cells and have mean zero after centring (parameter
       centre_residuals).
@@ -63,8 +72,21 @@ parameters:
     description: Tail value-at-risk level, as in MT06.
 algorithm:
   - step: >-
+      Cut of the trailing columns. With S_j the sum of incremental paid over the observed cells
+      of development column j, let J* be the last column with S_j above zero. The columns
+      J*+1 .. J-1 are cut when all of them have S_j of zero or less: the triangle used by every
+      later step has the columns 0 .. J*, origins keep their rows, and an origin observed in
+      the cut columns is treated as observed up to column J* (its cumulative paid at J* is its
+      latest). The cut columns carry no simulated development, their chain-ladder factors are 1,
+      and the simulated reserve is the chain-ladder reserve of the cut triangle. A column j <= J*
+      with S_j of zero or less is not part of the trailing block and stops the method (failure
+      modes). The method also fits the volume-weighted chain ladder of the whole triangle and
+      reports the difference between the two reserves; the two are equal when the factors beyond
+      the cut are 1.
+    formula: 'S_j = \sum_i X_{i,j}, \qquad J^{*} = \max\{ j : S_j > 0 \}, \qquad \Delta = \sum_i \hat R^{\mathrm{cut}}_i - \sum_i \hat R^{\mathrm{full}}_i'
+  - step: >-
       Paid triangle from MT01 (cumulative C and incremental X, origins i = 0..I-1, columns
-      j = 0..J-1). Fit the volume-weighted chain ladder over all diagonals (MT02) and the
+      j = 0..J-1), cut as above, so that J is the number of columns kept from here on. Fit the volume-weighted chain ladder over all diagonals (MT02) and the
       fitted cumulative cells by backward recursion from the latest diagonal.
     formula: '\hat m_{i,J_i} = C_{i,J_i}, \qquad \hat m_{i,j} = \hat m_{i,j+1} / f_j \ (j < J_i), \qquad \hat\mu_{i,j} = \hat m_{i,j} - \hat m_{i,j-1}'
   - step: Unscaled Pearson residuals and the scale parameter.
@@ -107,6 +129,15 @@ outputs:
     description: Unscaled and adjusted Pearson residuals with origin, development and calendar diagonal.
   - name: scale_parameter
     description: phi, constant or per development period.
+  - name: columns_cut
+    description: Number of trailing development columns cut (0 when none).
+  - name: cut_columns
+    description: The development columns that were cut, by index and age.
+  - name: cut_reserve_difference
+    description: >-
+      Chain-ladder reserve of the cut triangle minus that of the whole triangle (MT02,
+      volume-weighted, all diagonals, tail 1), total and as a share of the whole-triangle
+      reserve; written only when columns were cut.
 diagnostics:
   - Residuals against origin, development, calendar diagonal and fitted value, with mean per group.
   - Mean of the simulated reserve against the chain-ladder reserve (bias of the bootstrap).
@@ -115,8 +146,21 @@ diagnostics:
 failure_modes:
   - condition: Chain ladder not available (MT02 failure) or fewer than 5 origin periods.
     action: Not run; reason "the bootstrap needs a chain ladder on at least 5 origin periods".
-  - condition: A column of incremental paid sums to zero or less, or a fitted increment is not positive.
+  - condition: >-
+      A column of incremental paid sums to zero or less and it is not part of the trailing block
+      (a column with a positive sum comes after it), or, after the cut, a fitted increment is
+      not positive, or no column has a positive sum.
     action: Not run; reason names the column. The user may start the triangle later or merge columns.
+  - condition: >-
+      The last columns of the triangle sum to zero or less (the trailing block).
+    action: >-
+      Run on the cut triangle; the cut (number of columns, which) is part of the output. After
+      the cut the other conditions apply to the cut triangle (at least 5 origin periods, n - p
+      above 2, a positive fitted increment in every kept cell).
+  - condition: >-
+      The reserve of the cut triangle differs from the chain-ladder reserve of the whole triangle
+      by more than 1 per cent of the latter.
+    action: Run, with a WARNING giving the difference and the share.
   - condition: n - p is 2 or less.
     action: Not run; reason "too few cells to estimate the scale parameter".
   - condition: More than 1 per cent of simulations have a negative total reserve.
@@ -127,12 +171,30 @@ validation:
       A 4 x 4 incremental triangle: fitted values, unscaled residuals, phi, the bias
       adjustment and the zero-residual cells hand-computed.
     tolerance: 1e-12 relative
+  - kind: fixture
+    description: >-
+      Two 5 x 5 incremental triangles for the cut. (a) The last column is zero for every origin
+      that has it (the cumulative paid of the oldest origin does not move in the last column):
+      one column cut, the fitted values, unscaled residuals, phi (n = 14, p = 8) and the pool of
+      the 5 x 4 cut triangle hand-computed, the reserve difference zero. (b) The last two columns
+      sum to a negative amount (each of them to less than zero): two columns cut, the fitted
+      values, residuals and phi (n = 12, p = 7) of the 5 x 3 cut triangle hand-computed, and the
+      reserve difference against the chain ladder of the whole triangle (its factors beyond the
+      cut are below 1) hand-computed.
+    tolerance: 1e-12 relative
   - kind: property
     description: >-
       Same seed, same output; row order of the input does not matter; multiplying the
       triangle by a constant multiplies every simulated reserve by that constant (gamma
       process).
     tolerance: 1e-9 relative
+  - kind: property
+    description: >-
+      Appending a development column whose increments are all zero (or one with no observed
+      cell) to a triangle changes no simulated number: same seed, same reserves and cash flows,
+      same phi. A non-positive column inside the triangle (a positive column after it) still
+      stops the method, with the column named.
+    tolerance: exact
   - kind: benchmark
     description: >-
       On GenIns and RAA with 10,000 simulations: the scale parameter phi against its frozen
@@ -154,6 +216,16 @@ validation:
     tolerance: coverage within 90 to 99 per cent
   - kind: ground_truth
     description: >-
+      Calibration on a short-tail model: the same model with the development pattern of the
+      first six columns of GenIns, renormalised to add to one, and the later columns exactly
+      zero in the model (so every triangle drawn has zero increments in its last four columns
+      and the method cuts them). At least 1,000 triangles with 2,000 simulations each, fixed
+      seed; the true reserve of each triangle falls below the bootstrap 95th percentile (slow
+      test, behind ACTUARYCANARY_MONTE_CARLO=1). A smaller size may be run if the specified one
+      is too heavy for the machine; the size run is stated with the result.
+    tolerance: coverage within 90 to 99 per cent
+  - kind: ground_truth
+    description: >-
       Coverage of the 95th percentile per line on repeated synthetic baseline simulations,
       beside MT06's coverage, reported as information (slow test, behind
       ACTUARYCANARY_MONTE_CARLO=1). Calendar-year inflation breaks the independence the
@@ -165,7 +237,9 @@ references:
   - England, P. D. (2002). Addendum to "Analytic and bootstrap estimates of prediction errors in claims reserving". Insurance Mathematics and Economics.
 notes: >-
   The bootstrap replaces neither MT06 nor RS03; M12 shows both ranges side by side. Paid
-  only: an incurred bootstrap has negative increments too often for the model.
+  only: an incurred bootstrap has negative increments too often for the model. The cut of
+  trailing columns (1.2.0) lets the method run on short-tail lines, whose late columns are
+  fully developed; the cut is reported with the output and in M12.
 change_log:
   - version: 0.1.0
     date: 2026-10-23
@@ -187,3 +261,13 @@ change_log:
       are information, because the package applies no degrees-of-freedom adjustment and mixed
       the simulations when fitted as one batch (owner decision, decision 0282). The algorithm
       is unchanged.
+  - version: 1.2.0
+    date: 2026-11-09
+    change: >-
+      Trailing development columns whose incremental paid sums to zero or less are cut: the model
+      is fitted and simulated on the triangle cut after the last column with a positive sum
+      (assumption text, failure modes, a first algorithm step, the outputs columns_cut, cut_columns
+      and cut_reserve_difference, two 5 x 5 fixtures, a property test and a calibration on a
+      short-tail model). A non-positive column inside the triangle still stops the method. Numbers
+      for triangles without a trailing non-positive column are unchanged (decision 0349). The owner
+      has not reviewed this version.
