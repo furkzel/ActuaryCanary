@@ -294,7 +294,7 @@
   "rows": [
    {
     "label": "Çalıştırma kimliği",
-    "value": "b83b4526a8e04040"
+    "value": "90b1f5cf4acec843"
    },
    {
     "label": "Değerleme tarihi",
@@ -326,7 +326,7 @@
    },
    {
     "label": "Yazılım",
-    "value": "ActuaryCanary 1.1.0"
+    "value": "ActuaryCanary 1.2.0"
    }
   ],
   "tagline": "Her düzendeki sigorta verisini, kendi bilgisayarınızda, denetlenebilir ve erken uyarı veren bir aktüeryal rapora dönüştürür.",
@@ -6051,7 +6051,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "b83b4526a8e04040",
+  "run_id": "90b1f5cf4acec843",
   "settings": [
    {
     "name": "bases.currency",
@@ -6490,7 +6490,7 @@
     "value": "True"
    }
   ],
-  "software": "ActuaryCanary 1.1.0",
+  "software": "ActuaryCanary 1.2.0",
   "specs": [
    {
     "id": "claim_valuations",

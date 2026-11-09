@@ -31,7 +31,7 @@ jobs:
           mkdir smoke && cp -r build/dist/canary smoke/canary && cd smoke
           ./canary/canary.exe --version
           ./canary/canary.exe demo --no-open --out exe_out
-          cd .. && uv run canary run examples/demo --yes --out smoke/src_out
+          cd .. && uv run canary run examples/demo --yes --curve TRY_GOV --out smoke/src_out
           python packaging/compare_manifests.py smoke/exe_out/*/manifest.json smoke/src_out/*/manifest.json
       - name: Version matches the tag
         if: startsWith(github.ref, 'refs/tags/v')
