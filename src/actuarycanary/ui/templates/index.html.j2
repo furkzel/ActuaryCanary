@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>{{ s("app.title") }}</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/static/app.css?t={{ token }}">
+</head>
+<body>
+<a class="skip" href="#main">{{ s("a11y.skip") }}</a>
+<header class="top">
+  <div class="brand">
+    <strong>ActuaryCanary</strong>
+    <span class="tagline">{{ s("app.tagline") }}</span>
+  </div>
+  <nav aria-label="{{ s('nav.label') }}">
+    <a href="#start" id="nav-start">{{ s("nav.start") }}</a>
+    <a href="#past" id="nav-past">{{ s("nav.past") }}</a>
+    <a href="?t={{ token }}&amp;lang=en" id="lang-en" lang="en" hreflang="en"{% if lang == "en" %} aria-current="true"{% endif %}>English</a>
+    <a href="?t={{ token }}&amp;lang=tr" id="lang-tr" lang="tr" hreflang="tr"{% if lang == "tr" %} aria-current="true"{% endif %}>Türkçe</a>
+    <button type="button" id="quit" class="plain">{{ s("nav.quit") }}</button>
+  </nav>
+</header>
+
+<main id="main" tabindex="-1">
+<p class="label"><strong>{{ s("app.label_strong") }}</strong> {{ s("app.label") }}</p>
+<div id="banner" class="banner" role="alert" hidden></div>
+
+<section id="screen-start" data-screen="start" aria-labelledby="start-title">
+  <h1 id="start-title" tabindex="-1">{{ s("start.title") }}</h1>
+  <p>{{ s("start.intro") }}</p>
+
+  <form id="start-form" autocomplete="off" novalidate>
+    <h2>{{ s("start.folder_heading") }}</h2>
+    <div class="field">
+      <label for="folder">{{ s("start.folder") }}</label>
+      <div class="row">
+        <input type="text" id="folder" name="folder" spellcheck="false" aria-describedby="folder-hint">
+        <button type="button" id="browse">{{ s("start.browse") }}</button>
+      </div>
+      <p class="hint" id="folder-hint">{{ s("start.folder_hint") }}</p>
+    </div>
+    <div class="field">
+      <label for="out">{{ s("start.out") }}</label>
+      <input type="text" id="out" name="out" spellcheck="false" aria-describedby="out-hint">
+      <p class="hint" id="out-hint">{{ s("start.out_hint") }}</p>
+    </div>
+
+    <h2>{{ s("start.settings_heading") }}</h2>
+    <div class="grid">
+      <div class="field">
+        <label for="lang">{{ s("set.lang") }}</label>
+        <select id="lang" name="lang">
+          <option value="en">English</option>
+          <option value="tr">Türkçe</option>
+        </select>
+        <p class="hint">{{ s("set.lang_hint") }}</p>
+      </div>
+      <div class="field">
+        <label for="currency">{{ s("set.currency") }}</label>
+        <input type="text" id="currency" name="currency" maxlength="3" spellcheck="false" placeholder="TRY">
+        <p class="hint">{{ s("set.currency_hint") }}</p>
+      </div>
+      <div class="field">
+        <label for="basis">{{ s("set.basis") }}</label>
+        <select id="basis" name="basis">
+          {% for b in options.basis %}<option value="{{ b }}">{{ s("opt.basis." ~ b) }}</option>{% endfor %}
+        </select>
+        <p class="hint">{{ s("set.basis_hint") }}</p>
+      </div>
+      <div class="field">
+        <label for="value">{{ s("set.value") }}</label>
+        <select id="value" name="value">
+          {% for v in options.value %}<option value="{{ v }}">{{ s("opt.value." ~ v) }}</option>{% endfor %}
+        </select>
+        <p class="hint">{{ s("set.value_hint") }}</p>
+      </div>
+      <div class="field">
+        <label for="curve">{{ s("set.curve") }}</label>
+        <input type="text" id="curve" name="curve" spellcheck="false" placeholder="TRY_GOV">
+        <p class="hint">{{ s("set.curve_hint") }}</p>
+      </div>
+      <div class="field">
+        <label for="discount_date">{{ s("set.discount_date") }}</label>
+        <input type="text" id="discount_date" name="discount_date" inputmode="numeric" placeholder="YYYY-MM-DD">
+        <p class="hint">{{ s("set.discount_date_hint") }}</p>
+      </div>
+      <div class="field">
+        <label for="value_date">{{ s("set.value_date") }}</label>
+        <input type="text" id="value_date" name="value_date" inputmode="numeric" placeholder="YYYY-MM-DD">
+        <p class="hint">{{ s("set.value_date_hint") }}</p>
+      </div>
+    </div>
+    <details>
+      <summary>{{ s("start.more") }}</summary>
+      <div class="grid">
+        <div class="field">
+          <label for="origin_axis">{{ s("set.origin_axis") }}</label>
+          <select id="origin_axis" name="origin_axis">
+            {% for a in options.origin_axis %}<option value="{{ a }}">{{ s("opt.axis." ~ a) }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="origin_period">{{ s("set.origin_period") }}</label>
+          <select id="origin_period" name="origin_period">
+            {% for p in options.period %}<option value="{{ p }}"{% if p == "year" %} selected{% endif %}>{{ s("opt.period." ~ p) }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="development_period">{{ s("set.development_period") }}</label>
+          <select id="development_period" name="development_period">
+            {% for p in options.period %}<option value="{{ p }}"{% if p == "year" %} selected{% endif %}>{{ s("opt.period." ~ p) }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="currency_view">{{ s("set.currency_view") }}</label>
+          <select id="currency_view" name="currency_view">
+            {% for c in options.currency_view %}<option value="{{ c }}">{{ s("opt.view." ~ c) }}</option>{% endfor %}
+          </select>
+          <p class="hint">{{ s("set.currency_view_hint") }}</p>
+        </div>
+        <div class="field">
+          <label for="price_index">{{ s("set.price_index") }}</label>
+          <input type="text" id="price_index" name="price_index" spellcheck="false">
+          <p class="hint">{{ s("set.price_index_hint") }}</p>
+        </div>
+        <div class="field">
+          <label for="lineage_format">{{ s("set.lineage_format") }}</label>
+          <select id="lineage_format" name="lineage_format">
+            <option value="2">2</option>
+            <option value="1">1</option>
+          </select>
+          <p class="hint">{{ s("set.lineage_format_hint") }}</p>
+        </div>
+        <div class="field">
+          <label for="assumptions">{{ s("set.assumptions") }}</label>
+          <input type="text" id="assumptions" name="assumptions" spellcheck="false">
+          <p class="hint">{{ s("set.assumptions_hint") }}</p>
+        </div>
+        <div class="field">
+          <label for="profiles">{{ s("set.profiles") }}</label>
+          <input type="text" id="profiles" name="profiles" spellcheck="false">
+          <p class="hint">{{ s("set.profiles_hint") }}</p>
+        </div>
+      </div>
+    </details>
+
+    <h2>{{ s("start.command_heading") }}</h2>
+    <p class="hint">{{ s("start.command_hint") }}</p>
+    <div class="row">
+      <pre id="command" tabindex="0" aria-label="{{ s('start.command_heading') }}"></pre>
+      <button type="button" id="copy-command">{{ s("start.copy") }}</button>
+    </div>
+
+    <div id="start-error" class="banner" role="alert" hidden></div>
+    <div class="actions">
+      <button type="submit" id="check" class="primary">{{ s("start.check") }}</button>
+      <button type="button" id="run-now">{{ s("start.run_now") }}</button>
+      <button type="button" id="demo">{{ s("start.demo") }}</button>
+    </div>
+    <p class="hint">{{ s("start.actions_hint") }}</p>
+  </form>
+</section>
+
+<section id="screen-mapping" data-screen="mapping" aria-labelledby="mapping-title" hidden>
+  <h1 id="mapping-title" tabindex="-1">{{ s("mapping.title") }}</h1>
+  <p id="mapping-summary"></p>
+  <p class="hint">{{ s("mapping.intro") }}</p>
+  <div id="mapping-notice" class="notice" role="status" hidden></div>
+  <div id="mapping-error" class="banner" role="alert" hidden></div>
+  <div class="actions">
+    <button type="button" id="mapping-save" class="primary">{{ s("mapping.save") }}</button>
+    <button type="button" id="mapping-save-run">{{ s("mapping.save_run") }}</button>
+    <button type="button" id="mapping-run">{{ s("mapping.run_unsaved") }}</button>
+    <a class="button" href="#start">{{ s("mapping.back") }}</a>
+  </div>
+  <div id="mapping-files"></div>
+  <h2 id="unrecognised-title" hidden>{{ s("mapping.unrecognised") }}</h2>
+  <p class="hint" id="unrecognised-hint" hidden>{{ s("mapping.unrecognised_hint") }}</p>
+  <ul id="unrecognised"></ul>
+</section>
+
+<section id="screen-run" data-screen="run" aria-labelledby="run-title" hidden>
+  <h1 id="run-title" tabindex="-1">{{ s("run.title") }}</h1>
+  <p id="run-status" aria-live="polite"></p>
+  <p>{{ s("run.elapsed") }} <strong id="run-elapsed">0 s</strong></p>
+  <ol id="stages" class="stages" aria-label="{{ s('run.stages') }}"></ol>
+  <div class="actions">
+    <button type="button" id="cancel">{{ s("run.cancel") }}</button>
+    <span class="hint" id="cancel-hint">{{ s("run.cancel_hint") }}</span>
+  </div>
+  <div id="run-error" class="banner" role="alert" hidden></div>
+  <div id="run-partial" class="notice" hidden></div>
+  <div id="run-findings-box" hidden>
+    <h2>{{ s("run.findings") }}</h2>
+    <div id="run-findings"></div>
+  </div>
+  <h2>{{ s("run.command") }}</h2>
+  <pre id="run-command" tabindex="0"></pre>
+  <div class="actions" id="run-after" hidden>
+    <a class="button primary" id="run-to-result" href="#start">{{ s("run.to_result") }}</a>
+    <a class="button" href="#start">{{ s("run.again") }}</a>
+  </div>
+</section>
+
+<section id="screen-result" data-screen="result" aria-labelledby="result-title" hidden>
+  <h1 id="result-title" tabindex="-1">{{ s("result.title") }}</h1>
+  <div id="result-error" class="banner" role="alert" hidden></div>
+  <div id="result-body" hidden>
+    <dl class="facts" id="result-facts"></dl>
+    <div class="actions">
+      <a class="button primary" id="open-report" target="_blank" rel="noopener" href="#">{{ s("result.open_report") }}</a>
+      <button type="button" id="show-report" aria-expanded="false" aria-controls="report-frame">{{ s("result.show_report") }}</button>
+      <button type="button" id="open-folder">{{ s("result.open_folder") }}</button>
+      <a class="button" href="#start" id="run-again">{{ s("result.run_again") }}</a>
+      <a class="button" href="#past">{{ s("nav.past") }}</a>
+    </div>
+    <p class="hint" id="open-folder-hint"></p>
+    <iframe id="report-frame" title="{{ s('result.report_frame') }}" sandbox="allow-scripts allow-popups allow-downloads" hidden></iframe>
+    <h2>{{ s("result.headline") }}</h2>
+    <p class="hint" id="headline-note"></p>
+    <div class="scroll"><table id="headline"></table></div>
+    <h2>{{ s("result.findings") }}</h2>
+    <div id="result-findings"></div>
+    <h2>{{ s("result.manifest") }}</h2>
+    <div id="result-manifest"></div>
+  </div>
+</section>
+
+<section id="screen-past" data-screen="past" aria-labelledby="past-title" hidden>
+  <h1 id="past-title" tabindex="-1">{{ s("past.title") }}</h1>
+  <p>{{ s("past.intro") }}</p>
+  <div class="field">
+    <label for="past-out">{{ s("start.out") }}</label>
+    <div class="row">
+      <input type="text" id="past-out" spellcheck="false">
+      <button type="button" id="past-refresh">{{ s("past.refresh") }}</button>
+    </div>
+  </div>
+  <div id="past-error" class="banner" role="alert" hidden></div>
+  <div class="scroll"><table id="past-table"></table></div>
+  <p id="past-empty" class="hint" hidden>{{ s("past.empty") }}</p>
+</section>
+</main>
+
+<footer class="foot">
+  <span>ActuaryCanary {{ version }}</span>
+  <span>{{ s("app.local_only") }}</span>
+</footer>
+
+<div id="live" class="sr-only" role="status" aria-live="polite"></div>
+
+<dialog id="browser" aria-labelledby="browser-title">
+  <form method="dialog" class="dialog-body" id="browser-form">
+    <h2 id="browser-title">{{ s("browser.title") }}</h2>
+    <div class="field">
+      <label for="browser-path">{{ s("browser.path") }}</label>
+      <div class="row">
+        <input type="text" id="browser-path" spellcheck="false">
+        <button type="button" id="browser-go">{{ s("browser.go") }}</button>
+      </div>
+    </div>
+    <p id="browser-counts" class="hint" aria-live="polite"></p>
+    <div id="browser-error" class="banner" role="alert" hidden></div>
+    <ul id="browser-list" class="browser-list"></ul>
+    <div class="actions">
+      <button type="button" id="browser-use" class="primary">{{ s("browser.use") }}</button>
+      <button type="button" id="browser-close">{{ s("browser.cancel") }}</button>
+    </div>
+  </form>
+</dialog>
+
+<script id="strings" type="application/json">{{ strings_json|safe }}</script>
+<script id="stage-names" type="application/json">{{ stages_json|safe }}</script>
+<script src="/static/app.js?t={{ token }}" defer></script>
+</body>
+</html>

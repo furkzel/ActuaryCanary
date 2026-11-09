@@ -35,6 +35,7 @@ from actuarycanary.recognition.tables import TableRecognition
 from actuarycanary.report import numbers
 from actuarycanary.structures.periods import Period
 from actuarycanary.structures.triangles import OriginAxis, TriangleError, TriangleSettings
+from actuarycanary.ui.command import ui_command
 
 
 class BasisOption(StrEnum):
@@ -60,6 +61,7 @@ class ValueOption(StrEnum):
 
 
 app = typer.Typer(help="Auditable, early-warning actuarial reporting.")
+app.command("ui")(ui_command)
 
 
 def _show_version(show: bool) -> None:
