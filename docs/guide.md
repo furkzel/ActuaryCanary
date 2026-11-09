@@ -133,7 +133,7 @@ The Mack standard error assumes independent origins and stable development. On l
 | `modules.json`, `quality.json` | What each module ran and why; the data quality findings |
 | `assumptions.csv`, `diagnostics.csv`, `anomalies.csv` | The register in force; the method diagnostics; every anomaly flag |
 | `tier_b_ultimates.csv`, `tier_b_parameters.csv` | Ultimates of the Munich chain ladder, Benktander, separation and frequency–severity methods per origin, or the reason a method did not run; the fitted quantities of the tier B methods (frequency–severity ultimates are at value-date prices when the price index is loaded, and say so) |
-| `bootstrap_summary.csv`, `bootstrap_cash_flows.csv`, `bootstrap_residuals.csv`, `bootstrap_distribution_<segment>_<line>.parquet` | The bootstrap reserve distribution of a line: mean, spread and percentiles per origin and in total; simulated payments by period; residuals; every simulated reserve (only for lines where the bootstrap ran) |
+| `bootstrap_summary.csv`, `bootstrap_cash_flows.csv`, `bootstrap_residuals.csv`, `bootstrap_distribution_<segment>_<line>.parquet` | The bootstrap reserve distribution of a line: mean, spread and percentiles per origin and in total; simulated payments by period; residuals; every simulated reserve (only for lines where the bootstrap ran; a line whose last development columns carry no positive payment is fitted on the triangle cut after its last paid column and the files say so, [decision 0349](decisions/0349-trailing-non-positive-columns-are-cut-in-the-bootstrap.md)) |
 | `back_test.csv` | The back-test of the selection: error per method, origin and horizon, their summaries, how often the reserve range held, and what did not run |
 | `severity_*.csv`, `extreme_*.csv` | Claim size distributions fitted per segment and line, and the extreme-value fit of the tail with the extreme-value threshold beside the large-loss threshold of the run |
 
@@ -143,9 +143,9 @@ The same inputs, settings and software always give the same run id and byte-iden
 
 | Folder | What it is | Run id |
 | --- | --- | --- |
-| [examples/demo](../examples/demo/) | A synthetic insurer, ten accident years 2016–2025 and about 2,600 claims in four lines; no thin-evidence warning. The one to try first. | `1611800ad5c3a6a6` |
-| [examples/baseline](../examples/baseline/) | The same insurer at tiny size, four accident years 2022–2025, with a few faults injected on purpose | `bf50c4eaba669edc` |
-| [examples/messy_headers](../examples/messy_headers/) | The baseline as real files arrive: headers renamed, misspelt or in Turkish, title rows above the header, dates as text, labels in Turkish, repeated rows and personal-data columns | `91ede8f610913042` |
+| [examples/demo](../examples/demo/) | A synthetic insurer, ten accident years 2016–2025 and about 2,600 claims in four lines; no thin-evidence warning. The one to try first. | `ab54e1cb5917e20e` |
+| [examples/baseline](../examples/baseline/) | The same insurer at tiny size, four accident years 2022–2025, with a few faults injected on purpose | `fecc00f2e344bce0` |
+| [examples/messy_headers](../examples/messy_headers/) | The baseline as real files arrive: headers renamed, misspelt or in Turkish, title rows above the header, dates as text, labels in Turkish, repeated rows and personal-data columns | `68ce22e143a5d0fd` |
 
 Each example folder has the six input files and a `report/` folder with the report and manifest of its run (the report as the platform wrote it, the manifest with its fingerprints). The messy example is the one to use for the mapping confirmation: `canary run examples/messy_headers` asks about every sheet. The data are synthetic, generated from a fixed seed by [synthetic/scenarios/](../synthetic/scenarios/); no personal or company data is anywhere in the repository.
 

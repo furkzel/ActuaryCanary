@@ -3507,8 +3507,8 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "6b48e1dc26ecd063ee0bc13c37e8c6fd1336ca7229ae2881f86762518e12f895",
-      "size": 5212237
+      "sha256": "cc9affe2d881042c786f90eb73d5083692f4e3271290c5f24fe1c14fece711dd",
+      "size": 5245138
     },
     {
       "name": "quality.json",
@@ -3532,13 +3532,13 @@
     },
     {
       "name": "measures.csv",
-      "sha256": "5d98867e6632e6a39c14fb44aa9e1a2512371d441fa46e92f2e27d4eda839e65",
-      "size": 1460078
+      "sha256": "9e16c3cf0ece969f1d933e7b2acec9b4170ca8663e01dcd9b098dd995184af57",
+      "size": 1508624
     },
     {
       "name": "lineage.csv",
-      "sha256": "21fac9efb8c3afb0a9155280dd4c293b9bec16913b9390363cf495eb4a577109",
-      "size": 178504
+      "sha256": "400acf9db684225886e01c4466f7952d5527250e1e1b31f0a3659181d0e67963",
+      "size": 181305
     },
     {
       "name": "lineage_atoms.csv",
@@ -3547,8 +3547,8 @@
     },
     {
       "name": "modules.json",
-      "sha256": "2a73e37544a6eab8fe808907cf77099aadb4bcce938794bcfda3f13a959dfd29",
-      "size": 25582
+      "sha256": "6762079caff9606f97101e4b981148140fedee034ee0202703d746f83a6c783b",
+      "size": 26204
     },
     {
       "name": "assumptions.csv",
@@ -3572,8 +3572,8 @@
     },
     {
       "name": "diagnostics.csv",
-      "sha256": "164a7a44254ab2a69fb9fc1bfc8b4cf698f9ba5f5c56a72deb8575277379d8e2",
-      "size": 6717
+      "sha256": "9d37a00b893a4de94f1243fb0f8bf5fa1eb5b6b04e033a98da4b79311f3c4811",
+      "size": 6855
     },
     {
       "name": "anomalies.csv",
@@ -3587,33 +3587,48 @@
     },
     {
       "name": "tier_b_parameters.csv",
-      "sha256": "787bf19cc0162b29698629b007dcb176577c7a41e925caa6429d90156d6328c2",
-      "size": 31036
+      "sha256": "f0a003fb3b2fee9599bd660645ac93f82c20b4da911a05672f0aee1c330724af",
+      "size": 33510
     },
     {
       "name": "bootstrap_summary.csv",
-      "sha256": "424149ea48e16830062a2f6ce2d010206771907511feef0c209425df06941c3e",
-      "size": 2208
+      "sha256": "a3c73063d1078d80fb78a7528d3f9f1b92f5b5b43f151df4c5e313526a911a26",
+      "size": 6088
     },
     {
       "name": "bootstrap_cash_flows.csv",
-      "sha256": "bd266719234f7f59f2a790bd1a78f74f68e86155f3812d496b2d8c38fb4659c6",
-      "size": 1480
+      "sha256": "6cecc3a0cf8ed61794c11e17418af113c41abb82ab3288d68aebd06c8428eb53",
+      "size": 2697
     },
     {
       "name": "bootstrap_residuals.csv",
-      "sha256": "8393b30408d2fe737b3eaa2fceedf6d499f341d36a88a49afb6a9978d1ad5739",
-      "size": 3919
+      "sha256": "a3cd52e07a5abc34298ad3d13db8eb371e1dbd1675e27f69366110eed79ff65c",
+      "size": 10602
     },
     {
       "name": "back_test.csv",
-      "sha256": "5e2dc20d2fb5086c79a48a99358713b7fb938963ac9df3b5c5c151ec7c7c9e70",
-      "size": 48103
+      "sha256": "c3e6e3d468f2563afced4fcfa1b5b698362ef3fbe99f8da0f3988b1e5f450b38",
+      "size": 48496
+    },
+    {
+      "name": "bootstrap_distribution_LIFE_GROUP_TERM_LIFE.parquet",
+      "sha256": "2e41017d02bf3203a6af68e9f6c4a0fff8d20f4397a42d8ec332cf3b019d6f48",
+      "size": 213745
+    },
+    {
+      "name": "bootstrap_distribution_NON_LIFE_MOTOR_OD.parquet",
+      "sha256": "e9cb0443709e063201807bbf7c4c55824f912d961cc897c961af81e7cab89089",
+      "size": 274129
     },
     {
       "name": "bootstrap_distribution_NON_LIFE_MOTOR_TPL.parquet",
       "sha256": "c103cb83dc887ac4aa00d9473afc7c803e78c2d226338bbd12637adb9f72c509",
       "size": 663954
+    },
+    {
+      "name": "bootstrap_distribution_NON_LIFE_PROPERTY.parquet",
+      "sha256": "6b848e5083c7d65d31af3739577ca993b829b6ec42777d4d7cf17803e501e263",
+      "size": 301656
     },
     {
       "name": "severity_parameters.csv",
@@ -3762,18 +3777,18 @@
     },
     {
       "name": "risk_measures.csv",
-      "sha256": "702087dc3525aa6998919b4c6f71306d9949e1717e89842ed6731d1a25e2d887",
-      "size": 29306
+      "sha256": "5724cf9c6c970583d99e1a198a6964d50529fe4e1b61c68eafda6b1e231102f2",
+      "size": 43888
     },
     {
       "name": "risk_cash_flows.csv",
-      "sha256": "f9d6adf953c4e11f40301269fa18dcd0c9498073c1faaace612cdf8c22f0555b",
-      "size": 4887
+      "sha256": "ea1466c75451e6f3c9ace29888677d06bf9910b25bd9605a6f02e35dfa18a015",
+      "size": 5583
     },
     {
       "name": "risk_distribution.parquet",
-      "sha256": "15f97a75374b44663d0a1eb8a4c1709c72b227d09c49e7a52c702846109a4fdf",
-      "size": 124827
+      "sha256": "e8c27937479d07835030aebae219553a7460c0d8852180f5fff5bc120b001ac5",
+      "size": 590684
     },
     {
       "name": "discount_curve.csv",
@@ -3808,7 +3823,7 @@
       "seed": 1
     }
   ],
-  "run_id": "1611800ad5c3a6a6",
+  "run_id": "ab54e1cb5917e20e",
   "settings": {
     "assumptions": {
       "entries": []
@@ -4296,7 +4311,7 @@
     {
       "id": "M12",
       "title": "Uncertainty and risk",
-      "version": "1.1.0"
+      "version": "1.1.1"
     },
     {
       "id": "RS04",
@@ -4341,7 +4356,7 @@
     {
       "id": "MT11",
       "title": "Over-dispersed Poisson bootstrap",
-      "version": "1.1.0"
+      "version": "1.2.0"
     },
     {
       "id": "MT12",

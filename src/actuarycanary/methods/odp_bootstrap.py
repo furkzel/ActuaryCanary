@@ -6,6 +6,10 @@ error); the chain ladder is refitted on each and its future increments, projecte
 pseudo-triangle's own latest diagonal (decision 0612), are drawn from the gamma or the
 over-dispersed Poisson process (process error, decision 0609). Every draw comes from the
 seeded stream it is given (`methods.seeding`).
+
+Trailing development columns whose incremental paid sums to zero or less (the late columns of a
+short-tail line) are cut before the fit (MT11 1.2.0, decision 0349): the model is fitted and
+simulated on the triangle cut after the last column with a positive sum.
 """
 
 from collections.abc import Sequence
@@ -24,6 +28,7 @@ N_SIMULATIONS = 10_000
 MIN_ORIGINS = 5
 MIN_DEGREES_OF_FREEDOM = 3  # n - p of 2 or less: not run
 NEGATIVE_SHARE_WARNING = 0.01
+CUT_DIFFERENCE_WARNING = 0.01  # cut reserve against the whole-triangle reserve, share of the latter
 BATCH = 1_000  # simulations per batch, which bounds memory and fixes the order of the draws
 HISTOGRAM_BINS = 50
 
@@ -74,6 +79,33 @@ class OdpBootstrap:
     var_level: float
     tvar_level: float
     diagnostics: tuple[Diagnostic, ...]
+    cut_columns: tuple[int, ...] = ()  # development columns cut (trailing, no positive sum)
+    full_chain_reserve: float = float("nan")  # MT02 volume-weighted reserve of the whole triangle
+
+    @property
+    def columns_cut(self) -> int:
+        return len(self.cut_columns)
+
+    @property
+    def cut_reserve_difference(self) -> float:
+        """Reserve of the cut triangle minus that of the whole triangle (0 without a cut)."""
+        if not self.cut_columns:
+            return 0.0
+        return float(self.chain.reserve.sum()) - self.full_chain_reserve
+
+    def cut_note(self, ages: Sequence[int]) -> str:
+        """One sentence on the cut for the output files and the notes (empty without a cut);
+        `ages` are the development ages in months of the whole triangle."""
+        if not self.cut_columns:
+            return ""
+        first = self.cut_columns[0]
+        named = ", ".join(f"{j} (age {ages[j]})" for j in self.cut_columns if j < len(ages))
+        plural = "s" if len(self.cut_columns) > 1 else ""
+        return (
+            f"fitted on the triangle cut after development column {first - 1}: "
+            f"{len(self.cut_columns)} trailing column{plural} without a positive paid amount "
+            f"({named}) carry no simulated development"
+        )
 
     @property
     def total(self) -> np.ndarray:
@@ -155,6 +187,24 @@ def summary(
         tvar_level=tvar_level,
         tail_value_at_risk=float(values[values >= threshold].mean()),
     )
+
+
+def trailing_cut(incremental: np.ndarray) -> tuple[int, str]:
+    """(number of columns kept, "") for the incremental triangle, or (0, reason) when a column
+    that is not trailing sums to zero or less. The kept columns are 0 .. J*, J* the last column
+    with a positive sum; the columns after it are the trailing block."""
+    sums = np.nansum(incremental, axis=0)
+    positive = np.nonzero(sums > 0)[0]
+    if not len(positive):
+        return 0, "incremental paid of development column 0 sums to zero or less"
+    kept = int(positive.max()) + 1
+    inside = np.nonzero(~(sums[:kept] > 0))[0]
+    if len(inside):
+        return 0, (
+            f"incremental paid of development column {int(inside[0])} sums to zero or less and a "
+            "later column is positive, so it is not a trailing column that could be cut"
+        )
+    return kept, ""
 
 
 def _fitted_increments(chain: ChainLadder, observed: np.ndarray) -> np.ndarray:
@@ -246,19 +296,26 @@ def odp_bootstrap(
         raise ValueError(f"the bootstrap needs at least 2 simulations, not {n_simulations}")
     n_origins, n_dev = cumulative.shape
     chain = chain_ladder(cumulative, average=Average.VOLUME_WEIGHTED)
+    no_chain = f"the bootstrap needs a chain ladder on at least {min_origins} origin periods"
     if isinstance(chain, Skipped) or n_origins < min_origins:
-        return Skipped(
-            "MT11", f"the bootstrap needs a chain ladder on at least {min_origins} origin periods"
-        )
+        return Skipped("MT11", no_chain)
+    full_reserve = float(chain.reserve.sum())
     observed = ~np.isnan(cumulative)
     incremental = cumulative.copy()
     incremental[:, 1:] = cumulative[:, 1:] - cumulative[:, :-1]
     incremental = np.where(observed, incremental, np.nan)
-    for j in range(n_dev):
-        if not np.nansum(incremental[:, j]) > 0:
-            return Skipped(
-                "MT11", f"incremental paid of development column {j} sums to zero or less"
-            )
+    kept, reason = trailing_cut(incremental)
+    if reason:
+        return Skipped("MT11", reason)
+    cut_columns = tuple(range(kept, n_dev))
+    if cut_columns:  # fit and simulate on the triangle cut after the last positive column
+        cumulative = cumulative[:, :kept]
+        chain = chain_ladder(cumulative, average=Average.VOLUME_WEIGHTED)
+        if isinstance(chain, Skipped):
+            return Skipped("MT11", no_chain)
+        n_dev = kept
+        observed = observed[:, :kept]
+        incremental = incremental[:, :kept]
     fitted = _fitted_increments(chain, observed)
     bad = observed & ~(fitted > 0)
     if bad.any():
@@ -304,6 +361,21 @@ def odp_bootstrap(
                 cash_flows[start : start + size, n_dev - 1 - latest_index[i]] += tail[:, i]
 
     diagnostics: list[Diagnostic] = []
+    if cut_columns:
+        difference = float(chain.reserve.sum()) - full_reserve
+        if abs(difference) > CUT_DIFFERENCE_WARNING * abs(full_reserve):
+            share = difference / full_reserve if full_reserve else float("nan")
+            diagnostics.append(
+                Diagnostic(
+                    "MT11",
+                    "CUT_RESERVE_DIFFERENCE",
+                    WARNING,
+                    f"the chain-ladder reserve of the triangle cut after development column "
+                    f"{kept - 1} differs from that of the whole triangle by {difference:,.0f} "
+                    f"({share:+.1%}); the factors beyond the cut are not 1",
+                    value=difference,
+                )
+            )
     negative = float((reserves.sum(axis=1) < 0).mean())
     if negative > NEGATIVE_SHARE_WARNING:
         diagnostics.append(
@@ -336,4 +408,6 @@ def odp_bootstrap(
         var_level=var_level,
         tvar_level=tvar_level,
         diagnostics=tuple(diagnostics),
+        cut_columns=cut_columns,
+        full_chain_reserve=full_reserve,
     )

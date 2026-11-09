@@ -205,8 +205,12 @@ def test_failure_modes() -> None:
     assert isinstance(found, Skipped) and "by_development is not built" in found.reason
     negative = tri.copy()
     negative[:, 9] = negative[:, 8] - 100  # the last column of increments sums below zero
-    found = odp_bootstrap(negative)
-    assert isinstance(found, Skipped) and "column 9" in found.reason
+    found = odp_bootstrap(negative, n_simulations=50)
+    assert isinstance(found, OdpBootstrap) and found.cut_columns == (9,)  # cut, no longer a stop
+    inside = tri.copy()
+    inside[:, 5] = inside[:, 4] - 100  # a column inside the triangle sums below zero
+    found = odp_bootstrap(inside)
+    assert isinstance(found, Skipped) and "column 5" in found.reason
     small = np.array([[90.0, 170.0, 200.0], [110.0, 210.0, np.nan], [100.0, np.nan, np.nan]])
     assert odp_bootstrap(small, min_origins=3) == Skipped(
         "MT11", "too few cells to estimate the scale parameter"

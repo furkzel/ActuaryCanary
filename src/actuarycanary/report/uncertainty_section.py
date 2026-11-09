@@ -415,7 +415,13 @@ def statements(result: UncertaintyResult) -> dict[str, Any]:
     )
     total = any(r["segment"] == ALL_LINES for r in boot)
     first = boot[0] if boot else None
+    cut = [
+        f"{_line_name(*x.key)}: {x.boot.columns_cut}"
+        for x in result.lines
+        if x.boot is not None and x.boot.cut_columns
+    ]
     return {
+        "cut": ", ".join(cut),
         "correlation": numbers.factor(result.correlation),
         "independent": result.correlation == 0,
         "boot_estimator": text(first["estimator"]) if first else "",

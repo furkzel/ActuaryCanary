@@ -1,5 +1,5 @@
 id: M12
-version: 1.1.0
+version: 1.1.1
 title_en: Uncertainty and risk
 title_tr: Belirsizlik ve risk
 status: reviewed
@@ -47,3 +47,11 @@ change_log:
       Built by P26 (record 0326): the output files have names of their own because reserve_range.csv
       (RS03 per line, M04) and cash_flows.csv (MT07) already exist and keep their content.
       Amended by the uncertainty and discounting work item (P26); the owner has not reviewed this version yet.
+  - version: 1.1.1
+    date: 2026-11-09
+    change: >-
+      MT11 1.2.0 cuts trailing development columns without a positive paid amount instead of
+      stopping (decision 0349), so the bootstrap range now exists for short-tail lines and the
+      simulated total of all lines exists whenever every line has one. The notes of M12 and the
+      part "what the totals rest on" state the cut. No other change; the owner has not reviewed
+      this version.
