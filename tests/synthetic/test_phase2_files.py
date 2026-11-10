@@ -14,7 +14,7 @@ from actuarycanary.synthetic.check_phase2 import severity_of
 from actuarycanary.synthetic.phase2 import PHASE2_FEEDS, TRUTH_USERS
 from actuarycanary.synthetic.scenario import load_with
 from actuarycanary.synthetic.writer import sha256
-from tests.synthetic.conftest import FIXTURES, NO_FAULTS
+from tests.synthetic.conftest import NO_FAULTS
 
 pytestmark = pytest.mark.slow
 
@@ -32,10 +32,14 @@ def _later(folder: Path) -> list:
 
 
 @pytest.mark.parametrize("scenario", ["baseline", "messy_headers"])
-def test_every_file_of_version_one_tiny_is_byte_for_byte_what_it_was(scenario, tmp_path):
-    frozen = yaml.safe_load((FIXTURES / "tiny_sha256_v1.yaml").read_text(encoding="utf-8"))[
-        scenario
-    ]
+def test_every_file_of_the_first_six_feeds_is_byte_for_byte_what_it_was_after_f1a(
+    scenario, tmp_path
+):
+    """Held to the hashes written after item F1a (record 0376): the group life claim amounts of
+    version 1.0 moved on purpose (record 0373), so tiny_sha256_v1.yaml no longer applies."""
+    frozen = yaml.safe_load(
+        (Path(__file__).parent / "tiny_sha256_f1a.yaml").read_text(encoding="utf-8")
+    )[scenario]
     out = tmp_path / scenario
     synthesize(scenario, "tiny", out)
     assert len(frozen) == 26
