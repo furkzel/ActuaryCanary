@@ -25,6 +25,10 @@ No test reads a medium folder of `life_book`, `messy_headers`, `reinsurance_heav
 
 **`package.yml`** — Windows, 60 minutes, read-only token: `uv sync --group build`, `just package`, the smoke test of `release.yml` copied exactly, a zip of `build/dist/canary` uploaded as the artifact `windows-snapshot`. The summary holds the version the program prints, the size of the zip and the last line of `packaging/compare_manifests.py` (run once more for the summary). `release.yml` still runs by hand as a snapshot build and is left as it is.
 
+**`release.yml`, last step only** — if `gh release view <tag>` succeeds, the archive is uploaded to the existing release (`gh release upload <tag> actuarycanary-*.zip --clobber`); otherwise the release is created as before. The owner can then make the tag from the GitHub release page on a phone without the workflow failing on a release that already exists.
+
 ## Consequences
 - **UNVERIFIED: none of the workflows has run.** The files parse as YAML, use the action versions of `ci.yml` and `release.yml`, and name only recipes that exist in `justfile`; the shell of the summaries was tried on sample output only. Not known: whether the suite fits into 90 minutes and the Monte Carlo tests into 120 on a hosted runner, the peak memory of the generator on `large` (if the runner runs out of memory the job fails, which is information), and whether the runner has `/usr/bin/time`.
 - Ground-truth comparisons on MOTOR_TPL may fail in the full run (0365, statement 1); that is information until P28.
+- **UNVERIFIED: the changed step of `release.yml`**, until a tag is pushed (both branches: release exists, release does not exist).
+- After the merge the owner starts `full`, `heavy` and `package` once each on `main` and reads the three summaries; `just test-all`, the Monte Carlo tests and `just bench` on `large` are no longer run inside a working session.
