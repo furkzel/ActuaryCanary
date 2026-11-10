@@ -54,6 +54,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          flags=""
-          case "$GITHUB_REF_NAME" in *-*) flags="--prerelease" ;; esac
-          gh release create "$GITHUB_REF_NAME" actuarycanary-*.zip $flags --title "$GITHUB_REF_NAME" --notes "Windows archive: unzip, then run canary\canary.exe demo."
+          # A release made on the GitHub release page already exists when the tag arrives:
+          # the archive is added to it (replacing one of the same name), not created again.
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" actuarycanary-*.zip --clobber
+          else
+            flags=""
+            case "$GITHUB_REF_NAME" in *-*) flags="--prerelease" ;; esac
+            gh release create "$GITHUB_REF_NAME" actuarycanary-*.zip $flags --title "$GITHUB_REF_NAME" --notes "Windows archive: unzip, then run canary\canary.exe demo."
+          fi

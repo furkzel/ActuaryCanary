@@ -1,0 +1,59 @@
+# The Windows program built from any branch and smoke-tested, started by hand only (Actions
+# tab, "Run workflow"); the zip is kept as the artifact `windows-snapshot` (record 0800).
+# release.yml also runs by hand as a snapshot build; it is left as it is.
+name: package
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows-snapshot:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - uses: extractions/setup-just@v2
+      - run: uv sync --group build
+      - name: Build
+        run: just package
+      # The smoke test of release.yml, copied exactly.
+      - name: Smoke test in a folder with no repository around it
+        shell: bash
+        run: |
+          mkdir smoke && cp -r build/dist/canary smoke/canary && cd smoke
+          ./canary/canary.exe --version
+          ./canary/canary.exe demo --no-open --out exe_out
+          cd .. && uv run canary run examples/demo --yes --curve TRY_GOV --out smoke/src_out
+          python packaging/compare_manifests.py smoke/exe_out/*/manifest.json smoke/src_out/*/manifest.json
+      - name: Archive
+        shell: pwsh
+        run: Compress-Archive -Path build/dist/canary -DestinationPath actuarycanary-snapshot-windows-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-snapshot
+          path: actuarycanary-snapshot-windows-x64.zip
+      - name: Summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "### Windows snapshot"
+            if [ -f build/dist/canary/canary.exe ]; then
+              echo "- Version printed: $(build/dist/canary/canary.exe --version | tr -d '\r')"
+            else
+              echo "- Version printed: none, the program was not built"
+            fi
+            if [ -f actuarycanary-snapshot-windows-x64.zip ]; then
+              echo "- Zip: $(( $(stat -c %s actuarycanary-snapshot-windows-x64.zip) / 1048576 )) MB"
+            else
+              echo "- Zip: not written"
+            fi
+            if ls smoke/exe_out/*/manifest.json smoke/src_out/*/manifest.json > /dev/null 2>&1; then
+              echo "- Manifests: $(python packaging/compare_manifests.py smoke/exe_out/*/manifest.json smoke/src_out/*/manifest.json 2>&1 | tail -n 1)"
+            else
+              echo "- Manifests: not compared, a run of the smoke test is missing"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
