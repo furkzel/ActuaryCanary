@@ -1,0 +1,91 @@
+# The Monte Carlo tests and the benchmark on the large baseline, started by hand only
+# (Actions tab, "Run workflow"). Neither runs anywhere else (record 0800).
+name: heavy
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  montecarlo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - uses: extractions/setup-just@v2
+      - run: uv sync
+      # No `just synth` here: the Monte Carlo tests draw their data in memory and the other
+      # tests of the same files read no medium folder (record 0800).
+      - name: Monte Carlo tests
+        shell: bash
+        env:
+          ACTUARYCANARY_MONTE_CARLO: "1"
+        run: |
+          # exactly the test files that mention the flag
+          files=$(grep -rl "ACTUARYCANARY_MONTE_CARLO" tests --include='*.py' | sort)
+          echo "$files"
+          uv run pytest -n 6 -q -rs --durations=10 $files 2>&1 | tee montecarlo-output.txt
+      - name: Summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "### Monte Carlo tests"
+            if [ -f montecarlo-output.txt ]; then
+              echo "Result: $(tail -n 1 montecarlo-output.txt)"
+              echo
+              echo "Ten slowest tests:"
+              echo '```'
+              grep -A 10 "slowest 10 durations" montecarlo-output.txt || echo "no durations in the output"
+              echo '```'
+            else
+              echo "no pytest output: a step before the tests failed"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - uses: extractions/setup-just@v2
+      - run: uv sync
+      # `/usr/bin/time -v` reports the largest resident set of the command and its children.
+      # The peak memory of the generator on `large` has not been measured on a hosted runner;
+      # if the runner runs out of memory the job fails, which is information.
+      - name: Write the large baseline
+        shell: bash
+        run: |
+          if [ -x /usr/bin/time ]; then measure="/usr/bin/time -v -o synth-time.txt"; else measure=""; fi
+          $measure just synth baseline large
+      - name: Time of each step on large, cold and warm
+        shell: bash
+        run: |
+          if [ -x /usr/bin/time ]; then measure="/usr/bin/time -v -o bench-time.txt"; else measure=""; fi
+          $measure just bench data/synthetic/baseline/large 2>&1 | tee bench-output.txt
+      - name: Summary
+        if: always()
+        shell: bash
+        run: |
+          peak() {
+            if [ -f "$1" ]; then
+              awk -F': ' '/Elapsed \(wall clock\) time/ {wall = $NF}
+                          /Maximum resident set size/ {peak = $NF / 1048576}
+                          END {printf "%.1f GB, wall clock %s", peak, wall}' "$1"
+            else
+              echo "not measured"
+            fi
+          }
+          {
+            echo "### Benchmark on baseline large"
+            echo "- Writing the data: peak memory $(peak synth-time.txt)"
+            echo "- Both passes of the run: peak memory $(peak bench-time.txt)"
+            echo
+            echo '```'
+            if [ -f bench-output.txt ]; then cat bench-output.txt; else echo "no bench output: the data was not written or the run did not start"; fi
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

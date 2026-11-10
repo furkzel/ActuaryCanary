@@ -19,6 +19,12 @@ Medium folders generated (`just synth <scenario> medium`), from the tests that s
 
 No test reads a medium folder of `life_book`, `messy_headers`, `reinsurance_heavy` or `demo`; tests that call `simulate(...)` build their data in memory and need no folder.
 
+**`heavy.yml`** — two jobs on Ubuntu, 120 minutes each, read-only token.
+- `montecarlo`: `ACTUARYCANARY_MONTE_CARLO=1 uv run pytest -n 6 -q -rs --durations=10` on the test files that mention the flag, found by `grep -rl` at run time so that a new Monte Carlo file is picked up without editing the workflow. Today these are seven files: `tests/modules/test_uncertainty_monte_carlo.py`, `tests/methods/test_mt06_mack.py`, `test_mt11_odp_bootstrap.py`, `test_mt11_cut.py`, `survival/test_survival_monte_carlo.py`, `severity/test_severity_monte_carlo.py`, and `severity/test_mt18_extreme_values.py` (the flag only in a comment; its tests run as well). None of them reads a medium folder, so the job generates no data. The summary holds the count line and the ten slowest tests.
+- `bench`: `just synth baseline large`, then `just bench data/synthetic/baseline/large`. Both commands run under `/usr/bin/time -v` (when the runner has it), which gives the peak memory of the command with its children. The summary holds the bench table (each step, cold and warm) and the peak memory and wall clock of the generator and of the two passes.
+
+**`package.yml`** — Windows, 60 minutes, read-only token: `uv sync --group build`, `just package`, the smoke test of `release.yml` copied exactly, a zip of `build/dist/canary` uploaded as the artifact `windows-snapshot`. The summary holds the version the program prints, the size of the zip and the last line of `packaging/compare_manifests.py` (run once more for the summary). `release.yml` still runs by hand as a snapshot build and is left as it is.
+
 ## Consequences
-- **UNVERIFIED: the workflow has not run.** The file parses as YAML, uses the action versions of `ci.yml`, and names only recipes that exist in `justfile`; whether the suite fits into 90 minutes on a hosted runner is not known.
+- **UNVERIFIED: none of the workflows has run.** The files parse as YAML, use the action versions of `ci.yml` and `release.yml`, and name only recipes that exist in `justfile`; the shell of the summaries was tried on sample output only. Not known: whether the suite fits into 90 minutes and the Monte Carlo tests into 120 on a hosted runner, the peak memory of the generator on `large` (if the runner runs out of memory the job fails, which is information), and whether the runner has `/usr/bin/time`.
 - Ground-truth comparisons on MOTOR_TPL may fail in the full run (0365, statement 1); that is information until P28.
