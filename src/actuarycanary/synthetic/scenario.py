@@ -311,6 +311,9 @@ class Messiness(_Strict):
     value_labels: LabelMess = LabelMess()
     exact_duplicate_share: float = Field(default=0.0, ge=0, le=1)
     personal_data: bool = False
+    # claim_valuations amounts written as cumulative to the valuation date (the specification's
+    # shape) or as what each row adds, per claim in date order (record 0374)
+    amounts: Literal["to_date", "incremental"] = "to_date"
 
 
 class PersonalColumn(_Strict):

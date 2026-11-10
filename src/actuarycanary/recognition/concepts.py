@@ -113,7 +113,72 @@ def score_concepts(
 
 
 def best_concept(scores: list[ConceptScore]) -> ConceptScore | None:
+    """The best candidate if it is a proposal at all (the older, weaker test: all required fields
+    found, or a score of at least MIN_SCORE). `judge` adds the positive-evidence rule."""
     if not scores:
         return None
     best = scores[0]
     return best if best.complete or best.score >= MIN_SCORE else None
+
+
+# Positive evidence (record 0375). Measured on every sheet of the six known feeds and of the
+# interest rates in the clean and the messy scenarios (margin 0.32 or more, required share 0.83
+# or more, explained share 0.88 or more) and on the planned feeds (reinsurance treaties and
+# transactions, recoveries, ledger, life feeds; margin 0.00 to 0.35, explained share 0.27 to 0.71).
+MIN_MARGIN = 0.30  # the best score must be above the next concept's by more than this
+CLEAR_MARGIN = 0.50  # above this margin the extra columns of a sheet do not matter
+MIN_REQUIRED_SHARE = 0.80  # share of the concept's required fields found
+MIN_EXPLAINED_SHARE = 0.75  # share of the sheet's columns that map to a field or are personal
+
+
+@dataclass(frozen=True)
+class Verdict:
+    accepted: ConceptScore | None
+    best_guess: ConceptScore | None
+    margin: float
+    required_share: float
+    explained_share: float
+    reasons: tuple[str, ...]  # why the best guess was rejected; empty when accepted
+
+    def explain(self) -> str:
+        """For a sheet that was not recognised: the best guess and why it was rejected."""
+        if self.best_guess is None:
+            return "no concept recognised"
+        return f"best guess {self.best_guess.describe()}, rejected: " + "; ".join(self.reasons)
+
+
+def judge(scores: list[ConceptScore]) -> Verdict:
+    """Accept the best concept only on positive evidence, otherwise say why not.
+
+    Accepted when (1) the best score is above the next concept's by more than MIN_MARGIN, (2) at
+    least MIN_REQUIRED_SHARE of its required fields are found, and (3) either the margin is at
+    least CLEAR_MARGIN or at least MIN_EXPLAINED_SHARE of the sheet's columns map to a field of
+    the concept or are personal-data columns. A workbook that merely resembles a known concept
+    (it has its required columns and a dozen more) is listed as not recognised instead.
+    """
+    if not scores:
+        return Verdict(None, None, 0.0, 0.0, 0.0, ("the sheet has no columns",))
+    best = scores[0]
+    second = scores[1].score if len(scores) > 1 else 0.0
+    margin = round(best.score - second, 4)
+    required_share = best.required[0] / best.required[1] if best.required[1] else 0.0
+    columns = best.mappings
+    explained = sum(m.used or m.personal is not None for m in columns)
+    explained_share = explained / len(columns) if columns else 0.0
+    reasons: list[str] = []
+    if best_concept(scores) is None:
+        reasons.append(f"score {best.score:.2f} is below {MIN_SCORE} with required fields missing")
+    if margin <= MIN_MARGIN:
+        reasons.append(f"margin {margin:.2f} over the next concept is not above {MIN_MARGIN}")
+    if required_share < MIN_REQUIRED_SHARE:
+        reasons.append(
+            f"required fields found {best.required[0]}/{best.required[1]}, "
+            f"under {MIN_REQUIRED_SHARE:.0%}"
+        )
+    if margin < CLEAR_MARGIN and explained_share < MIN_EXPLAINED_SHARE:
+        reasons.append(
+            f"only {explained} of {len(columns)} columns are explained by the concept, "
+            f"under {MIN_EXPLAINED_SHARE:.0%}"
+        )
+    accepted = None if reasons else best
+    return Verdict(accepted, best, margin, required_share, explained_share, tuple(reasons))

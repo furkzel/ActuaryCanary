@@ -316,3 +316,53 @@ def sheet_name_for(feed: str, sheet_key: str, scenario: Scenario, streams: Strea
     rng = streams.get("messy", "sheet", feed, sheet_key)
     options = MARKET_SHEETS[sheet_key] if feed == "market" else SHEET_NAMES[feed]
     return options[int(rng.integers(len(options)))]
+
+
+ACCUMULATED_FIELDS = (
+    "paid_to_date",
+    "subrogation_to_date",
+    "salvage_to_date",
+    "expense_allocated_to_date",
+    "ceded_paid_to_date",
+)
+
+
+def as_increments(frame: pl.DataFrame) -> pl.DataFrame:
+    """The cumulative amount fields of claim valuations as what each row adds (record 0374).
+
+    Per claim in date order (ties in row order), each amount minus the last amount before it; an
+    empty amount stays empty and adds nothing. A row that repeats an earlier row exactly keeps
+    that row's increments, so an exact duplicate stays an exact duplicate and adding the
+    increments up after dropping duplicates gives back the cumulative amounts. Reserves are
+    stocks and are not touched. Row order and every other column are unchanged.
+    """
+    fields = [f for f in ACCUMULATED_FIELDS if f in frame.columns]
+    if not fields:
+        return frame
+    columns = frame.columns
+    indexed = frame.with_row_index("_row").with_columns(
+        pl.col("_row").min().over(columns).alias("_twin")
+    )
+    base = indexed.filter(pl.col("_row") == pl.col("_twin")).sort(
+        "claim_id", "valuation_date", "_row"
+    )
+    steps = base.with_columns(
+        [
+            pl.when(pl.col(f).is_null())
+            .then(None)
+            .otherwise(
+                (
+                    pl.col(f) - pl.col(f).forward_fill().shift(1).over("claim_id").fill_null(0.0)
+                ).round(2)
+            )
+            .alias(f)
+            for f in fields
+        ]
+    ).select("_row", *fields)
+    twin = indexed.select("_row", "_twin").join(
+        steps.rename({"_row": "_twin"}), on="_twin", how="left"
+    )
+    result = indexed.select("_row", *[c for c in columns if c not in fields]).join(
+        twin.drop("_twin"), on="_row", how="left"
+    )
+    return result.sort("_row").select(columns)
