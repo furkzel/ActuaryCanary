@@ -137,7 +137,11 @@ def test_the_true_inflation_path_is_the_market_index(baseline):
     assert (
         path["claims_index_MOTOR_TPL"][-1] > path["claims_index_MOTOR_OD"][-1]
     )  # higher superimposed inflation
-    assert (path["claims_index_GROUP_TERM_LIFE"] == 1.0).all()  # death benefits are fixed amounts
+    # the sum insured of the group life line is indexed to prices on the day of the loss
+    # (record 0373); before that its death benefits were tied to the policy start (record 0368)
+    assert path["claims_index_GROUP_TERM_LIFE"].to_numpy() == pytest.approx(
+        path["cpi"].to_numpy() / 100.0
+    )
 
 
 def test_expected_frequency_is_the_parameter(baseline):

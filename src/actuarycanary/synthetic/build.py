@@ -325,6 +325,7 @@ def write_outputs(sim: Simulation, out: Path) -> dict[str, object]:
     for name, table in sim.truth.items():
         write_csv(truth_dir / f"{name}.csv", table)
     write_csv(truth_dir / "money_columns.csv", truth.money_columns_table())
+    write_csv(truth_dir / "claim_size_index.csv", truth.claim_size_index(sim.scenario))
     write_csv(truth_dir / "injected_faults.csv", fault_table)
     write_csv(truth_dir / "anomalies.csv", anomalies(sim, fault_table))
     for suffix, later in (("", False), ("_phase2", True)):

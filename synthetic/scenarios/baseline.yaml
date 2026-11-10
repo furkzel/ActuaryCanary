@@ -186,6 +186,10 @@ lines:
     severity:
       body: {dist: fixed_share_of_sum_insured, share: 1.0}
       superimposed_inflation: 0.0
+      # the claim is the sum insured at base-date prices moved by the price index on the day of
+      # the loss (an indexed sum insured); without this key it would be tied to the prices of
+      # the policy start and trend by origin year (records 0368, 0373)
+      sum_insured_index: {by: occurrence, prices: true}
     reporting_delay_days: {dist: lognormal, median: 30, sigma: 0.8}
     settlement_delay_days: {dist: lognormal, median: 45, sigma: 0.6}
     payments: {count: {dist: fixed, value: 1}}

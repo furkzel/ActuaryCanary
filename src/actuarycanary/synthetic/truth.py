@@ -537,12 +537,46 @@ def inflation_path(scenario: Scenario, market: Market, cut_off: int) -> pl.DataF
         "cpi_year_on_year": yoy,
     }
     for name, line in scenario.lines.items():
-        if line.severity.body.dist == "fixed_share_of_sum_insured":
+        severity = line.severity
+        index = severity.sum_insured_index
+        if severity.body.dist == "fixed_share_of_sum_insured" and index is None:
+            # no index after the loss; the claim size follows the prices of the policy start
             columns[f"claims_index_{name}"] = np.ones(len(months))
         else:
-            columns[f"claims_index_{name}"] = (
-                market.cpi
-                / market.cpi_base_value
-                * (1 + line.severity.superimposed_inflation) ** years_since(ends, market.base_day)
-            )
+            prices = market.cpi / market.cpi_base_value if index is None or index.prices else 1.0
+            columns[f"claims_index_{name}"] = prices * (
+                1 + severity.superimposed_inflation
+            ) ** years_since(ends, market.base_day)
     return pl.DataFrame(columns).with_columns(pl.col("cpi_year_on_year").fill_nan(None))
+
+
+def claim_size_index(scenario: Scenario) -> pl.DataFrame:
+    """Which index moves the claim size of each line, and on which day (truth/claim_size_index.csv).
+
+    ``claims_index_<line>`` in ``inflation.csv`` is the index at the day named in ``index_day``.
+    ``policy_start`` means the claim size is tied to the prices of the policy start and the claims
+    index after the loss is flat (record 0368): the trend of claim size by origin year is then the
+    price index at the start, not the column of ``inflation.csv``.
+    """
+    rows = []
+    for name, line in scenario.lines.items():
+        severity = line.severity
+        index = severity.sum_insured_index
+        if severity.body.dist != "fixed_share_of_sum_insured":
+            day, prices = "payment", True
+        elif index is None:
+            day, prices = "policy_start", True
+        else:
+            day = "occurrence" if index.by == "occurrence" else "payment"
+            prices = index.prices
+        rows.append(
+            {
+                "line": name,
+                "sum_insured_line": severity.body.dist == "fixed_share_of_sum_insured",
+                "index_day": day,
+                "follows_prices": prices,
+                "superimposed_inflation": severity.superimposed_inflation,
+                "claims_index_column": f"claims_index_{name}",
+            }
+        )
+    return pl.DataFrame(rows)

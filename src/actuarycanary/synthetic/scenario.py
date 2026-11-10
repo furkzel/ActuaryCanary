@@ -83,11 +83,34 @@ class Frequency(_Strict):
     trend_per_year: float = 0.0
 
 
+class SumInsuredIndex(_Strict):
+    """How the claim size of a sum-insured line follows prices (record 0373).
+
+    The claim is a share of the sum insured at base-date prices, moved by the line's claims
+    index on the calendar day of ``by``: the occurrence of the loss, or each payment (the
+    settlement, for a line that pays once). ``prices`` False means no price index at all: the
+    only index is ``superimposed_inflation``, so a declared index of 0 gives a claim size with
+    no trend over origin or calendar years.
+    """
+
+    by: Literal["occurrence", "settlement"] = "occurrence"
+    prices: bool = True
+
+
 class Severity(_Strict):
     body: Dist
     tail: Tail | None = None
     superimposed_inflation: float = 0.0
     capped_at_sum_insured: bool = False
+    # None on a sum-insured line: the claim is a share of the sum insured at the prices of the
+    # policy start, with no later index (the origin-level index of record 0368).
+    sum_insured_index: SumInsuredIndex | None = None
+
+    @model_validator(mode="after")
+    def _index_only_on_sum_insured_lines(self) -> "Severity":
+        if self.sum_insured_index is not None and self.body.dist != "fixed_share_of_sum_insured":
+            raise ValueError("sum_insured_index applies to fixed_share_of_sum_insured bodies only")
+        return self
 
 
 class Payments(_Strict):
