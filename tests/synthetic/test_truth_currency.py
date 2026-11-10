@@ -18,7 +18,7 @@ NOT_MONEY = {
     },
     "development_pattern": {
         "line accident_year lag_years valuation_date observed_at_cutoff paid_share "
-        "incurred_share reported_count_share"
+        "incurred_share paid_share_nominal incurred_share_nominal reported_count_share"
     },
     "inflation": None,  # index numbers and rates only; checked below
 }

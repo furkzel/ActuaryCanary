@@ -386,11 +386,31 @@ def ibnr_by_valuation(
     )
 
 
+def _fx_at_days(world: ClaimWorld, claim: np.ndarray, day: np.ndarray) -> np.ndarray:
+    """TRY per unit of each claim's own currency at each day (1 for the reporting currency)."""
+    out = np.ones(len(claim))
+    currency = world.c_currency[claim]
+    for code in world.market.fx:
+        mask = currency == code
+        if mask.any():
+            out[mask] = world.market.fx_at(code, day[mask])
+    return out
+
+
 def development_pattern(
     scenario: Scenario, size: SizeSpec, world: ClaimWorld, cut_off: int
 ) -> pl.DataFrame:
-    """Share of the inflation-free ultimate that is paid, and incurred, at each year end after
-    the start of the accident year (lag 1 is the end of the accident year itself)."""
+    """Share of the ultimate that is paid, and incurred, at each year end after the start of the
+    accident year (lag 1 is the end of the accident year itself), on two bases.
+
+    ``paid_share`` and ``incurred_share`` are inflation-free: base-date prices, as the
+    chain-ladder pattern of a world without inflation. ``paid_share_nominal`` and
+    ``incurred_share_nominal`` are what the books show: every payment at the prices of its
+    payment day (TRY at the spot rate of that day), every case reserve at the valuation day,
+    the ultimate being all payments ever made, including those after the data cut-off. The
+    nominal shares are on the basis of ``truth/ultimates.csv`` (record 0371): one minus the
+    nominal paid share at the cut-off year end is the unpaid share of that file.
+    """
     first_year, last_year = simulation_years(scenario, size)
     base_amount = np.where(
         world.c_nil[world.p_claim],
@@ -398,14 +418,18 @@ def development_pattern(
         world.c_cost[world.p_claim] * world.p_w * world.c_fx_start[world.p_claim],
     )
     base_paid = Cumulative(world.p_claim, world.p_day, base_amount)
+    nominal_try = world.p_amount * _fx_at_days(world, world.p_claim, world.p_day)
+    nominal_paid = Cumulative(world.p_claim, world.p_day, nominal_try)
     year = year_of(world.c_occ)
     ultimate_base = np.where(world.c_nil, 0.0, world.c_cost * world.c_fx_start)
+    ultimate_nominal = np.bincount(world.p_claim, weights=nominal_try, minlength=len(world))
     rows = []
     for ay in range(first_year, last_year + 1):
         in_year = np.flatnonzero(year == ay)
         for line in scenario.lines:
             claim = in_year[world.c_line[in_year] == line]
             total = float(ultimate_base[claim].sum())
+            total_nominal = float(ultimate_nominal[claim].sum())
             if len(claim) == 0 or total == 0:
                 continue
             for lag in range(1, MAX_LAG_YEARS + 1):
@@ -415,6 +439,8 @@ def development_pattern(
                 reserve_base = (
                     state["reserve"] / world.index_for(claim, day) * world.c_fx_start[claim]
                 )
+                paid_nominal = float(nominal_paid.at(claim, day)[0].sum())
+                reserve_nominal = float((state["reserve"] * _fx_at_days(world, claim, day)).sum())
                 rows.append(
                     {
                         "line": line,
@@ -424,6 +450,8 @@ def development_pattern(
                         "observed_at_cutoff": bool(day[0] <= cut_off),
                         "paid_share": float(paid.sum()) / total,
                         "incurred_share": float((paid + reserve_base).sum()) / total,
+                        "paid_share_nominal": paid_nominal / total_nominal,
+                        "incurred_share_nominal": (paid_nominal + reserve_nominal) / total_nominal,
                         "reported_count_share": float((state["status"] != -1).sum()) / len(claim),
                     }
                 )
