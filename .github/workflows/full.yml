@@ -1,0 +1,43 @@
+# The whole test suite on Ubuntu and Windows, started by hand only (Actions tab, "Run workflow").
+# It replaces `just test-all` inside a working session (record 0800).
+name: full
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-all:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - uses: extractions/setup-just@v2
+      - run: uv sync
+      # The medium folders the slow ground-truth and pipeline tests read; without a folder its
+      # tests skip (the list and the tests behind it are in record 0800).
+      - run: just synth baseline medium
+      - run: just synth high_inflation medium
+      - run: just synth large_loss medium
+      - run: just synth reserve_bias_change medium
+      # The body of `just test-all` without the medium budget test: that test needs a reference
+      # machine and has its own non-blocking job `budget` in ci.yml (record 0361).
+      - name: All tests except the medium budget test
+        shell: bash
+        run: uv run pytest -n auto -q -rs -k "not medium_runs_inside_its_budget" 2>&1 | tee pytest-output.txt
+      - name: Summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "### full on ${{ matrix.os }}"
+            echo '```'
+            if [ -f pytest-output.txt ]; then tail -n 30 pytest-output.txt; else echo "no pytest output: a step before the tests failed"; fi
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
