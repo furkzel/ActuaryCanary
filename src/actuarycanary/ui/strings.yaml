@@ -1,0 +1,780 @@
+# Texts of the browser interface (record 0705): id, English and Turkish side by side. {name} marks
+# what is filled in and must appear in both languages. Text written by the pipeline (data
+# messages, errors of a run, the evidence of a mapping) is shown as the pipeline wrote it.
+version: 1
+entries:
+  # --- frame -------------------------------------------------------------------------------
+  - id: app.title
+    en: "ActuaryCanary"
+    tr: "ActuaryCanary"
+  - id: app.tagline
+    en: "Local interface"
+    tr: "Yerel arayüz"
+  - id: app.label_strong
+    en: "Indicative — not an official reserve or price."
+    tr: "Gösterge niteliğindedir — resmî rezerv veya fiyat değildir."
+  - id: app.label
+    en: "This page runs on your computer only; nothing is sent anywhere."
+    tr: "Bu sayfa yalnızca kendi bilgisayarınızda çalışır; hiçbir şey dışarı gönderilmez."
+  - id: app.local_only
+    en: "Local address, private to this start of the program."
+    tr: "Yerel adres, programın bu başlatılışına özel."
+  - id: a11y.skip
+    en: "Skip to the content"
+    tr: "İçeriğe geç"
+  - id: nav.label
+    en: "Main"
+    tr: "Ana menü"
+  - id: nav.start
+    en: "Start"
+    tr: "Başlangıç"
+  - id: nav.past
+    en: "Past runs"
+    tr: "Önceki çalıştırmalar"
+  - id: nav.quit
+    en: "Quit"
+    tr: "Çık"
+  - id: quit.confirm_running
+    en: "A run is going. Quitting stops it and leaves partial files. Quit anyway?"
+    tr: "Bir çalıştırma sürüyor. Çıkmak onu durdurur ve yarım dosyalar bırakır. Yine de çıkılsın mı?"
+  - id: quit.done
+    en: "The program has stopped"
+    tr: "Program durdu"
+  - id: quit.done_text
+    en: "You can close this tab. Start `canary ui` again to come back; finished runs stay in the output folder."
+    tr: "Bu sekmeyi kapatabilirsiniz. Geri dönmek için `canary ui` komutunu yeniden başlatın; biten çalıştırmalar çıktı klasöründe kalır."
+
+  # --- start -------------------------------------------------------------------------------
+  - id: start.title
+    en: "Start"
+    tr: "Başlangıç"
+  - id: start.intro
+    en: "Pick the folder with your Excel files, look at how the program understood them, and run. Everything here does what the command line does."
+    tr: "Excel dosyalarınızın bulunduğu klasörü seçin, programın bunları nasıl anladığına bakın ve çalıştırın. Buradaki her şey komut satırının yaptığını yapar."
+  - id: start.folder_heading
+    en: "Where are the files?"
+    tr: "Dosyalar nerede?"
+  - id: start.folder
+    en: "Folder with the Excel files"
+    tr: "Excel dosyalarının bulunduğu klasör"
+  - id: start.browse
+    en: "Browse…"
+    tr: "Gözat…"
+  - id: start.folder_hint
+    en: "Type the path or use Browse. The files are read where they are; nothing is uploaded."
+    tr: "Yolu yazın veya Gözat'ı kullanın. Dosyalar bulundukları yerde okunur; hiçbir şey yüklenmez."
+  - id: start.out
+    en: "Output folder"
+    tr: "Çıktı klasörü"
+  - id: start.out_hint
+    en: "Each run gets its own folder here, named by its run id. Nothing is deleted."
+    tr: "Her çalıştırma burada, kimliğiyle adlandırılmış kendi klasörünü alır. Hiçbir şey silinmez."
+  - id: start.settings_heading
+    en: "Settings"
+    tr: "Ayarlar"
+  - id: start.more
+    en: "More settings"
+    tr: "Diğer ayarlar"
+  - id: start.command_heading
+    en: "The same on the command line"
+    tr: "Komut satırında aynısı"
+  - id: start.command_hint
+    en: "Your choices as a command; the same command in a terminal gives the same run id and files."
+    tr: "Seçimleriniz bir komut olarak; aynı komut terminalde aynı çalıştırma kimliğini ve dosyaları verir."
+  - id: start.copy
+    en: "Copy"
+    tr: "Kopyala"
+  - id: start.copied
+    en: "The command is copied."
+    tr: "Komut kopyalandı."
+  - id: start.copy_manual
+    en: "The command is selected; press Ctrl+C to copy it."
+    tr: "Komut seçildi; kopyalamak için Ctrl+C'ye basın."
+  - id: start.check
+    en: "Check the files"
+    tr: "Dosyaları kontrol et"
+  - id: start.run_now
+    en: "Run now"
+    tr: "Şimdi çalıştır"
+  - id: start.demo
+    en: "Run the demo"
+    tr: "Demoyu çalıştır"
+  - id: start.actions_hint
+    en: "Check the files shows what was recognised and lets you correct it (recommended). Run now uses the proposals as they are, like --yes. The demo runs on the example data that ships with the program."
+    tr: "Dosyaları kontrol et, nelerin tanındığını gösterir ve düzeltmenize izin verir (önerilir). Şimdi çalıştır, önerileri olduğu gibi kullanır (--yes gibi). Demo, programla gelen örnek veri üzerinde çalışır."
+  - id: start.checking
+    en: "Reading the files…"
+    tr: "Dosyalar okunuyor…"
+
+  # --- settings ----------------------------------------------------------------------------
+  - id: set.lang
+    en: "Language of the page and report"
+    tr: "Sayfa ve rapor dili"
+  - id: set.lang_hint
+    en: "The report is written in this language (--lang). The terminal stays English."
+    tr: "Rapor bu dilde yazılır (--lang). Terminal İngilizce kalır."
+  - id: set.currency
+    en: "Reporting currency"
+    tr: "Raporlama para birimi"
+  - id: set.currency_hint
+    en: "Three letters, for example TRY. Empty: the program default. Other currencies are converted."
+    tr: "Üç harf, örneğin TRY. Boş: programın varsayılanı. Diğer para birimleri çevrilir."
+  - id: set.basis
+    en: "Reinsurance basis"
+    tr: "Reasürans bazı"
+  - id: set.basis_hint
+    en: "Gross, ceded or net."
+    tr: "Brüt, devredilen veya net."
+  - id: set.value
+    en: "Value basis"
+    tr: "Değer bazı"
+  - id: set.value_hint
+    en: "Nominal amounts, amounts adjusted for inflation, or future payments discounted at a curve."
+    tr: "Nominal tutarlar, enflasyona göre düzeltilmiş tutarlar veya bir eğriyle iskonto edilmiş gelecek ödemeler."
+  - id: set.curve
+    en: "Interest-rate curve"
+    tr: "Faiz eğrisi"
+  - id: set.curve_hint
+    en: "curve_id of the interest_rates sheet. Needed for the discounted basis; with any basis it adds the discounted figures."
+    tr: "interest_rates sayfasındaki curve_id. İskontolu baz için gerekir; herhangi bir bazda iskontolu rakamları ekler."
+  - id: set.discount_date
+    en: "Discount date"
+    tr: "İskonto tarihi"
+  - id: set.discount_date_hint
+    en: "Date the present values refer to, YYYY-MM-DD. Empty: the cut-off."
+    tr: "Bugünkü değerlerin ilgili olduğu tarih, YYYY-AA-GG. Boş: kesim tarihi."
+  - id: set.value_date
+    en: "Value date (prices)"
+    tr: "Değer tarihi (fiyatlar)"
+  - id: set.value_date_hint
+    en: "Prices of this date for the inflation-adjusted basis, YYYY-MM-DD. Empty: the cut-off."
+    tr: "Enflasyon düzeltmeli baz için bu tarihin fiyatları, YYYY-AA-GG. Boş: kesim tarihi."
+  - id: set.origin_axis
+    en: "Origin axis"
+    tr: "Kaynak ekseni"
+  - id: set.origin_period
+    en: "Origin period"
+    tr: "Kaynak dönemi"
+  - id: set.development_period
+    en: "Development period"
+    tr: "Gelişim dönemi"
+  - id: set.currency_view
+    en: "Currency view"
+    tr: "Para birimi görünümü"
+  - id: set.currency_view_hint
+    en: "Reporting: everything in one currency. Original: nothing converted, each currency kept apart."
+    tr: "Raporlama: her şey tek para biriminde. Orijinal: hiçbir şey çevrilmez, her para birimi ayrı tutulur."
+  - id: set.price_index
+    en: "Price index"
+    tr: "Fiyat endeksi"
+  - id: set.price_index_hint
+    en: "series_id of the price index. Empty: from the project settings."
+    tr: "Fiyat endeksinin series_id değeri. Boş: proje ayarlarından."
+  - id: set.lineage_format
+    en: "Lineage format"
+    tr: "Köken kaydı biçimi"
+  - id: set.lineage_format_hint
+    en: "2 (default) is much smaller on large inputs."
+    tr: "2 (varsayılan) büyük girdilerde çok daha küçüktür."
+  - id: set.assumptions
+    en: "Assumptions file"
+    tr: "Varsayımlar dosyası"
+  - id: set.assumptions_hint
+    en: "Path of a YAML file with your judgements (--assumptions). Empty: none."
+    tr: "Yargılarınızı içeren bir YAML dosyasının yolu (--assumptions). Boş: yok."
+  - id: set.profiles
+    en: "Folder of mapping profiles"
+    tr: "Eşleme profilleri klasörü"
+  - id: set.profiles_hint
+    en: "Confirmed mappings are saved here and read from here, as the command line does (--profiles). This is the one place besides the output folder where the page writes."
+    tr: "Onaylanan eşlemeler komut satırındaki gibi buraya kaydedilir ve buradan okunur (--profiles). Sayfanın çıktı klasörü dışında yazdığı tek yer burasıdır."
+  - id: opt.basis.gross
+    en: "Gross"
+    tr: "Brüt"
+  - id: opt.basis.ceded
+    en: "Ceded"
+    tr: "Devredilen"
+  - id: opt.basis.net
+    en: "Net"
+    tr: "Net"
+  - id: opt.value.nominal
+    en: "Nominal"
+    tr: "Nominal"
+  - id: opt.value.inflation-adjusted
+    en: "Inflation-adjusted"
+    tr: "Enflasyon düzeltmeli"
+  - id: opt.value.discounted
+    en: "Discounted"
+    tr: "İskontolu"
+  - id: opt.axis.accident
+    en: "Accident"
+    tr: "Kaza"
+  - id: opt.axis.report
+    en: "Report"
+    tr: "Bildirim"
+  - id: opt.axis.underwriting
+    en: "Underwriting"
+    tr: "Sigortalama"
+  - id: opt.axis.first_valuation
+    en: "First valuation"
+    tr: "İlk değerleme"
+  - id: opt.period.month
+    en: "Month"
+    tr: "Ay"
+  - id: opt.period.quarter
+    en: "Quarter"
+    tr: "Çeyrek"
+  - id: opt.period.half
+    en: "Half year"
+    tr: "Yarıyıl"
+  - id: opt.period.year
+    en: "Year"
+    tr: "Yıl"
+  - id: opt.view.reporting
+    en: "Reporting"
+    tr: "Raporlama"
+  - id: opt.view.original
+    en: "Original"
+    tr: "Orijinal"
+
+  # --- folder browser ----------------------------------------------------------------------
+  - id: browser.title
+    en: "Choose a folder"
+    tr: "Klasör seçin"
+  - id: browser.path
+    en: "Path"
+    tr: "Yol"
+  - id: browser.go
+    en: "Go"
+    tr: "Git"
+  - id: browser.use
+    en: "Use this folder"
+    tr: "Bu klasörü kullan"
+  - id: browser.cancel
+    en: "Cancel"
+    tr: "Vazgeç"
+  - id: browser.up
+    en: ".. (up one level)"
+    tr: ".. (bir üst klasör)"
+  - id: browser.roots
+    en: ".. (drives)"
+    tr: ".. (sürücüler)"
+  - id: browser.home
+    en: "Home folder"
+    tr: "Ana klasör"
+  - id: browser.pick_root
+    en: "Pick a drive or a folder to start from."
+    tr: "Başlamak için bir sürücü veya klasör seçin."
+  - id: browser.counts
+    en: "This folder holds {n} spreadsheet(s) and {csv} csv file(s)."
+    tr: "Bu klasörde {n} elektronik tablo ve {csv} csv dosyası var."
+  - id: browser.csv_note
+    en: "The program reads spreadsheets only (.xlsx, .xlsm, .xls, .ods), not csv."
+    tr: "Program yalnızca elektronik tabloları (.xlsx, .xlsm, .xls, .ods) okur, csv'yi okumaz."
+  - id: browser.n_sheets
+    en: "{n} spreadsheets"
+    tr: "{n} tablo"
+  - id: browser.more
+    en: "{n} more folders are not listed; type the path."
+    tr: "{n} klasör daha listelenmedi; yolu yazın."
+  - id: browser.unreadable
+    en: "This folder cannot be read."
+    tr: "Bu klasör okunamıyor."
+
+  # --- mapping -----------------------------------------------------------------------------
+  - id: mapping.title
+    en: "What was recognised"
+    tr: "Neler tanındı"
+  - id: mapping.intro
+    en: "For each sheet: the kind of data found, how sure the program is, and which column became which field. Change a field in the list, choose “not used” to ignore a column, then confirm. A confirmed mapping is saved and used by the next run, here or in the terminal."
+    tr: "Her sayfa için: bulunan veri türü, programın ne kadar emin olduğu ve hangi sütunun hangi alan olduğu. Listeden bir alanı değiştirin, bir sütunu yok saymak için “kullanılmıyor”u seçin, sonra onaylayın. Onaylanan eşleme kaydedilir ve bir sonraki çalıştırmada, burada veya terminalde kullanılır."
+  - id: mapping.summary
+    en: "{folder}: {files} file(s), {sheets} sheet(s); {pending} sheet(s) have a layout without a saved mapping."
+    tr: "{folder}: {files} dosya, {sheets} sayfa; {pending} sayfanın kayıtlı eşlemesi olmayan bir düzeni var."
+  - id: mapping.save
+    en: "Confirm and save the mapping"
+    tr: "Eşlemeyi onayla ve kaydet"
+  - id: mapping.save_run
+    en: "Confirm, save and run"
+    tr: "Onayla, kaydet ve çalıştır"
+  - id: mapping.run_unsaved
+    en: "Run without saving"
+    tr: "Kaydetmeden çalıştır"
+  - id: mapping.back
+    en: "Back to the start"
+    tr: "Başlangıca dön"
+  - id: mapping.saved
+    en: "{n} mapping profile(s) saved in {folder}. The next run, here or in the terminal, uses them."
+    tr: "{n} eşleme profili {folder} içine kaydedildi. Bir sonraki çalıştırma, burada veya terminalde, bunları kullanır."
+  - id: mapping.concept
+    en: "Kind of data"
+    tr: "Veri türü"
+  - id: mapping.skip_sheet
+    en: "(skip this sheet)"
+    tr: "(bu sayfayı atla)"
+  - id: mapping.header_row
+    en: "Header in row {row}."
+    tr: "Başlık {row}. satırda."
+  - id: mapping.rows_above
+    en: "{n} row(s) above it are skipped."
+    tr: "Üstündeki {n} satır atlanır."
+  - id: mapping.confidence
+    en: "Confidence {score} %"
+    tr: "Güven %{score}"
+  - id: mapping.candidates
+    en: "Other candidates: {list}"
+    tr: "Diğer adaylar: {list}"
+  - id: mapping.canonical
+    en: "All headers are the program's own field names, so there is nothing to confirm."
+    tr: "Tüm başlıklar programın kendi alan adlarıdır, bu nedenle onaylanacak bir şey yok."
+  - id: mapping.no_concept
+    en: "No kind of data was recognised: {reason}. Choose one in the list, or leave the sheet out."
+    tr: "Hiçbir veri türü tanınmadı: {reason}. Listeden birini seçin veya sayfayı dışarıda bırakın."
+  - id: mapping.amounts
+    en: "Claim amounts are"
+    tr: "Hasar tutarları"
+  - id: mapping.amounts_to_date
+    en: "cumulative to the valuation date"
+    tr: "değerleme tarihine kadar kümülatif"
+  - id: mapping.amounts_incremental
+    en: "per period (they will be added up per claim)"
+    tr: "dönem başına (hasar bazında toplanacak)"
+  - id: mapping.col_source
+    en: "Source column"
+    tr: "Kaynak sütun"
+  - id: mapping.col_field
+    en: "Field"
+    tr: "Alan"
+  - id: mapping.col_layer
+    en: "How found"
+    tr: "Nasıl bulundu"
+  - id: mapping.col_conf
+    en: "Confidence"
+    tr: "Güven"
+  - id: mapping.col_evidence
+    en: "Evidence"
+    tr: "Kanıt"
+  - id: mapping.unused
+    en: "(not used)"
+    tr: "(kullanılmıyor)"
+  - id: mapping.personal
+    en: "dropped: personal data ({kind})"
+    tr: "çıkarıldı: kişisel veri ({kind})"
+  - id: mapping.target_for
+    en: "Field for the column {column}"
+    tr: "{column} sütunu için alan"
+  - id: mapping.missing
+    en: "Required fields not found: {fields}"
+    tr: "Bulunamayan zorunlu alanlar: {fields}"
+  - id: mapping.set_by_user
+    en: "set by you"
+    tr: "sizin tarafınızdan ayarlandı"
+  - id: mapping.not_used_user
+    en: "not used (your choice)"
+    tr: "kullanılmıyor (sizin seçiminiz)"
+  - id: mapping.changed
+    en: "Column {column} now maps to {field}."
+    tr: "{column} sütunu artık {field} alanına eşleniyor."
+  - id: mapping.unrecognised
+    en: "Workbooks that were not recognised"
+    tr: "Tanınmayan çalışma kitapları"
+  - id: mapping.unrecognised_hint
+    en: "These files have no sheet the program could use, or could not be read. A run does not use them."
+    tr: "Bu dosyalarda programın kullanabildiği bir sayfa yok veya dosyalar okunamadı. Çalıştırma bunları kullanmaz."
+  - id: mapping.unreadable
+    en: "could not be read: {reason}"
+    tr: "okunamadı: {reason}"
+  - id: mapping.no_headers
+    en: "no sheet with a header row"
+    tr: "başlık satırı olan bir sayfa yok"
+  - id: mapping.sheet_reason
+    en: "sheet {sheet}: {reason}"
+    tr: "{sheet} sayfası: {reason}"
+  - id: state.canonical
+    en: "Own field names"
+    tr: "Kendi alan adları"
+  - id: state.saved
+    en: "Saved mapping"
+    tr: "Kayıtlı eşleme"
+  - id: state.proposed
+    en: "Proposal, not confirmed"
+    tr: "Öneri, onaylanmadı"
+  - id: state.skipped
+    en: "Skipped"
+    tr: "Atlandı"
+  - id: state.not_recognised
+    en: "Not recognised"
+    tr: "Tanınmadı"
+  - id: layer.canonical
+    en: "own field name"
+    tr: "kendi alan adı"
+  - id: layer.dictionary
+    en: "name list"
+    tr: "ad listesi"
+  - id: layer.fuzzy
+    en: "similar name"
+    tr: "benzer ad"
+  - id: layer.values
+    en: "values"
+    tr: "değerler"
+  - id: layer.saved
+    en: "saved mapping"
+    tr: "kayıtlı eşleme"
+  - id: layer.user
+    en: "you"
+    tr: "siz"
+  - id: layer.personal
+    en: "personal data"
+    tr: "kişisel veri"
+  - id: layer.none
+    en: "not mapped"
+    tr: "eşlenmedi"
+
+  # --- run ---------------------------------------------------------------------------------
+  - id: run.title
+    en: "Run"
+    tr: "Çalıştırma"
+  - id: run.idle
+    en: "No run has been started."
+    tr: "Henüz bir çalıştırma başlatılmadı."
+  - id: run.state.running
+    en: "Running…"
+    tr: "Çalışıyor…"
+  - id: run.state.done
+    en: "Finished."
+    tr: "Bitti."
+  - id: run.state.failed
+    en: "The run stopped with an error."
+    tr: "Çalıştırma bir hatayla durdu."
+  - id: run.state.cancelled
+    en: "The run was cancelled between two stages."
+    tr: "Çalıştırma iki aşama arasında iptal edildi."
+  - id: run.elapsed
+    en: "Elapsed time:"
+    tr: "Geçen süre:"
+  - id: run.seconds
+    en: "{s} s"
+    tr: "{s} sn"
+  - id: run.stages
+    en: "Stages of the run"
+    tr: "Çalıştırmanın aşamaları"
+  - id: run.stage.done
+    en: "done"
+    tr: "bitti"
+  - id: run.stage.running
+    en: "running"
+    tr: "çalışıyor"
+  - id: run.stage.failed
+    en: "failed"
+    tr: "hata verdi"
+  - id: run.stage.pending
+    en: "waiting"
+    tr: "bekliyor"
+  - id: run.cancel
+    en: "Cancel"
+    tr: "İptal et"
+  - id: run.cancel_hint
+    en: "Cancel stops the run before the next stage; the stage that has begun is finished."
+    tr: "İptal, çalıştırmayı bir sonraki aşamadan önce durdurur; başlamış aşama tamamlanır."
+  - id: run.cancelling
+    en: "Cancelling after this stage…"
+    tr: "Bu aşamadan sonra iptal ediliyor…"
+  - id: run.failed
+    en: "Cannot run:"
+    tr: "Çalıştırılamıyor:"
+  - id: run.partial
+    en: "Partial output is in {folder}."
+    tr: "Yarım çıktı {folder} içinde."
+  - id: run.findings
+    en: "Data findings"
+    tr: "Veri bulguları"
+  - id: run.command
+    en: "The same on the command line"
+    tr: "Komut satırında aynısı"
+  - id: run.to_result
+    en: "Open the result"
+    tr: "Sonucu aç"
+  - id: run.again
+    en: "Start again"
+    tr: "Yeniden başla"
+  - id: stage.0
+    en: "Reading and recognising spreadsheets"
+    tr: "Elektronik tablolar okunuyor ve tanınıyor"
+  - id: stage.1
+    en: "Checking data against the specifications"
+    tr: "Veri şartnamelere göre denetleniyor"
+  - id: stage.2
+    en: "Building triangles"
+    tr: "Üçgenler oluşturuluyor"
+  - id: stage.3
+    en: "Running the reserving methods"
+    tr: "Rezervleme yöntemleri çalıştırılıyor"
+  - id: stage.4
+    en: "Fitting claim sizes and extreme values"
+    tr: "Hasar büyüklükleri ve uç değerler uyduruluyor"
+  - id: stage.5
+    en: "Analysing the settlement speed"
+    tr: "Sonuçlanma hızı inceleniyor"
+  - id: stage.6
+    en: "Computing the reserve ranges and the discounted figures"
+    tr: "Rezerv aralıkları ve iskontolu rakamlar hesaplanıyor"
+  - id: stage.7
+    en: "Rerunning the methods for the sensitivity tables"
+    tr: "Duyarlılık tabloları için yöntemler yeniden çalıştırılıyor"
+  - id: stage.8
+    en: "Flagging anomalies"
+    tr: "Anormallikler işaretleniyor"
+  - id: stage.9
+    en: "Computing measures and running modules"
+    tr: "Ölçüler hesaplanıyor ve modüller çalıştırılıyor"
+  - id: stage.10
+    en: "Writing the tables"
+    tr: "Tablolar yazılıyor"
+  - id: stage.11
+    en: "Writing the report"
+    tr: "Rapor yazılıyor"
+  - id: stage.12
+    en: "Writing the manifest"
+    tr: "Manifest yazılıyor"
+
+  # --- findings ----------------------------------------------------------------------------
+  - id: findings.none_yet
+    en: "The data findings appear here once the data has been checked."
+    tr: "Veri bulguları, veri denetlendikten sonra burada görünür."
+  - id: findings.summary
+    en: "Data quality {score} / 100 ({rules} rules evaluated): {blocking} blocking, {warning} warning, {info} information."
+    tr: "Veri kalitesi {score} / 100 ({rules} kural değerlendirildi): {blocking} engelleyici, {warning} uyarı, {info} bilgi."
+  - id: findings.clean
+    en: "No data rule found anything."
+    tr: "Hiçbir veri kuralı bir bulgu çıkarmadı."
+  - id: findings.col_severity
+    en: "Severity"
+    tr: "Önem"
+  - id: findings.col_rule
+    en: "Rule"
+    tr: "Kural"
+  - id: findings.col_count
+    en: "Rows"
+    tr: "Satır"
+  - id: findings.col_what
+    en: "What"
+    tr: "Ne"
+  - id: findings.col_examples
+    en: "Examples"
+    tr: "Örnekler"
+  - id: findings.more
+    en: "{n} more findings are in the report."
+    tr: "{n} bulgu daha raporda."
+  - id: severity.BLOCKING
+    en: "Blocking"
+    tr: "Engelleyici"
+  - id: severity.WARNING
+    en: "Warning"
+    tr: "Uyarı"
+  - id: severity.INFO
+    en: "Information"
+    tr: "Bilgi"
+
+  # --- result ------------------------------------------------------------------------------
+  - id: result.title
+    en: "Result"
+    tr: "Sonuç"
+  - id: result.run_id
+    en: "Run id"
+    tr: "Çalıştırma kimliği"
+  - id: result.date
+    en: "Written"
+    tr: "Yazıldı"
+  - id: result.version
+    en: "Program version"
+    tr: "Program sürümü"
+  - id: result.folder
+    en: "Folder"
+    tr: "Klasör"
+  - id: result.language
+    en: "Report language"
+    tr: "Rapor dili"
+  - id: result.currency
+    en: "Reporting currency"
+    tr: "Raporlama para birimi"
+  - id: result.basis
+    en: "Basis"
+    tr: "Baz"
+  - id: result.cut_off
+    en: "Cut-off"
+    tr: "Kesim tarihi"
+  - id: result.open_report
+    en: "Open the report in a new tab"
+    tr: "Raporu yeni sekmede aç"
+  - id: result.show_report
+    en: "Show the report here"
+    tr: "Raporu burada göster"
+  - id: result.hide_report
+    en: "Hide the report"
+    tr: "Raporu gizle"
+  - id: result.report_frame
+    en: "The report of this run"
+    tr: "Bu çalıştırmanın raporu"
+  - id: result.open_folder
+    en: "Open the output folder"
+    tr: "Çıktı klasörünü aç"
+  - id: result.opened
+    en: "Opened {folder}."
+    tr: "{folder} açıldı."
+  - id: result.run_again
+    en: "Run again with other settings"
+    tr: "Başka ayarlarla yeniden çalıştır"
+  - id: result.headline
+    en: "Headline numbers"
+    tr: "Başlıca rakamlar"
+  - id: result.headline_note
+    en: "Chain ladder on incurred amounts, {currency}, {basis}, cut-off {cut_off}; the same table as the terminal summary. The report has the other methods and the ranges."
+    tr: "Oluşmuş tutarlar üzerinde zincir merdiven, {currency}, {basis}, kesim tarihi {cut_off}; terminal özetiyle aynı tablo. Diğer yöntemler ve aralıklar raporda."
+  - id: result.no_headline
+    en: "This run has no chain ladder table to show here; see the report."
+    tr: "Bu çalıştırmanın burada gösterilecek zincir merdiven tablosu yok; rapora bakın."
+  - id: result.col_line
+    en: "Segment / line"
+    tr: "Segment / branş"
+  - id: result.col_paid
+    en: "Paid"
+    tr: "Ödenen"
+  - id: result.col_incurred
+    en: "Incurred"
+    tr: "Oluşmuş"
+  - id: result.col_ultimate
+    en: "Ultimate (incurred CL)"
+    tr: "Nihai (oluşmuş ZM)"
+  - id: result.col_ibnr
+    en: "IBNR"
+    tr: "IBNR"
+  - id: result.total
+    en: "Total"
+    tr: "Toplam"
+  - id: result.findings
+    en: "Data findings"
+    tr: "Veri bulguları"
+  - id: result.manifest
+    en: "What went in"
+    tr: "Neler girdi"
+  - id: result.manifest_summary
+    en: "{inputs} input file(s) and {outputs} output file(s) are listed in the manifest of this run."
+    tr: "Bu çalıştırmanın manifestosunda {inputs} girdi dosyası ve {outputs} çıktı dosyası listelenir."
+  - id: result.rows
+    en: "rows"
+    tr: "satır"
+  - id: result.mappings
+    en: "How the sheets were read:"
+    tr: "Sayfalar nasıl okundu:"
+  - id: result.personal_dropped
+    en: "personal data dropped: {columns}"
+    tr: "kişisel veri çıkarıldı: {columns}"
+  - id: result.not_used
+    en: "Sheets that were not used:"
+    tr: "Kullanılmayan sayfalar:"
+
+  # --- past runs ---------------------------------------------------------------------------
+  - id: past.title
+    en: "Past runs"
+    tr: "Önceki çalıştırmalar"
+  - id: past.intro
+    en: "The runs found in the output folder, newest first. A run started in a tab that was closed is here too."
+    tr: "Çıktı klasöründe bulunan çalıştırmalar, en yenisi önce. Kapatılmış bir sekmede başlatılan çalıştırma da burada görünür."
+  - id: past.refresh
+    en: "Refresh"
+    tr: "Yenile"
+  - id: past.empty
+    en: "No finished run in this folder."
+    tr: "Bu klasörde biten bir çalıştırma yok."
+  - id: past.col_run
+    en: "Run id"
+    tr: "Çalıştırma kimliği"
+  - id: past.col_date
+    en: "Date"
+    tr: "Tarih"
+  - id: past.col_language
+    en: "Language"
+    tr: "Dil"
+  - id: past.col_basis
+    en: "Basis"
+    tr: "Baz"
+  - id: past.col_actions
+    en: "Open"
+    tr: "Aç"
+  - id: past.result
+    en: "Result"
+    tr: "Sonuç"
+  - id: past.report
+    en: "Report"
+    tr: "Rapor"
+  - id: past.folder
+    en: "Folder"
+    tr: "Klasör"
+  - id: past.unreadable
+    en: "manifest cannot be read"
+    tr: "manifesto okunamıyor"
+
+  # --- errors (code of the server -> text) ---------------------------------------------------
+  - id: error.folder_empty
+    en: "Choose the folder with the Excel files first."
+    tr: "Önce Excel dosyalarının bulunduğu klasörü seçin."
+  - id: error.folder_missing
+    en: "This folder does not exist: {detail}"
+    tr: "Bu klasör yok: {detail}"
+  - id: error.folder_denied
+    en: "This folder cannot be read: {detail}"
+    tr: "Bu klasör okunamıyor: {detail}"
+  - id: error.no_spreadsheets
+    en: "There is no spreadsheet (.xlsx, .xlsm, .xls, .ods) in {detail}. csv files are not read."
+    tr: "{detail} içinde elektronik tablo (.xlsx, .xlsm, .xls, .ods) yok. csv dosyaları okunmaz."
+  - id: error.settings_rejected
+    en: "Settings rejected: {detail}"
+    tr: "Ayarlar reddedildi: {detail}"
+  - id: error.run_busy
+    en: "A run is already going. Wait for it to finish or cancel it first."
+    tr: "Bir çalıştırma zaten sürüyor. Bitmesini bekleyin veya önce iptal edin."
+  - id: error.run_active
+    en: "A run is going."
+    tr: "Bir çalıştırma sürüyor."
+  - id: error.out_invalid
+    en: "The output folder is a file: {detail}"
+    tr: "Çıktı klasörü bir dosya: {detail}"
+  - id: error.run_not_found
+    en: "There is no finished run {detail} in this output folder."
+    tr: "Bu çıktı klasöründe {detail} kimlikli biten bir çalıştırma yok."
+  - id: error.report_missing
+    en: "The report file is missing: {detail}"
+    tr: "Rapor dosyası yok: {detail}"
+  - id: error.bad_request
+    en: "The request was not understood. {detail}"
+    tr: "İstek anlaşılamadı. {detail}"
+  - id: error.not_found
+    en: "Not found."
+    tr: "Bulunamadı."
+  - id: error.sheet_missing
+    en: "The sheet is not in the folder any more: {detail}"
+    tr: "Sayfa artık klasörde yok: {detail}"
+  - id: error.sheet_not_editable
+    en: "This sheet has nothing to confirm: {detail}"
+    tr: "Bu sayfada onaylanacak bir şey yok: {detail}"
+  - id: error.mapping_rejected
+    en: "The mapping was rejected: {detail}"
+    tr: "Eşleme reddedildi: {detail}"
+  - id: error.mapping_conflict
+    en: "The mapping could not be applied for: {detail}"
+    tr: "Eşleme şunlar için uygulanamadı: {detail}"
+  - id: error.profile_conflict
+    en: "Two sheets with the same headers were given different answers: {detail}"
+    tr: "Aynı başlıklara sahip iki sayfaya farklı yanıtlar verildi: {detail}"
+  - id: error.profile_not_saved
+    en: "The mapping profile could not be saved: {detail}"
+    tr: "Eşleme profili kaydedilemedi: {detail}"
+  - id: error.demo_missing
+    en: "The example data was not found: {detail}"
+    tr: "Örnek veri bulunamadı: {detail}"
+  - id: error.open_failed
+    en: "The folder could not be opened: {detail}"
+    tr: "Klasör açılamadı: {detail}"
+  - id: error.server_gone
+    en: "The program does not answer. It may have been stopped; start `canary ui` again."
+    tr: "Program yanıt vermiyor. Durdurulmuş olabilir; `canary ui` komutunu yeniden başlatın."

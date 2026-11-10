@@ -1,0 +1,15 @@
+# 0706 — The settings form, the demo, and what the interface leaves out
+
+## Context
+The interface must build a `RunSettings` as `canary run` does, give the same run id for the same inputs and settings, show the command the choices correspond to, run the demo, and list what has no place in it yet.
+
+## Decision
+- **Settings.** `ui/settings.py` builds `RunSettings` from the form with the same steps as `run_command` (same enums, the same `TriangleSettings`, `DiscountSettings`, `AssumptionsRegister.from_yaml`, the same defaults). A test calls the real command with a captured `_run_with_progress` for several option sets and compares the settings with the form's; another compares the defaults with `RunSettings()`. Choices that make no settings are refused with the message of the validation (the command line says "Settings rejected").
+- **Fields.** Reporting currency, reinsurance basis, value basis, curve, discount date, value date, price index, origin axis, origin and development period, currency view, report language, lineage format, assumptions file, and the folders (input, output, profiles). Large-loss options are not command-line options (they are in `project.yaml`), so there are none on the page; the command line has no "cut-off" option, only `--value-date` and `--discount-date`, which the page has.
+- **The command shown** is `canary run <folder>` with an option for each value that differs from the default, `--out` and `--profiles` only when they differ from `out` and `profiles` of the working folder, and `--yes` when some sheet has no saved mapping (that is what a run of the page without confirmation is). It is quoted for the system's shell. The same text is shown on the run screen.
+- **Demo.** The button runs `find_demo_folder()` with `RunSettings(discount=DiscountSettings(curve_id="TRY_GOV"))` plus the language chosen on the page, into a temporary folder (0701). In English it is `canary demo` and has its run id (a slow test compares it with the committed example manifest, `73c5a3ef7f007e40` at 1.2.0).
+- **Left out, to be listed in the handover:** `--assumptions` is a typed path, not a file chooser; `--yes` is not a switch (it follows from whether a mapping is confirmed); the terminal's `concept=` and `amounts=` edits are the concept list and the amounts list; the `.csv` files are counted and said not to be read, because the program reads spreadsheets only; `canary info`, `canary synth` and the other commands are not in the interface; no progress inside a stage (the pipeline reports stages only); cancel works between stages only; no editing of the assumptions register, of `project.yaml`, or of the large-loss threshold; no comparison of two runs; no deleting of runs.
+- **Double click.** `canary ui` is the command; the program started by a double click still shows the welcome text of the command line (`cli/welcome.py`, not changed here). Pointing a shortcut at `canary.exe ui` starts the page.
+
+## Consequences
+- A change of an option of `canary run` that is not in `ui/settings.py` makes the settings test fail for that option only if the test's list includes it; the list covers every option the page offers.
