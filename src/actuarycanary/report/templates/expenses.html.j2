@@ -1,0 +1,26 @@
+{#- The M09 page (record 0388); `b` is the body built by report/expenses_section.py. -#}
+<div class="scroll"><table>
+  <thead><tr><th class="text">{{ tr("Measure") }}</th><th>{{ tr("Last twelve months") }}</th><th>{{ tr("Twelve months before") }}</th><th>{{ tr("Change") }}</th></tr></thead>
+  <tbody>{% for r in b.headline %}<tr><td class="text">{{ r.measure }}</td><td>{{ r.now }}</td><td>{{ r.before }}</td><td>{{ r.change }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% if b.by_line.rows %}<h3>{{ tr("Expense and commission ratios by line") }}</h3>
+{{ figure(b.by_line.figure, tr("Expense ratio by line and month")) }}
+<p class="footnote">{{ b.by_line.note }}</p>
+<div class="scroll"><table>
+  <thead><tr><th class="text">{{ tr("Line") }}</th><th>{{ tr("Expense ratio, last twelve months") }}</th><th>{{ tr("Expense ratio, twelve months before") }}</th><th>{{ tr("Commission ratio, last twelve months") }}</th><th>{{ tr("Commission ratio, twelve months before") }}</th></tr></thead>
+  <tbody>{% for r in b.by_line.rows %}<tr><td class="text">{{ r.line }}</td><td>{{ r.expense_now }}</td><td>{{ r.expense_before }}</td><td>{{ r.commission_now }}</td><td>{{ r.commission_before }}</td></tr>{% endfor %}</tbody>
+</table></div>{% endif %}
+{% if b.unit_costs %}<h3>{{ tr("Unit costs and claims handling") }}</h3>
+<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Period") }}</th><th>{{ tr("Administration cost per policy") }}</th><th>{{ tr("Claims-handling cost per claim") }}</th><th>{{ tr("Claims handling ratio") }}</th><th class="text">{{ tr("Notes") }}</th></tr></thead>
+  <tbody>{% for r in b.unit_costs %}<tr><td>{{ r.period }}</td><td>{{ r.per_policy }}</td><td>{{ r.per_claim }}</td><td>{{ r.handling }}</td><td class="text">{{ r.note }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% if b.unit_basis %}<p class="footnote">{{ tr("Unit costs on the basis {basis}.", basis=b.unit_basis) }}</p>{% endif %}{% endif %}
+<h3>{{ tr("Expenses booked without a line") }}</h3>
+{% if b.unallocated %}<p>{{ tr("These expenses are shown at the level they were booked. They are never spread over lines and are in no ratio by line.") }}</p>
+<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Year") }}</th><th class="text">{{ tr("Expense type") }}</th><th class="text">{{ tr("Level booked") }}</th><th>{{ tr("Rows") }}</th><th>{{ tr("Amount") }}</th>{% if b.priced %}<th>{{ tr("At value-date prices") }}</th>{% endif %}</tr></thead>
+  <tbody>{% for r in b.unallocated %}<tr><td>{{ r.year }}</td><td class="text">{{ r.type }}</td><td class="text">{{ r.level }}</td><td>{{ r.rows }}</td><td>{{ r.amount }}</td>{% if b.priced %}<td>{{ r.priced }}</td>{% endif %}</tr>{% endfor %}</tbody>
+</table></div>
+{% else %}<p>{{ tr("Every expense row carries a line.") }}</p>{% endif %}
+<p class="footnote">{{ b.footnote }}</p>

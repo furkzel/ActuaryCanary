@@ -264,6 +264,10 @@ th.tier { text-align: center; border-bottom: 2px solid var(--border); }
   </table></div>
   <p class="footnote">{{ tr("Source rows are spreadsheet rows; anomalies.csv has every flag.") }}</p>{% endif %}
   {% set ll = b.large %}{% include "large_loss.html.j2" %}
+  {% elif p.module == "M07" %}
+  {% include "recoveries.html.j2" %}
+  {% elif p.module == "M09" %}
+  {% include "expenses.html.j2" %}
   {% elif p.module == "M12" %}
   {% include "uncertainty.html.j2" %}
   {% endif %}

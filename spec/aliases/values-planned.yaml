@@ -1,5 +1,5 @@
 id: AL04
-version: 0.2.0
+version: 0.3.0
 title_en: Value aliases of planned concepts
 title_tr: Planlanan kavramların değer eşleştirmeleri
 status: draft
@@ -12,71 +12,8 @@ notes: >-
   the run id do not change before a concept is built; the item that builds a concept moves
   its entries into AL02 (decision 0200).
 values:
-  - field: treaty_type
-    concepts: [reinsurance_treaties]
-    classes:
-      QUOTA_SHARE:
-        - KOTPAR
-        - KOTPAR ANLAŞMASI
-        - KOTA PAYLAŞIMLI
-        - QS
-        - QUOTA SHARE
-      SURPLUS:
-        - EKSEDAN
-        - EKSEDAN ANLAŞMASI
-        - SURPLUS
-        - SURPLUS TREATY
-      EXCESS_OF_LOSS:
-        - HASAR FAZLASI
-        - HASAR FAZLASI ANLAŞMASI
-        - XL
-        - XOL
-        - WXL
-        - CAT XL
-        - EXCESS OF LOSS
-      STOP_LOSS:
-        - HASAR ORANI FAZLASI
-        - STOP LOSS
-        - STOPLOSS
-        - AGGREGATE EXCESS OF LOSS
-      FACULTATIVE:
-        - İHTİYARİ
-        - İHTİYARİ REASÜRANS
-        - FAKÜLTATİF
-        - FAC
-        - FACULTATIVE
-  - field: attachment_basis
-    concepts: [reinsurance_treaties]
-    classes:
-      LOSSES_OCCURRING:
-        - HASAR TARİHİ ESASLI
-        - LOD
-        - LOSSES OCCURRING
-        - LOSSES OCCURRING DURING
-      RISKS_ATTACHING:
-        - POLİÇE BAŞLANGIÇ ESASLI
-        - RAD
-        - RISKS ATTACHING
-        - RISKS ATTACHING DURING
-  - field: loss_basis
-    concepts: [reinsurance_treaties]
-    classes:
-      RISK:
-        - RİSK BAŞINA
-        - HER BİR RİSK
-        - PER RISK
-      EVENT:
-        - OLAY BAŞINA
-        - HER BİR OLAY
-        - KATASTROF
-        - PER EVENT
-        - CAT
-      AGGREGATE:
-        - TOPLAM
-        - YILLIK TOPLAM
-        - ANNUAL AGGREGATE
   - field: segment
-    concepts: [reinsurance_treaties, reinsurance_transactions, ledger, life_in_force]
+    concepts: [life_in_force]
     classes:
       NON_LIFE:
         - ELEMENTER
@@ -108,137 +45,6 @@ values:
         - TSS
         - HEALTH
         - MEDICAL
-  - field: type
-    concepts: [reinsurance_transactions]
-    classes:
-      CEDED_PREMIUM:
-        - DEVREDİLEN PRİM
-        - REASÜRANS PRİMİ
-        - REASÜRÖR PAYI PRİM
-        - CEDED PREMIUM
-        - RI PREMIUM
-        - OUTWARD PREMIUM
-      CEDED_CLAIM_PAID:
-        - DEVREDİLEN ÖDENEN HASAR
-        - REASÜRÖR PAYI ÖDENEN HASAR
-        - REASÜRANS HASAR TAHSİLATI
-        - CEDED PAID
-        - CEDED CLAIMS PAID
-        - REINSURANCE RECOVERY
-      CEDED_CASE_RESERVE:
-        - DEVREDİLEN MUALLAK
-        - REASÜRÖR PAYI MUALLAK
-        - CEDED RESERVE
-        - CEDED OUTSTANDING
-        - CEDED CASE RESERVE
-      RI_COMMISSION:
-        - REASÜRANS KOMİSYONU
-        - KOMİSYON
-        - RI COMMISSION
-        - REINSURANCE COMMISSION
-        - CEDING COMMISSION
-      REINSTATEMENT_PREMIUM:
-        - İHYA PRİMİ
-        - REINSTATEMENT
-        - REINSTATEMENT PREMIUM
-  - field: type
-    concepts: [recoveries]
-    classes:
-      RECOVERY_SUBROGATION:
-        - RÜCU
-        - RÜCU TAHSİLATI
-        - RÜCU GELİRİ
-        - SUBROGATION
-        - SUBRO
-      RECOVERY_SALVAGE:
-        - SOVTAJ
-        - SOVTAJ GELİRİ
-        - SOVTAJ SATIŞI
-        - HURDA SATIŞI
-        - SALVAGE
-      RECOVERY_OTHER:
-        - DİĞER
-        - DİĞER TAHSİLAT
-        - OTHER
-        - OTHER RECOVERY
-  - field: counterparty_type
-    concepts: [recoveries]
-    classes:
-      INSURER:
-        - SİGORTA ŞİRKETİ
-        - KARŞI SİGORTA ŞİRKETİ
-        - ŞİRKET
-        - INSURER
-        - INSURANCE COMPANY
-      OTHER_PARTY:
-        - KUSURLU TARAF
-        - ŞAHIS
-        - DİĞER
-        - THIRD PARTY
-        - OTHER
-        - OTHER PARTY
-      SALVAGE_BUYER:
-        - ALICI
-        - HURDA ALICISI
-        - SOVTAJ ALICISI
-        - BUYER
-        - SALVAGE BUYER
-  - field: account_class
-    concepts: [ledger]
-    classes:
-      PREMIUM:
-        - PRİM
-        - PRİM GELİRİ
-        - YAZILAN PRİM
-        - PREMIUM
-        - PREMIUM INCOME
-        - WRITTEN PREMIUM
-      CLAIMS_PAID:
-        - ÖDENEN HASAR
-        - ÖDENEN TAZMİNAT
-        - HASAR ÖDEMESİ
-        - CLAIMS PAID
-        - PAID CLAIMS
-      OUTSTANDING:
-        - MUALLAK
-        - MUALLAK HASAR
-        - MUALLAK TAZMİNAT KARŞILIĞI
-        - OUTSTANDING
-        - OUTSTANDING CLAIMS
-        - CLAIMS RESERVE
-      UPR:
-        - KAZANILMAMIŞ PRİMLER KARŞILIĞI
-        - KPK
-        - UPR
-        - UNEARNED PREMIUM
-        - UNEARNED PREMIUM RESERVE
-      COMMISSION:
-        - KOMİSYON
-        - KOMİSYON GİDERİ
-        - ÜRETİM KOMİSYONU
-        - COMMISSION
-        - ACQUISITION COMMISSION
-      EXPENSE:
-        - GİDER
-        - GENEL GİDER
-        - FAALİYET GİDERİ
-        - EXPENSE
-        - OPERATING EXPENSE
-      RI:
-        - REASÜRANS
-        - REASÜRÖR PAYI
-        - DEVREDİLEN
-        - REINSURANCE
-        - CEDED
-      INVESTMENT:
-        - YATIRIM
-        - YATIRIM GELİRİ
-        - MALİ GELİR
-        - INVESTMENT
-        - INVESTMENT INCOME
-      OTHER:
-        - DİĞER
-        - OTHER
   - field: status
     concepts: [life_in_force]
     classes:
@@ -455,3 +261,9 @@ change_log:
     date: 2026-11-07
     change: >-
       The entries of interest_rates moved to AL02 with the build of the concept (P26).
+  - version: 0.3.0
+    date: 2026-11-11
+    change: >-
+      The entries of reinsurance_treaties, reinsurance_transactions, recoveries and ledger
+      moved to AL02 with the build of the concepts (F1bc); the segment entry stays here for
+      life_in_force.

@@ -1,5 +1,5 @@
-"""The module runner: runs modules M01 to M06 whenever their concepts are present and says why
-the others did not (blueprint 10, decisions 0014, 0032, 0051).
+"""The module runner: runs the built modules (M01 to M07, M09, M12) whenever their concepts are
+present and says why the others did not (blueprint 10, decisions 0014, 0032, 0051).
 
 Whether a module can run comes from the quality report (`ModuleStatus`): a required concept
 that is not loaded, or a BLOCKING finding on a field its measures require, makes it "unable",
@@ -8,7 +8,7 @@ every measure of its spec with the default views, and a measure that cannot be c
 gives its reason instead of values. Method outputs come through the port of the measures.
 """
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from enum import StrEnum
 
@@ -23,13 +23,25 @@ from actuarycanary.measures.model import (
     MeasureRequest,
     MeasureResult,
 )
-from actuarycanary.modules.views import DEFAULT_VIEWS
+from actuarycanary.measures.recovery_measures import recoveries_of
+from actuarycanary.modules.views import views_of
 from actuarycanary.quality.model import ModuleStatus, QualityReport
 from actuarycanary.spec.catalogue import SpecCatalogue
 from actuarycanary.spec.models import MeasureSpec, ModuleSpec
 from actuarycanary.structures.periods import Period
 
 BUILT_METHODS = frozenset({"MT01", "MT02"})  # the methods this package runs itself
+
+
+def _has_recovery_data(inputs: MeasureInputs) -> bool:
+    """M07: a recoveries feed, or a to-date recovery column in claim valuations."""
+    return recoveries_of(inputs).available
+
+
+# What a module needs beyond its loaded concepts; without it the module is skipped with the
+# skip reason of its specification. M07 lists claim_valuations among its concepts, but runs on
+# it only when a to-date recovery column exists.
+PRECONDITIONS: dict[str, Callable[[MeasureInputs], bool]] = {"M07": _has_recovery_data}
 
 
 class ModuleState(StrEnum):
@@ -180,6 +192,9 @@ def run_module(
     }
     if status is not None and status.status == "unable":
         return ModuleOutcome(state=ModuleState.SKIPPED, reasons=status.reasons, **head)  # type: ignore[arg-type]
+    ready = PRECONDITIONS.get(module.id)
+    if ready is not None and not ready(inputs):
+        return ModuleOutcome(state=ModuleState.SKIPPED, reasons=(module.skip_reason,), **head)  # type: ignore[arg-type]
     unavailable_by_quality = set(status.unavailable) if status is not None else set()
     results: list[MeasureResult] = []
     for measure_id in module.measures:
@@ -203,8 +218,14 @@ def run_module(
             continue
         if measure_id not in IMPLEMENTATIONS and measure_id not in METHOD_OUTPUTS:
             continue
-        for breakdowns in DEFAULT_VIEWS.get(measure_id, ((),)):
-            request, note = request_for(spec, breakdowns, period, reinsurance, value, view)
+        asked: set[MeasureRequest] = set()
+        for wanted in views_of(module.id, measure_id):
+            request, note = request_for(
+                spec, wanted.breakdowns, wanted.period or period, reinsurance, value, view
+            )
+            if request in asked:  # a view by month in a run by month
+                continue
+            asked.add(request)
             key = (measure_id, request)
             if key not in cache:
                 result = run_measure(catalogue, inputs, measure_id, request)

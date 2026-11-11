@@ -8,6 +8,7 @@ import pytest
 
 from actuarycanary.canonical.feeds import Finding
 from actuarycanary.quality.checks import CANONICAL_RULES, CHECKS, Context, from_canonical
+from actuarycanary.quality.checks_feeds import FEED_CHECKS
 from tests.quality.builders import SPECS, Rows, claim, cv, expense, frames, policy, premium, series
 
 
@@ -321,7 +322,8 @@ def test_canonical_findings_become_outcomes_with_references() -> None:
 def test_every_rule_has_a_check_or_is_applied_by_the_canonical_step() -> None:
     rules = {r.id for spec in SPECS.values() for r in spec.validation}
     canonical = {r for rules_of in CANONICAL_RULES.values() for r in rules_of}
-    assert rules - canonical <= set(CHECKS)  # none is left "not implemented"
+    # none is left "not implemented"; the checks of the four later feeds are in FEED_CHECKS
+    assert rules - canonical <= set(CHECKS) | set(FEED_CHECKS)
 
 
 def test_dv_mkt_06_leaves_daily_rates_alone_and_checks_each_series_on_its_own() -> None:

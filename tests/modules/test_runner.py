@@ -49,8 +49,21 @@ def states(analysis) -> dict[str, ModuleState]:
 
 def test_modules_run_when_their_concepts_are_present(full) -> None:
     analysis = full
-    assert [m.module for m in analysis.modules] == ["M01", "M02", "M03", "M04", "M05", "M06", "M12"]
+    assert [m.module for m in analysis.modules] == [
+        "M01",
+        "M02",
+        "M03",
+        "M04",
+        "M05",
+        "M06",
+        "M07",
+        "M09",
+        "M12",
+    ]
     found = states(analysis)
+    # these feeds carry no recovery data: M07 says so in the words of its specification
+    assert found.pop("M07") is ModuleState.SKIPPED
+    assert analysis.get("M07").reasons == (CATALOGUE.modules["M07"].skip_reason,)
     assert all(state is not ModuleState.SKIPPED for state in found.values()), found
     assert found["M01"] is ModuleState.RAN
     assert analysis.get("M03").available  # claims measures were computed
@@ -96,6 +109,7 @@ def test_a_blocking_finding_on_an_optional_concept_removes_only_the_measures_tha
 def test_warning_findings_never_stop_a_module() -> None:
     warning = Finding("claim_valuations", "DV-CLV-03", "WARNING", 1, "empty currency", (3,))
     found = states(run(FULL, {"claim_valuations": (warning,)}))
+    assert found.pop("M07") is ModuleState.SKIPPED  # no recovery data in these feeds
     assert ModuleState.SKIPPED not in found.values()
     assert found["M01"] is ModuleState.RAN and found["M03"] is ModuleState.LIMITED
 
@@ -112,6 +126,8 @@ def test_results_list_each_measure_view_once_and_the_json_names_every_module(ful
         "M04",
         "M05",
         "M06",
+        "M07",
+        "M09",
         "M12",
     ]
     m02 = data["modules"][1]

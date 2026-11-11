@@ -10,7 +10,7 @@ from dataclasses import dataclass
 
 import polars as pl
 
-from actuarycanary.recognition.columns import ColumnMapping, map_columns
+from actuarycanary.recognition.columns import CLASS_SHARE, ColumnMapping, class_share, map_columns
 from actuarycanary.recognition.dictionary import Dictionary
 from actuarycanary.recognition.value_profile import ValueProfile
 from actuarycanary.spec.labels import normalise_label
@@ -31,10 +31,17 @@ class ConceptScore:
     grain: str
     name_hint: bool
     mappings: tuple[ColumnMapping, ...]
+    # headers of classified columns whose labels belong to another concept (record 0381)
+    contradicted: tuple[str, ...] = ()
 
     @property
     def complete(self) -> bool:
         return self.required[0] == self.required[1]
+
+    @property
+    def explains(self) -> frozenset[str]:
+        """Headers of the sheet this concept accounts for: mapped and not contradicted."""
+        return frozenset(m.source for m in self.mappings if m.used) - frozenset(self.contradicted)
 
     def detail(self) -> str:
         found = f"required {self.required[0]}/{self.required[1]}"
@@ -73,6 +80,38 @@ def _name_hint(names: tuple[str, ...], concept: str, d: Dictionary) -> bool:
     return any(t and t in targets for t in tokens)
 
 
+def _class_shares(
+    frame: pl.DataFrame, concept: str, mappings: tuple[ColumnMapping, ...], dictionary: Dictionary
+) -> dict[str, float]:
+    """For each column mapped to a classified field of `concept`: the share of its distinct
+    labels that the value aliases of that field recognise."""
+    shares: dict[str, float] = {}
+    for m in mappings:
+        lookup = dictionary.values.get((concept, m.field)) if m.used and m.field else None
+        if lookup is not None:
+            shares[m.source] = class_share(frame[m.source], lookup)
+    return shares
+
+
+def _contradicted(shares: dict[str, dict[str, float]]) -> dict[str, tuple[str, ...]]:
+    """Columns whose labels a concept does not recognise although another concept does.
+
+    Labels nobody recognises (a company's own codes) are no evidence either way; labels that
+    belong to another concept's field are evidence against this one (record 0381)."""
+    result: dict[str, tuple[str, ...]] = {}
+    for concept, own in shares.items():
+        against = [
+            column
+            for column, share in own.items()
+            if share < CLASS_SHARE
+            and any(
+                other.get(column, 0.0) >= CLASS_SHARE for c, other in shares.items() if c != concept
+            )
+        ]
+        result[concept] = tuple(against)
+    return result
+
+
 def score_concept(
     frame: pl.DataFrame,
     headers: tuple[str, ...],
@@ -80,10 +119,14 @@ def score_concept(
     concept: str,
     dictionary: Dictionary,
     profiles: dict[str, ValueProfile],
+    mappings: tuple[ColumnMapping, ...] | None = None,
+    contradicted: tuple[str, ...] = (),
 ) -> ConceptScore:
-    mappings = tuple(map_columns(frame, headers, concept, dictionary, profiles))
+    """The score of one concept. A field whose column is `contradicted` is not counted as found."""
+    if mappings is None:
+        mappings = tuple(map_columns(frame, headers, concept, dictionary, profiles))
     fields = dictionary.concepts[concept].fields
-    used = {m.field for m in mappings if m.used}
+    used = {m.field for m in mappings if m.used and m.source not in contradicted}
     required = sum(f.name in used for f in fields if f.required), sum(f.required for f in fields)
     optional = (
         sum(f.name in used for f in fields if not f.required),
@@ -95,7 +138,9 @@ def score_concept(
     hint = _name_hint(names, concept, dictionary)
     score = FIELD_WEIGHT * coverage
     score += GRAIN_BONUS * grain.startswith("keys unique") + NAME_BONUS * hint
-    return ConceptScore(concept, round(score, 4), required, optional, grain, hint, mappings)
+    return ConceptScore(
+        concept, round(score, 4), required, optional, grain, hint, mappings, contradicted
+    )
 
 
 def score_concepts(
@@ -106,10 +151,41 @@ def score_concepts(
     profiles: dict[str, ValueProfile],
 ) -> list[ConceptScore]:
     """Every concept's score for one sheet, best first. `names` are the file stem and sheet."""
+    mapped = {
+        c: tuple(map_columns(frame, headers, c, dictionary, profiles)) for c in dictionary.concepts
+    }
+    against = _contradicted({c: _class_shares(frame, c, m, dictionary) for c, m in mapped.items()})
     scores = [
-        score_concept(frame, headers, names, c, dictionary, profiles) for c in dictionary.concepts
+        score_concept(frame, headers, names, c, dictionary, profiles, mapped[c], against[c])
+        for c in dictionary.concepts
     ]
-    return sorted(scores, key=lambda s: (not s.complete, -s.score, s.concept))
+    return _superset_first(sorted(scores, key=lambda s: (not s.complete, -s.score, s.concept)))
+
+
+def _explained_share(score: ConceptScore) -> float:
+    """Share of the sheet's columns that map to a field of the concept or are personal data."""
+    columns = score.mappings
+    explained = sum(m.used or m.personal is not None for m in columns)
+    return explained / len(columns) if columns else 0.0
+
+
+def _superset_first(scores: list[ConceptScore]) -> list[ConceptScore]:
+    """A complete concept that explains the sheet and everything the first concept explains, and
+    more, goes first: the first one accounts for a part of the sheet only (record 0381). The
+    score favours a concept with few fields (premiums) over one with many optional fields
+    (reinsurance transactions) when both find all their required fields."""
+    if not scores:
+        return scores
+    first = scores[0]
+    wider = [
+        s
+        for s in scores[1:]
+        if s.complete and first.explains < s.explains and _explained_share(s) >= MIN_EXPLAINED_SHARE
+    ]
+    if not wider:
+        return scores
+    chosen = wider[0]  # the best ranked of them
+    return [chosen, *(s for s in scores if s is not chosen)]
 
 
 def best_concept(scores: list[ConceptScore]) -> ConceptScore | None:
@@ -150,21 +226,33 @@ class Verdict:
 def judge(scores: list[ConceptScore]) -> Verdict:
     """Accept the best concept only on positive evidence, otherwise say why not.
 
-    Accepted when (1) the best score is above the next concept's by more than MIN_MARGIN, (2) at
+    Accepted when (1) the best score is above the next rival's by more than MIN_MARGIN, (2) at
     least MIN_REQUIRED_SHARE of its required fields are found, and (3) either the margin is at
     least CLEAR_MARGIN or at least MIN_EXPLAINED_SHARE of the sheet's columns map to a field of
     the concept or are personal-data columns. A workbook that merely resembles a known concept
     (it has its required columns and a dozen more) is listed as not recognised instead.
+
+    The next rival is the best other concept that is not dominated: when the best concept
+    explains at least MIN_EXPLAINED_SHARE of the sheet, a concept whose explained columns are a
+    strict subset of the best concept's is left out of the margin.
     """
     if not scores:
         return Verdict(None, None, 0.0, 0.0, 0.0, ("the sheet has no columns",))
     best = scores[0]
-    second = scores[1].score if len(scores) > 1 else 0.0
-    margin = round(best.score - second, 4)
     required_share = best.required[0] / best.required[1] if best.required[1] else 0.0
     columns = best.mappings
     explained = sum(m.used or m.personal is not None for m in columns)
-    explained_share = explained / len(columns) if columns else 0.0
+    explained_share = _explained_share(best)
+    # a rival that accounts for only part of what the best concept accounts for is dominated,
+    # once the best concept explains the sheet (record 0381); below MIN_EXPLAINED_SHARE every
+    # concept stays a rival, so a look-alike with a dozen unknown columns gains nothing
+    rivals = [
+        s
+        for s in scores[1:]
+        if explained_share < MIN_EXPLAINED_SHARE or not s.explains < best.explains
+    ]
+    second = rivals[0].score if rivals else 0.0
+    margin = round(best.score - second, 4)
     reasons: list[str] = []
     if best_concept(scores) is None:
         reasons.append(f"score {best.score:.2f} is below {MIN_SCORE} with required fields missing")

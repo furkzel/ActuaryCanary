@@ -57,9 +57,11 @@ from actuarycanary.methods.severity import LargeLossError, LargeLossSettings, pa
 from actuarycanary.modules import reserving_tier_b_output as tier_b_output
 from actuarycanary.modules import severity_run, survival_run
 from actuarycanary.modules.anomalies import AnomalyResult, run_anomalies
+from actuarycanary.modules.expenses import ExpenseTable, expense_table
 from actuarycanary.modules.methods_port import ReservingPort
 from actuarycanary.modules.output import analysis_json
 from actuarycanary.modules.premium_input import earned_premium_by_origin
+from actuarycanary.modules.recoveries import RecoveryTables, recovery_tables
 from actuarycanary.modules.reserving import (
     SELECTION_MEASURE,
     ChainLadderSettings,
@@ -84,7 +86,7 @@ from actuarycanary.modules.reserving_output import (
     range_csv,
     ultimates_csv,
 )
-from actuarycanary.modules.runner import AnalysisResult, run_modules
+from actuarycanary.modules.runner import AnalysisResult, ModuleState, run_modules
 from actuarycanary.modules.tier_b_inputs import TierBInputs, tier_b_source
 from actuarycanary.modules.uncertainty import (
     UncertaintyResult,
@@ -134,7 +136,17 @@ POLICIES = "policies"
 # Read, checked for the quality report and used by the measures; market and policies also feed
 # the triangles when a setting asks for them.
 INTEREST_RATES = "interest_rates"
-CHECKED_CONCEPTS = ("policies", "premiums", "expenses", "market", INTEREST_RATES)
+CHECKED_CONCEPTS = (
+    "policies",
+    "premiums",
+    "expenses",
+    "market",
+    INTEREST_RATES,
+    "reinsurance_treaties",
+    "reinsurance_transactions",
+    "recoveries",
+    "ledger",
+)
 # Specifications whose rules this run applies; recorded with their versions.
 SPECS_USED = (
     "claim_valuations",
@@ -163,6 +175,10 @@ RISK_NAME = "risk_measures.csv"
 RISK_CASH_FLOWS_NAME = "risk_cash_flows.csv"
 RISK_DISTRIBUTION_NAME = "risk_distribution.parquet"
 DISCOUNT_CURVE_NAME = "discount_curve.csv"
+RECOVERIES_NAME = "recoveries.csv"  # M07
+RECOVERY_DEVELOPMENT_NAME = "recovery_development.csv"
+RECOVERY_RECONCILIATION_NAME = "recovery_reconciliation.csv"
+EXPENSES_BY_PERIOD_NAME = "expenses_by_period.csv"  # M09
 
 Progress = Callable[[str], None]
 # Shown the sheets whose layout has no saved profile; returns them accepted, edited or skipped.
@@ -996,6 +1012,28 @@ def run(
     for name, table in survival.files().items():
         outputs.append(write_table(out, name, table))
     outputs.append(write_table(out, report_sensitivity.SENSITIVITY_NAME, sensitivity))
+    # the tables of M07 and M09, when the module ran (records 0386, 0387)
+    recovery_tables_run: RecoveryTables | None = None
+    expense_table_run: ExpenseTable | None = None
+    modules_ran = {m.module for m in analysis.modules if m.state is not ModuleState.SKIPPED}
+    if "M07" in modules_ran:
+        recovery_tables_run = recovery_tables(measure_inputs)
+        development = next(
+            (r for r in analysis.get("M07").measures if r.measure == "RC04" and r.available), None
+        )
+        module_tables = {RECOVERIES_NAME: recovery_tables_run.flows}
+        if development is not None and development.frame is not None:
+            module_tables[RECOVERY_DEVELOPMENT_NAME] = development.frame.select(
+                pl.exclude(r"^refs_.*$")
+            )
+        module_tables[RECOVERY_RECONCILIATION_NAME] = recovery_tables_run.reconciliation
+        report_tables |= module_tables
+        for name, table in module_tables.items():
+            outputs.append(write_table(out, name, table))
+    if "M09" in modules_ran:
+        expense_table_run = expense_table(measure_inputs, view)
+        report_tables[EXPENSES_BY_PERIOD_NAME] = expense_table_run.frame
+        outputs.append(write_table(out, EXPENSES_BY_PERIOD_NAME, expense_table_run.frame))
     if isinstance(uncertainty, UncertaintyResult):
         report_tables |= {RISK_NAME: uncertainty.risk, RISK_CASH_FLOWS_NAME: uncertainty.cash_flows}
         if uncertainty.curve.height:
@@ -1042,6 +1080,8 @@ def run(
                 survival_information=survival.information,
                 survival_diagnostics=tuple(survival_run.diagnostic_rows(survival)),
                 declared_value=declared.triangles.value_basis.value,
+                recoveries=recovery_tables_run,
+                expenses=expense_table_run,
             )
         )
     with language.using(settings.language):

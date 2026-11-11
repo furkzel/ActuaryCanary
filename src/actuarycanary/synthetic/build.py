@@ -28,6 +28,7 @@ from actuarycanary.synthetic.reinsurance import Reinsurance
 from actuarycanary.synthetic.scenario import Scenario, SizeSpec, load_scenario, sized
 from actuarycanary.synthetic.writer import (
     LATER_FOLDER,
+    LATER_FOLDER_FEEDS,
     sha256,
     split_workbooks,
     write_csv,
@@ -273,7 +274,7 @@ def write_outputs(sim: Simulation, out: Path) -> dict[str, object]:
             )
         workbooks[feed] = split_workbooks(feed, plans[feed])
         for file, parts in workbooks[feed]:
-            folder = out / LATER_FOLDER if feed in PHASE2_FEEDS else out
+            folder = out / LATER_FOLDER if feed in LATER_FOLDER_FEEDS else out
             folder.mkdir(exist_ok=True)
             write_workbook(folder / file, parts)
         write_parquet(out / "canonical" / f"{feed}.parquet", pl.concat(sheets.values()))

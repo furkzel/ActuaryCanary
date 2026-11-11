@@ -83,3 +83,51 @@ def expense(**values: Any) -> dict[str, Any]:
 def series(**values: Any) -> dict[str, Any]:
     base = {"series_id": "USD", "kind": "FX_SPOT", "date": date(2024, 1, 31), "value": 30.0}
     return {**base, **values}
+
+
+def treaty(**values: Any) -> dict[str, Any]:
+    base = {
+        "treaty_id": "QS",
+        "treaty_type": "QUOTA_SHARE",
+        "inception_date": date(2024, 1, 1),
+        "expiry_date": date(2025, 1, 1),
+        "line": "X",
+        "currency": "TRY",
+        "cession_share": 0.3,
+    }
+    return {**base, **values}
+
+
+def movement(**values: Any) -> dict[str, Any]:
+    base = {
+        "transaction_id": "M1",
+        "treaty_id": "QS",
+        "booking_date": date(2024, 2, 5),
+        "amount": 5.0,
+        "currency": "TRY",
+        "type": "CEDED_PREMIUM",
+    }
+    return {**base, **values}
+
+
+def recovery(**values: Any) -> dict[str, Any]:
+    base = {
+        "transaction_id": "R1",
+        "claim_id": "1",
+        "booking_date": date(2024, 2, 5),
+        "amount": 4.0,
+        "currency": "TRY",
+        "type": "RECOVERY_SUBROGATION",
+    }
+    return {**base, **values}
+
+
+def balance(month: int = 1, **values: Any) -> dict[str, Any]:
+    base = {
+        "entity": "E",
+        "account": "100",
+        "period": date(2024, month, monthrange(2024, month)[1]),
+        "closing_balance": 10.0,
+        "currency": "TRY",
+    }
+    return {**base, **values}

@@ -134,9 +134,11 @@ def reason_not_recognised(rec: TableRecognition) -> str:
     """Why a sheet has no concept, in the words of the recogniser (English)."""
     if rec.source is Source.SKIPPED:
         return "skipped by a saved mapping profile or by choice"
+    if rec.rejection:
+        return rec.rejection  # the best guess and every reason it was rejected (record 0375)
     if not rec.candidates:
         return "no concept recognised"
-    return f"best candidate {rec.candidates[0].describe()} is below the threshold"
+    return f"best candidate {rec.candidates[0].describe()} was not accepted"
 
 
 def sheet_json(sheet: Sheet, d: Dictionary) -> dict[str, Any]:

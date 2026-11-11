@@ -3,7 +3,7 @@ version: 0.1.0
 title_en: Expenses
 title_tr: Giderler
 status: draft
-implemented: false
+implemented: true
 definition: >-
   What it costs to write and handle business: commission, acquisition, administration and
   claims-handling costs as ratios and unit costs, by line and over time, at value-date
@@ -35,3 +35,8 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 10 (P20).
+  - version: 0.1.0
+    date: 2026-11-11
+    change: >-
+      Implemented before owner review (F1bc, record 0387); the text of the specification is
+      unchanged, so the version stays 0.1.0.

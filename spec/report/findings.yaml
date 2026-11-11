@@ -1,5 +1,5 @@
 id: RP01
-version: 1.2.1
+version: 1.3.0
 title_en: Key finding rules
 title_tr: Temel bulgu kuralları
 status: draft
@@ -24,6 +24,9 @@ settings:
   # Limits that only these rules use; a condition reads a setting like any other fact.
   back_test_sign_share_limit: 0.75
   cohort_median_ratio_limit: 1.25
+  recovery_drop_limit: 0.5
+  expense_ratio_change_limit: 0.02
+  unallocated_expense_share_limit: 0.25
 rules:
   - id: KF01
     title: Thin evidence
@@ -568,6 +571,127 @@ rules:
       section: uncertainty
       files: [risk_measures.csv, discount_curve.csv]
       specs: [RS04, CV10]
+  - id: KF35
+    title: Recoveries to date
+    scope: run
+    priority: 17
+    condition: recovered_to_date > 0
+    template: >-
+      Recoveries to date are {recovered_to_date} {currency}, {recovery_share} of claims paid
+      (source: {recovery_source}).
+    title_tr: Bugüne kadarki rücu ve sovtaj
+    template_tr: >-
+      Bugüne kadarki rücu ve sovtaj tahsilatı {recovered_to_date} {currency}; ödenen hasarların
+      {recovery_share} kadarı (kaynak: {recovery_source}).
+    evidence:
+      section: recoveries
+      files: [recoveries.csv, recovery_development.csv]
+      specs: [RC04, M07]
+  - id: KF36
+    title: Recovery transactions differ from the to-date fields
+    scope: run
+    priority: 18
+    condition: recovery_differences > 0
+    template: >-
+      The recovery transactions differ from the to-date recovery fields of claim valuations at
+      {recovery_differences} of {recovery_valuations_compared} valuations; the transactions are
+      used and every difference is listed.
+    title_tr: Rücu hareketleri bugüne kadarki alanlardan farklı
+    template_tr: >-
+      Rücu ve sovtaj hareketleri, hasar değerlemelerindeki bugüne kadarki tahsilat alanlarından
+      {recovery_valuations_compared} değerlemenin {recovery_differences} tanesinde farklıdır;
+      hareketler kullanılır ve her fark listelenir.
+    evidence:
+      section: recoveries
+      files: [recovery_reconciliation.csv]
+      specs: [recoveries, M07]
+  - id: KF37
+    title: Weaker recovery in the latest origin
+    scope: run
+    priority: 19
+    condition: recovery_ratio_drop >= recovery_drop_limit
+    template: >-
+      At {recovery_first_age} months of development the origin {recovery_latest_origin} has
+      recovered {recovery_ratio_latest} of paid, against {recovery_ratio_earlier} for the
+      earlier origins at the same age: an early sign of weaker recovery, on few recoveries.
+    title_tr: Son hasar döneminde daha zayıf tahsilat
+    template_tr: >-
+      {recovery_first_age} aylık gelişimde {recovery_latest_origin} dönemi ödenenin
+      {recovery_ratio_latest} kadarını geri kazandı; önceki dönemlerde aynı yaşta bu oran
+      {recovery_ratio_earlier} idi: az sayıda tahsilata dayanan, daha zayıf tahsilatın erken bir
+      işareti.
+    evidence:
+      section: recoveries
+      files: [recovery_development.csv]
+      specs: [RC04, M07]
+  - id: KF38
+    title: Expense ratio moved
+    scope: run
+    priority: 20
+    condition: expense_ratio_change_size >= expense_ratio_change_limit
+    template: >-
+      The expense ratio of the last twelve months is {expense_ratio_12m}, against
+      {expense_ratio_previous} in the twelve months before.
+    title_tr: Gider oranı değişti
+    template_tr: >-
+      Son on iki ayın gider oranı {expense_ratio_12m}; önceki on iki ayda
+      {expense_ratio_previous} idi.
+    evidence:
+      section: expenses
+      files: [measures.csv]
+      specs: [EX02, M09]
+  - id: KF39
+    title: Commission ratio moved
+    scope: run
+    priority: 21
+    condition: commission_ratio_change_size >= expense_ratio_change_limit
+    template: >-
+      The commission ratio of the last twelve months is {commission_ratio_12m}, against
+      {commission_ratio_previous} in the twelve months before.
+    title_tr: Komisyon oranı değişti
+    template_tr: >-
+      Son on iki ayın komisyon oranı {commission_ratio_12m}; önceki on iki ayda
+      {commission_ratio_previous} idi.
+    evidence:
+      section: expenses
+      files: [measures.csv]
+      specs: [EX01, M09]
+  - id: KF40
+    title: Expenses booked without a line
+    scope: run
+    priority: 22
+    condition: unallocated_expense_share >= unallocated_expense_share_limit
+    template: >-
+      {unallocated_expense_share} of the expenses of the last twelve months
+      ({unallocated_expenses} {currency}) are booked without a line; they are shown at the level
+      they were booked, never spread over lines, and are in no ratio by line.
+    title_tr: Branşsız kaydedilen giderler
+    template_tr: >-
+      Son on iki ayın giderlerinin {unallocated_expense_share} kadarı ({unallocated_expenses}
+      {currency}) branş belirtilmeden kaydedilmiştir; bu giderler kaydedildikleri düzeyde
+      gösterilir, branşlara dağıtılmaz ve branş bazındaki hiçbir orana girmez.
+    evidence:
+      section: expenses
+      files: [expenses_by_period.csv]
+      specs: [expenses, M09]
+  - id: KF41
+    title: Unit costs stopped by a month without expense rows
+    scope: run
+    priority: 23
+    condition: unit_cost_periods_missing > 0
+    template: >-
+      The unit costs of {unit_cost_periods_missing} of {unit_cost_periods} periods are not
+      computed because a month has no expense rows; a missing booking is not read as a zero
+      cost.
+    title_tr: Gider satırı olmayan ay nedeniyle hesaplanmayan birim maliyetler
+    template_tr: >-
+      {unit_cost_periods} dönemin {unit_cost_periods_missing} tanesinde birim maliyetler
+      hesaplanmadı, çünkü bir ayda gider satırı yok; eksik bir kayıt sıfır maliyet olarak
+      okunmaz.
+    evidence:
+      section: expenses
+      files: [measures.csv, expenses_by_period.csv]
+      specs: [EX04, EX05, M09]
 change_log:
   - version: 1.0.0
     date: 2026-10-22
@@ -600,3 +724,13 @@ change_log:
       least 20 closings, must reach the new setting cohort_median_ratio_limit (1.25). The
       sentences keep their wording (KF31 names 0.5 instead of a placeholder). The file gains
       a settings block for the two limits. Not reviewed by the owner yet (gate G5).
+  - version: 1.3.0
+    date: 2026-11-11
+    change: >-
+      Seven rules for the pages of M07 and M09 (F1bc, record 0388): KF35 recoveries to date,
+      KF36 recovery transactions against the to-date fields, KF37 weaker recovery in the latest
+      origin, KF38 and KF39 the expense and commission ratios of the last twelve months against
+      the twelve before, KF40 expenses booked without a line, KF41 unit costs stopped by a month
+      without expense rows. Three settings: recovery_drop_limit 0.5,
+      expense_ratio_change_limit 0.02, unallocated_expense_share_limit 0.25. Implemented before
+      owner review; draft.

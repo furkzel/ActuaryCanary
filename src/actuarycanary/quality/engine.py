@@ -8,7 +8,9 @@ import polars as pl
 
 from actuarycanary.canonical.feeds import CanonicalFeed
 from actuarycanary.convert.discount import DiscountContext
-from actuarycanary.quality.checks import CANONICAL_RULES, CAST_RULE, CHECKS, Context, from_canonical
+from actuarycanary.quality.checks import CANONICAL_RULES, CAST_RULE, Context, from_canonical
+from actuarycanary.quality.checks import CHECKS as FIRST_CHECKS
+from actuarycanary.quality.checks_feeds import FEED_CHECKS, NEEDS, NOT_BUILT
 from actuarycanary.quality.model import (
     DIMENSIONS,
     ConceptCoverage,
@@ -32,7 +34,12 @@ PERIOD_FIELDS = {
     "expenses": "period",
     "market": "date",
     "interest_rates": "date",
+    "reinsurance_treaties": "inception_date",
+    "reinsurance_transactions": "booking_date",
+    "recoveries": "booking_date",
+    "ledger": "period",
 }
+CHECKS = FIRST_CHECKS | FEED_CHECKS
 # rules about the curve a run discounts with; evaluated only when the run names one (CV10)
 CURVE_RULES = {
     "DV-IRT-08": "no curve is named for discounting",
@@ -229,8 +236,7 @@ def evaluate(
             if check is None:
                 not_evaluated.append((rule.id, "no check is implemented for this rule yet"))
             elif (outcome := check(ctx)) is None:
-                why = CURVE_RULES.get(rule.id, "the fields it needs are not loaded")
-                not_evaluated.append((rule.id, why))
+                not_evaluated.append((rule.id, _why_not(rule.id, set(feeds))))
             else:
                 outcomes.append(outcome)
     for concept, spec in catalogue.data.items():
@@ -284,6 +290,19 @@ def evaluate(
         _coverage(catalogue, frames, raw, sources or {}, unreadable or {}),
         tuple(sorted(not_evaluated)),
     )
+
+
+def _why_not(rule: str, loaded: set[str]) -> str:
+    """Why a check returned nothing: a rule about the curve, a rule that is not built, a second
+    feed that is not loaded, or fields that are missing."""
+    if rule in CURVE_RULES:
+        return CURVE_RULES[rule]
+    if rule in NOT_BUILT:
+        return NOT_BUILT[rule]
+    absent = [c for c in NEEDS.get(rule, ()) if c not in loaded]
+    if absent:
+        return f"{' and '.join(absent)} {'is' if len(absent) == 1 else 'are'} not loaded"
+    return "the fields it needs are not loaded"
 
 
 def _cast_fields(message: str, feed: CanonicalFeed) -> list[str]:
