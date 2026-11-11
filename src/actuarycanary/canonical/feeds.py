@@ -797,6 +797,229 @@ def _interest_rate_rules(
     return frame.filter(~whole_year), found
 
 
+# --- the feeds built by F1bc: movements with an id (recoveries, reinsurance transactions),
+# treaty terms and the trial balance (records 0381, 0384) ---------------------------------
+
+
+def _unmapped_labels(
+    frame: pl.DataFrame, spec: DataConceptSpec, fields: tuple[str, ...], rule: str, what: str
+) -> tuple[pl.DataFrame, Finding | None]:
+    """Labels of the classified `fields` outside their classes become UNMAPPED and are listed."""
+    classes = {f.name: f.classes for f in spec.fields if f.name in fields and f.classes}
+    used = [f for f in fields if f in classes and f in frame.columns]
+    if not used:
+        return frame, None
+    bad = {f: pl.col(f).is_not_null() & ~pl.col(f).is_in(classes[f]) for f in used}
+    found = finding(
+        spec.id,
+        rule,
+        "WARNING",
+        f"{' and '.join(used)} labels outside the classes become {UNMAPPED}{what}",
+        frame.filter(pl.any_horizontal(*bad.values())),
+    )
+    frame = frame.with_columns(
+        pl.when(bad[f]).then(pl.lit(UNMAPPED)).otherwise(pl.col(f)).alias(f) for f in used
+    )
+    return frame, found
+
+
+def _one_per_key(
+    frame: pl.DataFrame, concept: str, rule: str, keys: list[str], conflicting: str
+) -> tuple[pl.DataFrame, list[Finding | None]]:
+    """Identical duplicates of a key are kept once. Conflicting rows of one key: with
+    `conflicting` "later" the later source row is kept, with "none" all of them are excluded."""
+    frame = frame.sort(SOURCE_ROW)
+    value_columns = [c for c in frame.columns if c not in SOURCE_COLUMNS]
+    identical = ~_first_distinct(frame, value_columns)
+    found = [
+        finding(
+            concept,
+            rule,
+            "WARNING",
+            f"identical duplicates of {', '.join(keys)} kept once",
+            frame.filter(identical),
+        )
+    ]
+    frame = frame.filter(~identical)
+    key = pl.struct(keys)
+    if conflicting == "later":
+        last = frame.select(key.is_last_distinct()).to_series()
+        found.append(
+            finding(
+                concept,
+                rule,
+                "WARNING",
+                f"conflicting rows for one {', '.join(keys)}: the later row is kept",
+                frame.filter(~last),
+            )
+        )
+        return frame.filter(last), found
+    repeated = frame.select(key.is_duplicated()).to_series()
+    found.append(
+        finding(
+            concept,
+            rule,
+            "WARNING",
+            f"conflicting rows for one {', '.join(keys)}: all of them excluded",
+            frame.filter(repeated),
+        )
+    )
+    return frame.filter(~repeated), found
+
+
+def _movement_rules(
+    frame: pl.DataFrame,
+    spec: DataConceptSpec,
+    prefix: str,
+    owner: str,
+    classified: tuple[str, ...],
+    unmapped_note: str,
+) -> tuple[pl.DataFrame, list[Finding | None]]:
+    """Rules 01 to 04 of a movement feed with a transaction_id (recoveries, reinsurance
+    transactions): presence, classes, currency, one row per transaction."""
+    concept = spec.id
+    required = ("transaction_id", owner, "booking_date", "amount", "type")
+    missing = pl.any_horizontal(pl.col(c).is_null() for c in required)
+    found: list[Finding | None] = [
+        finding(
+            concept,
+            f"{prefix}-01",
+            "BLOCKING",
+            f"rows without {', '.join(required[:-1])} or {required[-1]} excluded",
+            frame.filter(missing),
+        )
+    ]
+    frame = frame.filter(~missing)
+    frame, duplicates = _one_per_key(frame, concept, f"{prefix}-04", ["transaction_id"], "later")
+    found += duplicates
+    frame, unmapped = _unmapped_labels(frame, spec, classified, f"{prefix}-02", unmapped_note)
+    found.append(unmapped)
+    invalid = _invalid_currency()
+    found.append(
+        finding(
+            concept,
+            f"{prefix}-03",
+            "WARNING",
+            f"empty or invalid currency becomes {UNKNOWN}: kept in original-currency views, "
+            "excluded from converted views",
+            frame.filter(invalid),
+        )
+    )
+    frame = frame.with_columns(
+        pl.when(invalid).then(pl.lit(UNKNOWN)).otherwise(pl.col("currency")).alias("currency")
+    )
+    return frame.sort(SOURCE_ROW), found
+
+
+def _recoveries_rules(
+    frame: pl.DataFrame, spec: DataConceptSpec
+) -> tuple[pl.DataFrame, list[Finding | None]]:
+    return _movement_rules(
+        frame,
+        spec,
+        "DV-RCV",
+        "claim_id",
+        ("type", "counterparty_type"),
+        "; such a type counts in total recoveries and in no measure by type",
+    )
+
+
+def _reinsurance_transactions_rules(
+    frame: pl.DataFrame, spec: DataConceptSpec
+) -> tuple[pl.DataFrame, list[Finding | None]]:
+    return _movement_rules(
+        frame,
+        spec,
+        "DV-RTR",
+        "treaty_id",
+        ("type", "segment"),
+        "; such a type is excluded from ceded measures",
+    )
+
+
+def _reinsurance_treaties_rules(
+    frame: pl.DataFrame, spec: DataConceptSpec
+) -> tuple[pl.DataFrame, list[Finding | None]]:
+    """Rows that cannot be told apart or placed in time are excluded (DV-RTY-01, -03, -08); the
+    terms of a row (DV-RTY-04 to -07) are checked by the quality report and the row is kept, so
+    that a movement can still be matched to its treaty (record 0384)."""
+    concept = "reinsurance_treaties"
+    required = ("treaty_id", "treaty_type", "inception_date", "expiry_date", "currency")
+    missing = pl.any_horizontal(pl.col(c).is_null() for c in required)
+    found: list[Finding | None] = [
+        finding(
+            concept,
+            "DV-RTY-01",
+            "BLOCKING",
+            "rows without treaty_id, treaty_type, inception_date, expiry_date or currency excluded",
+            frame.filter(missing),
+        )
+    ]
+    frame = frame.filter(~missing)
+    backwards = pl.col("expiry_date") <= pl.col("inception_date")
+    found.append(
+        finding(
+            concept,
+            "DV-RTY-03",
+            "BLOCKING",
+            "rows whose expiry_date is not after inception_date excluded",
+            frame.filter(backwards),
+        )
+    )
+    frame = frame.filter(~backwards)
+    frame, unmapped = _unmapped_labels(
+        frame,
+        spec,
+        ("treaty_type", "attachment_basis", "loss_basis", "segment"),
+        "DV-RTY-02",
+        f"; a row with an {UNMAPPED} treaty_type is excluded from allocation and what-if",
+    )
+    found.append(unmapped)
+    keys = [k for k in ("treaty_id", "inception_date", "line") if k in frame.columns]
+    frame, duplicates = _one_per_key(frame, concept, "DV-RTY-08", keys, "none")
+    return frame.sort(SOURCE_ROW), [*found, *duplicates]
+
+
+def _ledger_rules(
+    frame: pl.DataFrame, spec: DataConceptSpec
+) -> tuple[pl.DataFrame, list[Finding | None]]:
+    concept = "ledger"
+    required = ("entity", "account", "period", "closing_balance")
+    missing = pl.any_horizontal(pl.col(c).is_null() for c in required)
+    found: list[Finding | None] = [
+        finding(
+            concept,
+            "DV-LDG-01",
+            "BLOCKING",
+            "rows without entity, account, period or closing_balance excluded",
+            frame.filter(missing),
+        )
+    ]
+    frame = frame.filter(~missing)
+    month_end = pl.col("period").dt.month_end()
+    found.append(
+        finding(
+            concept,
+            "DV-LDG-02",
+            "INFO",
+            "period is not a month end: the row is assigned to the month end of its month",
+            frame.filter(pl.col("period") != month_end),
+        )
+    )
+    frame = frame.with_columns(month_end.alias("period"))
+    frame, unmapped = _unmapped_labels(
+        frame,
+        spec,
+        ("account_class", "segment"),
+        "DV-LDG-04",
+        "; the mapping profile may still map the account",
+    )
+    found.append(unmapped)
+    keys = [k for k in ("entity", "account", "period", "currency") if k in frame.columns]
+    frame, duplicates = _one_per_key(frame, concept, "DV-LDG-05", keys, "none")
+    return frame.sort(SOURCE_ROW), [*found, *duplicates]
+
+
 _RULES: dict[
     str, Callable[[pl.DataFrame, DataConceptSpec], tuple[pl.DataFrame, list[Finding | None]]]
 ] = {
@@ -806,6 +1029,10 @@ _RULES: dict[
     "premiums": _premiums_rules,
     "policies": _policies_rules,
     "interest_rates": _interest_rate_rules,
+    "recoveries": _recoveries_rules,
+    "reinsurance_transactions": _reinsurance_transactions_rules,
+    "reinsurance_treaties": _reinsurance_treaties_rules,
+    "ledger": _ledger_rules,
 }
 
 

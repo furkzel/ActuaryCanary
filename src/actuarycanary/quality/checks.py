@@ -692,6 +692,12 @@ CANONICAL_RULES: dict[str, tuple[str, ...]] = {
         "DV-POL-08",
     ),
 }
+CANONICAL_RULES |= {
+    "recoveries": ("DV-RCV-01", "DV-RCV-02", "DV-RCV-03", "DV-RCV-04"),
+    "reinsurance_transactions": ("DV-RTR-01", "DV-RTR-02", "DV-RTR-03", "DV-RTR-04"),
+    "reinsurance_treaties": ("DV-RTY-01", "DV-RTY-02", "DV-RTY-03", "DV-RTY-08"),
+    "ledger": ("DV-LDG-01", "DV-LDG-02", "DV-LDG-04", "DV-LDG-05"),
+}
 CAST_RULE = "CV07"  # a value that is not the field's type; reported by the canonical step
 
 
