@@ -56,8 +56,10 @@ def test_messy_maps_to_the_same_canonical_frames_as_baseline(
     recognised: tuple[Recognised, Recognised],
 ) -> None:
     baseline, messy = (_canonical(r) for r in recognised)
-    # the folders hold no interest rates: the concept has no sheet to compare
-    assert set(messy) == set(baseline) == set(SPECS.data) - {"interest_rates"}
+    # the committed folders hold neither interest rates nor the four feeds of F1bc in the
+    # folder itself (they are older than the generator, record 0382): no sheet to compare
+    later = {"reinsurance_treaties", "reinsurance_transactions", "recoveries", "ledger"}
+    assert set(messy) == set(baseline) == set(SPECS.data) - {"interest_rates"} - later
     for concept, expected in baseline.items():
         got = messy[concept].select(expected.columns)
         assert got.schema == expected.schema, concept

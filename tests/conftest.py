@@ -93,3 +93,39 @@ def recognised_scenario(scenario_folder):
         return read[name]
 
     return recognised
+
+
+@pytest.fixture(scope="session")
+def scenario_checked(recognised_scenario):
+    """Function `name -> (canonical feeds, quality report)` of a tiny scenario: every recognised
+    sheet mapped, typed and checked as a run does it, without the rest of the run."""
+    from actuarycanary.canonical.feeds import CanonicalError, canonicalise
+    from actuarycanary.pipeline import _amounts, _combined
+    from actuarycanary.quality.engine import evaluate
+    from actuarycanary.recognition.dictionary import build_dictionary
+    from actuarycanary.recognition.tables import canonical_table
+    from actuarycanary.spec.loader import load_specs
+
+    specs = load_specs()
+    dictionary = build_dictionary(specs)
+    done: dict[str, tuple] = {}
+
+    def checked(name: str) -> tuple:
+        if name not in done:
+            by_concept: dict[str, list] = {}
+            for item in recognised_scenario(name):
+                if item.recognition.concept is not None:
+                    by_concept.setdefault(item.recognition.concept, []).append(item)
+            feeds, raw = {}, {}
+            for concept, items in by_concept.items():
+                parts = [canonical_table(i.table, i.recognition, dictionary)[0] for i in items]
+                combined = _combined(parts)
+                try:
+                    feeds[concept] = canonicalise(combined, specs.data[concept], _amounts(items))
+                except CanonicalError:
+                    continue  # a run lists such a feed as unreadable and goes on
+                raw[concept] = combined.frame
+            done[name] = (feeds, evaluate(specs, feeds, raw))
+        return done[name]
+
+    return checked

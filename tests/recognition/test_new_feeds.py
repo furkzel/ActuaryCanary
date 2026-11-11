@@ -6,8 +6,12 @@ record 0375 holds as it was."""
 from datetime import date
 from pathlib import Path
 
+import polars as pl
 import pytest
 
+from actuarycanary.canonical.feeds import canonicalise
+from actuarycanary.io.excel import SOURCE_COLUMNS
+from actuarycanary.pipeline import recognise_folder
 from actuarycanary.recognition.columns import CLASS_SHARE, ColumnMapping, Layer
 from actuarycanary.recognition.concepts import (
     MIN_EXPLAINED_SHARE,
@@ -16,9 +20,16 @@ from actuarycanary.recognition.concepts import (
     judge,
     score_concepts,
 )
-from actuarycanary.recognition.tables import recognise_table
+from actuarycanary.recognition.mapping_profiles import save_profile
+from actuarycanary.recognition.tables import (
+    Source,
+    canonical_table,
+    recognise_table,
+    to_profile,
+    with_field,
+)
 from actuarycanary.recognition.value_profile import profile_values
-from tests.recognition.build import DICTIONARY, table
+from tests.recognition.build import DICTIONARY, SPECS, table
 
 OLD = {"claim_valuations", "claims", "policies", "premiums", "expenses", "market", "interest_rates"}
 NEW = {"reinsurance_treaties", "reinsurance_transactions", "recoveries", "ledger"}
@@ -205,3 +216,34 @@ def test_every_sheet_of_a_scenario_is_read_as_its_concept(scenario_sheets) -> No
     assert all(r.rejection.startswith("best guess ") and "rejected:" in r.rejection for r in life)
     if scenario in ("life_book", "messy_headers", "messy_incremental"):
         assert set(found) >= LIFE
+
+
+# --- a mapping edited on the confirmation screen, saved and used again ----------------------
+
+
+def test_a_ledger_mapping_is_edited_saved_and_used_again(scenario_folder, tmp_path) -> None:
+    """The messy ledger writes its credit column as CERDIT. The proposal leaves it out; the user
+    maps it, the profile is saved, and the next reading takes the profile and gives the canonical
+    data of the generator."""
+    folder, profiles = scenario_folder("messy_headers"), tmp_path / "profiles"
+    first = recognise_folder(folder, DICTIONARY, None, profiles)
+    item = next(i for i in first if i.recognition.concept == "ledger")
+    rec = item.recognition
+    assert rec.source is Source.AUTOMATIC
+    assert next(m for m in rec.mappings if m.source == "CERDIT").field is None
+
+    edited = with_field(rec, "CERDIT", "credit", DICTIONARY)
+    save_profile(profiles, to_profile(edited, date(2026, 11, 11)))
+
+    again = recognise_folder(folder, DICTIONARY, None, profiles)
+    saved = next(i for i in again if i.recognition.concept == "ledger")
+    assert saved.recognition.source is Source.SAVED
+    assert next(m for m in saved.recognition.mappings if m.source == "CERDIT").field == "credit"
+    others = [i.recognition.source for i in again if i.recognition.concept != "ledger"]
+    assert Source.SAVED not in others  # a profile belongs to one layout
+
+    raw, _ = canonical_table(saved.table, saved.recognition, DICTIONARY)
+    got = canonicalise(raw, SPECS.data["ledger"]).frame.drop(SOURCE_COLUMNS)
+    expected = pl.read_parquet(folder / "canonical" / "ledger.parquet")
+    keys = ["entity", "account", "period"]
+    assert got.select(expected.columns).sort(keys).equals(expected.sort(keys))

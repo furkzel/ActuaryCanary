@@ -294,7 +294,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "fe9f94cdf99afc24"
+    "value": "1ec1597ebf258a17"
    },
    {
     "label": "Valuation date",
@@ -4553,6 +4553,14 @@
       "score": "–"
      },
      {
+      "concept": "ledger",
+      "first": "–",
+      "last": "–",
+      "loaded": false,
+      "rows": "–",
+      "score": "–"
+     },
+     {
       "concept": "market",
       "first": "2016-01-01",
       "last": "2025-12-31",
@@ -4575,6 +4583,30 @@
       "loaded": true,
       "rows": "8,031",
       "score": "100.0"
+     },
+     {
+      "concept": "recoveries",
+      "first": "–",
+      "last": "–",
+      "loaded": false,
+      "rows": "–",
+      "score": "–"
+     },
+     {
+      "concept": "reinsurance_transactions",
+      "first": "–",
+      "last": "–",
+      "loaded": false,
+      "rows": "–",
+      "score": "–"
+     },
+     {
+      "concept": "reinsurance_treaties",
+      "first": "–",
+      "last": "–",
+      "loaded": false,
+      "rows": "–",
+      "score": "–"
      }
     ],
     "footnote": "DQ01 v1.0.0; rows as read from the spreadsheets; scores out of 100.",
@@ -5751,8 +5783,8 @@
   "outputs": [
    {
     "name": "quality.json",
-    "sha256": "d549a2b14c1b3684a39dd3497dc2518d7be86d13d47f90bb7f38cbbdb5b67feb",
-    "size": "32,843"
+    "sha256": "931d0cab490980fff379ab8a09958a855337ead1e06e6af141dcbaf754660bea",
+    "size": "36,417"
    },
    {
     "name": "triangles.csv",
@@ -6019,7 +6051,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "fe9f94cdf99afc24",
+  "run_id": "1ec1597ebf258a17",
   "settings": [
    {
     "name": "bases.currency",
@@ -6473,12 +6505,12 @@
    {
     "id": "AL01",
     "title": "Column aliases",
-    "version": "1.1.0"
+    "version": "1.2.0"
    },
    {
     "id": "AL02",
     "title": "Value aliases",
-    "version": "1.1.0"
+    "version": "1.2.0"
    },
    {
     "id": "CV01",

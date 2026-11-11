@@ -294,7 +294,7 @@
   "rows": [
    {
     "label": "Çalıştırma kimliği",
-    "value": "90b1f5cf4acec843"
+    "value": "d8c5e494fc353104"
    },
    {
     "label": "Değerleme tarihi",
@@ -4585,6 +4585,14 @@
       "score": "–"
      },
      {
+      "concept": "ledger",
+      "first": "–",
+      "last": "–",
+      "loaded": false,
+      "rows": "–",
+      "score": "–"
+     },
+     {
       "concept": "market",
       "first": "2016-01-01",
       "last": "2025-12-31",
@@ -4607,6 +4615,30 @@
       "loaded": true,
       "rows": "8.031",
       "score": "100.0"
+     },
+     {
+      "concept": "recoveries",
+      "first": "–",
+      "last": "–",
+      "loaded": false,
+      "rows": "–",
+      "score": "–"
+     },
+     {
+      "concept": "reinsurance_transactions",
+      "first": "–",
+      "last": "–",
+      "loaded": false,
+      "rows": "–",
+      "score": "–"
+     },
+     {
+      "concept": "reinsurance_treaties",
+      "first": "–",
+      "last": "–",
+      "loaded": false,
+      "rows": "–",
+      "score": "–"
      }
     ],
     "footnote": "DQ01 v1.0.0; satırlar elektronik tablolardan okunduğu gibidir; puanlar 100 üzerindendir.",
@@ -5783,8 +5815,8 @@
   "outputs": [
    {
     "name": "quality.json",
-    "sha256": "d549a2b14c1b3684a39dd3497dc2518d7be86d13d47f90bb7f38cbbdb5b67feb",
-    "size": "32.843"
+    "sha256": "931d0cab490980fff379ab8a09958a855337ead1e06e6af141dcbaf754660bea",
+    "size": "36.417"
    },
    {
     "name": "triangles.csv",
@@ -6051,7 +6083,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "90b1f5cf4acec843",
+  "run_id": "d8c5e494fc353104",
   "settings": [
    {
     "name": "bases.currency",
@@ -6505,12 +6537,12 @@
    {
     "id": "AL01",
     "title": "Sütun adı eşleştirmeleri",
-    "version": "1.1.0"
+    "version": "1.2.0"
    },
    {
     "id": "AL02",
     "title": "Değer eşleştirmeleri",
-    "version": "1.1.0"
+    "version": "1.2.0"
    },
    {
     "id": "CV01",

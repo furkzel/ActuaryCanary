@@ -134,7 +134,17 @@ POLICIES = "policies"
 # Read, checked for the quality report and used by the measures; market and policies also feed
 # the triangles when a setting asks for them.
 INTEREST_RATES = "interest_rates"
-CHECKED_CONCEPTS = ("policies", "premiums", "expenses", "market", INTEREST_RATES)
+CHECKED_CONCEPTS = (
+    "policies",
+    "premiums",
+    "expenses",
+    "market",
+    INTEREST_RATES,
+    "reinsurance_treaties",
+    "reinsurance_transactions",
+    "recoveries",
+    "ledger",
+)
 # Specifications whose rules this run applies; recorded with their versions.
 SPECS_USED = (
     "claim_valuations",
