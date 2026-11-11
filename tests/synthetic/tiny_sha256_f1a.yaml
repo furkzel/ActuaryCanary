@@ -2,6 +2,8 @@
 # F1a (records 0373 and 0376). The version 1.0 values are in tests/fixtures/synthetic/
 # tiny_sha256_v1.yaml; the claim amounts of the group life line moved on purpose (0373), so the
 # later feeds are now held to this file. Same 26 file names as the version 1.0 file.
+# The workbook digests are taken over the uncompressed parts of the archive, as the test and
+# `writer.sha256` take them (they were whole-file digests until record 0383; same bytes).
 baseline:
   canonical/claim_valuations.parquet: 13b3cda5952bb1b3392be5fc4f369f5223affec15f28bc2b0723577bf5f67757
   canonical/claims.parquet: abb9bd3bf060fc624639503cd3a2441b6edf73a644a25eae050ec349c44a5b1c
@@ -9,12 +11,12 @@ baseline:
   canonical/market.parquet: bfdda655cb94277d23793e03b14bbeae9dac04c1347f34cd132e26dd64159d40
   canonical/policies.parquet: 5eb349417ce29109821c8841d700d1fd38c3b8b882f76032ae794539a89a0b19
   canonical/premiums.parquet: a31bddf8b8cd9f7760d5d8d000d4b7bf85a97d144eec2fc99c5fe9276b4c20d9
-  claim_valuations.xlsx: 7c6c27596ae215f2e9237bb60f3d514471695cf30fb5294de4a4ebf6d9d913bb
-  claims.xlsx: 038a5c568e558eecfb225ae4475a94c59f7da8e66de01ae2968a2cd9a452dd71
-  expenses.xlsx: 6ea8a6e8d16ffc28219d6d502bcf21e52a47770a72e14f1c9ec727713810461b
-  market.xlsx: 6d999edec0454787c68eb3ed4772887166103669b9f5c04bbe69d7db2251413e
-  policies.xlsx: 14ab3f93743ef35dcd8233a48703750c68cae765b979b696c55afd92cb868d83
-  premiums.xlsx: 5851c0d6408a7d3493ad210f8b161f97efc1f3d93b1945db4cee3a42856d7a3d
+  claim_valuations.xlsx: cb2191722b5c3aac39f26a7787cfce1da1094f142b6c667c7e874121d65c87cd
+  claims.xlsx: e075ccabbe3ad4605f7967006efd47d78637b2b100e2dd2631fe3cae30ed1dec
+  expenses.xlsx: e33c8c5e0b930410854fdf5971ef85dc61577dc56c077e5eea14f511867e7bc8
+  market.xlsx: cb773e9fb8c08ced01076a500c506a0f8bd9d3ce6c13c120f22779ab76d0329c
+  policies.xlsx: 18a9a2e8144c6b27a84d9f01fb07d616b1136363fbe19bc5925206e53a2c9b0c
+  premiums.xlsx: f5e306847d035fc6147e197a0067c8a529a58919b12a9caf1f7a8ebab10864b2
   truth/anomalies.csv: bc53f5dec66cc4aca6cc3de42907e8c79cd7bc5daf0365beca5abc3b8a034892
   truth/column_map.csv: 593ac4558fe6acb7946deb892ffe66bfe086544526fb744921ee2c6f2ec743f7
   truth/date_formats.csv: 2e641e350fa393205bb394a6a28e3d915de4dd7791f10865c4b66947e4d0053d
@@ -36,12 +38,12 @@ messy_headers:
   canonical/market.parquet: bfdda655cb94277d23793e03b14bbeae9dac04c1347f34cd132e26dd64159d40
   canonical/policies.parquet: 5eb349417ce29109821c8841d700d1fd38c3b8b882f76032ae794539a89a0b19
   canonical/premiums.parquet: 658a320505efcc480e0d825f19e3bb9b1e7d617123e77def58c25542286f04dc
-  claim_valuations.xlsx: 609509bba83c8cfcf5263061dd16c0a346c1c00393c090001106c6384d1e996b
-  claims.xlsx: 5ed78a0c2abc115e668cff867f23eb8b62cf6b93e0406a1bc68e9745a1e178bb
-  expenses.xlsx: 53b231c6c06305b996127ebae8cb75f06b05ca09e12f035cbf09bb65fe39b315
-  market.xlsx: 6f68cc77c083a044b8a41db0a2949c9f60e09a11a6b48dbca89ad7d3fe9a33e6
-  policies.xlsx: d961c395aa69bbb27800b07c0ab37b9dc39377ae5b8233e06f62d09906c3fcc0
-  premiums.xlsx: 0c9f46013cb9689f20fca3b4c1d8aea8c43e343dadf93e42cbc6ba3ade653c00
+  claim_valuations.xlsx: 1df43a6e2e53537e8b106485cf5fed6a8bb98d7d45c172da2438843e0db2aab5
+  claims.xlsx: 7eace814af8ceeaa629085ff7ba90a51217332b58e2984abfee1b4f905a8c84e
+  expenses.xlsx: 72963da74ad989cb3f46cc605d875d23d8ffcfc08b9d6131a16ab66d4295e170
+  market.xlsx: 3d7ef85c575b4ccf462231df1533ce8254c5eaa6c7cf40795480824fe974b3aa
+  policies.xlsx: ecf4cc4651f53c55bf359bee86f683240bc0fb2f29d73729dd1e2a4a5c8ddbf5
+  premiums.xlsx: ac43877b5118c0092814645d7ab0704f0bc4d479a0d8298d399e932e536bb6f3
   truth/anomalies.csv: 06a96adb6ac155deee0f9a18dc55a823a8c548f5db1423d652b214d27cb22261
   truth/column_map.csv: bb69a04a7547000ad6ad014d1adefa6c295f19136f6884aa27ab3fddebbadbbe
   truth/date_formats.csv: ed83258e58852ecb2a58f0fe233ec83d302f2b97eff01728fb236ff47fbcd650

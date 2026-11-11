@@ -12,10 +12,13 @@ import xlsxwriter
 from actuarycanary.synthetic.messy import SheetPlan
 
 EXCEL_MAX_ROWS = 1_048_576
-# the workbooks of the feeds added after version 1.0 go into this subfolder of a scenario folder: a
-# run reads the spreadsheets directly in a folder and recognises a table by its columns, so the
-# new files beside the six would change what it reads (decision 0243)
+# the workbooks of the feeds a run does not read yet go into this subfolder of a scenario folder:
+# a run reads the spreadsheets directly in a folder, and these files beside the others would only
+# be listed as not recognised (the life feeds) or are kept apart since they were added (the
+# interest rates); reinsurance treaties and transactions, recoveries and the ledger left the
+# subfolder when the platform learnt to read them (decisions 0242, 0382)
 LATER_FOLDER = "phase2"
+LATER_FOLDER_FEEDS = ("interest_rates", "life_in_force", "life_events", "fund_flows")
 FIXED_TIMESTAMP = datetime(2026, 1, 1)  # workbook properties would otherwise carry the clock
 
 

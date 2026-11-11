@@ -13,7 +13,7 @@ from actuarycanary.synthetic.check import check_folder
 from actuarycanary.synthetic.check_phase2 import severity_of
 from actuarycanary.synthetic.phase2 import PHASE2_FEEDS, TRUTH_USERS
 from actuarycanary.synthetic.scenario import load_with
-from actuarycanary.synthetic.writer import sha256
+from actuarycanary.synthetic.writer import LATER_FOLDER_FEEDS, sha256
 from tests.synthetic.conftest import NO_FAULTS
 
 pytestmark = pytest.mark.slow
@@ -58,6 +58,8 @@ def test_the_same_seed_gives_the_same_bytes_for_every_file(tmp_path):
     assert {
         "phase2/life_in_force.xlsx",
         "phase2/fund_flows.xlsx",
+        "ledger.xlsx",
+        "recoveries.xlsx",
         "reference_tables/reference_mortality.csv",
     } <= set(first["sha256"])
 
@@ -65,9 +67,17 @@ def test_the_same_seed_gives_the_same_bytes_for_every_file(tmp_path):
 def test_each_scenario_writes_its_feeds_the_logs_and_the_truth_files(tmp_path):
     out = _write("life_book", tmp_path, NO_FAULTS)
     for feed in PHASE2_FEEDS:
-        assert (out / "phase2" / f"{feed}.xlsx").exists(), feed
-        assert not (out / f"{feed}.xlsx").exists(), feed  # the six feeds are alone in the folder
+        # the feeds a run reads are in the folder, the others in the subfolder (record 0382)
+        apart = feed in LATER_FOLDER_FEEDS
+        assert (out / "phase2" / f"{feed}.xlsx").exists() == apart, feed
+        assert (out / f"{feed}.xlsx").exists() != apart, feed
         assert (out / "canonical" / f"{feed}.parquet").exists(), feed
+    assert set(LATER_FOLDER_FEEDS) == {
+        "interest_rates",
+        "life_in_force",
+        "life_events",
+        "fund_flows",
+    }
     for name in TRUTH_USERS:
         assert (out / "truth" / f"{name}.csv").exists(), name
     assert (out / "truth" / "layout_phase2.csv").exists()
@@ -149,5 +159,6 @@ def test_the_command_writes_every_scenario_with_the_name_all(tmp_path):
     assert result.exit_code == 0, result.output
     for name in list_scenarios():
         assert (tmp_path / name / "manifest.yaml").exists(), name
-        assert (tmp_path / name / "phase2" / "ledger.xlsx").exists(), name
+        assert (tmp_path / name / "ledger.xlsx").exists(), name
+        assert (tmp_path / name / "phase2" / "interest_rates.xlsx").exists(), name
         assert (tmp_path / name / "truth" / "severity_truth.csv").exists(), name

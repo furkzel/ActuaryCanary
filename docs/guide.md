@@ -23,6 +23,15 @@ Version 1.0 reads **one spreadsheet per kind of data**, each holding one table. 
 | `expenses.xlsx` | Operating expenses by month and type | period, amount, currency, type | Expense and combined ratios |
 | `market.xlsx` | Exchange rates and price indices by date | series, date, value, kind | Currency conversion and the inflation-adjusted view |
 
+Four further files are read, recognised and checked in the same way; all are optional:
+
+| File | What it holds | Required columns | What it enables |
+| --- | --- | --- | --- |
+| `recoveries.xlsx` | Every recovery booking on a claim: subrogation, salvage, other | transaction, claim, booking date, amount, currency, type | Recoveries page: rates, timing and development of recoveries. Without the file the recoveries are derived from the to-date recovery columns of the claim valuations |
+| `reinsurance_treaties.xlsx` | The terms of each treaty or layer per contract period and line | treaty, treaty type, inception date, expiry date, currency | Quality checks of the treaty terms (the reinsurance analyses on them are not built yet) |
+| `reinsurance_transactions.xlsx` | Ceded movements: ceded premium, ceded paid claims, ceded reserve changes, commission | transaction, treaty, booking date, amount, currency, type | Quality checks against treaties, claims and premiums |
+| `ledger.xlsx` | The trial balance by entity, account and month | entity, account, period, closing balance | Quality checks of the balances (the reconciliation with the ledger is not built yet) |
+
 The full list of fields, types, allowed values and the quality rules of each file is in [spec/data/](../spec/data/). The file names above are what the platform proposes; it recognises a sheet by its **content**, so a differently named file works too.
 
 Rules the files must follow ([CV07](../spec/conventions/CV07-input-files.yaml)):
