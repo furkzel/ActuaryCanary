@@ -24,8 +24,8 @@ CONVENTIONS_BUILT_P26 = {"CV10"}
 CONCEPTS_PLANNED = {"life_in_force", "life_events", "fund_flows"}
 # Built by F1bc (records 0380 to 0389): four feeds, read, recognised and checked.
 CONCEPTS_BUILT_F1BC = {"reinsurance_treaties", "reinsurance_transactions", "recoveries", "ledger"}
-MODULES_BUILT_F1BC = {"M07"}
-MEASURES_BUILT_F1BC = {"RC03", "RC04"}
+MODULES_BUILT_F1BC = {"M07", "M09"}
+MEASURES_BUILT_F1BC = {"RC03", "RC04", "EX04", "EX05"}
 MODULES_PLANNED = {f"M{n:02d}" for n in range(7, 14)} - MODULES_BUILT_P26 - MODULES_BUILT_F1BC
 # Built by the integration P25b (record 0620): the tier B reserving methods, the severity
 # methods, and the measure AE02, the back-test error. P25c built MT19 (survival).

@@ -57,6 +57,7 @@ def test_modules_run_when_their_concepts_are_present(full) -> None:
         "M05",
         "M06",
         "M07",
+        "M09",
         "M12",
     ]
     found = states(analysis)
@@ -126,6 +127,7 @@ def test_results_list_each_measure_view_once_and_the_json_names_every_module(ful
         "M05",
         "M06",
         "M07",
+        "M09",
         "M12",
     ]
     m02 = data["modules"][1]

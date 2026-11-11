@@ -6,6 +6,10 @@ reports by segment and line (blueprint 10); a measure without claims or policies
 to its all-business view by its own edge case.
 """
 
+from dataclasses import dataclass
+
+from actuarycanary.structures.periods import Period
+
 SEGMENT_LINE = ("segment", "line")
 
 DEFAULT_VIEWS: dict[str, tuple[tuple[str, ...], ...]] = {
@@ -43,3 +47,37 @@ DEFAULT_VIEWS: dict[str, tuple[tuple[str, ...], ...]] = {
     "RS02": ((*SEGMENT_LINE, "origin_period"),),
     "RS03": ((*SEGMENT_LINE, "origin_period"),),
 }
+
+
+@dataclass(frozen=True)
+class View:
+    """One view of a measure in a module: its breakdowns and, when the module needs another grain
+    than the run's (ratios by month), the period."""
+
+    breakdowns: tuple[str, ...]
+    period: Period | None = None  # None: the origin and calendar period of the run
+
+
+_BY_PERIOD = View(("calendar_period",))
+_BY_MONTH = View(("calendar_period",), Period.MONTH)
+_BY_LINE_AND_MONTH = View((*SEGMENT_LINE, "calendar_period"), Period.MONTH)
+_BY_LINE = View((*SEGMENT_LINE, "calendar_period"))
+# Views a module asks for instead of the default ones. M09 goes deeper than M05 on the same
+# measures (by line and month, unit costs by line); M05 keeps the default views (record 0387).
+MODULE_VIEWS: dict[str, dict[str, tuple[View, ...]]] = {
+    "M09": {
+        "EX01": (_BY_PERIOD, _BY_MONTH, _BY_LINE_AND_MONTH),
+        "EX02": (_BY_PERIOD, _BY_MONTH, _BY_LINE_AND_MONTH),
+        "EX03": (_BY_PERIOD, _BY_MONTH),
+        "EX04": (_BY_PERIOD, _BY_LINE),
+        "EX05": (_BY_PERIOD, _BY_LINE),
+    }
+}
+
+
+def views_of(module: str, measure: str) -> tuple[View, ...]:
+    """The views of a measure in a module: the module's own, else the default ones."""
+    own = MODULE_VIEWS.get(module, {}).get(measure)
+    if own is not None:
+        return own
+    return tuple(View(tuple(b)) for b in DEFAULT_VIEWS.get(measure, ((),)))

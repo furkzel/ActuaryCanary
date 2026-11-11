@@ -24,7 +24,7 @@ from actuarycanary.measures.model import (
     MeasureResult,
 )
 from actuarycanary.measures.recovery_measures import recoveries_of
-from actuarycanary.modules.views import DEFAULT_VIEWS
+from actuarycanary.modules.views import views_of
 from actuarycanary.quality.model import ModuleStatus, QualityReport
 from actuarycanary.spec.catalogue import SpecCatalogue
 from actuarycanary.spec.models import MeasureSpec, ModuleSpec
@@ -218,8 +218,14 @@ def run_module(
             continue
         if measure_id not in IMPLEMENTATIONS and measure_id not in METHOD_OUTPUTS:
             continue
-        for breakdowns in DEFAULT_VIEWS.get(measure_id, ((),)):
-            request, note = request_for(spec, breakdowns, period, reinsurance, value, view)
+        asked: set[MeasureRequest] = set()
+        for wanted in views_of(module.id, measure_id):
+            request, note = request_for(
+                spec, wanted.breakdowns, wanted.period or period, reinsurance, value, view
+            )
+            if request in asked:  # a view by month in a run by month
+                continue
+            asked.add(request)
             key = (measure_id, request)
             if key not in cache:
                 result = run_measure(catalogue, inputs, measure_id, request)
