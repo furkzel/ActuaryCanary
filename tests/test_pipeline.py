@@ -78,6 +78,10 @@ def test_baseline_tiny_outputs_inputs_and_groups(default_run: RunResult) -> None
             "proportional_hazards_test", "baseline", "schoenfeld_residuals", "cohorts",
         )),
         "sensitivity.csv",  # record 0343
+        "recoveries.csv",  # M07 (record 0386)
+        "recovery_development.csv",
+        "recovery_reconciliation.csv",
+        "expenses_by_period.csv",  # M09 (record 0387)
         "risk_measures.csv",  # M12; no simulations on the tiny baseline, so no distribution file
         "risk_cash_flows.csv",
     ]  # fmt: skip
@@ -261,6 +265,8 @@ def test_run_says_which_modules_ran_and_why_others_did_not(default_run: RunResul
         "M04": "limited",
         "M05": "ran",
         "M06": "limited",
+        "M07": "ran",  # on the to-date recovery fields of claim valuations (derived flows)
+        "M09": "ran",
         "M12": "limited",  # no curve is named, and the 4 x 4 triangles are too small to bootstrap
     }
     # the 4 x 4 triangles of the tiny baseline are too small for the Mack variance (record 0041)
@@ -276,6 +282,8 @@ def test_run_says_which_modules_ran_and_why_others_did_not(default_run: RunResul
         "M04",
         "M05",
         "M06",
+        "M07",
+        "M09",
         "M12",
     ]
 
@@ -289,7 +297,8 @@ def test_modules_without_their_files_are_skipped_with_the_reason(
     shutil.copyfile(BASELINE / "claim_valuations.xlsx", folder / "claim_valuations.xlsx")
     alone = run(folder, tmp_path / "out", cache_dir=cache)
     reasons = {m.module: m.reasons for m in alone.analysis.modules if m.state.value == "skipped"}
-    assert set(reasons) == {"M02", "M05"}
+    assert set(reasons) == {"M02", "M05", "M09"}
+    assert reasons["M09"][0].startswith("Expenses did not run: no expenses were loaded.")
     assert "no premium file was loaded" in reasons["M02"][0]
     assert "premiums" in reasons["M05"][0]
 

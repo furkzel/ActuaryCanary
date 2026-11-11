@@ -24,12 +24,15 @@ from actuarycanary.manifest.metadata import ProjectMetadata
 from actuarycanary.manifest.run import InputRecord, OutputRecord, SpecRecord
 from actuarycanary.methods.assumptions import Assumption
 from actuarycanary.modules.anomalies import AnomalyResult
+from actuarycanary.modules.expenses import ExpenseTable
+from actuarycanary.modules.recoveries import RecoveryTables
 from actuarycanary.modules.reserving import SELECTION_MEASURE, GroupReserving, ReservingResult
 from actuarycanary.modules.runner import AnalysisResult, ModuleOutcome, ModuleState
 from actuarycanary.modules.uncertainty import UncertaintyResult
 from actuarycanary.quality.model import QualityReport
 from actuarycanary.quality.output import show_score
 from actuarycanary.report import charts, language, numbers
+from actuarycanary.report.expenses_section import add_expense_facts, expenses_page
 from actuarycanary.report.facts import (
     FactSet,
     anomaly_rates,
@@ -48,6 +51,7 @@ from actuarycanary.report.language import t
 from actuarycanary.report.large_loss_section import large_loss_page
 from actuarycanary.report.methods_section import assumption_rows, group_methods
 from actuarycanary.report.phase2_facts import add_line_facts, add_run_facts, add_segment_facts
+from actuarycanary.report.recoveries_section import add_recovery_facts, recoveries_page
 from actuarycanary.report.sensitivity_section import sensitivity_page
 from actuarycanary.report.survival_section import survival_page
 from actuarycanary.report.tier_b_section import line_tier_b, merged_ultimates, ultimate_columns
@@ -62,6 +66,8 @@ MODULE_ANCHORS = {
     "M04": "reserving",
     "M05": "profitability",
     "M06": "anomalies",
+    "M07": "recoveries",
+    "M09": "expenses",
     "M12": "uncertainty",
 }
 TOP_FLAGS = 10  # anomaly flags listed on the page; all are in anomalies.csv
@@ -93,6 +99,8 @@ class ReportInputs:
     survival_information: tuple[str, ...] = ()  # what the MT19 dates were (record 0305)
     survival_diagnostics: tuple[Mapping[str, Any], ...] = ()  # MT19 rows of diagnostics.csv
     declared_value: str = "NOMINAL"  # the value basis the run was asked for
+    recoveries: RecoveryTables | None = None  # the tables of M07, when it ran
+    expenses: ExpenseTable | None = None  # the table of M09, when it ran
 
 
 class _Specs:
@@ -1183,6 +1191,8 @@ def scoped_facts(
     tables: Mapping[str, pl.DataFrame] | None = None,
     uncertainty: UncertaintyResult | str | None = None,
     settings: Mapping[str, float] | None = None,
+    recoveries: RecoveryTables | None = None,
+    expenses: ExpenseTable | None = None,
 ) -> tuple[dict[str, list[tuple[str, str, Facts]]], dict[str, FactSet]]:
     """The fact sets of every scope as (key, anchor, facts), and the segment facts. `tables`
     are the output tables of the run and `uncertainty` M12, for the rules of RP01 1.2.0;
@@ -1219,6 +1229,8 @@ def scoped_facts(
     run = run_facts(reserving, analysis, quality, rates, lines, titles)
     run.setdefault("currency", Fact(currency, "text"))
     add_run_facts(run, uncertainty)
+    add_recovery_facts(run, analysis, recoveries)
+    add_expense_facts(run, analysis, expenses, triangles.cut_off)
     for name, limit in (settings or {}).items():
         for facts in (*lines.values(), *(f for f in segments.values() if f), run):
             facts[name] = Fact(limit, "factor")
@@ -1257,6 +1269,8 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
         r.tables,
         r.uncertainty,
         r.catalogue.finding_rules.settings,
+        r.recoveries,
+        r.expenses,
     )
     fired = evaluate(r.catalogue.finding_rules.rules, scoped)
     headline = [f for f in fired if f.scope != "line"]
@@ -1274,6 +1288,21 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
         "M03": lambda: _claims_page(r, spec, figures),
         "M05": lambda: _profitability_page(r, spec, figures),
         "M06": lambda: _anomalies_page(r, spec, figures, rates),
+        "M07": lambda: recoveries_page(
+            r.analysis,
+            r.recoveries,
+            spec,
+            figures,
+            shown_currency(r.reserving.triangles.reporting_currency),
+        ),
+        "M09": lambda: expenses_page(
+            r.analysis,
+            r.expenses,
+            r.reserving.triangles.cut_off,
+            spec,
+            figures,
+            shown_currency(r.reserving.triangles.reporting_currency),
+        ),
         "M12": lambda: uncertainty_page(
             r.uncertainty,
             r.tables,

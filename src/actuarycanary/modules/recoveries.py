@@ -33,6 +33,7 @@ class RecoveryTables:
     flows: pl.DataFrame  # FLOW_COLUMNS: amounts in original currency per claim, type and month
     reconciliation: pl.DataFrame  # RECONCILIATION_COLUMNS: one row per difference
     reconciliation_note: str  # why there is no reconciliation, or what was compared
+    compared: int = 0  # valuations with a to-date field that the transactions were held against
 
     @property
     def available(self) -> bool:
@@ -78,4 +79,4 @@ def recovery_tables(inputs: MeasureInputs) -> RecoveryTables:
         f"transactions accumulated to each valuation date against {' and '.join(fields.values())}: "
         f"{differences.height} of {compared} valuations differ; the transactions are used"
     )
-    return RecoveryTables(recoveries.source, recoveries.note, flows, differences, note)
+    return RecoveryTables(recoveries.source, recoveries.note, flows, differences, note, compared)

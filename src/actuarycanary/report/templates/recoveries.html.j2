@@ -1,0 +1,31 @@
+{#- The M07 page (record 0388); `b` is the body built by report/recoveries_section.py. -#}
+<p>{{ tr("Source of the figures") }}: <strong>{{ b.source or "–" }}</strong>.</p>
+{% if b.headline %}<div class="scroll"><table>
+  <thead><tr><th class="text">{{ tr("Recovery type") }}</th><th>{{ tr("Recovered to date") }}</th><th>{{ tr("Share of paid") }}</th><th>{{ tr("Last development period") }}</th><th>{{ tr("Period before") }}</th><th>{{ tr("Change") }}</th></tr></thead>
+  <tbody>{% for r in b.headline %}<tr><td class="text">{{ r.type }}</td><td>{{ r.recovered }}</td><td>{{ r.share }}</td><td>{{ r.last }}</td><td>{{ r.before }}</td><td>{{ r.change }}</td></tr>{% endfor %}</tbody>
+</table></div>{% endif %}
+{% if b.figures %}<h3>{{ tr("Recovery development, all lines") }}</h3>
+<div class="charts">{% for f in b.figures %}{{ figure(f.id, f.title) }}{% endfor %}</div>
+<p class="footnote">{{ b.figure_note }}</p>{% endif %}
+{% if b.lines %}<h3>{{ tr("Recovery ratios by origin") }}</h3>
+{% for l in b.lines %}
+<h4>{{ l.line }}</h4>
+<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Origin") }}</th><th>{{ tr("Development age (months)") }}</th><th>{{ tr("Subrogation ratio") }}</th><th>{{ tr("Salvage ratio") }}</th><th>{{ tr("Recovered to date") }}</th><th>{{ tr("All recoveries over paid") }}</th></tr></thead>
+  <tbody>{% for r in l.rows %}<tr><td>{{ r.origin }}</td><td>{{ r.age }}</td><td>{{ r.subrogation }}</td><td>{{ r.salvage }}</td><td>{{ r.recovered }}</td><td>{{ r.total }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endfor %}{% endif %}
+{% if b.delays %}<h3>{{ tr("Delay from first payment to recovery (days)") }}</h3>
+<div class="scroll"><table>
+  <thead><tr><th class="text">{{ tr("Line") }}</th><th class="text">{{ tr("Recovery type") }}</th><th>{{ tr("Recoveries") }}</th><th>{{ tr("Mean") }}</th><th>{{ tr("Median") }}</th><th>{{ tr("90th percentile") }}</th></tr></thead>
+  <tbody>{% for r in b.delays %}<tr><td class="text">{{ r.line }}</td><td class="text">{{ r.type }}</td><td>{{ r.n }}</td><td>{{ r.mean }}</td><td>{{ r.median }}</td><td>{{ r.p90 }}</td></tr>{% endfor %}</tbody>
+</table></div>{% endif %}
+<h3>{{ tr("Source and reconciliation") }}</h3>
+<p>{{ b.source_note }}</p>
+{% if b.reconciled %}<p>{{ tr("Transactions accumulated to each valuation date against the to-date recovery fields of claim valuations: {differences} of {compared} valuations differ. The transactions are used.", differences=b.differences, compared=b.compared) }}</p>
+{% else %}<p>{{ b.reconciliation_note }}</p>{% endif %}
+{% if b.reconciliation %}<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Claim") }}</th><th class="text">{{ tr("Recovery type") }}</th><th>{{ tr("Valuation date") }}</th><th>{{ tr("Booked") }}</th><th>{{ tr("To-date field") }}</th><th>{{ tr("Difference") }}</th></tr></thead>
+  <tbody>{% for r in b.reconciliation %}<tr><td>{{ r.claim }}</td><td class="text">{{ r.type }}</td><td>{{ r.date }}</td><td>{{ r.booked }}</td><td>{{ r.to_date }}</td><td>{{ r.difference }}</td></tr>{% endfor %}</tbody>
+</table></div>{% endif %}
+<p class="footnote">{{ b.footnote }}</p>

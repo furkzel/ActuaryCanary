@@ -75,7 +75,29 @@ CASES: dict[str, tuple[dict[str, float], dict[str, float]]] = {
     ),
     "KF33": ({"range_upper_width": 0.46}, {"range_upper_width": 0.1}),
     "KF34": ({"discount_share": 0.44}, {"discount_share": 0.0}),
+    "KF35": ({"recovered_to_date": 75.0}, {"recovered_to_date": 0.0}),
+    "KF36": ({"recovery_differences": 2}, {"recovery_differences": 0}),
+    "KF37": (
+        {"recovery_ratio_drop": 0.6, "recovery_drop_limit": 0.5},
+        {"recovery_ratio_drop": 0.4, "recovery_drop_limit": 0.5},
+    ),
+    "KF38": (
+        {"expense_ratio_change_size": 0.03, "expense_ratio_change_limit": 0.02},
+        {"expense_ratio_change_size": 0.01, "expense_ratio_change_limit": 0.02},
+    ),
+    "KF39": (
+        {"commission_ratio_change_size": 0.03, "expense_ratio_change_limit": 0.02},
+        {"commission_ratio_change_size": 0.01, "expense_ratio_change_limit": 0.02},
+    ),
+    "KF40": (
+        {"unallocated_expense_share": 0.4, "unallocated_expense_share_limit": 0.25},
+        {"unallocated_expense_share": 0.1, "unallocated_expense_share_limit": 0.25},
+    ),
+    "KF41": ({"unit_cost_periods_missing": 1}, {"unit_cost_periods_missing": 0}),
 }
+# RP01 1.3.0 (record 0388): their facts come from the tables of M07 and M09, which
+# tests/report/test_pages_m07_m09.py builds
+NEW_IN_1_3 = {f"KF{n}" for n in range(35, 42)}
 NEW_IN_1_2 = {f"KF{n}" for n in range(27, 35)}
 
 
@@ -146,7 +168,7 @@ def test_every_fact_a_rule_names_is_computed_for_its_scope(default_run: RunResul
     missing = {
         (rule.id, name)
         for rule in RULES.values()
-        if rule.id not in NEW_IN_1_2  # need methods the tiny data cannot run: the slow test
+        if rule.id not in NEW_IN_1_2 | NEW_IN_1_3  # need methods the tiny data cannot run
         for name in facts_named(rule)
         if name not in known[rule.scope]
     }
@@ -176,7 +198,11 @@ def _fires(rule_id: str, values: dict[str, float]) -> bool:
 
 
 def test_the_rule_file_names_its_settings() -> None:
-    assert load_specs().finding_rules.settings == SIGN_LIMIT | RATIO_LIMIT
+    assert load_specs().finding_rules.settings == SIGN_LIMIT | RATIO_LIMIT | {
+        "recovery_drop_limit": 0.5,
+        "expense_ratio_change_limit": 0.02,
+        "unallocated_expense_share_limit": 0.25,
+    }
 
 
 def test_kf28_needs_one_sign_in_the_errors_of_the_back_test() -> None:
