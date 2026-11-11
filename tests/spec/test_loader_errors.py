@@ -150,9 +150,10 @@ def test_built_spec_using_a_planned_spec_is_rejected() -> None:
 def test_planned_column_alias_conflicting_with_al01_is_rejected() -> None:
     planned = load_specs(planned=True)
     al03 = next(s for s in planned.column_alias_specs if s.id == "AL03")
-    columns = [*al03.columns, al03.columns[0].model_copy(update={"concepts": ["claims"]})]
+    entry = next(c for c in al03.columns if c.field == "contract_id")
+    columns = [*al03.columns, entry.model_copy(update={"concepts": ["claims"]})]
     broken = al03.model_copy(update={"columns": columns})
-    assert "claims.treaty_id is not defined" in _reference_problems(planned, broken)
+    assert "claims.contract_id is not defined" in _reference_problems(planned, broken)
 
 
 def test_module_with_undefined_blocking_rule_is_rejected(catalogue: SpecCatalogue) -> None:

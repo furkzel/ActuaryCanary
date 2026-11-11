@@ -3,7 +3,7 @@ version: 0.1.0
 title_en: Trial balance (ledger)
 title_tr: Mizan
 status: draft
-implemented: false
+implemented: true
 definition: >-
   The trial balance of each entity by account and month: opening balance, debit and credit
   movements and closing balance. Reconciled against the platform's measures through the
@@ -147,3 +147,8 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 4.3 (P20).
+  - version: 0.1.0
+    date: 2026-11-11
+    change: >-
+      Implemented before owner review (F1bc): the feed is read, recognised, typed and
+      checked; the text of the specification is unchanged, so the version stays 0.1.0.

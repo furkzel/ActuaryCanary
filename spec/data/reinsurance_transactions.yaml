@@ -3,7 +3,7 @@ version: 0.1.0
 title_en: Reinsurance transactions
 title_tr: Reasürans hareketleri
 status: draft
-implemented: false
+implemented: true
 definition: >-
   Ceded movements booked against reinsurance treaties: ceded premium, ceded paid claims,
   changes of the ceded case reserve, reinsurance commission and reinstatement premium, at
@@ -179,3 +179,8 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint sections 4.2 and 7.3 (P20).
+  - version: 0.1.0
+    date: 2026-11-11
+    change: >-
+      Implemented before owner review (F1bc): the feed is read, recognised, typed and
+      checked; the text of the specification is unchanged, so the version stays 0.1.0.
