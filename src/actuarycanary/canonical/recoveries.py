@@ -57,7 +57,8 @@ def derive_recoveries(valuations: pl.DataFrame) -> pl.DataFrame:
     zero. A negative increment is a reversal and is kept; a zero increment is no flow. An empty
     to-date amount is read as no change (the amount before it stands)."""
     fields = to_date_fields(valuations)
-    source = [c for c in SOURCE_COLUMNS if c in valuations.columns]
+    # the source columns and, when the feed carries it, the position used for lineage
+    source = [c for c in (*SOURCE_COLUMNS, "_ref") if c in valuations.columns]
     parts = []
     ordered = valuations.sort("claim_id", "valuation_date")
     for kind, name in fields.items():
@@ -94,7 +95,8 @@ def _empty(source: list[str]) -> pl.DataFrame:
         "currency": pl.String(),
         "type": pl.String(),
     }
-    schema |= {c: pl.Int64() if c == SOURCE_ROW else pl.String() for c in source}
+    kinds = {SOURCE_ROW: pl.Int64(), "_ref": pl.UInt32()}
+    schema |= {c: kinds.get(c, pl.String()) for c in source}
     return pl.DataFrame(schema=schema)
 
 
@@ -190,7 +192,9 @@ def build_recoveries(feed: pl.DataFrame | None, valuations: pl.DataFrame) -> Rec
         return Recoveries(frame, TRANSACTIONS, (SUBROGATION, SALVAGE, OTHER), note)
     if not fields:
         return Recoveries(
-            _empty([]).with_columns(pl.lit(True).alias(DERIVED_COLUMN)),
+            _empty([c for c in (*SOURCE_COLUMNS, "_ref") if c in valuations.columns]).with_columns(
+                pl.lit(True).alias(DERIVED_COLUMN)
+            ),
             NONE,
             (),
             "no recoveries feed and no to-date recovery column in claim valuations",
@@ -201,12 +205,16 @@ def build_recoveries(feed: pl.DataFrame | None, valuations: pl.DataFrame) -> Rec
         f"derived from {names} of claim valuations (no recoveries feed): one flow per claim, "
         "type and valuation month; other recoveries are not available"
     )
-    found = finding(
-        "recoveries",
-        DERIVED_RULE,
-        "INFO",
-        f"recovery flows derived from {names} of claim_valuations, one per claim, type and "
-        "valuation month (no recoveries feed was loaded)",
-        frame,
+    found = (
+        None
+        if SOURCE_ROW not in frame.columns
+        else finding(
+            "recoveries",
+            DERIVED_RULE,
+            "INFO",
+            f"recovery flows derived from {names} of claim_valuations, one per claim, type and "
+            "valuation month (no recoveries feed was loaded)",
+            frame,
+        )
     )
     return Recoveries(frame, DERIVED, tuple(fields), note, (found,) if found else ())

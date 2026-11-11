@@ -3,7 +3,7 @@ version: 0.1.0
 title_en: Recoveries
 title_tr: Rücu ve sovtaj
 status: draft
-implemented: false
+implemented: true
 definition: >-
   Subrogation, salvage and other recoveries: how much of paid claims comes back, how long
   it takes, and how recovery development compares across origins and lines.
@@ -37,3 +37,8 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 10 (P20).
+  - version: 0.1.0
+    date: 2026-11-11
+    change: >-
+      Implemented before owner review (F1bc, record 0386); the text of the specification is
+      unchanged, so the version stays 0.1.0.

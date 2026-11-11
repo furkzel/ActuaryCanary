@@ -24,7 +24,9 @@ CONVENTIONS_BUILT_P26 = {"CV10"}
 CONCEPTS_PLANNED = {"life_in_force", "life_events", "fund_flows"}
 # Built by F1bc (records 0380 to 0389): four feeds, read, recognised and checked.
 CONCEPTS_BUILT_F1BC = {"reinsurance_treaties", "reinsurance_transactions", "recoveries", "ledger"}
-MODULES_PLANNED = {f"M{n:02d}" for n in range(7, 14)} - MODULES_BUILT_P26
+MODULES_BUILT_F1BC = {"M07"}
+MEASURES_BUILT_F1BC = {"RC03", "RC04"}
+MODULES_PLANNED = {f"M{n:02d}" for n in range(7, 14)} - MODULES_BUILT_P26 - MODULES_BUILT_F1BC
 # Built by the integration P25b (record 0620): the tier B reserving methods, the severity
 # methods, and the measure AE02, the back-test error. P25c built MT19 (survival).
 METHODS_BUILT_P25B = {f"MT{n}" for n in (*range(11, 19), 22)}
@@ -54,11 +56,13 @@ def test_spec_ids_are_unique(catalogue: SpecCatalogue) -> None:
 
 def test_version_1_scope_is_complete(catalogue: SpecCatalogue) -> None:
     assert set(catalogue.data) == CONCEPTS_V1 | CONCEPTS_BUILT_P26 | CONCEPTS_BUILT_F1BC
-    assert set(catalogue.measures) == MEASURES_V1 | MEASURES_BUILT_P25B | MEASURES_BUILT_P26
+    assert set(catalogue.measures) == (
+        MEASURES_V1 | MEASURES_BUILT_P25B | MEASURES_BUILT_P26 | MEASURES_BUILT_F1BC
+    )
     assert {m for m in catalogue.methods if int(m[2:]) >= 11} == (
         METHODS_BUILT_P25B | METHODS_BUILT_P25C
     )
-    assert set(catalogue.modules) == MODULES_V1 | MODULES_BUILT_P26
+    assert set(catalogue.modules) == MODULES_V1 | MODULES_BUILT_P26 | MODULES_BUILT_F1BC
     assert {f"CV0{n}" for n in range(1, 7)} <= set(catalogue.conventions)
     assert set(catalogue.conventions) >= CONVENTIONS_BUILT_P26
 

@@ -20,6 +20,7 @@ from actuarycanary.measures import (
     expense_measures,
     premium_measures,
     ratio_measures,
+    recovery_measures,
     reinsurance_measures,
 )
 from actuarycanary.measures.claim_base import with_dimensions
@@ -84,6 +85,8 @@ IMPLEMENTATIONS: dict[str, Implementation] = {
         claim_amounts.salvage_ratio,
         missing={"claim_valuations.salvage_to_date": "no salvage column in claim_valuations"},
     ),
+    "RC03": Implementation(recovery_measures.recovery_delay),
+    "RC04": Implementation(recovery_measures.recovery_development),
     "RI01": Implementation(reinsurance_measures.cession_ratio),
     "RI02": Implementation(reinsurance_measures.reinsurance_result),
     "EX01": Implementation(expense_measures.commission_ratio),

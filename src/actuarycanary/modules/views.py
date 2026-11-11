@@ -29,6 +29,8 @@ DEFAULT_VIEWS: dict[str, tuple[tuple[str, ...], ...]] = {
     "CL12": ((*SEGMENT_LINE, "origin_period"),),
     "RC01": ((*SEGMENT_LINE, "origin_period"),),
     "RC02": ((*SEGMENT_LINE, "origin_period"),),
+    "RC03": (("recovery_type",), (*SEGMENT_LINE, "recovery_type")),
+    "RC04": ((*SEGMENT_LINE, "recovery_type", "origin_period", "development_period"),),
     "RI01": ((), ("calendar_period",), ("origin_period",)),
     "RI02": (("calendar_period",),),
     "EX01": (("calendar_period",),),

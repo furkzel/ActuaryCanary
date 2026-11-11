@@ -3,7 +3,7 @@ version: 0.1.0
 title_en: Recovery development ratio
 title_tr: Tahsilat gelişim oranı
 status: draft
-implemented: false
+implemented: true
 definition: >-
   Cumulative recoveries as a share of cumulative paid by origin period and development age,
   for each recovery type and in total: the recovery triangle that shows when money comes back.
@@ -58,3 +58,8 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft for module M07 (P20).
+  - version: 0.1.0
+    date: 2026-11-11
+    change: >-
+      Implemented before owner review (F1bc, record 0386); the text of the specification is
+      unchanged, so the version stays 0.1.0.
