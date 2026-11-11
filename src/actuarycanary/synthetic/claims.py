@@ -81,6 +81,8 @@ class ClaimWorld:
     c_cost: np.ndarray  # X, cost at base-date prices in the claim's own currency (latent for nil)
     c_si: np.ndarray  # superimposed inflation of the claim's line
     c_infl_on: np.ndarray
+    c_index_at_occ: np.ndarray  # the index is taken at the day of loss, not at the day of payment
+    c_prices_on: np.ndarray  # the index includes the price index (False: superimposed only)
     c_foreign_inflation: np.ndarray  # annual, 0 for the reporting currency
     c_fx_start: np.ndarray  # 1 for the reporting currency
     c_review_step: np.ndarray  # days between case reserve reviews
@@ -120,12 +122,14 @@ class ClaimWorld:
 
     def index_for(self, claim: np.ndarray, day: np.ndarray) -> np.ndarray:
         """Claims inflation index F of each claim at each day (aligned arrays)."""
+        day = np.where(self.c_index_at_occ[claim], self.c_occ[claim], day)
         yrs = years_since(day, self.market.base_day)
         superimposed = (1.0 + self.c_si[claim]) ** yrs
         try_index = self.market.price_factor(day)
         foreign = (1.0 + self.c_foreign_inflation[claim]) ** yrs
         reporting = self.c_fx_start[claim] == 1.0
-        index = np.where(reporting, try_index, foreign) * superimposed
+        prices = np.where(self.c_prices_on[claim], np.where(reporting, try_index, foreign), 1.0)
+        index = prices * superimposed
         return np.where(self.c_infl_on[claim], index, 1.0)
 
     # --- state at a day ----------------------------------------------------------------
@@ -355,8 +359,10 @@ def build_claims(
         )
 
         # cost at base-date prices, in the claim's currency
-        infl_on = line.severity.body.dist != "fixed_share_of_sum_insured"
-        if infl_on:
+        sum_insured_line = line.severity.body.dist == "fixed_share_of_sum_insured"
+        index_spec = line.severity.sum_insured_index
+        infl_on = not sum_insured_line or index_spec is not None
+        if not sum_insured_line:
             body = draw(line.severity.body, rng, n)
             if line.severity.tail is not None:
                 tail = line.severity.tail
@@ -365,11 +371,22 @@ def build_claims(
                 body = np.where(in_tail, pareto, body)
             cost = body * severity_multiplier / fx0
             cost = np.where(np.isnan(override), cost, override / fx0)
+        elif index_spec is None:
+            assert line.severity.body.share is not None
+            # at the prices of the policy start, nominal; no later index (record 0368)
+            cost = line.severity.body.share * policies.sum_insured[pol]
         else:
             assert line.severity.body.share is not None
-            cost = line.severity.body.share * policies.sum_insured[pol]  # nominal; no inflation
+            # the sum insured at base-date prices; the index moves it from there (record 0373)
+            start_yrs = years_since(policies.start[pol], market.base_day)
+            level_at_start = np.where(
+                fx0 == 1.0,
+                market.price_factor(policies.start[pol]),
+                (1.0 + foreign) ** start_yrs,
+            )
+            cost = line.severity.body.share * policies.sum_insured[pol] / level_at_start
         world_si = line.severity.superimposed_inflation
-        if infl_on and line.severity.capped_at_sum_insured and n:
+        if not sum_insured_line and line.severity.capped_at_sum_insured and n:
             yrs = years_since(occ, market.base_day)
             index_at_loss = (
                 np.where(fx0 == 1.0, market.price_factor(occ), (1.0 + foreign) ** yrs)
@@ -405,6 +422,8 @@ def build_claims(
                 cost=cost,
                 si=np.full(n, world_si),
                 infl_on=np.full(n, infl_on),
+                index_at_occ=np.full(n, index_spec is not None and index_spec.by == "occurrence"),
+                prices_on=np.full(n, index_spec is None or index_spec.prices),
                 foreign=foreign,
                 fx0=fx0,
                 step=np.full(n, line.case_reserve.review_every_months * MONTH_DAYS),
@@ -442,6 +461,8 @@ def build_claims(
         c_cost=merged["cost"],
         c_si=merged["si"],
         c_infl_on=merged["infl_on"],
+        c_index_at_occ=merged["index_at_occ"],
+        c_prices_on=merged["prices_on"],
         c_foreign_inflation=merged["foreign"],
         c_fx_start=merged["fx0"],
         c_review_step=merged["step"],

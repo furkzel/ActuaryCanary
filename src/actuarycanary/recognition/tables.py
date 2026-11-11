@@ -18,7 +18,7 @@ from actuarycanary.io.excel import SOURCE_COLUMNS, RawTable
 from actuarycanary.recognition.columns import ColumnMapping, Layer
 from actuarycanary.recognition.concepts import (
     ConceptScore,
-    best_concept,
+    judge,
     missing_required,
     score_concepts,
 )
@@ -64,6 +64,8 @@ class TableRecognition:
     amounts: str = "to_date"
     amounts_note: str = ""  # what the values showed
     amounts_decided: bool = False  # set by a saved profile or by the user: not detected again
+    # a sheet no concept was accepted for: the best guess and why it was rejected (record 0375)
+    rejection: str = ""
 
     @property
     def label(self) -> str:
@@ -89,7 +91,8 @@ def recognise_table(table: RawTable, file: str, dictionary: Dictionary) -> Table
     profiles = {h: profile_values(table.frame[h]) for h in headers}
     names = (PurePath(file).stem, table.sheet)
     scores = score_concepts(table.frame, headers, names, dictionary, profiles)
-    best = best_concept(scores)
+    verdict = judge(scores)
+    best = verdict.accepted
     if best is None:
         mappings = tuple(
             ColumnMapping(h, None, Layer.NONE, 0.0, "no concept recognised") for h in headers
@@ -111,6 +114,7 @@ def recognise_table(table: RawTable, file: str, dictionary: Dictionary) -> Table
         mappings=mappings,
         source=Source.CANONICAL if canonical else Source.AUTOMATIC,
         value_profiles=profiles,
+        rejection="" if best is not None else verdict.explain(),
     )
 
 

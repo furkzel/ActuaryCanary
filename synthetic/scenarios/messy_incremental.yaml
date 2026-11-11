@@ -1,0 +1,10 @@
+# The layout of messy_headers (renamed and misspelt headers, title rows, text dates, local labels,
+# repeated rows, personal-data columns) with claim amounts written per period: each row of
+# claim_valuations holds what the claim paid, recovered or allocated since its previous row, not
+# the amount to the valuation date (records 0223, 0611, 0374). The data underneath is the same
+# as in messy_headers; the canonical parquet and the truth hold the cumulative amounts a reader
+# has to recover.
+extends: messy_headers
+
+messiness:
+  amounts: incremental

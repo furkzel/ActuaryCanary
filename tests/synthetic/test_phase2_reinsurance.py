@@ -173,8 +173,11 @@ def test_the_heavy_programme_is_hit_in_every_layer(heavy):
     ):
         assert claims[treaty] > 0, treaty
     cession = heavy.phase2.truth["reinsurance_by_treaty"]
-    total_gross = sum(heavy.truth["ultimates"]["ultimate_gross"].to_list())
-    assert cession["ceded_ultimate"].sum() > 0.2 * total_gross
+    # the programme covers the non-life lines; the life line (no treaty) is not in its base. The
+    # old base was every line: it passed by a margin of 21 per cent against 20 until the group
+    # life claims moved to the prices of the loss day (record 0373)
+    non_life = heavy.truth["ultimates"].filter(pl.col("segment") == "NON_LIFE")
+    assert cession["ceded_ultimate"].sum() > 0.2 * non_life["ultimate_gross"].sum()
 
 
 def test_surplus_shares_follow_the_sum_insured(heavy):

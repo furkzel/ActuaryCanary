@@ -386,11 +386,31 @@ def ibnr_by_valuation(
     )
 
 
+def _fx_at_days(world: ClaimWorld, claim: np.ndarray, day: np.ndarray) -> np.ndarray:
+    """TRY per unit of each claim's own currency at each day (1 for the reporting currency)."""
+    out = np.ones(len(claim))
+    currency = world.c_currency[claim]
+    for code in world.market.fx:
+        mask = currency == code
+        if mask.any():
+            out[mask] = world.market.fx_at(code, day[mask])
+    return out
+
+
 def development_pattern(
     scenario: Scenario, size: SizeSpec, world: ClaimWorld, cut_off: int
 ) -> pl.DataFrame:
-    """Share of the inflation-free ultimate that is paid, and incurred, at each year end after
-    the start of the accident year (lag 1 is the end of the accident year itself)."""
+    """Share of the ultimate that is paid, and incurred, at each year end after the start of the
+    accident year (lag 1 is the end of the accident year itself), on two bases.
+
+    ``paid_share`` and ``incurred_share`` are inflation-free: base-date prices, as the
+    chain-ladder pattern of a world without inflation. ``paid_share_nominal`` and
+    ``incurred_share_nominal`` are what the books show: every payment at the prices of its
+    payment day (TRY at the spot rate of that day), every case reserve at the valuation day,
+    the ultimate being all payments ever made, including those after the data cut-off. The
+    nominal shares are on the basis of ``truth/ultimates.csv`` (record 0371): one minus the
+    nominal paid share at the cut-off year end is the unpaid share of that file.
+    """
     first_year, last_year = simulation_years(scenario, size)
     base_amount = np.where(
         world.c_nil[world.p_claim],
@@ -398,14 +418,18 @@ def development_pattern(
         world.c_cost[world.p_claim] * world.p_w * world.c_fx_start[world.p_claim],
     )
     base_paid = Cumulative(world.p_claim, world.p_day, base_amount)
+    nominal_try = world.p_amount * _fx_at_days(world, world.p_claim, world.p_day)
+    nominal_paid = Cumulative(world.p_claim, world.p_day, nominal_try)
     year = year_of(world.c_occ)
     ultimate_base = np.where(world.c_nil, 0.0, world.c_cost * world.c_fx_start)
+    ultimate_nominal = np.bincount(world.p_claim, weights=nominal_try, minlength=len(world))
     rows = []
     for ay in range(first_year, last_year + 1):
         in_year = np.flatnonzero(year == ay)
         for line in scenario.lines:
             claim = in_year[world.c_line[in_year] == line]
             total = float(ultimate_base[claim].sum())
+            total_nominal = float(ultimate_nominal[claim].sum())
             if len(claim) == 0 or total == 0:
                 continue
             for lag in range(1, MAX_LAG_YEARS + 1):
@@ -415,6 +439,8 @@ def development_pattern(
                 reserve_base = (
                     state["reserve"] / world.index_for(claim, day) * world.c_fx_start[claim]
                 )
+                paid_nominal = float(nominal_paid.at(claim, day)[0].sum())
+                reserve_nominal = float((state["reserve"] * _fx_at_days(world, claim, day)).sum())
                 rows.append(
                     {
                         "line": line,
@@ -424,6 +450,8 @@ def development_pattern(
                         "observed_at_cutoff": bool(day[0] <= cut_off),
                         "paid_share": float(paid.sum()) / total,
                         "incurred_share": float((paid + reserve_base).sum()) / total,
+                        "paid_share_nominal": paid_nominal / total_nominal,
+                        "incurred_share_nominal": (paid_nominal + reserve_nominal) / total_nominal,
                         "reported_count_share": float((state["status"] != -1).sum()) / len(claim),
                     }
                 )
@@ -509,12 +537,46 @@ def inflation_path(scenario: Scenario, market: Market, cut_off: int) -> pl.DataF
         "cpi_year_on_year": yoy,
     }
     for name, line in scenario.lines.items():
-        if line.severity.body.dist == "fixed_share_of_sum_insured":
+        severity = line.severity
+        index = severity.sum_insured_index
+        if severity.body.dist == "fixed_share_of_sum_insured" and index is None:
+            # no index after the loss; the claim size follows the prices of the policy start
             columns[f"claims_index_{name}"] = np.ones(len(months))
         else:
-            columns[f"claims_index_{name}"] = (
-                market.cpi
-                / market.cpi_base_value
-                * (1 + line.severity.superimposed_inflation) ** years_since(ends, market.base_day)
-            )
+            prices = market.cpi / market.cpi_base_value if index is None or index.prices else 1.0
+            columns[f"claims_index_{name}"] = prices * (
+                1 + severity.superimposed_inflation
+            ) ** years_since(ends, market.base_day)
     return pl.DataFrame(columns).with_columns(pl.col("cpi_year_on_year").fill_nan(None))
+
+
+def claim_size_index(scenario: Scenario) -> pl.DataFrame:
+    """Which index moves the claim size of each line, and on which day (truth/claim_size_index.csv).
+
+    ``claims_index_<line>`` in ``inflation.csv`` is the index at the day named in ``index_day``.
+    ``policy_start`` means the claim size is tied to the prices of the policy start and the claims
+    index after the loss is flat (record 0368): the trend of claim size by origin year is then the
+    price index at the start, not the column of ``inflation.csv``.
+    """
+    rows = []
+    for name, line in scenario.lines.items():
+        severity = line.severity
+        index = severity.sum_insured_index
+        if severity.body.dist != "fixed_share_of_sum_insured":
+            day, prices = "payment", True
+        elif index is None:
+            day, prices = "policy_start", True
+        else:
+            day = "occurrence" if index.by == "occurrence" else "payment"
+            prices = index.prices
+        rows.append(
+            {
+                "line": name,
+                "sum_insured_line": severity.body.dist == "fixed_share_of_sum_insured",
+                "index_day": day,
+                "follows_prices": prices,
+                "superimposed_inflation": severity.superimposed_inflation,
+                "claims_index_column": f"claims_index_{name}",
+            }
+        )
+    return pl.DataFrame(rows)

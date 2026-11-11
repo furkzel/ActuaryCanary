@@ -18,6 +18,7 @@ from actuarycanary.synthetic.messy import (
     Dictionaries,
     MessLog,
     SheetPlan,
+    as_increments,
     layout_sheet,
     sheet_name_for,
 )
@@ -265,6 +266,8 @@ def write_outputs(sim: Simulation, out: Path) -> dict[str, object]:
         plans[feed] = []
         for key, frame in sheets.items():
             name = sheet_name_for(feed, key, scenario, streams)
+            if feed == "claim_valuations" and scenario.messiness.amounts == "incremental":
+                frame = as_increments(frame)  # the canonical parquet below keeps the cumulative
             plans[feed].append(
                 layout_sheet(scenario, dictionaries, streams, feed, key, frame, log, name)
             )
@@ -325,6 +328,7 @@ def write_outputs(sim: Simulation, out: Path) -> dict[str, object]:
     for name, table in sim.truth.items():
         write_csv(truth_dir / f"{name}.csv", table)
     write_csv(truth_dir / "money_columns.csv", truth.money_columns_table())
+    write_csv(truth_dir / "claim_size_index.csv", truth.claim_size_index(sim.scenario))
     write_csv(truth_dir / "injected_faults.csv", fault_table)
     write_csv(truth_dir / "anomalies.csv", anomalies(sim, fault_table))
     for suffix, later in (("", False), ("_phase2", True)):
@@ -404,6 +408,11 @@ def write_outputs(sim: Simulation, out: Path) -> dict[str, object]:
                             if line.large_events is None
                         },
                         "phase2": True,
+                        **(
+                            {"messiness": {"amounts"}}
+                            if scenario.messiness.amounts == "to_date"
+                            else {}
+                        ),
                     },
                 ),
             },
