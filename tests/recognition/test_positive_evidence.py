@@ -18,12 +18,27 @@ from actuarycanary.recognition.tables import recognise_table
 from tests.recognition.build import DICTIONARY, table, valuations
 
 ROWS = 12
+TREATY_NUMBERS = [
+    "cession_share",
+    "retention",
+    "limit",
+    "number_of_lines",
+    "aggregate_deductible",
+    "aggregate_limit",
+    "reinstatements",
+    "reinstatement_rate",
+    "placed_share",
+    "premium_rate",
+    "ceding_commission",
+]
 
 
 def _column(name: str, i: int):
     if name.endswith(("_date", "date", "period")) or name == "period":
         return [date(2024, 1 + k % 12, 28) for k in range(ROWS)]
     if name in ("amount", "closing_balance", "opening_balance", "debit", "credit", "rate"):
+        return [100.0 + k for k in range(ROWS)]
+    if name in TREATY_NUMBERS:
         return [100.0 + k for k in range(ROWS)]
     if name.endswith("_id") or name == "account":
         return [f"{name[:3].upper()}{k:03d}" for k in range(ROWS)]
@@ -34,8 +49,8 @@ def _sheet(*headers: str):
     return table({h: _column(h, i) for i, h in enumerate(headers)})
 
 
-# the headers of the planned feeds, as the generator writes them (they sit in phase2/)
-PLANNED = {
+# the headers of the four feeds built by F1bc and of the life feeds, as the generator writes them
+BUILT = {
     "reinsurance_treaties.xlsx": (
         "treaty_id treaty_type attachment_basis loss_basis segment line entity currency "
         "index_series inception_date expiry_date cession_share retention limit number_of_lines "
@@ -53,6 +68,8 @@ PLANNED = {
         "entity account period closing_balance opening_balance debit credit currency "
         "account_name account_class segment"
     ),
+}
+PLANNED = {
     "life_in_force.xlsx": (
         "contract_id product line entry_date birth_date sex sum_assured premium status "
         "valuation_date fund_value channel segment currency term_years policy_year age lapse_flag"
@@ -70,6 +87,14 @@ def test_a_table_of_a_planned_feed_is_not_taken_for_a_known_concept(file):
     assert all(not m.used for m in rec.mappings)
 
 
+@pytest.mark.parametrize("file", sorted(BUILT))
+def test_a_table_of_a_feed_built_by_f1bc_is_recognised_by_its_columns(file):
+    """Even under a file name that says nothing (record 0381)."""
+    rec = recognise_table(_sheet(*BUILT[file].split()), "export.xlsx", DICTIONARY)
+    assert rec.concept == file.removesuffix(".xlsx"), rec.rejection
+    assert rec.rejection == ""
+
+
 def test_a_market_like_table_with_extra_columns_is_not_taken_for_market():
     headers = ("date", "series_id", "value", "kind", "tenor", "compounding", "quote", "source")
     rec = recognise_table(_sheet(*headers), "rates.xlsx", DICTIONARY)
@@ -78,7 +103,8 @@ def test_a_market_like_table_with_extra_columns_is_not_taken_for_market():
 
 
 def test_the_rejection_names_the_best_guess_and_every_reason():
-    rec = recognise_table(_sheet(*PLANNED["ledger.xlsx"].split()), "ledger.xlsx", DICTIONARY)
+    headers = PLANNED["fund_flows.xlsx"].split()
+    rec = recognise_table(_sheet(*headers), "fund_flows.xlsx", DICTIONARY)
     assert rec.rejection.startswith(f"best guess {rec.candidates[0].concept} ")
     assert "required fields found" in rec.rejection
 
@@ -107,10 +133,10 @@ def _columns(total, explained, personal=0):
 
 
 def _verdict(margin, found=6, total=6, columns=10, explained=10):
-    best = ConceptScore(
-        "a", 0.95, (found, total), (0, 0), "keys unique", False, _columns(columns, explained)
-    )
-    nxt = ConceptScore("b", round(0.95 - margin, 4), (0, 6), (0, 0), "", False, ())
+    mapped = _columns(columns, explained)
+    best = ConceptScore("a", 0.95, (found, total), (0, 0), "keys unique", False, mapped)
+    # the rival explains the same columns, so it is not dominated (record 0381)
+    nxt = ConceptScore("b", round(0.95 - margin, 4), (0, 6), (0, 0), "", False, mapped)
     return judge([best, nxt])
 
 
@@ -137,7 +163,7 @@ def test_the_required_share_boundary():
 
 def test_personal_data_columns_count_as_explained():
     best = ConceptScore("a", 0.95, (6, 6), (0, 0), "keys unique", False, _columns(8, 6, personal=2))
-    nxt = ConceptScore("b", 0.60, (0, 6), (0, 0), "", False, ())
+    nxt = ConceptScore("b", 0.60, (0, 6), (0, 0), "", False, _columns(8, 6))
     assert judge([best, nxt]).accepted is best  # margin 0.35, 8 of 8 explained
     bare = ConceptScore("a", 0.95, (6, 6), (0, 0), "keys unique", False, _columns(8, 6))
     assert judge([bare, nxt]).accepted is bare  # 6 of 8 = 75 %
