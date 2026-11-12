@@ -336,7 +336,9 @@ def _layer_section(
     per_claim = True
     if section.stage == "EVENT_XL":
         codes = sub["event_code"]
-        if codes.is_null().all():
+        # the data carry no event code at all: per claim (MT21); otherwise a claim without a
+        # code is not part of an event and the event cover leaves it alone (0403)
+        if rows["event_code"].is_null().all():
             notes.append(EVENT_PER_CLAIM)
             unit = sub["claim"].to_numpy()
         else:

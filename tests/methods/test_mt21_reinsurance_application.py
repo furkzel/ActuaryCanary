@@ -22,6 +22,7 @@ from actuarycanary.methods.reinsurance import (
     sections_from_frame,
 )
 from actuarycanary.methods.reinsurance.application import EVENT_PER_CLAIM
+from actuarycanary.methods.reinsurance.premium import apply_premium
 from tests.benchmarks.load import load_reference, load_table
 
 YEAR = {"inception": date(2020, 1, 1), "expiry": date(2021, 1, 1), "currency": "TRY"}
@@ -452,3 +453,48 @@ def test_event_layer_with_the_index_clause_adds_its_claims() -> None:
         pair.group_by("valuation_date").agg(pl.col("ceded_paid").sum()).sort("valuation_date")
     )
     assert together["ceded_paid"].to_list() == pytest.approx(one["ceded_paid"].to_list(), rel=1e-12)
+
+
+def test_premium_side_of_the_fixture() -> None:
+    claims, values = _fixture()
+    written = pl.DataFrame(
+        {
+            "policy_id": [r["claim_id"] for r in claims],
+            "booking_date": [date(2020, 1, 1)] * len(claims),
+            "amount": [float(r["annual_premium"]) for r in claims],
+            "start_date": [date(2020, 1, 1)] * len(claims),
+            "end_date": [date(2021, 1, 1)] * len(claims),
+            "sum_insured": [float(r["sum_insured"]) for r in claims],
+            "line": ["PROPERTY"] * len(claims),
+        }
+    )
+    quota = Section("QS", "QUOTA_SHARE", cession_share=0.3, ceding_commission=0.25, **YEAR)
+
+    def row(app, treaty: str) -> dict:
+        return app.by_section.filter(pl.col("treaty_id") == treaty).row(0, named=True)
+
+    def value(key: str) -> float:
+        return values[("premium", key)]["value"]
+
+    alone = apply_premium([quota], written)
+    assert row(alone, "QS")["ceded_premium"] == pytest.approx(
+        value("quota_share_ceded_premium"), rel=1e-12
+    )
+    assert row(alone, "QS")["commission"] == pytest.approx(
+        value("quota_share_commission"), rel=1e-12
+    )
+    surplus = apply_premium([SURPLUS], written)
+    assert row(surplus, "SP")["ceded_premium"] == pytest.approx(
+        value("surplus_ceded_premium"), rel=1e-12
+    )
+    programme = apply_premium([quota, SURPLUS, STOP], written)
+    assert row(programme, "QS")["ceded_premium"] == pytest.approx(
+        value("programme_quota_share_ceded_premium"), rel=1e-12
+    )
+    # the stop loss sees the earned premium left after both proportional treaties
+    left = (
+        value("gross_premium")
+        - value("surplus_ceded_premium")
+        - value("programme_quota_share_ceded_premium")
+    )
+    assert programme.earned_premium()[STOP.key] == pytest.approx(left, rel=1e-12)
