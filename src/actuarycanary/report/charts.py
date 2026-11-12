@@ -232,6 +232,14 @@ def methods(group: GroupReserving, currency: str) -> dict[str, Any] | None:
     }
 
 
+def range_row_label(measure: str) -> str:
+    """What a reserve-range row holds (A1a, R19): the selected ultimate less the paid is the
+    unpaid; less the incurred it is the IBNR."""
+    if measure == "paid":
+        return t("Unpaid (paid triangle)")
+    return t("IBNR (incurred triangle)")
+
+
 def reserve_range(group: GroupReserving, currency: str) -> dict[str, Any] | None:
     """The Mack range around the selected reserve, per triangle, drawn as a range: the 5th
     to 95th percentile as a light bar, the 25th to 75th as a dark bar inside it, and the
@@ -263,7 +271,7 @@ def reserve_range(group: GroupReserving, currency: str) -> dict[str, Any] | None
                     "type": "scatter",
                     "mode": "lines",
                     "x": [_round(p[low]), _round(p[high])],
-                    "y": [t(measure), t(measure)],
+                    "y": [range_row_label(measure)] * 2,
                     "line": {"color": colour, "width": width},
                     "opacity": opacity,
                     "hovertemplate": t(
@@ -278,7 +286,7 @@ def reserve_range(group: GroupReserving, currency: str) -> dict[str, Any] | None
                 "type": "scatter",
                 "mode": "markers",
                 "x": [_round(reserve)],
-                "y": [t(measure)],
+                "y": [range_row_label(measure)],
                 "marker": {"color": INK, "symbol": "diamond", "size": 11},
                 "hovertemplate": t(
                     "Selected reserve: %{x:,.0f} {currency}<extra></extra>", currency=currency

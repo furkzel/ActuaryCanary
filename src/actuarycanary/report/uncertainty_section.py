@@ -377,13 +377,21 @@ def curve(result: UncertaintyResult, frame: pl.DataFrame) -> dict[str, Any] | No
     found = result.discount.curve
     if found is None:
         return None
+    inputs = found.input_rates()
+    if found.rate_type == "PAR":
+        kind = t("par rate, annual coupons")
+    elif found.rate_type == "FORWARD":
+        kind = t("one-year forward rate, annually compounded")
+    else:
+        kind = t("spot rate, {compounding}", compounding=found.compounding)
     return {
+        "input_heading": t("Input rate ({kind})", kind=kind),
         "rows": [
             (t("Curve"), found.curve_id),
             (t("Curve date"), found.curve_date.isoformat()),
             (t("Currency"), found.currency),
             (t("Rate type"), found.rate_type),
-            (t("Compounding"), found.compounding),
+            (t("Compounding of the input rate"), found.compounding),
             (t("Source"), found.source or numbers.EMPTY),
             (t("Discount date"), result.discount.discount_date.isoformat()),
             (t("Payment timing"), t(result.discount.timing.value.replace("_", " "))),
@@ -392,11 +400,12 @@ def curve(result: UncertaintyResult, frame: pl.DataFrame) -> dict[str, Any] | No
         "points": [
             {
                 "tenor": numbers.factor(value(r["tenor_years"])),
+                "input": numbers.ratio(float(inputs[i])),
                 "zero": numbers.ratio(value(r["zero_rate"])),
                 "factor": numbers.factor(value(r["discount_factor"])),
                 "forward": numbers.ratio(value(r["forward_rate"])),
             }
-            for r in frame.to_dicts()
+            for i, r in enumerate(frame.to_dicts())
         ],
     }
 

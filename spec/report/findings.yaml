@@ -1,5 +1,5 @@
 id: RP01
-version: 1.3.0
+version: 1.3.1
 title_en: Key finding rules
 title_tr: Temel bulgu kuralları
 status: draft
@@ -94,12 +94,13 @@ rules:
     condition: loss_ratio_change >= 0.05
     template: >-
       {segment}: the ultimate loss ratio rose from {loss_ratio_previous} for origin
-      {loss_ratio_previous_origin} to {loss_ratio_latest} for origin {loss_ratio_origin}.
+      {loss_ratio_previous_origin} to {loss_ratio_latest} for origin {loss_ratio_origin};
+      only these two origin years are compared, the latest against the one before it.
     title_tr: Hasar prim oranı yükseldi
     template_tr: >-
       {segment}: nihai hasar prim oranı {loss_ratio_previous_origin} kaynak yılı için
       {loss_ratio_previous} iken {loss_ratio_origin} kaynak yılı için {loss_ratio_latest}
-      değerine yükseldi.
+      değerine yükseldi; yalnızca bu iki kaynak yılı karşılaştırılır: sonuncusu, bir öncekiyle.
     evidence:
       section: profitability
       files: [measures.csv, lineage.csv]
@@ -111,12 +112,13 @@ rules:
     condition: loss_ratio_change <= -0.05
     template: >-
       {segment}: the ultimate loss ratio fell from {loss_ratio_previous} for origin
-      {loss_ratio_previous_origin} to {loss_ratio_latest} for origin {loss_ratio_origin}.
+      {loss_ratio_previous_origin} to {loss_ratio_latest} for origin {loss_ratio_origin};
+      only these two origin years are compared, the latest against the one before it.
     title_tr: Hasar prim oranı düştü
     template_tr: >-
       {segment}: nihai hasar prim oranı {loss_ratio_previous_origin} kaynak yılı için
       {loss_ratio_previous} iken {loss_ratio_origin} kaynak yılı için {loss_ratio_latest}
-      değerine düştü.
+      değerine düştü; yalnızca bu iki kaynak yılı karşılaştırılır: sonuncusu, bir öncekiyle.
     evidence:
       section: profitability
       files: [measures.csv, lineage.csv]
@@ -734,3 +736,9 @@ change_log:
       without expense rows. Three settings: recovery_drop_limit 0.5,
       expense_ratio_change_limit 0.02, unallocated_expense_share_limit 0.25. Implemented before
       owner review; draft.
+  - version: 1.3.1
+    date: 2026-11-12
+    change: >-
+      KF04 and KF05 say what they compare (A1a, R20, record 0750): only the latest origin
+      year against the one before it, in English and Turkish. Conditions and placeholders do
+      not change. Not reviewed by the owner yet.

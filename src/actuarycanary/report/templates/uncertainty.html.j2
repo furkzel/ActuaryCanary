@@ -47,10 +47,10 @@
 {% if b.curve %}<h4>{{ tr("Discount curve used") }}</h4>
 <dl class="cover">{% for k, v in b.curve.rows %}<dt>{{ k }}</dt><dd>{{ v }}</dd>{% endfor %}</dl>
 <details><summary>{{ tr("{n} points of the curve", n=b.curve.points|length) }}</summary><div class="scroll"><table>
-  <thead><tr><th>{{ tr("Tenor (years)") }}</th><th>{{ tr("Zero rate") }}</th><th>{{ tr("Discount factor") }}</th><th>{{ tr("Forward rate") }}</th></tr></thead>
-  <tbody>{% for x in b.curve.points %}<tr><td>{{ x.tenor }}</td><td>{{ x.zero }}</td><td>{{ x.factor }}</td><td>{{ x.forward }}</td></tr>{% endfor %}</tbody>
+  <thead><tr><th>{{ tr("Tenor (years)") }}</th><th>{{ b.curve.input_heading }}</th><th>{{ tr("Zero rate, continuously compounded") }}</th><th>{{ tr("Discount factor") }}</th><th>{{ tr("Forward rate, annually compounded, from the previous tenor") }}</th></tr></thead>
+  <tbody>{% for x in b.curve.points %}<tr><td>{{ x.tenor }}</td><td>{{ x.input }}</td><td>{{ x.zero }}</td><td>{{ x.factor }}</td><td>{{ x.forward }}</td></tr>{% endfor %}</tbody>
 </table></div></details>
-<p class="footnote">{{ tr("Rows of discount_curve.csv; the curve, the dates and the timing are in the manifest settings (discount, discount_used).") }}</p>
+<p class="footnote">{{ tr("A rate given as ANNUAL is converted to the continuous zero rate z = ln(1 + r), so the discount factor is exp(−z t) = (1 + r)^−t. Rows of discount_curve.csv (its zero_rate column is the continuous rate); the curve, the dates and the timing are in the manifest settings (discount, discount_used).") }}</p>
 {% else %}<p>{{ tr("No discounted figures: {reason}.", reason=b.discount_reason) }}</p>{% endif %}
 
 <h3>{{ tr("Calibration notes") }}</h3>

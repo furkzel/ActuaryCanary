@@ -7,9 +7,10 @@
     <tbody>{% for c in coverage %}<tr><td>{{ c.concept }}</td><td>{{ c.rows }}</td><td>{{ c.first }}</td><td>{{ c.last }}</td><td>{{ c.score }}</td><td class="text">{{ c.sources }}</td></tr>{% endfor %}</tbody>
   </table></div>
   <h3>{{ tr("Analyses") }}</h3>
+  <p>{{ tr("Data status says whether the data allow a module to run; it does not say that the module found nothing to report. What each module did in this run, and why it was limited, is in the last column.") }}</p>
   <div class="scroll"><table>
-    <thead><tr><th>{{ tr("Module") }}</th><th>{{ tr("Status") }}</th><th>{{ tr("Why") }}</th></tr></thead>
-    <tbody>{% for m in modules %}<tr><td class="text">{{ m.module }} {{ m.title }}</td><td class="text{% if m.status_code == 'unable' %} negative{% endif %}">{{ m.status }}</td><td class="text">{{ m.reasons }}</td></tr>{% endfor %}</tbody>
+    <thead><tr><th>{{ tr("Module") }}</th><th>{{ tr("Data status") }}</th><th>{{ tr("Why") }}</th><th>{{ tr("In this run") }}</th></tr></thead>
+    <tbody>{% for m in modules %}<tr><td class="text">{{ m.module }} {{ m.title }}</td><td class="text{% if m.status_code == 'unable' %} negative{% endif %}">{{ m.status }}</td><td class="text">{{ m.reasons }}</td><td class="text">{{ m.run_mark }}</td></tr>{% endfor %}</tbody>
   </table></div>
   <h3>{{ tr("Findings") }}</h3>
   {% if findings %}

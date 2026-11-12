@@ -3,13 +3,14 @@
 from functools import cache
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
+from markupsafe import Markup
 
 from actuarycanary.quality.model import QualityReport, SourceRef
 from actuarycanary.quality.output import show_score
 from actuarycanary.report import language, numbers
 from actuarycanary.report.language import t
 from actuarycanary.report.modules_section import module_title
-from actuarycanary.report.render import TEMPLATE_DIR
+from actuarycanary.report.render import RUN_STATE_MARK, TEMPLATE_DIR
 from actuarycanary.spec.catalogue import SpecCatalogue
 
 SECTION_TEMPLATE = "quality.html.j2"
@@ -77,6 +78,7 @@ def render_quality_section(
                     "title": module_title(catalogue, m.module, m.title),
                     "status": t(m.status),
                     "status_code": m.status,
+                    "run_mark": Markup(RUN_STATE_MARK.format(module=m.module)),
                     "reasons": "; ".join(t(x) for x in m.reasons)
                     + (
                         " " + t("Unavailable: {list}.", list=", ".join(m.unavailable))

@@ -1341,6 +1341,10 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
             **_reserving(r, spec, figures, line_findings),
         },
         "not_run": _not_run(r),
+        "module_runs": {
+            o.module: {"state": t(o.state.value), "why": "; ".join(t(x) for x in o.reasons)}
+            for o in r.analysis.modules
+        },
         "data_findings": [
             {
                 "rule": f.rule,
