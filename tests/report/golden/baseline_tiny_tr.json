@@ -64,6 +64,11 @@
    {
     "entries": 4,
     "method": "MT11",
+    "name": "floor pseudo increments"
+   },
+   {
+    "entries": 4,
+    "method": "MT11",
     "name": "simülasyon sayısı"
    },
    {
@@ -269,7 +274,7 @@
   ],
   "by_who": [
    {
-    "entries": 233,
+    "entries": 237,
     "who": "default"
    },
    {
@@ -312,7 +317,7 @@
     "why": "rule: the column rests on 1 link ratio(s), fewer than 2; the average is not used and the factor is 1.000 (neutral)"
    }
   ],
-  "total": 236
+  "total": 240
  },
  "banners": [
   "4 branşın 4 tanesi için yalnızca 4 kaynak dönem (2022 – 2025) yüklendi; bu sayı, yöntemlerin sağlam kanıt için gereksindiği 8 değerinin altındadır: her faktör, oran ve aralık az gözleme dayanır ve yöntemler arasındaki farklar, sonucun kesinliğini değil, sonucun yönteme ne kadar bağlı olduğunu gösterir."
@@ -332,7 +337,7 @@
   "rows": [
    {
     "label": "Çalıştırma kimliği",
-    "value": "b2b6c13bf434be68"
+    "value": "89aab15f3692bf8e"
    },
    {
     "label": "Değerleme tarihi",
@@ -6947,10 +6952,10 @@
      "calibration": "Sonradan bilinen gerçekleşenin, daha önceki bir değerlemede verilen aralığın içine düşen payı, branşlar üzerinden toplanarak (back_test.csv içindeki AE02 satırları, MT22 v1.0.0, AE02 v1.0.0). Model verisindeki kapsama kayıt 0075 (Mack), 0282 (bootstrap) ve 0325'tedir (bu modül); Mack aralıklarının enflasyon etkili veya uzun kuyruklu branşlarda fazla dar olduğu bilinmektedir (kayıt 0062).",
      "cash_flows": "Seçilen ödenmemişin değerleme tarihinden sonraki dönemlere göre beklenen ödemeleri, tüm branşlar toplanarak (RS04 v1.1.0, CV10 v1.1.0); risk_cash_flows.csv satırları.",
      "figure": "Aralıklar aralık olarak çizilmiştir: açık çubuk medyandan 99,5. yüzdeliğe, koyu çubuk 75.'den 95.'ye, ortalama elmas işaretiyle.",
-     "headline": "Seçilen ödenmemiş (RS02 ile MT10) çalıştırmanın tek toplamıdır; aralığın ortalaması M12'nin simülasyonunun ortalamasıdır: branşta çalıştıysa bootstrap (RS05 v1.1.0, MT11 v1.3.0), yoksa Mack yaklaşımı (RS03 v1.1.0, MT06 v1.2.0). İkisi arasındaki fark, aralıkların altındaki tablonun adımlarıyla açıklanır. 5. yüzdelik risk_distribution.parquet dosyasından veya RS03'ün lognormalinden gelir. Gösterge niteliğinde aralıklar; asla sermaye gereksinimi değil.",
+     "headline": "Seçilen ödenmemiş (RS02 ile MT10) çalıştırmanın tek toplamıdır; aralığın ortalaması M12'nin simülasyonunun ortalamasıdır: branşta çalıştıysa bootstrap (RS05 v1.1.0, MT11 v1.4.0), yoksa Mack yaklaşımı (RS03 v1.1.0, MT06 v1.2.0). İkisi arasındaki fark, aralıkların altındaki tablonun adımlarıyla açıklanır. 5. yüzdelik risk_distribution.parquet dosyasından veya RS03'ün lognormalinden gelir. Gösterge niteliğinde aralıklar; asla sermaye gereksinimi değil.",
      "histogram": "Simüle edilen rezervin histogramı (RS05 v1.1.0); çizgiler risk_measures.csv satırının ortalamasını, VaR ve TVaR değerini gösterir; simülasyonların tümü risk_distribution.parquet içindedir. Birkaç uç çekiliş şekli gizlemesin diye eksen 0,5. ve 99,5. yüzdelikte kesilir; her histogramın açıklaması uç değerleri verir.",
      "present_values": "risk_measures.csv'nin expected_cash_flows satırları (RS04 v1.1.0, CV10 v1.1.0): seçilen ödenmemiş eksi indirgeme etkisi, bugünkü değeridir. Yukarıdaki tablodaki simüle ortalamalar bu nakit akışlarının değil simülasyonun ortalamalarıdır; bu yüzden iki indirgeme etkisi farklıdır.",
-     "ranges": "risk_measures.csv içindeki Total ve All lines satırları (RS03 v1.1.0, RS05 v1.1.0, M12 v1.2.0). VaR %99,5'te ve TVaR %99'da; iki kaynak da seçilen rezervin belirsizliğine yaklaşımdır ve dosyada böyle etiketlenmiştir."
+     "ranges": "risk_measures.csv içindeki Total ve All lines satırları (RS03 v1.1.0, RS05 v1.1.0, M12 v1.3.0). VaR %99,5'te ve TVaR %99'da; iki kaynak da seçilen rezervin belirsizliğine yaklaşımdır ve dosyada böyle etiketlenmiştir."
     },
     "notes": [
      "LIFE / GROUP_TERM_LIFE: MT06 did not run: no Mack range",
@@ -7022,7 +7027,7 @@
     "NON_LIFE / PROPERTY: MT06 did not run: no Mack range",
     "NON_LIFE / PROPERTY: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range"
    ],
-   "spec": "M12 v1.2.0",
+   "spec": "M12 v1.3.0",
    "state": "sınırlı",
    "title": "Belirsizlik ve risk"
   }
@@ -7154,8 +7159,8 @@
    },
    {
     "name": "assumptions.csv",
-    "sha256": "cb9d09a9cdd4a2456c0b10e5d18ded29fd63204813bb5a6e75d38150f52672c7",
-    "size": "28.395"
+    "sha256": "5bcf50f8c58582c7b6d1fc5fc54730f17ddf59c94589d8584b3e3b28aab6e8ca",
+    "size": "28.939"
    },
    {
     "name": "ultimates.csv",
@@ -7402,7 +7407,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "b2b6c13bf434be68",
+  "run_id": "89aab15f3692bf8e",
   "settings": [
    {
     "name": "bases.currency",
@@ -7677,8 +7682,12 @@
     "value": "True"
    },
    {
+    "name": "tier_b.methods.MT11.floor_pseudo_increments",
+    "value": "True"
+   },
+   {
     "name": "tier_b.methods.MT11.n_simulations",
-    "value": "10000"
+    "value": "50000"
    },
    {
     "name": "tier_b.methods.MT11.process_distribution",
@@ -8145,7 +8154,7 @@
    {
     "id": "M12",
     "title": "Belirsizlik ve risk",
-    "version": "1.2.0"
+    "version": "1.3.0"
    },
    {
     "id": "RS04",
@@ -8731,7 +8740,7 @@
      },
      "footnotes": {
       "back_test": "Geriye dönük test (MT22 v1.0.0, AE02 v1.0.0): her yöntem daha önceki bir değerlemede bilinen veriyle yeniden çalıştırılır ve sonradan bilinen gerçekleşenle karşılaştırılır; hata = tahmin / referans − 1. İlk 3 ufuk gösterilir; back_test.csv her ufku ve kaynak dönemi içerir.",
-      "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.3.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
+      "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.4.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
       "munich": "Ayrı zincir merdivenlerin (MT02 v1.1.0) yanında Munich zincir merdiven (MT12 v1.0.0); Munich yöntemi ödenen / gerçekleşen oranını gözlenen düzeyine yaklaştırır. tier_b_ultimates.csv ve tier_b_parameters.csv satırları.",
       "tails": "Seçilen faktörlere uydurulan kuyruk eğrileri (MT14 v1.0.0); tier_b_parameters.csv satırları. Varsayım kaydı bir eğri seçmedikçe çalıştırma MT02 kuyruğunu kullanır; seçilen eğrinin etkisi sensitivity.csv içinde bir satırdır.",
       "ultimates": "Kademe A: MT02 v1.1.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
@@ -9361,7 +9370,7 @@
      },
      "footnotes": {
       "back_test": "Geriye dönük test (MT22 v1.0.0, AE02 v1.0.0): her yöntem daha önceki bir değerlemede bilinen veriyle yeniden çalıştırılır ve sonradan bilinen gerçekleşenle karşılaştırılır; hata = tahmin / referans − 1. İlk 3 ufuk gösterilir; back_test.csv her ufku ve kaynak dönemi içerir.",
-      "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.3.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
+      "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.4.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
       "munich": "Ayrı zincir merdivenlerin (MT02 v1.1.0) yanında Munich zincir merdiven (MT12 v1.0.0); Munich yöntemi ödenen / gerçekleşen oranını gözlenen düzeyine yaklaştırır. tier_b_ultimates.csv ve tier_b_parameters.csv satırları.",
       "tails": "Seçilen faktörlere uydurulan kuyruk eğrileri (MT14 v1.0.0); tier_b_parameters.csv satırları. Varsayım kaydı bir eğri seçmedikçe çalıştırma MT02 kuyruğunu kullanır; seçilen eğrinin etkisi sensitivity.csv içinde bir satırdır.",
       "ultimates": "Kademe A: MT02 v1.1.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
@@ -10120,7 +10129,7 @@
      },
      "footnotes": {
       "back_test": "Geriye dönük test (MT22 v1.0.0, AE02 v1.0.0): her yöntem daha önceki bir değerlemede bilinen veriyle yeniden çalıştırılır ve sonradan bilinen gerçekleşenle karşılaştırılır; hata = tahmin / referans − 1. İlk 3 ufuk gösterilir; back_test.csv her ufku ve kaynak dönemi içerir.",
-      "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.3.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
+      "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.4.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
       "munich": "Ayrı zincir merdivenlerin (MT02 v1.1.0) yanında Munich zincir merdiven (MT12 v1.0.0); Munich yöntemi ödenen / gerçekleşen oranını gözlenen düzeyine yaklaştırır. tier_b_ultimates.csv ve tier_b_parameters.csv satırları.",
       "tails": "Seçilen faktörlere uydurulan kuyruk eğrileri (MT14 v1.0.0); tier_b_parameters.csv satırları. Varsayım kaydı bir eğri seçmedikçe çalıştırma MT02 kuyruğunu kullanır; seçilen eğrinin etkisi sensitivity.csv içinde bir satırdır.",
       "ultimates": "Kademe A: MT02 v1.1.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
@@ -10731,7 +10740,7 @@
      },
      "footnotes": {
       "back_test": "Geriye dönük test (MT22 v1.0.0, AE02 v1.0.0): her yöntem daha önceki bir değerlemede bilinen veriyle yeniden çalıştırılır ve sonradan bilinen gerçekleşenle karşılaştırılır; hata = tahmin / referans − 1. İlk 3 ufuk gösterilir; back_test.csv her ufku ve kaynak dönemi içerir.",
-      "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.3.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
+      "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.4.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
       "munich": "Ayrı zincir merdivenlerin (MT02 v1.1.0) yanında Munich zincir merdiven (MT12 v1.0.0); Munich yöntemi ödenen / gerçekleşen oranını gözlenen düzeyine yaklaştırır. tier_b_ultimates.csv ve tier_b_parameters.csv satırları.",
       "tails": "Seçilen faktörlere uydurulan kuyruk eğrileri (MT14 v1.0.0); tier_b_parameters.csv satırları. Varsayım kaydı bir eğri seçmedikçe çalıştırma MT02 kuyruğunu kullanır; seçilen eğrinin etkisi sensitivity.csv içinde bir satırdır.",
       "ultimates": "Kademe A: MT02 v1.1.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
