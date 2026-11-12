@@ -162,6 +162,8 @@ def run_tier_b(
         scale=Scale(str(values["scale"])),
         tail_factor=tail,
         centre_residuals=bool(values["centre_residuals"]),
+        # the rule of the selected chain ladder (setting min_origins_per_factor), record 0783
+        min_link_ratios=paid_chain.min_link_ratios if isinstance(paid_chain, ChainLadder) else 1,
     )
 
     # MT12 on paid and incurred together --------------------------------------------------

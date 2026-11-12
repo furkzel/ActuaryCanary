@@ -1,5 +1,5 @@
 id: MT11
-version: 1.3.0
+version: 1.4.0
 title_en: Over-dispersed Poisson bootstrap
 title_tr: Aşırı yayılımlı Poisson bootstrap
 status: reviewed
@@ -70,6 +70,12 @@ parameters:
   - name: tvar_level
     default: 0.99
     description: Tail value-at-risk level, as in MT06.
+  - name: min_link_ratios
+    default: 1 (no rule); in a run the setting min_origins_per_factor of MT02 (default 2)
+    description: >-
+      A development column of the (cut) triangle that rests on fewer finite link ratios than
+      this takes the factor 1.000 in the refit of every pseudo-triangle (the rule of decision
+      0776 inside the refit, record 0783). The fitted model keeps its averages.
 algorithm:
   - step: >-
       Cut of the trailing columns. With S_j the sum of incremental paid over the observed cells
@@ -105,7 +111,9 @@ algorithm:
       future incremental means of each origin from the cumulative of the pseudo-triangle on
       its latest diagonal, C*(i, J_i), not from the actual latest cumulative: this is the
       forecast of the refitted model, whose row parameters are re-estimated on the pseudo-data
-      (decision 0612).
+      (decision 0612). A column j whose factor rests on fewer than min_link_ratios finite link
+      ratios of the triangle (counted once, on the observed triangle, so the set of columns is the
+      same for every pseudo-triangle) takes f*(j) = 1 in every refit (record 0783).
     formula: '\mu^{*}_{i,k} = C^{*}_{i,J_i} \Big(\prod_{l=J_i}^{k-1} f^*_l\Big)\,\big(f^*_{k} - 1\big), \quad k \ge J_i'
   - step: >-
       Process error: draw every future increment from the process distribution, in the gamma
@@ -138,7 +146,11 @@ outputs:
       Counts, over all simulations, of the pseudo-triangles with a zero or negative
       denominator in some development column, with a negative cumulative value, and with a
       negative factor or one above twice the fitted factor of its column; reported as shares of
-      the simulations. Counted from the arrays of the refit; no random draw (record 0778).
+      the simulations. Counted from the arrays of the refit; no random draw (record 0778). A
+      column whose factor the rule of min_link_ratios sets to 1 is not counted for the
+      denominator or the factor, since the refit does not use them (record 0783).
+  - name: ruled_columns
+    description: The factor columns that min_link_ratios set to 1 in the refit, with the limit used.
   - name: cut_reserve_difference
     description: >-
       Chain-ladder reserve of the cut triangle minus that of the whole triangle (MT02,
@@ -288,3 +300,12 @@ change_log:
       counts are made from arrays the batch loop already has and consume no draw: the simulated
       reserves and cash flows are bit-identical to those of 1.2.0 for the same stream. Not
       reviewed by the owner yet.
+  - version: 1.4.0
+    date: 2026-11-12
+    change: >-
+      New parameter min_link_ratios (A1c, R04, records 0782 and 0783): a development column that
+      rests on fewer finite link ratios of the triangle takes the factor 1.000 in the refit of
+      every pseudo-triangle; the module passes the setting min_origins_per_factor of MT02
+      (default 2). Function default 1: the benchmarks are unchanged. The fitted model, the
+      residuals, phi, the pool and the order of the draws are unchanged; the output
+      ruled_columns names the columns. The owner has not reviewed this version.
