@@ -38,6 +38,8 @@ RUNS = 150
 SIMULATIONS = 600
 SEED = 20261107
 GROUP = ("S", "L")
+# own-model calibration is judged on the plain averages: the rule of record 0776 is off
+NO_RULE = ChainLadderSettings(min_origins_per_factor=1)
 
 
 def _triangle_set(observed: np.ndarray) -> TriangleSet:
@@ -80,7 +82,7 @@ def test_the_range_of_m12_covers_the_true_reserve_of_triangles_drawn_from_the_mo
         cells = rng.gamma(means / phi, phi)
         observed = np.where(upper, np.cumsum(np.where(upper, cells, 0.0), axis=1), np.nan)
         reserving = run_reserving(
-            _triangle_set(observed), ChainLadderSettings(),
+            _triangle_set(observed), NO_RULE,
             MethodInputs(register=register, tier_b=_source()),
         )  # fmt: skip
         found = run_uncertainty(reserving, no_curve, register)

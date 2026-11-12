@@ -43,6 +43,10 @@ class ChainLadder:
     # the averages before any selected factor replaced them; equal to `factors` without one
     averages: np.ndarray
     overridden: np.ndarray  # bool per column: a selected factor replaced the average
+    # link ratios behind the average of each column (usable, finite), and the columns whose
+    # average the rule `min_link_ratios` replaced by 1.000 (a subset of `overridden`)
+    n_ratios: np.ndarray
+    replaced: np.ndarray
 
     @property
     def reserve(self) -> np.ndarray:
@@ -93,11 +97,15 @@ def chain_ladder(
     min_origins: int = 3,
     calendar: np.ndarray | None = None,
     selected: Mapping[int, float] | None = None,
+    min_link_ratios: int = 1,
 ) -> ChainLadder | Skipped:
     """MT02 on `cumulative`. `calendar` gives each cell's valuation point (diagonal); by default
     i + j, the diagonal of a triangle whose origin and development periods are equal.
     `selected` replaces the average of single columns (column index to factor); the averages
-    stay in the result as the alternative."""
+    stay in the result as the alternative. A column that rests on fewer than `min_link_ratios`
+    usable link ratios, but on at least one, is not taken from the average: its factor is set to
+    1.000 (neutral) and the column is marked in `replaced`; a selected factor wins over the rule.
+    The default 1 applies no rule."""
     cumulative = np.asarray(cumulative, dtype=float)
     n_origins, n_dev = cumulative.shape
     if n_origins < min_origins:
@@ -140,6 +148,16 @@ def chain_ladder(
         factors[j] = value
         overridden[j] = True
 
+    n_ratios = (used & np.isfinite(link_ratios)).sum(axis=0).astype(np.int64)
+    replaced = (n_ratios > 0) & (n_ratios < min_link_ratios) & ~overridden
+    for j in np.flatnonzero(replaced):
+        factors[j] = 1.0
+        overridden[j] = True
+        warnings.append(
+            f"development column {j} rests on {n_ratios[j]} link ratio(s), fewer than "
+            f"{min_link_ratios}; factor set to 1 instead of the average {averages[j]:.4f}"
+        )
+
     cdf = np.empty(n_dev)
     cdf[-1] = tail_factor
     for j in range(n_dev - 2, -1, -1):
@@ -169,4 +187,6 @@ def chain_ladder(
         negative=np.any(np.where(observed, cumulative, 0.0) < 0, axis=1),
         averages=averages,
         overridden=overridden,
+        n_ratios=n_ratios,
+        replaced=replaced,
     )

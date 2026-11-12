@@ -177,12 +177,23 @@ def applied_to_selected(
 
 
 def mack(
-    cumulative: np.ndarray, *, calendar: np.ndarray | None = None, min_origins: int = 3
+    cumulative: np.ndarray,
+    *,
+    calendar: np.ndarray | None = None,
+    min_origins: int = 3,
+    min_link_ratios: int = 1,
 ) -> Mack | Skipped:
-    """MT06 on a cumulative triangle (NaN where not observed)."""
+    """MT06 on a cumulative triangle (NaN where not observed). `min_link_ratios` is the rule of
+    MT02: a column resting on fewer link ratios has the factor 1.000, here as in the chain
+    ladder of the run; its variance parameter is extrapolated as for any column with fewer than
+    two link ratios."""
     cumulative = np.asarray(cumulative, dtype=float)
     chain = chain_ladder(
-        cumulative, average=Average.VOLUME_WEIGHTED, min_origins=min_origins, calendar=calendar
+        cumulative,
+        average=Average.VOLUME_WEIGHTED,
+        min_origins=min_origins,
+        calendar=calendar,
+        min_link_ratios=min_link_ratios,
     )
     if isinstance(chain, Skipped):
         return Skipped("MT06", chain.reason)

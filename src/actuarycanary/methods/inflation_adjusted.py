@@ -122,6 +122,7 @@ def inflation_adjusted_chain_ladder(
     tail_factor: float = 1.0,
     min_origins: int = 3,
     selected: Mapping[int, float] | None = None,
+    min_link_ratios: int = 1,
 ) -> InflationAdjusted | Skipped:
     """MT07 on the adjusted cumulative paid triangle; MT02 parameters as for chain ladder.
 
@@ -135,6 +136,7 @@ def inflation_adjusted_chain_ladder(
         "tail_factor": tail_factor,
         "min_origins": min_origins,
         "calendar": calendar,
+        "min_link_ratios": min_link_ratios,
     }
     chain = chain_ladder(adjusted, selected=selected, **options)
     if isinstance(chain, Skipped):
