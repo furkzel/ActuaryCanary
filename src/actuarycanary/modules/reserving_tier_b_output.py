@@ -188,6 +188,13 @@ def parameters_table(result: ReservingResult) -> pl.DataFrame:
             add("MT11", "paid", "tail_factor", "", boot.tail_factor)
             add("MT11", "paid", "bias", "", boot.bias, "mean simulated reserve over the "
                 "chain-ladder reserve, minus 1")  # fmt: skip
+            for kind, count in (
+                ("zero_denominator", boot.pseudo_zero_denominator),
+                ("negative_cumulative", boot.pseudo_negative_cumulative),
+                ("extreme_factor", boot.pseudo_extreme_factor),
+            ):
+                add("MT11", "paid", f"pseudo_{kind}_share", "", boot.pseudo_shares[kind],
+                    f"{count} of {boot.n_simulations} pseudo-triangles")  # fmt: skip
             if boot.cut_columns:
                 ages = group.triangles["paid"].ages
                 whole = boot.full_chain_reserve

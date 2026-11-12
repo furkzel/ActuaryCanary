@@ -94,6 +94,14 @@ CASES: dict[str, tuple[dict[str, float], dict[str, float]]] = {
         {"unallocated_expense_share": 0.1, "unallocated_expense_share_limit": 0.25},
     ),
     "KF41": ({"unit_cost_periods_missing": 1}, {"unit_cost_periods_missing": 0}),
+    "KF42": (
+        {"thin_unpaid_change_size": 0.08, "thin_factor_change_limit": 0.02},
+        {"thin_unpaid_change_size": 0.01, "thin_factor_change_limit": 0.02},
+    ),
+    "KF43": (
+        {"tail_default": 1, "tail_default_concern": 1},
+        {"tail_default": 1, "tail_default_concern": 0},
+    ),
 }
 # RP01 1.3.0 (record 0388): their facts come from the tables of M07 and M09, which
 # tests/report/test_pages_m07_m09.py builds
@@ -168,7 +176,8 @@ def test_every_fact_a_rule_names_is_computed_for_its_scope(default_run: RunResul
     missing = {
         (rule.id, name)
         for rule in RULES.values()
-        if rule.id not in NEW_IN_1_2 | NEW_IN_1_3  # need methods the tiny data cannot run
+        if rule.id
+        not in NEW_IN_1_2 | NEW_IN_1_3 | {"KF42"}  # need methods or tables the call lacks
         for name in facts_named(rule)
         if name not in known[rule.scope]
     }
@@ -202,6 +211,7 @@ def test_the_rule_file_names_its_settings() -> None:
         "recovery_drop_limit": 0.5,
         "expense_ratio_change_limit": 0.02,
         "unallocated_expense_share_limit": 0.25,
+        "thin_factor_change_limit": 0.02,
     }
 
 

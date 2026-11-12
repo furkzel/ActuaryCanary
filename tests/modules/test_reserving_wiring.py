@@ -40,6 +40,8 @@ AGES = tuple(HAND["incurred"]["ages"])
 POINTS = tuple(date(int(y), 12, 31) for y in YEARS)
 CUT_OFF, V0 = POINTS[-1], POINTS[-2]
 GROUP = ("S", "L")
+# the hand-worked numbers below use the plain averages: the rule of record 0776 is off
+NO_RULE = ChainLadderSettings(min_origins_per_factor=1)
 BASIS = "GROSS, REPORTING, NOMINAL"
 
 
@@ -93,7 +95,7 @@ PREMIUM_ARRAY = np.array(PREMIUM["earned_premium"], dtype=float)
 
 @pytest.fixture(scope="module")
 def result():
-    return run_reserving(_set(), ChainLadderSettings(), MethodInputs(premium=PREMIUM))
+    return run_reserving(_set(), NO_RULE, MethodInputs(premium=PREMIUM))
 
 
 @pytest.fixture(scope="module")
@@ -130,7 +132,7 @@ def test_selection_is_made_on_incurred_with_the_maturity_rule(group) -> None:
 
 
 def test_without_premium_the_premium_methods_say_why_and_the_selection_is_chain_ladder() -> None:
-    bare = run_reserving(_set(), ChainLadderSettings(), MethodInputs())
+    bare = run_reserving(_set(), NO_RULE, MethodInputs())
     group = bare.groups[0]
     for results in (group.bornhuetter_ferguson, group.cape_cod, group.expected_loss_ratio):
         assert all(isinstance(r, Skipped) for r in results.values())
@@ -146,7 +148,7 @@ def test_without_premium_the_premium_methods_say_why_and_the_selection_is_chain_
 
 def test_premium_by_underwriting_period_is_not_built_so_the_axis_says_so() -> None:
     inputs = MethodInputs(premium=PREMIUM, origin_axis="underwriting")
-    group = run_reserving(_set(), ChainLadderSettings(), inputs).groups[0]
+    group = run_reserving(_set(), NO_RULE, inputs).groups[0]
     assert group.bornhuetter_ferguson["paid"].reason == UNDERWRITING_PREMIUM
 
 
@@ -161,10 +163,8 @@ def test_a_register_entry_reaches_the_method_and_comes_back_with_who_when_and_wh
         why="long tail line",
     )
     register = AssumptionsRegister(entries=(entry,))
-    plain = run_reserving(_set(), ChainLadderSettings(), MethodInputs(premium=PREMIUM))
-    judged = run_reserving(
-        _set(), ChainLadderSettings(), MethodInputs(register=register, premium=PREMIUM)
-    )
+    plain = run_reserving(_set(), NO_RULE, MethodInputs(premium=PREMIUM))
+    judged = run_reserving(_set(), NO_RULE, MethodInputs(register=register, premium=PREMIUM))
     paid = judged.groups[0].chain_ladder["paid"]
     assert paid.tail_factor == 1.1
     np.testing.assert_allclose(paid.ultimate, plain.groups[0].chain_ladder["paid"].ultimate * 1.1)
@@ -183,7 +183,7 @@ def test_a_register_entry_reaches_the_method_and_comes_back_with_who_when_and_wh
     )
     own = run_reserving(
         _set(),
-        ChainLadderSettings(),
+        NO_RULE,
         MethodInputs(register=AssumptionsRegister(entries=(prior,)), premium=PREMIUM),
     ).groups[0]
     assert set(own.bornhuetter_ferguson["incurred"].prior_source) == {"user"}
@@ -307,3 +307,24 @@ def test_the_ultimate_ratios_and_the_tables_come_through_the_port(result) -> Non
             - _array("incurred")[[0, 1, 2, 3], [3, 2, 1, 0]]
         )
     )
+
+
+def test_the_module_rule_replaces_a_factor_resting_on_one_link_ratio_by_default() -> None:
+    assert ChainLadderSettings().min_origins_per_factor == 2
+    with pytest.raises(ValueError):
+        ChainLadderSettings(min_origins_per_factor=0)
+    ruled = run_reserving(_set(), ChainLadderSettings(), MethodInputs(premium=PREMIUM))
+    plain = run_reserving(_set(), NO_RULE, MethodInputs(premium=PREMIUM))
+    chain = ruled.groups[0].chain_ladder["paid"]
+    assert isinstance(chain, ChainLadder)
+    assert chain.replaced.tolist() == [False, False, True]
+    assert chain.factors[2] == 1.0 and chain.averages[2] == pytest.approx(1.1)
+    assert not plain.groups[0].chain_ladder["paid"].replaced.any()
+    # the register follows the chain ladder of the run (Mack: ten origins, tests/methods)
+    entries = ruled.groups[0].assumptions
+    entry = next(
+        e
+        for e in entries
+        if e.name == "selected_factor" and e.target == "36-48" and e.scope.endswith("/paid")
+    )
+    assert (entry.who, entry.value) == ("rule", 1.0)

@@ -1,5 +1,5 @@
 id: M04
-version: 1.1.0
+version: 1.2.0
 title_en: Reserving (indicative)
 title_tr: Karşılık tahmini (gösterge)
 status: reviewed
@@ -25,14 +25,16 @@ outputs:
   - bootstrap_summary.csv, bootstrap_cash_flows.csv, bootstrap_residuals.csv (MT11 per line)
   - bootstrap_distribution_<segment>_<line>.parquet (MT11 simulated reserves, where MT11 ran)
   - back_test.csv (MT22 with AE02 - errors per method and horizon, range calibration, reasons)
-  - sensitivity.csv (the reserve under variants of the selected factors, the tail, the future inflation and the discount curve, computed in the same run; record 0343)
+  - sensitivity.csv (the reserve under variants of the selected factors, the tail, the future inflation and the discount curve, computed in the same run; record 0343; from 1.2.0 also the variant thin_average, the selected unpaid with the average put back for a factor the rule set to 1.000)
 report_page:
   - Summary per line - paid, incurred, chain-ladder ultimates, selected ultimate and IBNR, diagnostics.
-  - Per line - heatmaps, factors with the selection, ultimates of tier A and tier B side by side with the selection, the fitted tails (MT14), Munich paid and incurred (MT12), the reserve range, the inflation-adjusted chain ladder, the back test (MT22, AE02), and the diagnostics beside each method.
+  - Per line - heatmaps, factors with the selection (the link ratios behind each factor and the factors the rule set to 1.000), the tail factor box (the tail used, where it comes from, the share of open claims, the curves fitted by MT14), ultimates of tier A and tier B side by side with the selection, the fitted tails (MT14), Munich paid and incurred (MT12), the reserve range, the inflation-adjusted chain ladder, the back test (MT22, AE02), and the diagnostics beside each method.
   - Sensitivity - the reserve under each variant against the reserve of the run.
 notes: >-
   Without claims, origins are first-valuation months (proxy report periods, decision 0008)
-  and the premium-based methods report that they need accident origins.
+  and the premium-based methods report that they need accident origins. The module setting
+  min_origins_per_factor (default 2; 1 applies no rule) sets a development factor that rests
+  on fewer link ratios to 1.000; MT02, MT06 and MT07 use the same factors (record 0776).
 change_log:
   - version: 0.1.0
     date: 2026-10-20
@@ -47,3 +49,13 @@ change_log:
       wired in code by P25b (record 0620) and not listed then (record 0622), are listed with
       the files they write, the sensitivity file is added and the outline of the page is
       written. The owner has not reviewed this version yet.
+  - version: 1.2.0
+    date: 2026-11-12
+    change: >-
+      The module setting min_origins_per_factor (default 2) and what follows from it (A1b,
+      records 0776 and 0777): on each line page the link ratios behind every factor, the
+      factors the rule set to 1.000 with the average they replaced and the change of the
+      selected unpaid, and one box for the tail factor (the tail used and where it comes
+      from, the share of open claims, the curves fitted by MT14 and their effect on the
+      selected IBNR); assumptions.csv lists a replaced factor with who = rule; a THIN_FACTOR
+      diagnostic; the variant thin_average in sensitivity.csv. Not reviewed by the owner yet.

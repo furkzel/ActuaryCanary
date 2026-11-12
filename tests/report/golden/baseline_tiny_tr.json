@@ -269,11 +269,49 @@
   ],
   "by_who": [
    {
-    "entries": 236,
+    "entries": 233,
     "who": "default"
+   },
+   {
+    "entries": 3,
+    "who": "rule"
    }
   ],
-  "judgements": [],
+  "judgements": [
+   {
+    "default": "1.38184",
+    "method": "MT02",
+    "name": "selected_factor",
+    "scope": "NON_LIFE/MOTOR_TPL/paid",
+    "target": "36-48",
+    "value": "1",
+    "when": "",
+    "who": "rule",
+    "why": "rule: the column rests on 1 link ratio(s), fewer than 2; the average is not used and the factor is 1.000 (neutral)"
+   },
+   {
+    "default": "0.950714",
+    "method": "MT02",
+    "name": "selected_factor",
+    "scope": "NON_LIFE/MOTOR_TPL/incurred",
+    "target": "36-48",
+    "value": "1",
+    "when": "",
+    "who": "rule",
+    "why": "rule: the column rests on 1 link ratio(s), fewer than 2; the average is not used and the factor is 1.000 (neutral)"
+   },
+   {
+    "default": "4.45937",
+    "method": "MT02",
+    "name": "selected_factor",
+    "scope": "NON_LIFE/PROPERTY/paid",
+    "target": "12-24",
+    "value": "1",
+    "when": "",
+    "who": "rule",
+    "why": "rule: the column rests on 1 link ratio(s), fewer than 2; the average is not used and the factor is 1.000 (neutral)"
+   }
+  ],
   "total": 236
  },
  "banners": [
@@ -294,7 +332,7 @@
   "rows": [
    {
     "label": "Çalıştırma kimliği",
-    "value": "ccc81ac39b2fb50d"
+    "value": "b2b6c13bf434be68"
    },
    {
     "label": "Değerleme tarihi",
@@ -1997,7 +2035,7 @@
      "y": [
       1.1397,
       1.343,
-      0.9507
+      1.0
      ]
     }
    ],
@@ -2078,7 +2116,7 @@
      "y": [
       1.6007,
       1.4168,
-      1.3818
+      1.0
      ]
     }
    ],
@@ -2308,9 +2346,9 @@
      "type": "scatter",
      "x": [
       12336217.69,
-      2546610.37,
-      2415324.02,
-      5110066.92
+      2678629.79,
+      2540537.39,
+      5374979.08
      ],
      "y": [
       "2022",
@@ -2332,9 +2370,9 @@
      "type": "scatter",
      "x": [
       12336217.69,
-      2451817.62,
-      3456104.31,
-      6892455.35
+      2678629.79,
+      3816808.84,
+      7425564.39
      ],
      "y": [
       "2022",
@@ -2356,9 +2394,9 @@
      "type": "scatter",
      "x": [
       12336217.69,
-      2451817.62,
-      3456104.31,
-      6892455.35
+      2678629.79,
+      3816808.84,
+      7425564.39
      ],
      "y": [
       "2022",
@@ -2379,10 +2417,10 @@
      "name": "Beklenen hasar prim oranı",
      "type": "scatter",
      "x": [
-      2737301.74,
-      4375130.86,
-      7215956.64,
-      10808205.73
+      2859334.61,
+      4570180.52,
+      7537654.42,
+      11290051.17
      ],
      "y": [
       "2022",
@@ -2406,9 +2444,9 @@
      "type": "scatter",
      "x": [
       12336217.69,
-      2546610.37,
-      2415324.02,
-      5110066.92
+      2678629.79,
+      2540537.39,
+      5374979.08
      ],
      "y": [
       "2022",
@@ -2554,7 +2592,7 @@
       "36-48"
      ],
      "y": [
-      4.4594,
+      1.0,
       1.0,
       1.0
      ]
@@ -3091,9 +3129,9 @@
      ],
      "y": [
       1.686336,
-      0.217799,
-      0.125247,
-      0.176912
+      0.22909,
+      0.13174,
+      0.186084
      ]
     }
    ],
@@ -4467,13 +4505,11 @@
      "type": "bar",
      "x": [
       "1",
-      "2",
-      "3"
+      "2"
      ],
      "y": [
-      27446921.29,
-      2468507.74,
-      1886183.4
+      29738438.4,
+      2585318.98
      ]
     }
    ],
@@ -4499,11 +4535,11 @@
    }
   }
  },
- "findings_spec": "RP01 v1.3.2",
+ "findings_spec": "RP01 v1.4.0",
  "further_findings": [
   {
    "banner": false,
-   "evidence": "MT02 v1.0.0, RS01 v1.0.0",
+   "evidence": "MT02 v1.1.0, RS01 v1.0.0",
    "files": [
     "diagnostics.csv",
     "factors.csv"
@@ -4516,12 +4552,12 @@
     "MT02",
     "RS01"
    ],
-   "text": "3 kaynak dönemden azına dayanan gelişim faktörleri: 16; 4 branşın 4 tanesinde. Her biri bir veya iki bağlantı oranının ortalamasıdır.",
+   "text": "3 kaynak dönemden azına dayanan gelişim faktörleri: 14; 4 branşın 4 tanesinde. Her biri bir veya iki bağlantı oranının ortalamasıdır.",
    "title": "Az kaynak dönemli faktörler"
   },
   {
    "banner": false,
-   "evidence": "MT06 v1.1.0, RS03 v1.1.0",
+   "evidence": "MT06 v1.2.0, RS03 v1.1.0",
    "files": [
     "reserve_range.csv"
    ],
@@ -4608,7 +4644,7 @@
  "key_findings": [
   {
    "banner": true,
-   "evidence": "MT02 v1.0.0, MT10 v1.0.0",
+   "evidence": "MT02 v1.1.0, MT10 v1.0.0",
    "files": [
     "diagnostics.csv"
    ],
@@ -4654,7 +4690,7 @@
     "RS02",
     "MT10"
    ],
-   "text": "NON_LIFE: seçilen nihai hasar 41.865.244 TRY; bunun 1.927.034 TRY tutarı (%4,6 nihai hasarın) bugüne kadar gerçekleşen hasarın üzerindedir (IBNR); en büyük pay MOTOR_TPL branşındadır: 1.990.063 TRY.",
+   "text": "NON_LIFE: seçilen nihai hasar 42.387.389 TRY; bunun 2.449.179 TRY tutarı (%5,8 nihai hasarın) bugüne kadar gerçekleşen hasarın üzerindedir (IBNR); en büyük pay MOTOR_TPL branşındadır: 2.512.208 TRY.",
    "title": "Segment başına rezerv tahmini"
   },
   {
@@ -4693,7 +4729,7 @@
   },
   {
    "banner": false,
-   "evidence": "MT02 v1.0.0, RS02 v1.0.0",
+   "evidence": "MT02 v1.1.0, RS02 v1.0.0",
    "files": [
     "diagnostics.csv",
     "ultimates.csv"
@@ -4711,7 +4747,7 @@
   },
   {
    "banner": false,
-   "evidence": "MT02 v1.0.0, RS01 v1.0.0",
+   "evidence": "MT02 v1.1.0, RS01 v1.0.0",
    "files": [
     "diagnostics.csv",
     "assumptions.csv"
@@ -4729,7 +4765,7 @@
   },
   {
    "banner": false,
-   "evidence": "MT02 v1.0.0, RS01 v1.0.0",
+   "evidence": "MT02 v1.1.0, RS01 v1.0.0",
    "files": [
     "diagnostics.csv",
     "factors.csv"
@@ -4867,10 +4903,14 @@
     {
      "default": "3",
      "name": "min_origins"
+    },
+    {
+     "default": "1",
+     "name": "min_link_ratios"
     }
    ],
    "plain": "Projects each origin's cumulative claims to ultimate with age-to-age factors estimated from the triangle, using volume-weighted, simple or recent-diagonal averages, with optional exclusions.",
-   "spec": "MT02 v1.0.0",
+   "spec": "MT02 v1.1.0",
    "title": "Zincir merdiven (chain ladder)"
   },
   {
@@ -5074,38 +5114,6 @@
   },
   {
    "assumptions": [
-    "The excess development f(x) - 1 decays smoothly with the link number x along the chosen curve, also beyond the triangle.",
-    "The late factors of the triangle are credible (enough origins)."
-   ],
-   "id": "MT14",
-   "parameters": [
-    {
-     "default": "exponential_decay",
-     "name": "curve"
-    },
-    {
-     "default": "",
-     "name": "fit_from_age"
-    },
-    {
-     "default": "3",
-     "name": "min_points"
-    },
-    {
-     "default": "100",
-     "name": "extension_periods"
-    },
-    {
-     "default": "0.005",
-     "name": "remainder_warning"
-    }
-   ],
-   "plain": "Estimates development beyond the last age of the triangle by fitting a decay curve to the selected age-to-age factors by link number (exponential decay or inverse power) and extending it for a fixed number of periods, giving a tail factor and the extra factors by period for cash flows.",
-   "spec": "MT14 v1.0.0",
-   "title": "Kuyruk faktörü uydurma"
-  },
-  {
-   "assumptions": [
     "Expected incremental paid of origin i in development j is n(i) r(j) lambda(i + j): a claim-count measure, a development pattern summing to 1 and a calendar index.",
     "The ultimate claim count n(i) of each origin is known or well estimated.",
     "The pattern sums to 1 over the observed columns, so the method has no development beyond the last column and its ultimates carry no tail.",
@@ -5292,7 +5300,7 @@
   },
   "M04": {
    "state": "sınırlı",
-   "why": "MT06 Mack standard error did not run for 8 of 8 triangles: too few link ratios to estimate variance; MT11 bootstrap did not run for 4 of 4 groups: the bootstrap needs a chain ladder on at least 5 origin periods; MT12 Munich chain ladder did not run for 4 of 4 groups: Munich chain ladder needs at least 5 origin periods; MT14 tail factor fitting did not run for 7 of 8 triangles: too few factors above 1 to fit a tail; MT15 separation did not run for 1 of 4 groups: separation needs claim counts per origin"
+   "why": "MT06 Mack standard error did not run for 8 of 8 triangles: too few link ratios to estimate variance; MT11 bootstrap did not run for 4 of 4 groups: the bootstrap needs a chain ladder on at least 5 origin periods; MT12 Munich chain ladder did not run for 4 of 4 groups: Munich chain ladder needs at least 5 origin periods; MT14 tail factor fitting did not run for 8 of 8 triangles: too few factors above 1 to fit a tail; MT15 separation did not run for 1 of 4 groups: separation needs claim counts per origin"
   },
   "M05": {
    "state": "çalıştı",
@@ -5338,7 +5346,7 @@
      "MT06 Mack standard error did not run for 8 of 8 triangles: too few link ratios to estimate variance",
      "MT11 bootstrap did not run for 4 of 4 groups: the bootstrap needs a chain ladder on at least 5 origin periods",
      "MT12 Munich chain ladder did not run for 4 of 4 groups: Munich chain ladder needs at least 5 origin periods",
-     "MT14 tail factor fitting did not run for 7 of 8 triangles: too few factors above 1 to fit a tail",
+     "MT14 tail factor fitting did not run for 8 of 8 triangles: too few factors above 1 to fit a tail",
      "MT15 separation did not run for 1 of 4 groups: separation needs claim counts per origin"
     ]
    },
@@ -6043,34 +6051,34 @@
         "ultimate_ratio": "%168,6"
        },
        {
-        "combined": "%40,3",
+        "combined": "%41,4",
         "earned": "11.692.470",
         "incurred": "2.678.630",
         "incurred_ratio": "%22,9",
         "origin": "2023",
         "ref": "RT01 [segment,line,origin_period] rows 9; RT02 [segment,line,origin_period] rows 9",
-        "ultimate": "2.546.610",
-        "ultimate_ratio": "%21,8"
+        "ultimate": "2.678.630",
+        "ultimate_ratio": "%22,9"
        },
        {
-        "combined": "%31,0",
+        "combined": "%31,7",
         "earned": "19.284.533",
         "incurred": "1.891.680",
         "incurred_ratio": "%9,8",
         "origin": "2024",
         "ref": "RT01 [segment,line,origin_period] rows 10; RT02 [segment,line,origin_period] rows 10",
-        "ultimate": "2.415.324",
-        "ultimate_ratio": "%12,5"
+        "ultimate": "2.540.537",
+        "ultimate_ratio": "%13,2"
        },
        {
-        "combined": "%36,2",
+        "combined": "%37,1",
         "earned": "28.884.763",
         "incurred": "3.511.628",
         "incurred_ratio": "%12,2",
         "origin": "2025",
         "ref": "RT01 [segment,line,origin_period] rows 11; RT02 [segment,line,origin_period] rows 11",
-        "ultimate": "5.110.067",
-        "ultimate_ratio": "%17,7"
+        "ultimate": "5.374.979",
+        "ultimate_ratio": "%18,6"
        }
       ]
      },
@@ -6920,22 +6928,15 @@
       "date": "2026-07-01",
       "discounted": "–",
       "factor": "–",
-      "nominal": "27.446.921",
+      "nominal": "29.738.438",
       "period": "1"
      },
      {
       "date": "2027-07-01",
       "discounted": "–",
       "factor": "–",
-      "nominal": "2.468.508",
+      "nominal": "2.585.319",
       "period": "2"
-     },
-     {
-      "date": "2028-07-01",
-      "discounted": "–",
-      "factor": "–",
-      "nominal": "1.886.183",
-      "period": "3"
      }
     ],
     "curve": null,
@@ -6946,10 +6947,10 @@
      "calibration": "Sonradan bilinen gerçekleşenin, daha önceki bir değerlemede verilen aralığın içine düşen payı, branşlar üzerinden toplanarak (back_test.csv içindeki AE02 satırları, MT22 v1.0.0, AE02 v1.0.0). Model verisindeki kapsama kayıt 0075 (Mack), 0282 (bootstrap) ve 0325'tedir (bu modül); Mack aralıklarının enflasyon etkili veya uzun kuyruklu branşlarda fazla dar olduğu bilinmektedir (kayıt 0062).",
      "cash_flows": "Seçilen ödenmemişin değerleme tarihinden sonraki dönemlere göre beklenen ödemeleri, tüm branşlar toplanarak (RS04 v1.1.0, CV10 v1.1.0); risk_cash_flows.csv satırları.",
      "figure": "Aralıklar aralık olarak çizilmiştir: açık çubuk medyandan 99,5. yüzdeliğe, koyu çubuk 75.'den 95.'ye, ortalama elmas işaretiyle.",
-     "headline": "Seçilen ödenmemiş (RS02 ile MT10) çalıştırmanın tek toplamıdır; aralığın ortalaması M12'nin simülasyonunun ortalamasıdır: branşta çalıştıysa bootstrap (RS05 v1.1.0, MT11 v1.2.0), yoksa Mack yaklaşımı (RS03 v1.1.0, MT06 v1.1.0). İkisi arasındaki fark, aralıkların altındaki tablonun adımlarıyla açıklanır. 5. yüzdelik risk_distribution.parquet dosyasından veya RS03'ün lognormalinden gelir. Gösterge niteliğinde aralıklar; asla sermaye gereksinimi değil.",
+     "headline": "Seçilen ödenmemiş (RS02 ile MT10) çalıştırmanın tek toplamıdır; aralığın ortalaması M12'nin simülasyonunun ortalamasıdır: branşta çalıştıysa bootstrap (RS05 v1.1.0, MT11 v1.3.0), yoksa Mack yaklaşımı (RS03 v1.1.0, MT06 v1.2.0). İkisi arasındaki fark, aralıkların altındaki tablonun adımlarıyla açıklanır. 5. yüzdelik risk_distribution.parquet dosyasından veya RS03'ün lognormalinden gelir. Gösterge niteliğinde aralıklar; asla sermaye gereksinimi değil.",
      "histogram": "Simüle edilen rezervin histogramı (RS05 v1.1.0); çizgiler risk_measures.csv satırının ortalamasını, VaR ve TVaR değerini gösterir; simülasyonların tümü risk_distribution.parquet içindedir. Birkaç uç çekiliş şekli gizlemesin diye eksen 0,5. ve 99,5. yüzdelikte kesilir; her histogramın açıklaması uç değerleri verir.",
      "present_values": "risk_measures.csv'nin expected_cash_flows satırları (RS04 v1.1.0, CV10 v1.1.0): seçilen ödenmemiş eksi indirgeme etkisi, bugünkü değeridir. Yukarıdaki tablodaki simüle ortalamalar bu nakit akışlarının değil simülasyonun ortalamalarıdır; bu yüzden iki indirgeme etkisi farklıdır.",
-     "ranges": "risk_measures.csv içindeki Total ve All lines satırları (RS03 v1.1.0, RS05 v1.1.0, M12 v1.1.1). VaR %99,5'te ve TVaR %99'da; iki kaynak da seçilen rezervin belirsizliğine yaklaşımdır ve dosyada böyle etiketlenmiştir."
+     "ranges": "risk_measures.csv içindeki Total ve All lines satırları (RS03 v1.1.0, RS05 v1.1.0, M12 v1.2.0). VaR %99,5'te ve TVaR %99'da; iki kaynak da seçilen rezervin belirsizliğine yaklaşımdır ve dosyada böyle etiketlenmiştir."
     },
     "notes": [
      "LIFE / GROUP_TERM_LIFE: MT06 did not run: no Mack range",
@@ -6961,6 +6962,7 @@
      "NON_LIFE / PROPERTY: MT06 did not run: no Mack range",
      "NON_LIFE / PROPERTY: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range"
     ],
+    "pseudo": null,
     "reason": "",
     "statements": {
      "all_lines_total": false,
@@ -6991,11 +6993,11 @@
       "value": "–"
      },
      {
-      "base": "1.990.063",
-      "change": "%0,0",
+      "base": "2.512.208",
+      "change": "–",
       "line": "NON_LIFE · MOTOR_TPL",
-      "note": "",
-      "value": "1.990.063"
+      "note": "MT14 fitted no tail curve on this line, or a register entry sets its tail",
+      "value": "–"
      },
      {
       "base": "18.185",
@@ -7020,7 +7022,7 @@
     "NON_LIFE / PROPERTY: MT06 did not run: no Mack range",
     "NON_LIFE / PROPERTY: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range"
    ],
-   "spec": "M12 v1.1.1",
+   "spec": "M12 v1.2.0",
    "state": "sınırlı",
    "title": "Belirsizlik ve risk"
   }
@@ -7122,18 +7124,18 @@
    },
    {
     "name": "factors.csv",
-    "sha256": "73628feea5a01967a7ccc2e9018646e13244315589aed4868d803f8dbe9f8e18",
-    "size": "1.998"
+    "sha256": "b1d87534bfbff915f48ee3269863aa3e07358fbd68d515071fe0411791018832",
+    "size": "1.912"
    },
    {
     "name": "chain_ladder.csv",
-    "sha256": "0254714b249dae8fae1fac4c1ee3099128b316ea3a9756383dc9578ca2603d15",
-    "size": "3.412"
+    "sha256": "294e58a84d028c6607ea5f67b0225046935e7bf7add81169c590e080892494ff",
+    "size": "3.323"
    },
    {
     "name": "measures.csv",
-    "sha256": "493470f9d2c40cb8dadc86feff11275f7cfbad105354ef13a5e03b1a04839dbc",
-    "size": "829.421"
+    "sha256": "552abae221b1c847fb239456f710bbfbc635ca0279b3fbcfbc406d1811396c90",
+    "size": "831.138"
    },
    {
     "name": "lineage.csv",
@@ -7147,18 +7149,18 @@
    },
    {
     "name": "modules.json",
-    "sha256": "6535c6ee87848fb64ce50e0123361ef34ffc9420bfff227fb89c9f5c89dac094",
-    "size": "31.464"
+    "sha256": "a7cbd81202bb50583656e559e84fbeca963aa7b06486d5e5d53c363dbbf3d147",
+    "size": "31.452"
    },
    {
     "name": "assumptions.csv",
-    "sha256": "6f799c0b1e435da547c5d6f1b6caa26de5126567f601578c5fc3be2e35fba6d7",
-    "size": "28.225"
+    "sha256": "cb9d09a9cdd4a2456c0b10e5d18ded29fd63204813bb5a6e75d38150f52672c7",
+    "size": "28.395"
    },
    {
     "name": "ultimates.csv",
-    "sha256": "d5c64ccde7414b7c6405e7cd3389a1dc5c71075b76aad94d0d217a6f0b5fe45b",
-    "size": "19.390"
+    "sha256": "5c1f87e4f3b31969b644d76216fe87bf5051a8f0c5bf54e348a12c16b4bd8d98",
+    "size": "19.060"
    },
    {
     "name": "reserve_range.csv",
@@ -7167,13 +7169,13 @@
    },
    {
     "name": "cash_flows.csv",
-    "sha256": "1a97487fa8038500d16a2844ba09d9389b679bb303289d701093cf6bcd5d83ce",
-    "size": "866"
+    "sha256": "79e432763de2702a0ff469197c136b43a3e9190b627775892fc139f9dc5660b2",
+    "size": "838"
    },
    {
     "name": "diagnostics.csv",
-    "sha256": "1d9468fc2e11a60fc36498d1313a4cb6d3618ac9d59ceef7a7439da79cad01a7",
-    "size": "8.260"
+    "sha256": "dc60758ab53f01d8684f5fd4371a98883ee3394fa60ac1103adec20450c4972f",
+    "size": "8.472"
    },
    {
     "name": "anomalies.csv",
@@ -7182,13 +7184,13 @@
    },
    {
     "name": "tier_b_ultimates.csv",
-    "sha256": "d85abe136649b97b894b8f179c4278636ef7f66c5490a2a6dc8c50ccfeb8f093",
-    "size": "4.581"
+    "sha256": "c2143b2a8574cc6251f22ee06328a1ef832ad7e088eae4331520f4f9c47921d0",
+    "size": "4.580"
    },
    {
     "name": "tier_b_parameters.csv",
-    "sha256": "0be2fe26baa5316f3446bf7c13975a5106c5790e2b1212a19bc462891c67682c",
-    "size": "12.454"
+    "sha256": "62abeed9ae634dd4772d4c9ec4cd5a7244de3bd6e976280195dd7af5d1e73167",
+    "size": "11.979"
    },
    {
     "name": "bootstrap_summary.csv",
@@ -7207,7 +7209,7 @@
    },
    {
     "name": "back_test.csv",
-    "sha256": "d50b25e1216fc1baf4e780846b67b4bd9291215c09781f2b18c504ad793e7029",
+    "sha256": "5bcc4a99df30148f8aa656b6a41f83a61c7da95098dea7b2ad601c036e9a7ad9",
     "size": "10.304"
    },
    {
@@ -7352,8 +7354,8 @@
    },
    {
     "name": "sensitivity.csv",
-    "sha256": "66b4fa00edfd15419d6e5055fbd59885eb77191f068c0f1de227b369e74c9bdd",
-    "size": "6.079"
+    "sha256": "561824b90eed333431ef9426fb46d41762c01a0f434d37060a943745ac711a0f",
+    "size": "6.771"
    },
    {
     "name": "recoveries.csv",
@@ -7382,8 +7384,8 @@
    },
    {
     "name": "risk_cash_flows.csv",
-    "sha256": "1585e303802dda7a683c9465ebd481c0ddfecfb95bafc92d575daaa30954010c",
-    "size": "1.299"
+    "sha256": "034c71cbf45ccd51467034a4b4f447e80dc7269765fded528d5baefc52a7e2bf",
+    "size": "1.292"
    }
   ],
   "randomness": [
@@ -7400,7 +7402,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "ccc81ac39b2fb50d",
+  "run_id": "b2b6c13bf434be68",
   "settings": [
    {
     "name": "bases.currency",
@@ -7429,6 +7431,10 @@
    {
     "name": "chain_ladder.min_origins",
     "value": "3"
+   },
+   {
+    "name": "chain_ladder.min_origins_per_factor",
+    "value": "2"
    },
    {
     "name": "chain_ladder.n_diagonals",
@@ -7894,7 +7900,7 @@
    {
     "id": "MT02",
     "title": "Zincir merdiven (chain ladder)",
-    "version": "1.0.0"
+    "version": "1.1.0"
    },
    {
     "id": "CL01",
@@ -8054,7 +8060,7 @@
    {
     "id": "M04",
     "title": "Karşılık tahmini (gösterge)",
-    "version": "1.1.0"
+    "version": "1.2.0"
    },
    {
     "id": "RS03",
@@ -8139,7 +8145,7 @@
    {
     "id": "M12",
     "title": "Belirsizlik ve risk",
-    "version": "1.1.1"
+    "version": "1.2.0"
    },
    {
     "id": "RS04",
@@ -8180,11 +8186,6 @@
     "id": "MT13",
     "title": "Benktander karışımları",
     "version": "1.0.1"
-   },
-   {
-    "id": "MT14",
-    "title": "Kuyruk faktörü uydurma",
-    "version": "1.0.0"
    },
    {
     "id": "MT15",
@@ -8229,7 +8230,7 @@
    {
     "id": "RP01",
     "title": "Temel bulgu kuralları",
-    "version": "1.3.2"
+    "version": "1.4.0"
    }
   ]
  },
@@ -8238,11 +8239,11 @@
   "basis": "BRÜT, NOMİNAL, TRY",
   "currency": "TRY",
   "footnotes": {
-   "factors": "Her kaynak yılının bağlantı oranı (noktalar) ve seçilen faktör (çubuk), RS01 v1.0.0, MT02 v1.0.0; kuyruk faktörü tabloda yer alır. factors.csv satırları.",
+   "factors": "Her kaynak yılının bağlantı oranı (noktalar) ve seçilen faktör (çubuk), RS01 v1.0.0, MT02 v1.1.0; kuyruk faktörü tabloda yer alır. factors.csv satırları.",
    "heatmaps": "Kaynak yılı ve gelişim yaşına göre birikimli hücreler, BRÜT, NOMİNAL, TRY; ödenen kendi tek renk tonunda, gerçekleşen bir başkasında; bir hücre sayfa renginden ne kadar uzaksa o kadar büyüktür (MT01 v1.0.0, CV04 v1.0.0).",
-   "methods": "gerçekleşen üçgeninde yönteme göre kaynak yılı başına nihai hasar (MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0) ve seçilen nihai hasar (baklava, MT10 v1.0.0). Yöntemler arasındaki fark, sonucun yönteme ne kadar bağlı olduğunu gösterir; bir güven aralığı değildir.",
-   "range": "Seçilen rezerv (baklava), 25. ile 75. yüzdelik (koyu çubuk) ve 5. ile 95. yüzdelik (açık çubuk) ile birlikte; Mack değişim katsayısı seçilen rezerve uygulanmıştır, lognormal yaklaşım (MT06 v1.1.0, RS03 v1.1.0). Üst yüzdelikler tablodadır.",
-   "summary": "TRY, BRÜT, NOMİNAL, TRY. Ödenen ve gerçekleşen üçgenlerde zincir merdiven MT02 v1.0.0 MT01 v1.0.0; seçilen nihai hasar MT10 v1.0.0; IBNR = nihai hasar − değerleme tarihindeki gerçekleşen RS02 v1.0.0. CV06 v1.1.1 uyarınca yuvarlanmıştır; toplamlar yuvarlanmamış değerlerden hesaplanır. ultimates.csv ve lineage.csv satırları (RS02)."
+   "methods": "gerçekleşen üçgeninde yönteme göre kaynak yılı başına nihai hasar (MT02 v1.1.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0) ve seçilen nihai hasar (baklava, MT10 v1.0.0). Yöntemler arasındaki fark, sonucun yönteme ne kadar bağlı olduğunu gösterir; bir güven aralığı değildir.",
+   "range": "Seçilen rezerv (baklava), 25. ile 75. yüzdelik (koyu çubuk) ve 5. ile 95. yüzdelik (açık çubuk) ile birlikte; Mack değişim katsayısı seçilen rezerve uygulanmıştır, lognormal yaklaşım (MT06 v1.2.0, RS03 v1.1.0). Üst yüzdelikler tablodadır.",
+   "summary": "TRY, BRÜT, NOMİNAL, TRY. Ödenen ve gerçekleşen üçgenlerde zincir merdiven MT02 v1.1.0 MT01 v1.0.0; seçilen nihai hasar MT10 v1.0.0; IBNR = nihai hasar − değerleme tarihindeki gerçekleşen RS02 v1.0.0. CV06 v1.1.1 uyarınca yuvarlanmıştır; toplamlar yuvarlanmamış değerlerden hesaplanır. ultimates.csv ve lineage.csv satırları (RS02)."
   },
   "lines": [
    {
@@ -8264,7 +8265,7 @@
     "findings": [
      {
       "banner": false,
-      "evidence": "MT02 v1.0.0",
+      "evidence": "MT02 v1.1.0",
       "files": [
        "diagnostics.csv"
       ],
@@ -8280,7 +8281,7 @@
      },
      {
       "banner": false,
-      "evidence": "MT02 v1.0.0",
+      "evidence": "MT02 v1.1.0",
       "files": [
        "diagnostics.csv"
       ],
@@ -8409,7 +8410,8 @@
           "1,446",
           "1,446"
          ],
-         "column": "12-24"
+         "column": "12-24",
+         "note": ""
         },
         {
          "cells": [
@@ -8422,7 +8424,8 @@
           "1,000",
           "1,000"
          ],
-         "column": "24-36"
+         "column": "24-36",
+         "note": ""
         },
         {
          "cells": [
@@ -8435,7 +8438,8 @@
           "1,000",
           "1,000"
          ],
-         "column": "36-48"
+         "column": "36-48",
+         "note": ""
         }
        ]
       },
@@ -8458,7 +8462,8 @@
           "1,305",
           "1,305"
          ],
-         "column": "12-24"
+         "column": "12-24",
+         "note": ""
         },
         {
          "cells": [
@@ -8471,7 +8476,8 @@
           "1,000",
           "1,000"
          ],
-         "column": "24-36"
+         "column": "24-36",
+         "note": ""
         },
         {
          "cells": [
@@ -8484,7 +8490,8 @@
           "1,000",
           "1,000"
          ],
-         "column": "36-48"
+         "column": "36-48",
+         "note": ""
         }
        ]
       }
@@ -8642,7 +8649,30 @@
      "ult_paid": "77.758.322",
      "ult_selected": "88.185.204"
     },
+    "tail_box": {
+     "footnote": "Zincir merdiveni kuyruk faktörleri (MT02) ve MT14 ile uydurulan eğriler; assumptions.csv ve tier_b_parameters.csv satırları. Hasar sayıları CL04'tür.",
+     "notes": [
+      "ödenen/gerçekleşen üçgeninde kuyruk faktörü MT02 varsayılanı 1,000'dir: son yaştan (48 ay) sonra gelişim yok. Bu, henüz gelecek gelişimin bir tahmini değildir.",
+      "Bu branşta bildirilen hasarların %8,1 kadarı kesim tarihinde açıktır (37 hasarın 3 tanesi).",
+      "Rapor, kullanılan kuyruk ile uydurulan eğriler arasında seçim yapmaz. Kuyruk varsayım kaydında belirlenir (MT02 tail_factor veya uydurulan bir eğri için MT14 selected_curve)."
+     ],
+     "rows": [
+      {
+       "fitted": "uydurulamadı: too few factors above 1 to fit a tail",
+       "measure": "ödenen",
+       "source": "MT02 varsayılanı",
+       "tail": "1,000"
+      },
+      {
+       "fitted": "uydurulamadı: too few factors above 1 to fit a tail",
+       "measure": "gerçekleşen",
+       "source": "MT02 varsayılanı",
+       "tail": "1,000"
+      }
+     ]
+    },
     "thin_cells": 0,
+    "thin_factors": null,
     "tier_b": {
      "back_test": {
       "calibration": [],
@@ -8701,10 +8731,10 @@
      },
      "footnotes": {
       "back_test": "Geriye dönük test (MT22 v1.0.0, AE02 v1.0.0): her yöntem daha önceki bir değerlemede bilinen veriyle yeniden çalıştırılır ve sonradan bilinen gerçekleşenle karşılaştırılır; hata = tahmin / referans − 1. İlk 3 ufuk gösterilir; back_test.csv her ufku ve kaynak dönemi içerir.",
-      "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.2.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
-      "munich": "Ayrı zincir merdivenlerin (MT02 v1.0.0) yanında Munich zincir merdiven (MT12 v1.0.0); Munich yöntemi ödenen / gerçekleşen oranını gözlenen düzeyine yaklaştırır. tier_b_ultimates.csv ve tier_b_parameters.csv satırları.",
+      "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.3.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
+      "munich": "Ayrı zincir merdivenlerin (MT02 v1.1.0) yanında Munich zincir merdiven (MT12 v1.0.0); Munich yöntemi ödenen / gerçekleşen oranını gözlenen düzeyine yaklaştırır. tier_b_ultimates.csv ve tier_b_parameters.csv satırları.",
       "tails": "Seçilen faktörlere uydurulan kuyruk eğrileri (MT14 v1.0.0); tier_b_parameters.csv satırları. Varsayım kaydı bir eğri seçmedikçe çalıştırma MT02 kuyruğunu kullanır; seçilen eğrinin etkisi sensitivity.csv içinde bir satırdır.",
-      "ultimates": "Kademe A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
+      "ultimates": "Kademe A: MT02 v1.1.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
      },
      "method_diagnostics": [],
      "munich": null,
@@ -8835,7 +8865,7 @@
     "findings": [
      {
       "banner": false,
-      "evidence": "MT02 v1.0.0",
+      "evidence": "MT02 v1.1.0",
       "files": [
        "diagnostics.csv"
       ],
@@ -8851,7 +8881,7 @@
      },
      {
       "banner": false,
-      "evidence": "MT02 v1.0.0",
+      "evidence": "MT02 v1.1.0",
       "files": [
        "diagnostics.csv"
       ],
@@ -8867,7 +8897,7 @@
      },
      {
       "banner": false,
-      "evidence": "MT02 v1.0.0",
+      "evidence": "MT02 v1.1.0",
       "files": [
        "diagnostics.csv"
       ],
@@ -9010,7 +9040,8 @@
           "1,130",
           "1,130"
          ],
-         "column": "12-24"
+         "column": "12-24",
+         "note": ""
         },
         {
          "cells": [
@@ -9023,7 +9054,8 @@
           "1,000",
           "1,000"
          ],
-         "column": "24-36"
+         "column": "24-36",
+         "note": ""
         },
         {
          "cells": [
@@ -9036,7 +9068,8 @@
           "1,000",
           "1,000"
          ],
-         "column": "36-48"
+         "column": "36-48",
+         "note": ""
         }
        ]
       },
@@ -9059,7 +9092,8 @@
           "0,987",
           "0,987"
          ],
-         "column": "12-24"
+         "column": "12-24",
+         "note": ""
         },
         {
          "cells": [
@@ -9072,7 +9106,8 @@
           "1,000",
           "1,000"
          ],
-         "column": "24-36"
+         "column": "24-36",
+         "note": ""
         },
         {
          "cells": [
@@ -9085,7 +9120,8 @@
           "1,000",
           "1,000"
          ],
-         "column": "36-48"
+         "column": "36-48",
+         "note": ""
         }
        ]
       }
@@ -9243,7 +9279,30 @@
      "ult_paid": "16.313.052",
      "ult_selected": "18.494.276"
     },
+    "tail_box": {
+     "footnote": "Zincir merdiveni kuyruk faktörleri (MT02) ve MT14 ile uydurulan eğriler; assumptions.csv ve tier_b_parameters.csv satırları. Hasar sayıları CL04'tür.",
+     "notes": [
+      "ödenen/gerçekleşen üçgeninde kuyruk faktörü MT02 varsayılanı 1,000'dir: son yaştan (48 ay) sonra gelişim yok. Bu, henüz gelecek gelişimin bir tahmini değildir.",
+      "Bu branşta bildirilen hasarların %7,7 kadarı kesim tarihinde açıktır (78 hasarın 6 tanesi).",
+      "Rapor, kullanılan kuyruk ile uydurulan eğriler arasında seçim yapmaz. Kuyruk varsayım kaydında belirlenir (MT02 tail_factor veya uydurulan bir eğri için MT14 selected_curve)."
+     ],
+     "rows": [
+      {
+       "fitted": "uydurulamadı: too few factors above 1 to fit a tail",
+       "measure": "ödenen",
+       "source": "MT02 varsayılanı",
+       "tail": "1,000"
+      },
+      {
+       "fitted": "uydurulamadı: too few factors above 1 to fit a tail",
+       "measure": "gerçekleşen",
+       "source": "MT02 varsayılanı",
+       "tail": "1,000"
+      }
+     ]
+    },
     "thin_cells": 0,
+    "thin_factors": null,
     "tier_b": {
      "back_test": {
       "calibration": [],
@@ -9302,10 +9361,10 @@
      },
      "footnotes": {
       "back_test": "Geriye dönük test (MT22 v1.0.0, AE02 v1.0.0): her yöntem daha önceki bir değerlemede bilinen veriyle yeniden çalıştırılır ve sonradan bilinen gerçekleşenle karşılaştırılır; hata = tahmin / referans − 1. İlk 3 ufuk gösterilir; back_test.csv her ufku ve kaynak dönemi içerir.",
-      "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.2.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
-      "munich": "Ayrı zincir merdivenlerin (MT02 v1.0.0) yanında Munich zincir merdiven (MT12 v1.0.0); Munich yöntemi ödenen / gerçekleşen oranını gözlenen düzeyine yaklaştırır. tier_b_ultimates.csv ve tier_b_parameters.csv satırları.",
+      "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.3.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
+      "munich": "Ayrı zincir merdivenlerin (MT02 v1.1.0) yanında Munich zincir merdiven (MT12 v1.0.0); Munich yöntemi ödenen / gerçekleşen oranını gözlenen düzeyine yaklaştırır. tier_b_ultimates.csv ve tier_b_parameters.csv satırları.",
       "tails": "Seçilen faktörlere uydurulan kuyruk eğrileri (MT14 v1.0.0); tier_b_parameters.csv satırları. Varsayım kaydı bir eğri seçmedikçe çalıştırma MT02 kuyruğunu kullanır; seçilen eğrinin etkisi sensitivity.csv içinde bir satırdır.",
-      "ultimates": "Kademe A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
+      "ultimates": "Kademe A: MT02 v1.1.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
      },
      "method_diagnostics": [
       {
@@ -9444,7 +9503,7 @@
     "findings": [
      {
       "banner": false,
-      "evidence": "MT02 v1.0.0",
+      "evidence": "MT02 v1.1.0",
       "files": [
        "diagnostics.csv"
       ],
@@ -9460,7 +9519,7 @@
      },
      {
       "banner": false,
-      "evidence": "MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT10 v1.0.0",
+      "evidence": "MT02 v1.1.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT10 v1.0.0",
       "files": [
        "ultimates.csv"
       ],
@@ -9475,12 +9534,12 @@
        "MT05",
        "MT10"
       ],
-      "text": "Gerçekleşen hasar üçgeninde yöntemlerin toplam nihai hasarları 22.408.219 ile 25.136.595 TRY arasındadır; seçilen nihai hasarın %12,2 kadar uzağında. Bu fark, sonucun yönteme ne kadar bağlı olduğunu gösterir, bir güven aralığı değildir.",
+      "text": "Gerçekleşen hasar üçgeninde yöntemlerin toplam nihai hasarları 22.930.364 ile 26.257.221 TRY arasındadır; seçilen nihai hasarın %14,5 kadar uzağında. Bu fark, sonucun yönteme ne kadar bağlı olduğunu gösterir, bir güven aralığı değildir.",
       "title": "Yöntemler birbirinden farklı"
      },
      {
       "banner": false,
-      "evidence": "MT02 v1.0.0",
+      "evidence": "MT02 v1.1.0",
       "files": [
        "diagnostics.csv"
       ],
@@ -9496,7 +9555,7 @@
      },
      {
       "banner": false,
-      "evidence": "MT02 v1.0.0",
+      "evidence": "MT02 v1.1.0",
       "files": [
        "diagnostics.csv"
       ],
@@ -9512,7 +9571,7 @@
      },
      {
       "banner": false,
-      "evidence": "MT02 v1.0.0",
+      "evidence": "MT02 v1.1.0",
       "files": [
        "diagnostics.csv"
       ],
@@ -9523,7 +9582,7 @@
       "specs": [
        "MT02"
       ],
-      "text": "3 kaynak dönemden azına dayanan faktörler: 4 (paid 24-36, paid 36-48, incurred 24-36, incurred 36-48).",
+      "text": "3 kaynak dönemden azına dayanan faktörler: 2 (paid 24-36, incurred 24-36).",
       "title": "Branşta az bağlantı oranı"
      },
      {
@@ -9541,8 +9600,47 @@
        "AE02",
        "MT10"
       ],
-      "text": "12 ay önce bilinen veriyle yeniden çalıştırıldığında seçilen nihai tutar, sonradan bilinene göre 3 kaynak dönemde ortalama %33,2 saptı; yöntem bu branşta daha önce de tek yönde yanılmış.",
+      "text": "12 ay önce bilinen veriyle yeniden çalıştırıldığında seçilen nihai tutar, sonradan bilinene göre 3 kaynak dönemde ortalama %31,3 saptı; yöntem bu branşta daha önce de tek yönde yanılmış.",
       "title": "Seçim geriye dönük testte saptı"
+     },
+     {
+      "banner": false,
+      "evidence": "MT02 v1.1.0, M04 v1.2.0",
+      "files": [
+       "sensitivity.csv",
+       "assumptions.csv",
+       "factors.csv"
+      ],
+      "key": "NON_LIFE · MOTOR_TPL",
+      "rule": "KF42",
+      "scope": "line",
+      "section": "line-2",
+      "specs": [
+       "MT02",
+       "M04"
+      ],
+      "text": "paid 36-48, incurred 36-48 gelişimleri her biri tek bir bağlantı oranına dayanır; bu yüzden çalıştırmanın kuralı bunları ortalama yerine 1,000 yapar; ortalamalar kullanılsaydı bu branşın seçilen ödenmemişi 8.421.192 TRY yerine 7.899.047 TRY olurdu (%6,2 az).",
+      "title": "Tek bağlantı oranına dayanan faktör ödenmemişi değiştirdi"
+     },
+     {
+      "banner": false,
+      "evidence": "MT02 v1.1.0, MT14 v1.0.0, M04 v1.2.0",
+      "files": [
+       "assumptions.csv",
+       "sensitivity.csv",
+       "tier_b_parameters.csv"
+      ],
+      "key": "NON_LIFE · MOTOR_TPL",
+      "rule": "KF43",
+      "scope": "line",
+      "section": "line-2",
+      "specs": [
+       "MT02",
+       "MT14",
+       "M04"
+      ],
+      "text": "Bu branşın kuyruk faktörü 1,000, yani MT02 varsayılanıdır: son yaştan sonra gelişim yok; bu bir tahmin değildir. hasarlarının %41,5 kadarı kesim tarihinde açık. Rapor, kullanılan kuyruk ile uydurulan eğriler arasında seçim yapmaz.",
+      "title": "Kuyruk varsayılan ve gelişim sürüyor olabilir"
      }
     ],
     "methods": {
@@ -9551,13 +9649,13 @@
        "code": "yetersiz kanıt",
        "measure": "tümü",
        "message": "only 4 origin periods: thin evidence; factors, ratios and ranges rest on few observations (fewer than 8)",
-       "method": "MT02, MT03, MT04, MT05, MT07, MT10, MT13, MT14, MT15, MT16, MT22",
+       "method": "MT02, MT03, MT04, MT05, MT07, MT10, MT13, MT15, MT16, MT22",
        "target": ""
       },
       {
        "code": "geç gelişim",
        "measure": "ödenen",
-       "message": "development from 36 to 48 months is still 1.382 and the tail factor is 1.0, so ultimates may be understated; a tail factor can be set in the assumptions register",
+       "message": "development from 36 to 48 months is still 1.382 (the average of its single link ratio) and the tail factor is 1.0, so ultimates may be understated; a tail factor can be set in the assumptions register",
        "method": "MT02",
        "target": "36-48"
       },
@@ -9569,9 +9667,9 @@
        "target": "24-36"
       },
       {
-       "code": "az bağlantı oranı",
+       "code": "ince faktör",
        "measure": "ödenen",
-       "message": "factor 36-48 (1.382) rests on 1 origin, fewer than 3",
+       "message": "factor 36-48 rests on 1 link ratio, fewer than 2: the average 1.382 is not used and the factor is 1 (rule of the run; a factor selected in the assumptions register wins over it)",
        "method": "MT02",
        "target": "36-48"
       },
@@ -9583,9 +9681,9 @@
        "target": "24-36"
       },
       {
-       "code": "az bağlantı oranı",
+       "code": "ince faktör",
        "measure": "gerçekleşen",
-       "message": "factor 36-48 (0.9507) rests on 1 origin, fewer than 3",
+       "message": "factor 36-48 rests on 1 link ratio, fewer than 2: the average 0.9507 is not used and the factor is 1 (rule of the run; a factor selected in the assumptions register wins over it)",
        "method": "MT02",
        "target": "36-48"
       },
@@ -9599,37 +9697,23 @@
       {
        "code": "negatif IBNR",
        "measure": "ödenen",
-       "message": "paid ultimate of origin 2023 (1,558,085.15) is below the incurred to date (2,678,629.79): IBNR -1,120,544.64",
+       "message": "paid ultimate of origin 2023 (1,127,544.31) is below the incurred to date (2,678,629.79): IBNR -1,551,085.48",
        "method": "MT02",
        "target": "2023"
       },
       {
        "code": "negatif IBNR",
        "measure": "ödenen",
-       "message": "paid ultimate of origin 2024 (1,209,775.77) is below the incurred to date (1,891,680.20): IBNR -681,904.43",
+       "message": "paid ultimate of origin 2024 (875,482.18) is below the incurred to date (1,891,680.20): IBNR -1,016,198.02",
        "method": "MT02",
        "target": "2024"
       },
       {
        "code": "negatif IBNR",
        "measure": "ödenen",
-       "message": "paid ultimate of origin 2025 (1,448,649.37) is below the incurred to date (3,511,628.47): IBNR -2,062,979.10",
+       "message": "paid ultimate of origin 2025 (1,048,348.58) is below the incurred to date (3,511,628.47): IBNR -2,463,279.89",
        "method": "MT02",
        "target": "2025"
-      },
-      {
-       "code": "ağırlık sınırlandı",
-       "measure": "gerçekleşen",
-       "message": "origin 2023: cumulative development factor 0.9507 is below 1 (reported share above 1); the weight on the chain ladder is capped at 1",
-       "method": "MT13",
-       "target": "2023"
-      },
-      {
-       "code": "eğri kullanılmadı",
-       "measure": "ödenen",
-       "message": "inverse power slope b = 0.4247 is not above 1, so the product diverges",
-       "method": "MT14",
-       "target": ""
       }
      ],
      "inflation": {
@@ -9649,8 +9733,8 @@
        {
         "cells": [
          "1.557.449",
-         "1.799.443",
-         "241.994",
+         "1.557.449",
+         "0",
          "1.127.544",
          "–",
          "–"
@@ -9660,8 +9744,8 @@
        {
         "cells": [
          "766.556",
-         "1.072.623",
-         "306.067",
+         "928.374",
+         "161.818",
          "617.909",
          "–",
          "–"
@@ -9671,8 +9755,8 @@
        {
         "cells": [
          "463.747",
-         "870.660",
-         "406.913",
+         "753.571",
+         "289.824",
          "462.254",
          "–",
          "–"
@@ -9708,7 +9792,8 @@
           "1,601",
           "1,601"
          ],
-         "column": "12-24"
+         "column": "12-24",
+         "note": ""
         },
         {
          "cells": [
@@ -9721,7 +9806,8 @@
           "1,417",
           "1,417"
          ],
-         "column": "24-36"
+         "column": "24-36",
+         "note": ""
         },
         {
          "cells": [
@@ -9732,9 +9818,10 @@
           "1,382",
           "1,382",
           "1,382",
-          "1,382"
+          "1,000"
          ],
-         "column": "36-48"
+         "column": "36-48",
+         "note": "kuralla 1,000 yapıldı (tek bağlantı oranı)"
         }
        ]
       },
@@ -9757,7 +9844,8 @@
           "1,140",
           "1,140"
          ],
-         "column": "12-24"
+         "column": "12-24",
+         "note": ""
         },
         {
          "cells": [
@@ -9770,7 +9858,8 @@
           "1,343",
           "1,343"
          ],
-         "column": "24-36"
+         "column": "24-36",
+         "note": ""
         },
         {
          "cells": [
@@ -9781,9 +9870,10 @@
           "0,951",
           "0,951",
           "0,951",
-          "0,951"
+          "1,000"
          ],
-         "column": "36-48"
+         "column": "36-48",
+         "note": "kuralla 1,000 yapıldı (tek bağlantı oranı)"
         }
        ]
       }
@@ -9809,11 +9899,11 @@
          "12.301.465",
          "12.301.465",
          "12.301.465",
-         "3.046.188",
+         "2.340.210",
          "12.336.218",
          "12.336.218",
          "12.336.218",
-         "2.737.302",
+         "2.859.335",
          "30.976.803",
          "12.336.218",
          "12.301.465",
@@ -9827,85 +9917,85 @@
        },
        {
         "cells": [
-         "1.558.085",
-         "2.472.934",
-         "2.472.934",
-         "4.868.834",
-         "2.546.610",
-         "2.451.818",
-         "2.451.818",
-         "4.375.131",
-         "1.799.443",
-         "2.546.610",
+         "1.127.544",
+         "1.127.544",
+         "1.127.544",
+         "3.740.445",
+         "2.678.630",
+         "2.678.630",
+         "2.678.630",
+         "4.570.181",
+         "1.557.449",
+         "2.678.630",
          "1.908.464",
          "6.088.362"
         ],
         "chosen": "zincir merdiven",
         "origin": "2023",
-        "selected": "2.546.610",
+        "selected": "2.678.630",
         "total": false,
-        "why": "maturity 1.052 at least 0.5"
+        "why": "maturity 1.000 at least 0.5"
        },
        {
         "cells": [
-         "1.209.776",
-         "4.546.594",
-         "4.546.594",
-         "8.030.228",
-         "2.415.324",
-         "3.456.104",
-         "3.456.104",
-         "7.215.957",
-         "1.072.623",
-         "2.640.966",
+         "875.482",
+         "2.432.923",
+         "2.432.923",
+         "6.169.161",
+         "2.540.537",
+         "3.816.809",
+         "3.816.809",
+         "7.537.654",
+         "928.374",
+         "2.866.499",
          "1.152.041",
          "3.033.625"
         ],
         "chosen": "zincir merdiven",
         "origin": "2024",
-        "selected": "2.415.324",
+        "selected": "2.540.537",
         "total": false,
-        "why": "maturity 0.783 at least 0.5"
+        "why": "maturity 0.745 at least 0.5"
        },
        {
         "cells": [
-         "1.448.649",
-         "8.652.095",
-         "8.652.095",
-         "12.027.838",
-         "5.110.067",
-         "6.892.455",
-         "6.892.455",
-         "10.808.206",
-         "870.660",
-         "5.667.601",
+         "1.048.349",
+         "5.628.179",
+         "5.628.179",
+         "9.240.295",
+         "5.374.979",
+         "7.425.564",
+         "7.425.564",
+         "11.290.051",
+         "753.571",
+         "6.085.858",
          "1.090.379",
          "2.902.571"
         ],
         "chosen": "zincir merdiven",
         "origin": "2025",
-        "selected": "5.110.067",
+        "selected": "5.374.979",
         "total": false,
-        "why": "maturity 0.687 at least 0.5"
+        "why": "maturity 0.653 at least 0.5"
        },
        {
         "cells": [
-         "16.517.975",
-         "27.973.088",
-         "27.973.088",
-         "27.973.088",
-         "22.408.219",
-         "25.136.595",
-         "25.136.595",
-         "25.136.595",
-         "34.719.530",
-         "23.191.395",
+         "15.352.840",
+         "21.490.111",
+         "21.490.111",
+         "21.490.111",
+         "22.930.364",
+         "26.257.221",
+         "26.257.221",
+         "26.257.221",
+         "34.216.198",
+         "23.967.205",
          "16.452.350",
          "31.333.751"
         ],
         "chosen": "",
         "origin": "Toplam",
-        "selected": "22.408.219",
+        "selected": "22.930.364",
         "total": true,
         "why": ""
        }
@@ -9932,16 +10022,46 @@
     "segment": "NON_LIFE",
     "summary": {
      "anchor": "line-2",
-     "diagnostics": 12,
-     "ibnr_selected": "1.990.063",
+     "diagnostics": 10,
+     "ibnr_selected": "2.512.208",
      "incurred": "20.418.156",
      "line": "NON_LIFE · MOTOR_TPL",
      "paid": "14.509.172",
-     "ult_incurred": "22.408.219",
-     "ult_paid": "16.517.975",
-     "ult_selected": "22.408.219"
+     "ult_incurred": "22.930.364",
+     "ult_paid": "15.352.840",
+     "ult_selected": "22.930.364"
+    },
+    "tail_box": {
+     "footnote": "Zincir merdiveni kuyruk faktörleri (MT02) ve MT14 ile uydurulan eğriler; assumptions.csv ve tier_b_parameters.csv satırları. Hasar sayıları CL04'tür.",
+     "notes": [
+      "ödenen/gerçekleşen üçgeninde kuyruk faktörü MT02 varsayılanı 1,000'dir: son yaştan (48 ay) sonra gelişim yok. Bu, henüz gelecek gelişimin bir tahmini değildir.",
+      "Bu branşta bildirilen hasarların %41,5 kadarı kesim tarihinde açıktır (53 hasarın 22 tanesi).",
+      "Rapor, kullanılan kuyruk ile uydurulan eğriler arasında seçim yapmaz. Kuyruk varsayım kaydında belirlenir (MT02 tail_factor veya uydurulan bir eğri için MT14 selected_curve)."
+     ],
+     "rows": [
+      {
+       "fitted": "uydurulamadı: too few factors above 1 to fit a tail",
+       "measure": "ödenen",
+       "source": "MT02 varsayılanı",
+       "tail": "1,000"
+      },
+      {
+       "fitted": "uydurulamadı: too few factors above 1 to fit a tail",
+       "measure": "gerçekleşen",
+       "source": "MT02 varsayılanı",
+       "tail": "1,000"
+      }
+     ]
     },
     "thin_cells": 0,
+    "thin_factors": {
+     "effect": "1,000 yerine ortalamalar kullanılsaydı bu branşın seçilen ödenmemişi 8.421.192 yerine 7.899.047 olurdu (−%6,2).",
+     "footnote": "Çalıştırmanın min_origins_per_factor ayarından (varsayılan 2) daha az bağlantı oranına dayanan bir gelişim faktörü ortalama yerine 1,000 yapılır; varsayım kaydında seçilen faktör kuralın önüne geçer. Ortalama, ortalamalar tablosunda kalır; değişim sensitivity.csv içindeki thin_average değişkenidir (MT02).",
+     "notes": [
+      "ödenen: 36-48 faktörü 1 bağlantı oranına dayanır ve 1,000'dir; yerine geçtiği ortalama 1,382.",
+      "gerçekleşen: 36-48 faktörü 1 bağlantı oranına dayanır ve 1,000'dir; yerine geçtiği ortalama 0,951."
+     ]
+    },
     "tier_b": {
      "back_test": {
       "calibration": [],
@@ -9952,44 +10072,44 @@
       ],
       "rows": [
        {
-        "bias": "%33,2",
+        "bias": "%31,3",
         "horizon": "12",
-        "mae": "%33,2",
+        "mae": "%31,3",
         "method": "MT02",
         "origins": "3",
-        "rmse": "%56,1"
+        "rmse": "%51,7"
        },
        {
-        "bias": "%69,2",
+        "bias": "%66,7",
         "horizon": "12",
-        "mae": "%69,2",
+        "mae": "%66,7",
         "method": "MT03",
         "origins": "3",
-        "rmse": "%126,5"
+        "rmse": "%119,9"
        },
        {
-        "bias": "%69,2",
+        "bias": "%66,7",
         "horizon": "12",
-        "mae": "%69,2",
+        "mae": "%66,7",
         "method": "MT04",
         "origins": "3",
-        "rmse": "%126,5"
+        "rmse": "%119,9"
        },
        {
-        "bias": "%69,2",
+        "bias": "%66,7",
         "horizon": "12",
-        "mae": "%147,2",
+        "mae": "%143,5",
         "method": "MT05",
         "origins": "3",
-        "rmse": "%218,5"
+        "rmse": "%209,2"
        },
        {
-        "bias": "%33,2",
+        "bias": "%31,3",
         "horizon": "12",
-        "mae": "%33,2",
+        "mae": "%31,3",
         "method": "MT10",
         "origins": "3",
-        "rmse": "%56,1"
+        "rmse": "%51,7"
        }
       ]
      },
@@ -10000,50 +10120,27 @@
      },
      "footnotes": {
       "back_test": "Geriye dönük test (MT22 v1.0.0, AE02 v1.0.0): her yöntem daha önceki bir değerlemede bilinen veriyle yeniden çalıştırılır ve sonradan bilinen gerçekleşenle karşılaştırılır; hata = tahmin / referans − 1. İlk 3 ufuk gösterilir; back_test.csv her ufku ve kaynak dönemi içerir.",
-      "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.2.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
-      "munich": "Ayrı zincir merdivenlerin (MT02 v1.0.0) yanında Munich zincir merdiven (MT12 v1.0.0); Munich yöntemi ödenen / gerçekleşen oranını gözlenen düzeyine yaklaştırır. tier_b_ultimates.csv ve tier_b_parameters.csv satırları.",
+      "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.3.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
+      "munich": "Ayrı zincir merdivenlerin (MT02 v1.1.0) yanında Munich zincir merdiven (MT12 v1.0.0); Munich yöntemi ödenen / gerçekleşen oranını gözlenen düzeyine yaklaştırır. tier_b_ultimates.csv ve tier_b_parameters.csv satırları.",
       "tails": "Seçilen faktörlere uydurulan kuyruk eğrileri (MT14 v1.0.0); tier_b_parameters.csv satırları. Varsayım kaydı bir eğri seçmedikçe çalıştırma MT02 kuyruğunu kullanır; seçilen eğrinin etkisi sensitivity.csv içinde bir satırdır.",
-      "ultimates": "Kademe A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
+      "ultimates": "Kademe A: MT02 v1.1.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
      },
-     "method_diagnostics": [
-      {
-       "messages": [
-        "WEIGHT_CAPPED (gerçekleşen): origin 2023: cumulative development factor 0.9507 is below 1 (reported share above 1); the weight on the chain ladder is capped at 1"
-       ],
-       "method": "Benktander (MT13)"
-      }
-     ],
+     "method_diagnostics": [],
      "munich": null,
      "not_run": [],
      "tails": {
-      "diagnostics": [
-       "CURVE_NOT_USED (ödenen): inverse power slope b = 0.4247 is not above 1, so the product diverges"
-      ],
-      "effect": {
-       "base": "1.990.063",
-       "change": "%0,0",
-       "value": "1.990.063"
-      },
+      "diagnostics": [],
+      "effect": null,
       "rows": [
        {
-        "chosen": true,
-        "curve": "üstel azalma",
-        "measure": "ödenen",
-        "note": "",
-        "r_squared": "0,889",
-        "remainder": "%0,0",
-        "tail": "3,789",
-        "used": "1,000"
-       },
-       {
         "chosen": false,
-        "curve": "ters üs",
+        "curve": "–",
         "measure": "ödenen",
-        "note": "inverse power slope b = 0.4247 is not above 1, so the product diverges",
+        "note": "too few factors above 1 to fit a tail",
         "r_squared": "–",
         "remainder": "–",
         "tail": "–",
-        "used": "1,000"
+        "used": "–"
        },
        {
         "chosen": false,
@@ -10060,15 +10157,15 @@
      "tier_a_diagnostics": [
       {
        "messages": [
-        "LATE_DEVELOPMENT (ödenen): development from 36 to 48 months is still 1.382 and the tail factor is 1.0, so ultimates may be understated; a tail factor can be set in the assumptions register",
+        "LATE_DEVELOPMENT (ödenen): development from 36 to 48 months is still 1.382 (the average of its single link ratio) and the tail factor is 1.0, so ultimates may be understated; a tail factor can be set in the assumptions register",
         "FEW_LINK_RATIOS (ödenen): factor 24-36 (1.417) rests on 2 origins, fewer than 3",
-        "FEW_LINK_RATIOS (ödenen): factor 36-48 (1.382) rests on 1 origin, fewer than 3",
+        "THIN_FACTOR (ödenen): factor 36-48 rests on 1 link ratio, fewer than 2: the average 1.382 is not used and the factor is 1 (rule of the run; a factor selected in the assumptions register wins over it)",
         "FEW_LINK_RATIOS (gerçekleşen): factor 24-36 (1.343) rests on 2 origins, fewer than 3",
-        "FEW_LINK_RATIOS (gerçekleşen): factor 36-48 (0.9507) rests on 1 origin, fewer than 3",
+        "THIN_FACTOR (gerçekleşen): factor 36-48 rests on 1 link ratio, fewer than 2: the average 0.9507 is not used and the factor is 1 (rule of the run; a factor selected in the assumptions register wins over it)",
         "NEGATIVE_IBNR (ödenen): paid ultimate of origin 2022 (12,301,465.02) is below the incurred to date (12,336,217.69): IBNR -34,752.67",
-        "NEGATIVE_IBNR (ödenen): paid ultimate of origin 2023 (1,558,085.15) is below the incurred to date (2,678,629.79): IBNR -1,120,544.64",
-        "NEGATIVE_IBNR (ödenen): paid ultimate of origin 2024 (1,209,775.77) is below the incurred to date (1,891,680.20): IBNR -681,904.43",
-        "NEGATIVE_IBNR (ödenen): paid ultimate of origin 2025 (1,448,649.37) is below the incurred to date (3,511,628.47): IBNR -2,062,979.10"
+        "NEGATIVE_IBNR (ödenen): paid ultimate of origin 2023 (1,127,544.31) is below the incurred to date (2,678,629.79): IBNR -1,551,085.48",
+        "NEGATIVE_IBNR (ödenen): paid ultimate of origin 2024 (875,482.18) is below the incurred to date (1,891,680.20): IBNR -1,016,198.02",
+        "NEGATIVE_IBNR (ödenen): paid ultimate of origin 2025 (1,048,348.58) is below the incurred to date (3,511,628.47): IBNR -2,463,279.89"
        ],
        "method": "MT02"
       },
@@ -10076,7 +10173,7 @@
        "messages": [
         "THIN_EVIDENCE: only 4 origin periods: thin evidence; factors, ratios and ranges rest on few observations (fewer than 8)"
        ],
-       "method": "MT02, MT03, MT04, MT05, MT07, MT10, MT13, MT14, MT15, MT16, MT22"
+       "method": "MT02, MT03, MT04, MT05, MT07, MT10, MT13, MT15, MT16, MT22"
       }
      ]
     },
@@ -10162,7 +10259,7 @@
     "findings": [
      {
       "banner": false,
-      "evidence": "MT02 v1.0.0",
+      "evidence": "MT02 v1.1.0",
       "files": [
        "diagnostics.csv"
       ],
@@ -10178,7 +10275,7 @@
      },
      {
       "banner": false,
-      "evidence": "MT02 v1.0.0",
+      "evidence": "MT02 v1.1.0",
       "files": [
        "diagnostics.csv"
       ],
@@ -10194,7 +10291,7 @@
      },
      {
       "banner": false,
-      "evidence": "MT02 v1.0.0",
+      "evidence": "MT02 v1.1.0",
       "files": [
        "diagnostics.csv"
       ],
@@ -10210,7 +10307,7 @@
      },
      {
       "banner": false,
-      "evidence": "MT02 v1.0.0, MT10 v1.0.0",
+      "evidence": "MT02 v1.1.0, MT10 v1.0.0",
       "files": [
        "sensitivity.csv"
       ],
@@ -10236,9 +10333,16 @@
        "target": ""
       },
       {
+       "code": "ince faktör",
+       "measure": "ödenen",
+       "message": "factor 12-24 rests on 1 link ratio, fewer than 2: the average 4.459 is not used and the factor is 1 (rule of the run; a factor selected in the assumptions register wins over it)",
+       "method": "MT02",
+       "target": "12-24"
+      },
+      {
        "code": "sıfır payda",
        "measure": "ödenen",
-       "message": "factor 12-24 is 4.459: origin 2024 has 0 at 12 months and 560,092.38 at 24 months, so it adds to the numerator only; without that cell the factor is 1. The cell is kept by default (MT02); exclude cell 2024:12-24 in the assumptions register to leave it out",
+       "message": "factor 12-24 is 1: origin 2024 has 0 at 12 months and 560,092.38 at 24 months, so it adds to the numerator only; without that cell the factor is 1. The cell is kept by default (MT02); exclude cell 2024:12-24 in the assumptions register to leave it out",
        "method": "MT02",
        "target": "2024:12-24"
       },
@@ -10310,8 +10414,8 @@
        {
         "cells": [
          "246.985",
-         "648.947",
-         "401.962",
+         "246.985",
+         "0",
          "222.566",
          "–",
          "–"
@@ -10345,9 +10449,10 @@
           "4,459",
           "1,000",
           "4,459",
-          "4,459"
+          "1,000"
          ],
-         "column": "12-24"
+         "column": "12-24",
+         "note": "kuralla 1,000 yapıldı (tek bağlantı oranı)"
         },
         {
          "cells": [
@@ -10360,7 +10465,8 @@
           "1,000",
           "1,000"
          ],
-         "column": "24-36"
+         "column": "24-36",
+         "note": ""
         },
         {
          "cells": [
@@ -10373,7 +10479,8 @@
           "1,000",
           "1,000"
          ],
-         "column": "36-48"
+         "column": "36-48",
+         "note": ""
         }
        ]
       },
@@ -10396,7 +10503,8 @@
           "1,082",
           "1,082"
          ],
-         "column": "12-24"
+         "column": "12-24",
+         "note": ""
         },
         {
          "cells": [
@@ -10409,7 +10517,8 @@
           "1,000",
           "1,000"
          ],
-         "column": "24-36"
+         "column": "24-36",
+         "note": ""
         },
         {
          "cells": [
@@ -10422,7 +10531,8 @@
           "1,000",
           "1,000"
          ],
-         "column": "36-48"
+         "column": "36-48",
+         "note": ""
         }
        ]
       }
@@ -10447,7 +10557,7 @@
          "0",
          "0",
          "0",
-         "127.750",
+         "83.010",
          "0",
          "0",
          "0",
@@ -10467,7 +10577,7 @@
          "161.906",
          "161.906",
          "161.906",
-         "276.254",
+         "179.506",
          "161.906",
          "161.906",
          "161.906",
@@ -10487,7 +10597,7 @@
          "560.092",
          "560.092",
          "560.092",
-         "393.399",
+         "255.625",
          "560.092",
          "560.092",
          "560.092",
@@ -10504,15 +10614,15 @@
        },
        {
         "cells": [
-         "992.506",
-         "731.654",
-         "731.654",
-         "656.249",
+         "222.566",
+         "222.566",
+         "222.566",
+         "426.422",
          "240.751",
          "255.913",
          "255.913",
          "441.477",
-         "648.947",
+         "246.985",
          "241.897",
          "2.511.867"
         ],
@@ -10524,15 +10634,15 @@
        },
        {
         "cells": [
-         "1.714.504",
-         "1.453.652",
-         "1.453.652",
-         "1.453.652",
+         "944.564",
+         "944.564",
+         "944.564",
+         "944.564",
          "962.749",
          "977.911",
          "977.911",
          "977.911",
-         "1.769.750",
+         "1.367.789",
          "963.895",
          "2.519.068"
         ],
@@ -10564,16 +10674,45 @@
     "segment": "NON_LIFE",
     "summary": {
      "anchor": "line-3",
-     "diagnostics": 6,
+     "diagnostics": 7,
      "ibnr_selected": "18.185",
      "incurred": "944.564",
      "line": "NON_LIFE · PROPERTY",
      "paid": "944.564",
      "ult_incurred": "962.749",
-     "ult_paid": "1.714.504",
+     "ult_paid": "944.564",
      "ult_selected": "962.749"
     },
+    "tail_box": {
+     "footnote": "Zincir merdiveni kuyruk faktörleri (MT02) ve MT14 ile uydurulan eğriler; assumptions.csv ve tier_b_parameters.csv satırları. Hasar sayıları CL04'tür.",
+     "notes": [
+      "ödenen/gerçekleşen üçgeninde kuyruk faktörü MT02 varsayılanı 1,000'dir: son yaştan (48 ay) sonra gelişim yok. Bu, henüz gelecek gelişimin bir tahmini değildir.",
+      "Bu branşta bildirilen hasarların %0,0 kadarı kesim tarihinde açıktır (7 hasarın 0 tanesi).",
+      "Rapor, kullanılan kuyruk ile uydurulan eğriler arasında seçim yapmaz. Kuyruk varsayım kaydında belirlenir (MT02 tail_factor veya uydurulan bir eğri için MT14 selected_curve)."
+     ],
+     "rows": [
+      {
+       "fitted": "uydurulamadı: too few factors above 1 to fit a tail",
+       "measure": "ödenen",
+       "source": "MT02 varsayılanı",
+       "tail": "1,000"
+      },
+      {
+       "fitted": "uydurulamadı: too few factors above 1 to fit a tail",
+       "measure": "gerçekleşen",
+       "source": "MT02 varsayılanı",
+       "tail": "1,000"
+      }
+     ]
+    },
     "thin_cells": 10,
+    "thin_factors": {
+     "effect": "1,000 yerine ortalamalar kullanılsaydı bu branşın seçilen ödenmemişi 18.185 yerine 18.185 olurdu (%0,0).",
+     "footnote": "Çalıştırmanın min_origins_per_factor ayarından (varsayılan 2) daha az bağlantı oranına dayanan bir gelişim faktörü ortalama yerine 1,000 yapılır; varsayım kaydında seçilen faktör kuralın önüne geçer. Ortalama, ortalamalar tablosunda kalır; değişim sensitivity.csv içindeki thin_average değişkenidir (MT02).",
+     "notes": [
+      "ödenen: 12-24 faktörü 1 bağlantı oranına dayanır ve 1,000'dir; yerine geçtiği ortalama 4,459."
+     ]
+    },
     "tier_b": {
      "back_test": {
       "calibration": [],
@@ -10592,10 +10731,10 @@
      },
      "footnotes": {
       "back_test": "Geriye dönük test (MT22 v1.0.0, AE02 v1.0.0): her yöntem daha önceki bir değerlemede bilinen veriyle yeniden çalıştırılır ve sonradan bilinen gerçekleşenle karşılaştırılır; hata = tahmin / referans − 1. İlk 3 ufuk gösterilir; back_test.csv her ufku ve kaynak dönemi içerir.",
-      "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.2.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
-      "munich": "Ayrı zincir merdivenlerin (MT02 v1.0.0) yanında Munich zincir merdiven (MT12 v1.0.0); Munich yöntemi ödenen / gerçekleşen oranını gözlenen düzeyine yaklaştırır. tier_b_ultimates.csv ve tier_b_parameters.csv satırları.",
+      "bootstrap": "Ödenen üçgende aşırı yayılımlı Poisson bootstrap (MT11 v1.3.0); bootstrap_summary.csv içindeki Total satırı, simülasyonlar bootstrap_distribution_<line>.parquet içinde.",
+      "munich": "Ayrı zincir merdivenlerin (MT02 v1.1.0) yanında Munich zincir merdiven (MT12 v1.0.0); Munich yöntemi ödenen / gerçekleşen oranını gözlenen düzeyine yaklaştırır. tier_b_ultimates.csv ve tier_b_parameters.csv satırları.",
       "tails": "Seçilen faktörlere uydurulan kuyruk eğrileri (MT14 v1.0.0); tier_b_parameters.csv satırları. Varsayım kaydı bir eğri seçmedikçe çalıştırma MT02 kuyruğunu kullanır; seçilen eğrinin etkisi sensitivity.csv içinde bir satırdır.",
-      "ultimates": "Kademe A: MT02 v1.0.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
+      "ultimates": "Kademe A: MT02 v1.1.0, MT03 v1.0.0, MT04 v1.0.0, MT05 v1.0.0, MT07 v1.1.0. Yanlarında kademe B: MT12 v1.0.0, MT13 v1.0.1, MT15 v1.0.1, MT16 v1.0.0; ultimates.csv ve tier_b_ultimates.csv satırları. Fiyat endeksi yüklendiğinde sıklık–şiddet nihai hasarı değer tarihi fiyatlarıyladır."
      },
      "method_diagnostics": [],
      "munich": null,
@@ -10631,7 +10770,8 @@
      "tier_a_diagnostics": [
       {
        "messages": [
-        "ZERO_DENOMINATOR (ödenen): factor 12-24 is 4.459: origin 2024 has 0 at 12 months and 560,092.38 at 24 months, so it adds to the numerator only; without that cell the factor is 1. The cell is kept by default (MT02); exclude cell 2024:12-24 in the assumptions register to leave it out",
+        "THIN_FACTOR (ödenen): factor 12-24 rests on 1 link ratio, fewer than 2: the average 4.459 is not used and the factor is 1 (rule of the run; a factor selected in the assumptions register wins over it)",
+        "ZERO_DENOMINATOR (ödenen): factor 12-24 is 1: origin 2024 has 0 at 12 months and 560,092.38 at 24 months, so it adds to the numerator only; without that cell the factor is 1. The cell is kept by default (MT02); exclude cell 2024:12-24 in the assumptions register to leave it out",
         "FEW_LINK_RATIOS (ödenen): factor 24-36 (1) rests on 2 origins, fewer than 3",
         "FEW_LINK_RATIOS (ödenen): factor 36-48 (1) rests on 1 origin, fewer than 3",
         "FEW_LINK_RATIOS (gerçekleşen): factor 24-36 (1) rests on 2 origins, fewer than 3",
@@ -10717,7 +10857,7 @@
    "MT06 Mack standard error did not run for 8 of 8 triangles: too few link ratios to estimate variance",
    "MT11 bootstrap did not run for 4 of 4 groups: the bootstrap needs a chain ladder on at least 5 origin periods",
    "MT12 Munich chain ladder did not run for 4 of 4 groups: Munich chain ladder needs at least 5 origin periods",
-   "MT14 tail factor fitting did not run for 7 of 8 triangles: too few factors above 1 to fit a tail",
+   "MT14 tail factor fitting did not run for 8 of 8 triangles: too few factors above 1 to fit a tail",
    "MT15 separation did not run for 1 of 4 groups: separation needs claim counts per origin"
   ],
   "selection_measure": "incurred",
@@ -10726,6 +10866,50 @@
     {
      "basis": "NOMINAL",
      "rows": [
+      {
+       "assumption": "ince gelişim faktörleri",
+       "base": "21.224.387",
+       "change": "1,000 yerine ortalama",
+       "difference": "–",
+       "line": "LIFE · GROUP_TERM_LIFE",
+       "note": "the rule replaced no development factor on this line",
+       "quantity": "seçilen ödenmemiş (MT10, RS02)",
+       "relative": "–",
+       "value": "–"
+      },
+      {
+       "assumption": "ince gelişim faktörleri",
+       "base": "2.659.992",
+       "change": "1,000 yerine ortalama",
+       "difference": "–",
+       "line": "NON_LIFE · MOTOR_OD",
+       "note": "the rule replaced no development factor on this line",
+       "quantity": "seçilen ödenmemiş (MT10, RS02)",
+       "relative": "–",
+       "value": "–"
+      },
+      {
+       "assumption": "ince gelişim faktörleri",
+       "base": "8.421.192",
+       "change": "1,000 yerine ortalama",
+       "difference": "−522.145",
+       "line": "NON_LIFE · MOTOR_TPL",
+       "note": "",
+       "quantity": "seçilen ödenmemiş (MT10, RS02)",
+       "relative": "−%6,2",
+       "value": "7.899.047"
+      },
+      {
+       "assumption": "ince gelişim faktörleri",
+       "base": "18.185",
+       "change": "1,000 yerine ortalama",
+       "difference": "0",
+       "line": "NON_LIFE · PROPERTY",
+       "note": "",
+       "quantity": "seçilen ödenmemiş (MT10, RS02)",
+       "relative": "%0,0",
+       "value": "18.185"
+      },
       {
        "assumption": "gelişim faktörleri",
        "base": "10.604.971",
@@ -10750,14 +10934,14 @@
       },
       {
        "assumption": "gelişim faktörleri",
-       "base": "1.990.063",
+       "base": "2.512.208",
        "change": "(f − 1) × 1,10",
-       "difference": "+202.893",
+       "difference": "+269.730",
        "line": "NON_LIFE · MOTOR_TPL",
        "note": "",
        "quantity": "seçilen IBNR (MT10, RS02)",
-       "relative": "+%10,2",
-       "value": "2.192.955"
+       "relative": "+%10,7",
+       "value": "2.781.938"
       },
       {
        "assumption": "gelişim faktörleri",
@@ -10794,14 +10978,14 @@
       },
       {
        "assumption": "gelişim faktörleri",
-       "base": "1.990.063",
+       "base": "2.512.208",
        "change": "(f − 1) × 0,90",
-       "difference": "−202.335",
+       "difference": "−266.365",
        "line": "NON_LIFE · MOTOR_TPL",
        "note": "",
        "quantity": "seçilen IBNR (MT10, RS02)",
-       "relative": "−%10,2",
-       "value": "1.787.728"
+       "relative": "−%10,6",
+       "value": "2.245.843"
       },
       {
        "assumption": "gelişim faktörleri",
@@ -10838,14 +11022,14 @@
       },
       {
        "assumption": "kuyruk faktörü",
-       "base": "1.990.063",
+       "base": "2.512.208",
        "change": "+ 0,01",
-       "difference": "+224.082",
+       "difference": "+229.304",
        "line": "NON_LIFE · MOTOR_TPL",
        "note": "",
        "quantity": "seçilen IBNR (MT10, RS02)",
-       "relative": "+%11,3",
-       "value": "2.214.145"
+       "relative": "+%9,1",
+       "value": "2.741.511"
       },
       {
        "assumption": "kuyruk faktörü",
@@ -10882,14 +11066,14 @@
       },
       {
        "assumption": "kuyruk faktörü",
-       "base": "1.990.063",
+       "base": "2.512.208",
        "change": "MT14'ün uydurduğu eğri",
-       "difference": "0",
+       "difference": "–",
        "line": "NON_LIFE · MOTOR_TPL",
-       "note": "",
+       "note": "MT14 fitted no tail curve on this line, or a register entry sets its tail",
        "quantity": "seçilen IBNR (MT10, RS02)",
-       "relative": "%0,0",
-       "value": "1.990.063"
+       "relative": "–",
+       "value": "–"
       },
       {
        "assumption": "kuyruk faktörü",
@@ -10948,57 +11132,57 @@
       },
       {
        "assumption": "gelecek enflasyon",
-       "base": "954.974",
+       "base": "451.643",
        "change": "+ 1 puan",
-       "difference": "+9.893",
+       "difference": "+3.570",
        "line": "NON_LIFE · MOTOR_TPL",
        "note": "no future inflation is stated: the base is at value-date prices (0)",
        "quantity": "ödenmemiş, nominal (MT07)",
-       "relative": "+%1,0",
-       "value": "964.867"
+       "relative": "+%0,8",
+       "value": "455.213"
       },
       {
        "assumption": "gelecek enflasyon",
-       "base": "954.974",
+       "base": "451.643",
        "change": "− 1 puan",
-       "difference": "−9.842",
+       "difference": "−3.568",
        "line": "NON_LIFE · MOTOR_TPL",
        "note": "no future inflation is stated: the base is at value-date prices (0)",
        "quantity": "ödenmemiş, nominal (MT07)",
-       "relative": "−%1,0",
-       "value": "945.132"
+       "relative": "−%0,8",
+       "value": "448.074"
       },
       {
        "assumption": "gelecek enflasyon",
-       "base": "401.962",
+       "base": "0",
        "change": "+ 1 puan",
-       "difference": "+2.003",
+       "difference": "0",
        "line": "NON_LIFE · PROPERTY",
        "note": "no future inflation is stated: the base is at value-date prices (0)",
        "quantity": "ödenmemiş, nominal (MT07)",
-       "relative": "+%0,5",
-       "value": "403.965"
+       "relative": "–",
+       "value": "0"
       },
       {
        "assumption": "gelecek enflasyon",
-       "base": "401.962",
+       "base": "0",
        "change": "− 1 puan",
-       "difference": "−2.013",
+       "difference": "0",
        "line": "NON_LIFE · PROPERTY",
        "note": "no future inflation is stated: the base is at value-date prices (0)",
        "quantity": "ödenmemiş, nominal (MT07)",
-       "relative": "−%0,5",
-       "value": "399.948"
+       "relative": "–",
+       "value": "0"
       }
      ]
     }
    ],
-   "footnote": "Her değişken, bu çalıştırmanın yöntemlerini tek bir varsayımı değiştirerek yeniden çalıştırır (MT02 v1.0.0, MT10 v1.0.0, MT14 v1.0.0, MT07 v1.1.0, RS04 v1.1.0): seçilen her gelişim faktörü f, 1 + (f − 1)(1 ± %10,0) değerine taşınır; kuyruk faktörü 0,010 artırılır veya MT14'ün uydurduğu eğriyle değiştirilir; MT07'nin gelecek enflasyonu %1,0 kaydırılır (belirtilmemiş enflasyon 0'dır, değer tarihi fiyatları); indirgeme eğrisinin sıfır kupon faizleri %1,0 kaydırılır. sensitivity.csv satırları; adımlar ayarlardadır (report.sensitivity).",
+   "footnote": "Her değişken, bu çalıştırmanın yöntemlerini tek bir varsayımı değiştirerek yeniden çalıştırır (MT02 v1.1.0, MT10 v1.0.0, MT14 v1.0.0, MT07 v1.1.0, RS04 v1.1.0): seçilen her gelişim faktörü f, 1 + (f − 1)(1 ± %10,0) değerine taşınır; kuyruk faktörü 0,010 artırılır veya MT14'ün uydurduğu eğriyle değiştirilir; çalıştırmanın kuralının 1,000 yaptığı bir gelişim faktörü için ortalama geri konur; MT07'nin gelecek enflasyonu %1,0 kaydırılır (belirtilmemiş enflasyon 0'dır, değer tarihi fiyatları); indirgeme eğrisinin sıfır kupon faizleri %1,0 kaydırılır. sensitivity.csv satırları; adımlar ayarlardadır (report.sensitivity).",
    "reasons": [
     "no discounted figures: no curve is named: name one with --curve or a register entry (CV10, curve_id)"
    ]
   },
-  "spec": "M04 v1.1.0",
+  "spec": "M04 v1.2.0",
   "state": "sınırlı",
   "summary": [
    {
@@ -11025,24 +11209,24 @@
    },
    {
     "anchor": "line-2",
-    "diagnostics": 12,
-    "ibnr_selected": "1.990.063",
+    "diagnostics": 10,
+    "ibnr_selected": "2.512.208",
     "incurred": "20.418.156",
     "line": "NON_LIFE · MOTOR_TPL",
     "paid": "14.509.172",
-    "ult_incurred": "22.408.219",
-    "ult_paid": "16.517.975",
-    "ult_selected": "22.408.219"
+    "ult_incurred": "22.930.364",
+    "ult_paid": "15.352.840",
+    "ult_selected": "22.930.364"
    },
    {
     "anchor": "line-3",
-    "diagnostics": 6,
+    "diagnostics": 7,
     "ibnr_selected": "18.185",
     "incurred": "944.564",
     "line": "NON_LIFE · PROPERTY",
     "paid": "944.564",
     "ult_incurred": "962.749",
-    "ult_paid": "1.714.504",
+    "ult_paid": "944.564",
     "ult_selected": "962.749"
    }
   ],
@@ -11126,20 +11310,20 @@
     {
      "against": "2024 kaynak yılına göre",
      "basis": "",
-     "change": "+2,2 puan",
+     "change": "+2,4 puan",
      "label": "Nihai hasar prim oranı, kaynak yılı 2025",
      "note": "",
      "source": "RT01 v1.0.0, MT10 v1.0.0 · BRÜT, TRY, NOMİNAL",
-     "value": "%29,3"
+     "value": "%30,0"
     },
     {
      "against": "2024-12-31 dönemine göre",
      "basis": "",
-     "change": "−2.595.803",
+     "change": "+1.683.299",
      "label": "Rezerv tahmini (IBNR, seçilen)",
      "note": "aralık yok: Mack standart hatası çalışmadı",
      "source": "RS02 v1.0.0, MT10 v1.0.0, RS03 v1.1.0 · BRÜT, TRY, NOMİNAL",
-     "value": "1.927.034 TRY"
+     "value": "2.449.179 TRY"
     },
     {
      "against": "",
@@ -11148,7 +11332,7 @@
      "label": "Seçilen ödenmemiş, nominal",
      "note": "",
      "source": "RS02 v1.0.0, MT10 v1.0.0 · NOMİNAL",
-     "value": "10.577.225 TRY"
+     "value": "11.099.370 TRY"
     }
    ]
   }

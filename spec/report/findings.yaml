@@ -1,5 +1,5 @@
 id: RP01
-version: 1.3.2
+version: 1.4.0
 title_en: Key finding rules
 title_tr: Temel bulgu kuralları
 status: draft
@@ -27,6 +27,7 @@ settings:
   recovery_drop_limit: 0.5
   expense_ratio_change_limit: 0.02
   unallocated_expense_share_limit: 0.25
+  thin_factor_change_limit: 0.02
 rules:
   - id: KF01
     title: Thin evidence
@@ -699,6 +700,44 @@ rules:
       section: expenses
       files: [measures.csv, expenses_by_period.csv]
       specs: [EX04, EX05, M09]
+  - id: KF42
+    title: A factor on one link ratio moved the unpaid
+    scope: line
+    priority: 11
+    condition: thin_unpaid_change_size >= thin_factor_change_limit
+    template: >-
+      The development {thin_factor_list} each rest on a single link ratio, so the rule of the
+      run sets them to 1.000 instead of the average; with the averages the selected unpaid of
+      this line would be {thin_unpaid_average} {currency} instead of {thin_unpaid_base}
+      {currency} ({thin_unpaid_change_size} {thin_unpaid_direction}).
+    title_tr: Tek bağlantı oranına dayanan faktör ödenmemişi değiştirdi
+    template_tr: >-
+      {thin_factor_list} gelişimleri her biri tek bir bağlantı oranına dayanır; bu yüzden
+      çalıştırmanın kuralı bunları ortalama yerine 1,000 yapar; ortalamalar kullanılsaydı bu
+      branşın seçilen ödenmemişi {thin_unpaid_base} {currency} yerine {thin_unpaid_average}
+      {currency} olurdu ({thin_unpaid_change_size} {thin_unpaid_direction}).
+    evidence:
+      section: line
+      files: [sensitivity.csv, assumptions.csv, factors.csv]
+      specs: [MT02, M04]
+  - id: KF43
+    title: The tail is the default and development may be left
+    scope: line
+    priority: 12
+    condition: tail_default == 1 and tail_default_concern >= 1
+    template: >-
+      The tail factor of this line is {tail_factor}, the default of MT02: no development after
+      the last age, not an estimate. {tail_default_reasons}. The report does not choose
+      between the tail used and the fitted curves.
+    title_tr: Kuyruk varsayılan ve gelişim sürüyor olabilir
+    template_tr: >-
+      Bu branşın kuyruk faktörü {tail_factor}, yani MT02 varsayılanıdır: son yaştan sonra
+      gelişim yok; bu bir tahmin değildir. {tail_default_reasons}. Rapor, kullanılan kuyruk ile
+      uydurulan eğriler arasında seçim yapmaz.
+    evidence:
+      section: line
+      files: [assumptions.csv, sensitivity.csv, tier_b_parameters.csv]
+      specs: [MT02, MT14, M04]
 change_log:
   - version: 1.0.0
     date: 2026-10-22
@@ -756,3 +795,13 @@ change_log:
       steps on the uncertainty page; KF34 says that its figure is the selected unpaid of the
       uncertainty page and not the mean of the simulation. Conditions do not change. English
       and Turkish. Not reviewed by the owner yet.
+  - version: 1.4.0
+    date: 2026-11-12
+    change: >-
+      Two rules for the factors and the tail (A1b, R08 and R09, record 0777): KF42 a
+      development factor that rests on one link ratio and was set to 1.000 by the rule moved
+      the selected unpaid of the line by at least the new setting thin_factor_change_limit
+      (0.02), KF43 the tail of the line is the MT02 default 1.000 and either a tenth of its
+      claims or more are open or the fitted curves would move the selected IBNR by five per
+      cent or more (the two limits are in the code that builds the fact tail_default_reasons,
+      like the limits of the diagnostics). English and Turkish. Not reviewed by the owner yet.

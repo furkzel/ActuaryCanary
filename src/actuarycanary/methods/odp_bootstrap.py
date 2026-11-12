@@ -28,6 +28,20 @@ N_SIMULATIONS = 10_000
 MIN_ORIGINS = 5
 MIN_DEGREES_OF_FREEDOM = 3  # n - p of 2 or less: not run
 NEGATIVE_SHARE_WARNING = 0.01
+# Pseudo-triangle diagnostics (A1b, R04, record 0778): counted from the quantities the batch loop
+# already has, they consume no draw. A factor is extreme when it is negative or above this
+# multiple of the fitted factor of its column; a kind is warned when its share of the pseudo-
+# triangles exceeds the limit.
+EXTREME_FACTOR_MULTIPLE = 2.0
+PSEUDO_SHARE_WARNING = 0.01
+PSEUDO_KINDS = (
+    ("zero_denominator", "PSEUDO_ZERO_DENOMINATOR",
+     "a development column with a denominator of zero or less"),
+    ("negative_cumulative", "PSEUDO_NEGATIVE_CUMULATIVE",
+     "a negative cumulative value"),
+    ("extreme_factor", "PSEUDO_EXTREME_FACTOR",
+     f"a negative factor or one above {EXTREME_FACTOR_MULTIPLE:g} times the fitted factor"),
+)  # fmt: skip
 CUT_DIFFERENCE_WARNING = 0.01  # cut reserve against the whole-triangle reserve, share of the latter
 BATCH = 1_000  # simulations per batch, which bounds memory and fixes the order of the draws
 HISTOGRAM_BINS = 50
@@ -81,6 +95,21 @@ class OdpBootstrap:
     diagnostics: tuple[Diagnostic, ...]
     cut_columns: tuple[int, ...] = ()  # development columns cut (trailing, no positive sum)
     full_chain_reserve: float = float("nan")  # MT02 volume-weighted reserve of the whole triangle
+    # pseudo-triangles (of n_simulations) with a zero or negative denominator in some column,
+    # with a negative cumulative value, and with a negative or extreme factor (record 0778)
+    pseudo_zero_denominator: int = 0
+    pseudo_negative_cumulative: int = 0
+    pseudo_extreme_factor: int = 0
+
+    @property
+    def pseudo_shares(self) -> dict[str, float]:
+        """Share of the pseudo-triangles with each kind of defect, by kind."""
+        counts = {
+            "zero_denominator": self.pseudo_zero_denominator,
+            "negative_cumulative": self.pseudo_negative_cumulative,
+            "extreme_factor": self.pseudo_extreme_factor,
+        }
+        return {kind: count / self.n_simulations for kind, count in counts.items()}
 
     @property
     def columns_cut(self) -> int:
@@ -229,10 +258,16 @@ def _single_cells(observed: np.ndarray) -> np.ndarray:
 
 
 def _refit_and_project(
-    pseudo: np.ndarray, observed: np.ndarray, latest_index: np.ndarray, tail_factor: float
-) -> tuple[np.ndarray, np.ndarray]:
+    pseudo: np.ndarray,
+    observed: np.ndarray,
+    latest_index: np.ndarray,
+    tail_factor: float,
+    fitted_factors: np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray, dict[str, np.ndarray]]:
     """Future incremental means of each pseudo-triangle (batch x origins x columns, NaN on
-    observed cells) and the tail amount per origin (batch x origins)."""
+    observed cells), the tail amount per origin (batch x origins) and, per kind of defect, a
+    boolean per pseudo-triangle (MT11 diagnostics, record 0778). The defects are read from the
+    arrays the refit computes anyway; no random draw is made here."""
     batch, n_origins, n_dev = pseudo.shape
     cumulative = np.cumsum(np.where(observed, pseudo, 0.0), axis=2)
     both = observed[:, 1:] & observed[:, :-1]
@@ -251,7 +286,16 @@ def _refit_and_project(
     future[:, :, 1:] = projected[:, :, 1:] - projected[:, :, :-1]
     future[:, observed] = np.nan
     tail = projected[:, :, -1] * (tail_factor - 1)
-    return future, tail
+    defects = {
+        "zero_denominator": (denominator <= 0).any(axis=1),
+        "negative_cumulative": ((cumulative < 0) & observed).any(axis=(1, 2)),
+        "extreme_factor": (
+            (factors < 0) | (factors > EXTREME_FACTOR_MULTIPLE * np.abs(fitted_factors))
+            if fitted_factors is not None
+            else factors < 0
+        ).any(axis=1),
+    }
+    return future, tail, defects
 
 
 def _process(
@@ -344,12 +388,17 @@ def odp_bootstrap(
     mu = fitted[observed]
     root = np.sqrt(mu)
     process = Process(process_distribution)
+    defect_counts = dict.fromkeys((kind for kind, _, _ in PSEUDO_KINDS), 0)
     for start in range(0, n_simulations, BATCH):
         size = min(BATCH, n_simulations - start)
         draws = pool[rng.integers(0, len(pool), size=(size, n_cells))]
         pseudo = np.zeros((size, n_origins, n_dev))
         pseudo[:, observed] = mu + draws * root
-        means, tail = _refit_and_project(pseudo, observed, latest_index, tail_factor)
+        means, tail, defects = _refit_and_project(
+            pseudo, observed, latest_index, tail_factor, chain.factors
+        )
+        for kind, found in defects.items():
+            defect_counts[kind] += int(found.sum())
         future = ~observed
         sampled = np.zeros_like(means)
         sampled[:, future] = _process(rng, means[:, future], phi, process)
@@ -374,6 +423,19 @@ def odp_bootstrap(
                     f"{kept - 1} differs from that of the whole triangle by {difference:,.0f} "
                     f"({share:+.1%}); the factors beyond the cut are not 1",
                     value=difference,
+                )
+            )
+    for kind, code, what in PSEUDO_KINDS:
+        share = defect_counts[kind] / n_simulations
+        if share > PSEUDO_SHARE_WARNING:
+            diagnostics.append(
+                Diagnostic(
+                    "MT11",
+                    code,
+                    WARNING,
+                    f"{share:.1%} of the pseudo-triangles have {what} (more than "
+                    f"{PSEUDO_SHARE_WARNING:.0%}); the refit on them is not reliable",
+                    value=share,
                 )
             )
     negative = float((reserves.sum(axis=1) < 0).mean())
@@ -410,4 +472,7 @@ def odp_bootstrap(
         diagnostics=tuple(diagnostics),
         cut_columns=cut_columns,
         full_chain_reserve=full_reserve,
+        pseudo_zero_denominator=defect_counts["zero_denominator"],
+        pseudo_negative_cumulative=defect_counts["negative_cumulative"],
+        pseudo_extreme_factor=defect_counts["extreme_factor"],
     )

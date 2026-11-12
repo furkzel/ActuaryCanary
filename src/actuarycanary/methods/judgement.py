@@ -23,6 +23,7 @@ from actuarycanary.methods.selection import BF_BELOW_MATURITY, Choice
 
 TAIL_DEFAULT = 1.0  # MT02
 SETTINGS_WHO = "run settings"
+RULE_WHO = "rule"  # a factor set by a rule of the platform, not by a user (record 0776)
 EXCLUDED, INCLUDED = "excluded", "included"
 
 
@@ -82,10 +83,13 @@ def chain_ladder_judged(
     exclude_high_low: bool = False,
     tail_factor: float = TAIL_DEFAULT,
     min_origins: int = 3,
+    min_link_ratios: int = 1,
 ) -> tuple[ChainLadder | Skipped, list[Assumption]]:
     """MT02 with the register's exclusions, selected factors and tail factor for `scope`.
 
-    `tail_factor` is the run setting; a register entry replaces it."""
+    `tail_factor` is the run setting; a register entry replaces it. A development factor that
+    rests on fewer than `min_link_ratios` link ratios is set to 1.000 and listed as a selected
+    factor by the rule; a selected factor of the register wins over the rule."""
     origins = list(origins)
     columns = [column_label(ages, j) for j in range(len(ages) - 1)]
     entries: list[Assumption] = []
@@ -122,9 +126,19 @@ def chain_ladder_judged(
         min_origins=min_origins,
         calendar=calendar,
         selected=selected,
+        min_link_ratios=min_link_ratios,
     )
     if isinstance(result, ChainLadder):
         for j, column in enumerate(columns):
+            if result.replaced[j]:
+                entries.append(
+                    _entry("MT02", "selected_factor", scope, column, float(result.factors[j]),
+                           float(result.averages[j]), None,
+                           f"rule: the column rests on {int(result.n_ratios[j])} link ratio(s), "
+                           f"fewer than {min_link_ratios}; the average is not used and the "
+                           "factor is 1.000 (neutral)", RULE_WHO)
+                )  # fmt: skip
+                continue
             entries.append(
                 _entry("MT02", "selected_factor", scope, column, float(result.factors[j]),
                        float(result.averages[j]), chosen.get(column),

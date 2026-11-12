@@ -61,8 +61,11 @@ def test_the_methods_that_ran_enter_the_manifest_with_their_seeds_and_defaults(
 ) -> None:
     manifest = _manifest(default_run)
     ids = {s["id"] for s in manifest["specs"]}
-    assert {"MT13", "MT14", "MT15", "MT16", "MT22", "AE02", "MT17", "MT19"} <= ids
+    assert {"MT13", "MT15", "MT16", "MT22", "AE02", "MT17", "MT19"} <= ids
     assert not ids & {"MT11", "MT12", "MT18"}  # did not run on four origin years
+    # the only factor above 1 on the tiny baseline rested on one link ratio and the rule of
+    # record 0776 set it to 1.000, so MT14 has nothing to fit (record 0781)
+    assert "MT14" not in ids
     rows = {r["method"]: r for r in manifest["randomness"]}
     assert set(rows) == {"MT09", "MT17", "MT22"} and all(r["seed"] == 1 for r in rows.values())
     assert manifest["settings"]["tier_b"] == registry.settings(1)
@@ -79,7 +82,9 @@ def test_the_parameters_of_every_method_are_in_the_assumptions_and_the_diagnosti
     assumptions = _csv(default_run, "assumptions.csv")
     methods = set(assumptions["method"])
     assert {"MT11", "MT12", "MT13", "MT14", "MT15", "MT16", "MT22", "MT17", "MT18"} <= methods
-    assert set(assumptions["who"]) == {"default"}
+    assert set(assumptions["who"]) == {"default", "rule"}  # no register was given
+    ruled = assumptions.filter(pl.col("who") == "rule")
+    assert set(ruled["name"]) == {"selected_factor"}  # only the factors the rule replaced
     scopes = set(assumptions.filter(pl.col("method") == "MT17")["scope"])
     assert "NON_LIFE/MOTOR_OD/severity" in scopes
     diagnostics = _csv(default_run, "diagnostics.csv")

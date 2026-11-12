@@ -86,7 +86,7 @@ def test_numbers_use_the_separators_of_the_language() -> None:
 
 def test_every_rule_of_rp01_has_a_turkish_sentence_with_the_same_facts() -> None:
     rules = SPECS.finding_rules.rules
-    assert len(rules) == 38 and SPECS.finding_rules.version == "1.3.2"
+    assert len(rules) == 40 and SPECS.finding_rules.version == "1.4.0"
     placeholder = re.compile(r"\{([a-z][a-z0-9_]*)\}")
     for rule in rules:
         assert set(placeholder.findall(rule.template)) == set(placeholder.findall(rule.template_tr))
@@ -148,6 +148,7 @@ def _content(result: RunResult) -> list[str]:
         found += [d.item.message for d in group.diagnostics]
         found += [str(getattr(m, "reason", "")) for m in group.mack.values()]
         found += list(getattr(group.selection, "why", ()))
+        found += [e.why for e in group.assumptions]  # the reason of a factor set by the rule
     found += result.anomalies.flags["reason"].to_list()
     found += list(result.anomalies.reasons)
     for outcome in result.analysis.modules:

@@ -1,5 +1,5 @@
 id: M12
-version: 1.1.1
+version: 1.2.0
 title_en: Uncertainty and risk
 title_tr: Belirsizlik ve risk
 status: reviewed
@@ -28,6 +28,7 @@ report_page:
   - Headline - selected reserve with the bootstrap 5 to 95 per cent range and its coefficient of variation.
   - Ranges side by side - Mack lognormal (RS03) and bootstrap (RS05), per line, labelled as approximations.
   - Distribution of the total reserve (histogram) with VaR and TVaR marked.
+  - What the totals rest on, and the pseudo-triangles of the bootstrap - per line, the share with a zero or negative denominator, a negative cumulative value, a negative or extreme factor (MT11, record 0778).
   - Tail factor - fitted curves and their effect on the ultimate (MT14).
   - Expected cash flows by calendar year, nominal and discounted, with the curve used (RS04, CV10).
   - Calibration notes - the coverage evidence of MT06 and MT11 and the lines where the ranges are known to be narrow.
@@ -55,3 +56,11 @@ change_log:
       simulated total of all lines exists whenever every line has one. The notes of M12 and the
       part "what the totals rest on" state the cut. No other change; the owner has not reviewed
       this version.
+  - version: 1.2.0
+    date: 2026-11-12
+    change: >-
+      The page gains a table of the defects of the bootstrap's pseudo-triangles beside the notes
+      of what the totals rest on (A1b, R04, record 0778). No figure of a range changes. How far
+      the all-lines VaR 99.5 per cent and TVaR 99 per cent move with the seed is measured by the
+      script docs/tools/seed_stability.py, not by a run (record 0779). The owner has not reviewed
+      this version yet.

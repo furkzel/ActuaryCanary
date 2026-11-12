@@ -53,7 +53,8 @@ def sensitivity_page(
             "Each variant reruns the methods of this run with one assumption changed "
             "({specs}): every selected development factor f moved to 1 + (f − 1)(1 ± "
             "{factor}), the tail factor raised by {tail} or replaced by the curve MT14 "
-            "fitted, the future inflation of MT07 moved by {inflation} (no stated inflation "
+            "fitted, the average put back for a development factor that the rule of the run "
+            "set to 1.000, the future inflation of MT07 moved by {inflation} (no stated inflation "
             "is 0, value-date prices), the zero rates of the discount curve moved by {curve}. "
             "Rows of sensitivity.csv; the steps are in the settings (report.sensitivity).",
             specs=spec("MT02", "MT10", "MT14", "MT07", "RS04"),

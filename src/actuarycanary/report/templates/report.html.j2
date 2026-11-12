@@ -335,9 +335,18 @@ th.tier { text-align: center; border-bottom: 2px solid var(--border); }
   <div class="charts">{{ figure(l.figures.factors_paid, tr("Link ratios and selected factor, paid")) }}{{ figure(l.figures.factors_incurred, tr("Link ratios and selected factor, incurred")) }}</div>
   <p class="footnote">{{ rv.footnotes.factors }}</p>
   {% for st in mm.stability %}<div class="scroll"><table>
-    <thead><tr><th>{{ tr("{measure} column", measure=tr(st.measure)|capitalize) }}</th><th>{{ tr("Link ratios") }}</th><th>{{ tr("Lowest") }}</th><th>{{ tr("Highest") }}</th><th>{{ tr("CV") }}</th>{% for n in st.names %}<th>{{ n }}</th>{% endfor %}<th>{{ tr("Selected") }}</th></tr></thead>
-    <tbody>{% for r in st.rows %}<tr><td>{{ r.column }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+    <thead><tr><th>{{ tr("{measure} column", measure=tr(st.measure)|capitalize) }}</th><th>{{ tr("Link ratios") }}</th><th>{{ tr("Lowest") }}</th><th>{{ tr("Highest") }}</th><th>{{ tr("CV") }}</th>{% for n in st.names %}<th>{{ n }}</th>{% endfor %}<th>{{ tr("Selected") }}</th><th class="text">{{ tr("Note") }}</th></tr></thead>
+    <tbody>{% for r in st.rows %}<tr><td>{{ r.column }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}<td class="text">{{ r.note }}</td></tr>{% endfor %}</tbody>
   </table></div>{% endfor %}
+  {% if l.thin_factors %}{% set tf = l.thin_factors %}<ul>{% for n in tf.notes %}<li>{{ n }}</li>{% endfor %}</ul>{% if tf.effect %}<p>{{ tf.effect }}</p>{% endif %}<p class="footnote">{{ tf.footnote }}</p>{% endif %}
+
+  {% set tl = l.tail_box %}<h3>{{ tr("Tail factor") }}</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>{{ tr("Triangle") }}</th><th>{{ tr("Tail used by the run") }}</th><th class="text">{{ tr("Where it comes from") }}</th><th class="text">{{ tr("Curves fitted by MT14") }}</th></tr></thead>
+    <tbody>{% for x in tl.rows %}<tr><td>{{ x.measure }}</td><td>{{ x.tail }}</td><td class="text">{{ x.source }}</td><td class="text">{{ x.fitted }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <ul>{% for n in tl.notes %}<li>{{ n }}</li>{% endfor %}</ul>
+  <p class="footnote">{{ tl.footnote }}</p>
 
   <h3>{{ tr("Ultimates by method") }}</h3>
   {{ figure(l.figures.methods, tr("Ultimate by method, {name}", name=l.name)) }}

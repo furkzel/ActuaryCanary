@@ -1,0 +1,16 @@
+# 0778 — A1b: diagnostics of the bootstrap's pseudo-triangles (R04)
+
+## Context
+The ODP bootstrap (MT11) refits the chain ladder on every pseudo-triangle. Nothing reported how often a refit stands on a zero or negative denominator, on negative cumulative values or on an extreme factor. The refit divides where the denominator is not zero and uses 1.0 where it is; a negative denominator gives a negative or sign-flipped factor without a word.
+
+## Decisions
+- **What is counted** (over all simulations, in `_refit_and_project`, from the arrays the refit computes anyway): (1) `zero_denominator`: some development column of the pseudo-triangle has a denominator (the sum of the cumulative values of the origins that have both cells) of zero or less; (2) `negative_cumulative`: some observed cell of the pseudo-triangle has a negative cumulative value; (3) `extreme_factor`: some refitted factor is negative or above **2 times** the fitted factor of its column (`EXTREME_FACTOR_MULTIPLE`). The multiple 2: the fitted factors are the volume-weighted ones of the cut triangle, 1.0 to about 3 in the first column and close to 1 in late columns; a refitted factor of more than twice its fitted value is far outside what the residual pool can produce for a sound triangle, so a share above the limit says that the pool and the model do not fit the data. A smaller multiple would flag sound early columns; a larger one would never flag a late column.
+- **Where the counts live.** Three integer fields of `OdpBootstrap` (`pseudo_zero_denominator`, `pseudo_negative_cumulative`, `pseudo_extreme_factor`), the property `pseudo_shares` (share of the simulations), three rows `pseudo_<kind>_share` of `tier_b_parameters.csv` with the count in the note, and a small table "Pseudo-triangles of the bootstrap" on the uncertainty page after "What the totals rest on" (per line: simulations, the three shares; a share above the limit carries the word "above" and the limit; both languages, `language.yaml`).
+- **Diagnostics.** One WARNING per kind when its share exceeds **1 %** (`PSEUDO_SHARE_WARNING`, the limit of `NEGATIVE_TOTAL_RESERVE`): `PSEUDO_ZERO_DENOMINATOR`, `PSEUDO_NEGATIVE_CUMULATIVE`, `PSEUDO_EXTREME_FACTOR`. They reach `diagnostics.csv` and the tier B block of the line like the existing MT11 diagnostics. Information, not a stop: no draw, factor or range changes.
+- **No draw moved.** `_refit_and_project` has no stream and reads no new random number; the counts are boolean reductions of `denominator`, `cumulative` and `factors`. The test `test_a1b_bootstrap_diagnostics.py` compares the refit with a copy of its previous form bit for bit, and runs the whole bootstrap on RAA with the previous refit patched in: `reserves` and `cash_flows` are equal (arrays, not approximately).
+
+## What it shows (function level, seed 7, 4,000 simulations, for information)
+GenIns and the CLRD workers' compensation triangle: no defect in any pseudo-triangle. RAA: 43.9 % of the pseudo-triangles have a negative cumulative value (small first-column cells under the residual pool), 0.3 % an extreme factor, none a zero denominator: `PSEUDO_NEGATIVE_CUMULATIVE` fires. The demo's lines are in record 0780.
+
+## Consequences
+- MT11 1.3.0 (draft-level change log, not reviewed by the owner), M12 1.2.0; the registry label of MT11 follows.

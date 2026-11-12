@@ -48,6 +48,13 @@
   <li>{% if st.all_lines_total %}{{ tr("A simulated total of all lines exists because every line has a bootstrap.") }}{% else %}{{ tr("A simulated total of all lines exists only when every line has a bootstrap; here the bootstrap ran on {n} of {lines} lines ({list}), so the all-lines figures are the Mack approximation only.", n=st.simulated|length, lines=st.lines, list=st.simulated|join(", ") or "–") }}{% endif %}</li>
 </ul>
 
+{% if b.pseudo %}<h3>{{ tr("Pseudo-triangles of the bootstrap") }}</h3>
+<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Line") }}</th><th>{{ tr("Simulations") }}</th><th>{{ tr("Zero or negative denominator") }}</th><th>{{ tr("Negative cumulative value") }}</th><th>{{ tr("Negative or extreme factor") }}</th></tr></thead>
+  <tbody>{% for x in b.pseudo.rows %}<tr><td>{{ x.line }}</td><td>{{ x.simulations }}</td>{% for c in x.cells %}<td{% if x.flags[loop.index0] %} class="negative"{% endif %}>{{ c }}{% if x.flags[loop.index0] %} ({{ tr("above {limit}", limit=b.pseudo.limit) }}){% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
+</table></div>
+<p class="footnote">{{ tr("Share of the pseudo-triangles of the bootstrap (MT11) in which a development column has a denominator of zero or less, a cumulative value is negative, or a factor is negative or above {multiple} times the fitted factor of its column. Above {limit} the diagnostic of the same name is raised; the counts consume no random draw and move no figure of the range. Rows of tier_b_parameters.csv.", multiple=b.pseudo.multiple, limit=b.pseudo.limit) }}</p>{% endif %}
+
 <h3>{{ tr("Tail factor: effect of the fitted curve") }}</h3>
 {% if b.tail_effects %}<div class="scroll"><table>
   <thead><tr><th>{{ tr("Line") }}</th><th>{{ tr("IBNR, tail of the run") }}</th><th>{{ tr("IBNR, tail fitted by MT14") }}</th><th>{{ tr("Change") }}</th><th class="text">{{ tr("Note") }}</th></tr></thead>

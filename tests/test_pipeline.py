@@ -380,7 +380,8 @@ def test_assumptions_diagnostics_and_anomalies_are_written_and_listed_in_the_man
     assert assumptions.columns == [
         "method", "name", "scope", "target", "value", "default", "who", "when", "why"
     ]  # fmt: skip
-    assert set(assumptions["who"]) == {"default"}  # no register was given
+    # no register was given: the platform's defaults, and the factors the rule of record 0776 set
+    assert set(assumptions["who"]) == {"default", "rule"}
     assert {"MT02", "MT03", "MT05", "MT10"} <= set(assumptions["method"])
     assert len(manifest["assumptions"]) == assumptions.height
     assert manifest["assumptions"][0]["who"] == "default"

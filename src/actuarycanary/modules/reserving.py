@@ -66,6 +66,9 @@ class ChainLadderSettings(BaseModel):
     exclude_high_low: bool = False
     tail_factor: float = Field(default=1.0, gt=0)
     min_origins: int = Field(default=3, ge=2)
+    # a development factor that rests on fewer link ratios than this is set to 1.000 (record
+    # 0776); 1 applies no rule. The default 2 replaces a factor resting on a single link ratio.
+    min_origins_per_factor: int = Field(default=2, ge=1)
 
 
 @dataclass(frozen=True)
@@ -303,6 +306,7 @@ def reserve_group(
             exclude_high_low=settings.exclude_high_low,
             tail_factor=settings.tail_factor,
             min_origins=settings.min_origins,
+            min_link_ratios=settings.min_origins_per_factor,
         )
         chains[measure] = chain
         entries += used
@@ -338,7 +342,10 @@ def reserve_group(
             )
         if context.full:
             macks[measure] = mack(
-                t.cumulative, calendar=t.calendar, min_origins=settings.min_origins
+                t.cumulative,
+                calendar=t.calendar,
+                min_origins=settings.min_origins,
+                min_link_ratios=settings.min_origins_per_factor,
             )
             if isinstance(chain, ChainLadder):
                 found = chain_ladder_diagnostics(chain, t.cumulative, t.origins, t.ages, t.calendar)
@@ -490,6 +497,7 @@ def _inflation_adjusted(
         exclude_high_low=settings.exclude_high_low,
         tail_factor=tail,
         min_origins=settings.min_origins,
+        min_link_ratios=settings.min_origins_per_factor,
     )
     return result, adjusted.origins, [entry]
 
