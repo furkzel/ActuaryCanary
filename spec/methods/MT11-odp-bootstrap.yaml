@@ -1,5 +1,5 @@
 id: MT11
-version: 1.2.0
+version: 1.3.0
 title_en: Over-dispersed Poisson bootstrap
 title_tr: Aşırı yayılımlı Poisson bootstrap
 status: reviewed
@@ -133,6 +133,12 @@ outputs:
     description: Number of trailing development columns cut (0 when none).
   - name: cut_columns
     description: The development columns that were cut, by index and age.
+  - name: pseudo_triangle_defects
+    description: >-
+      Counts, over all simulations, of the pseudo-triangles with a zero or negative
+      denominator in some development column, with a negative cumulative value, and with a
+      negative factor or one above twice the fitted factor of its column; reported as shares of
+      the simulations. Counted from the arrays of the refit; no random draw (record 0778).
   - name: cut_reserve_difference
     description: >-
       Chain-ladder reserve of the cut triangle minus that of the whole triangle (MT02,
@@ -143,6 +149,7 @@ diagnostics:
   - Mean of the simulated reserve against the chain-ladder reserve (bias of the bootstrap).
   - Comparison of the bootstrap range with the Mack lognormal range of MT06.
   - Histogram of the simulated total reserve.
+  - PSEUDO_ZERO_DENOMINATOR, PSEUDO_NEGATIVE_CUMULATIVE and PSEUDO_EXTREME_FACTOR warnings when more than 1 per cent of the pseudo-triangles have that defect.
 failure_modes:
   - condition: Chain ladder not available (MT02 failure) or fewer than 5 origin periods.
     action: Not run; reason "the bootstrap needs a chain ladder on at least 5 origin periods".
@@ -271,3 +278,13 @@ change_log:
       short-tail model). A non-positive column inside the triangle still stops the method. Numbers
       for triangles without a trailing non-positive column are unchanged (decision 0349). The owner
       has not reviewed this version.
+  - version: 1.3.0
+    date: 2026-11-12
+    change: >-
+      The refit on each pseudo-triangle is counted (A1b, R04, record 0778): the share of the
+      pseudo-triangles with a zero or negative denominator, a negative cumulative value, a
+      negative or extreme factor (above twice the fitted factor of the column), three fields of
+      the result, three rows of tier_b_parameters.csv and three warnings above 1 per cent. The
+      counts are made from arrays the batch loop already has and consume no draw: the simulated
+      reserves and cash flows are bit-identical to those of 1.2.0 for the same stream. Not
+      reviewed by the owner yet.

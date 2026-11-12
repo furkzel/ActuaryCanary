@@ -18,6 +18,11 @@ from typing import Any
 import numpy as np
 import polars as pl
 
+from actuarycanary.methods.odp_bootstrap import (
+    EXTREME_FACTOR_MULTIPLE,
+    PSEUDO_KINDS,
+    PSEUDO_SHARE_WARNING,
+)
 from actuarycanary.modules import reserving_tier_b_output as tier_b_output
 from actuarycanary.modules.uncertainty import (
     ALL_LINES,
@@ -674,6 +679,32 @@ def statements(result: UncertaintyResult) -> dict[str, Any]:
     }
 
 
+def pseudo_triangles(result: UncertaintyResult) -> dict[str, Any] | None:
+    """The defects of the bootstrap's pseudo-triangles per line (MT11, record 0778): the share
+    with a zero or negative denominator, with a negative cumulative value and with a negative
+    or extreme factor, and which of them exceed the limit that raises a diagnostic."""
+    rows = []
+    for x in result.lines:
+        if x.boot is None:
+            continue
+        shares = x.boot.pseudo_shares
+        rows.append(
+            {
+                "line": _line_name(*x.key),
+                "simulations": numbers.count(x.boot.n_simulations),
+                "cells": [numbers.ratio(shares[kind]) for kind, _, _ in PSEUDO_KINDS],
+                "flags": [shares[kind] > PSEUDO_SHARE_WARNING for kind, _, _ in PSEUDO_KINDS],
+            }
+        )
+    if not rows:
+        return None
+    return {
+        "rows": rows,
+        "limit": numbers.ratio(PSEUDO_SHARE_WARNING),
+        "multiple": numbers.factor(EXTREME_FACTOR_MULTIPLE),
+    }
+
+
 def _share(part: float | None, whole: float | None) -> float | None:
     return part / whole if part is not None and whole else None
 
@@ -778,6 +809,7 @@ def uncertainty_page(
         "discount_reason": "" if discounted else uncertainty.discount.reason,
         "curve": curve(uncertainty, uncertainty.curve),
         "statements": statements(uncertainty),
+        "pseudo": pseudo_triangles(uncertainty),
         "calibration": calibration(tables),
         "tail_effects": tail_effects(tables),
         "notes": list(uncertainty.notes),

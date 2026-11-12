@@ -159,3 +159,22 @@ def test_the_facts_of_the_rules_come_from_the_run() -> None:
 
 def test_the_limits_of_the_tail_rule_are_stated() -> None:
     assert (TAIL_OPEN_SHARE_LIMIT, TAIL_FITTED_LIMIT) == (0.10, 0.05)
+
+
+def test_the_uncertainty_page_lists_the_pseudo_triangle_defects_per_line() -> None:
+    from types import SimpleNamespace
+
+    from actuarycanary.report.uncertainty_section import pseudo_triangles
+
+    shares = {"zero_denominator": 0.0014, "negative_cumulative": 0.6354, "extreme_factor": 0.0039}
+    boot = SimpleNamespace(pseudo_shares=shares, n_simulations=10_000)
+    none = SimpleNamespace(key=("S", "OD"), boot=None)
+    line = SimpleNamespace(key=("S", "TPL"), boot=boot)
+    found = pseudo_triangles(SimpleNamespace(lines=[none, line]))  # type: ignore[arg-type]
+    assert found is not None and len(found["rows"]) == 1  # a line without a bootstrap has no row
+    row = found["rows"][0]
+    assert row["line"] == "S · TPL" and row["simulations"] == "10,000"
+    assert row["cells"] == ["0.1%", "63.5%", "0.4%"]
+    assert row["flags"] == [False, True, False]  # only the share above the limit of 1 per cent
+    assert found["limit"] == "1.0%" and found["multiple"] == "2.000"
+    assert pseudo_triangles(SimpleNamespace(lines=[none])) is None  # type: ignore[arg-type]
