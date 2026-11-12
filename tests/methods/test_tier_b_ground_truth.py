@@ -193,13 +193,15 @@ def test_mt13_benktander_ultimate_per_line(name: str) -> None:
 
 
 def _true_tail(s: Scenario, line: str) -> float:
-    """Ultimate over paid at the last age of the oldest accident year (development pattern)."""
+    """Ultimate over paid at the last age of the oldest accident year, on the nominal basis of
+    `truth/ultimates.csv` and of the triangles the methods read (record 0371): the column
+    `paid_share_nominal` of the development pattern, not the inflation-free `paid_share`."""
     data = load_medium(s.name)
     pattern = pl.read_csv(data.truth / "development_pattern.csv").filter(
         (pl.col("line") == line) & pl.col("observed_at_cutoff")
     )
     oldest = pattern.filter(pl.col("accident_year") == pattern["accident_year"].min())
-    return 1 / float(oldest.sort("lag_years")["paid_share"][-1])
+    return 1 / float(oldest.sort("lag_years")["paid_share_nominal"][-1])
 
 
 @pytest.mark.parametrize("name", ["baseline", "high_inflation"])

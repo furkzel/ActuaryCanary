@@ -196,3 +196,73 @@ def test_a_claim_has_a_close_date_exactly_when_its_last_valuation_is_closed(base
     assert joined.height == baseline.clean["claims"].height
     assert (joined["close_date"].is_not_null() == closed).all()
     assert closed.any() and (~closed).any()
+
+
+# --- the case reserve of a claim that closes at nil (record 0393) ----------------------------
+
+NIL_HEAVY = {"lines": {"MOTOR_TPL": {"nil_close_probability": 0.6, "severity": {"tail": {
+    "probability": 0.5, "dist": "pareto", "threshold": 500000, "alpha": 1.2}}}}}  # fmt: skip
+
+
+@pytest.fixture(scope="module")
+def capped_and_uncapped():
+    """The same simulation with the cap of the nil reserve, and without it."""
+    from actuarycanary.synthetic import claims as claims_module
+
+    capped = simulate_with(NIL_HEAVY)
+    original = claims_module._nil_reserve_cap
+    claims_module._nil_reserve_cap = lambda line, fx0: np.full(len(fx0), np.inf)
+    try:
+        uncapped = simulate_with(NIL_HEAVY)
+    finally:
+        claims_module._nil_reserve_cap = original
+    return capped, uncapped
+
+
+def _threshold(sim, world_line) -> np.ndarray:
+    """The tail threshold of the line of each claim in its currency at base-date prices
+    (infinite for a line without a tail model)."""
+    tails = {n: ln.severity.tail for n, ln in sim.scenario.lines.items()}
+    cap = np.array([np.inf if tails[n] is None else tails[n].threshold for n in world_line])
+    return cap / sim.world.c_fx_start
+
+
+def test_a_nil_claims_reserve_is_built_from_its_cost_capped_at_the_tail_threshold(
+    capped_and_uncapped,
+):
+    capped, uncapped = capped_and_uncapped
+    w, u = capped.world, uncapped.world
+    assert np.array_equal(w.r_claim, u.r_claim) and np.array_equal(w.c_cost, u.c_cost)
+    cap = _threshold(capped, w.c_line)[w.r_claim]
+    cost = w.c_cost[w.r_claim]
+    nil = w.c_nil[w.r_claim]
+    acting = nil & (cost > cap)
+    assert acting.sum() > 0
+    # linear in the held cost: the reserve scales with min(cost, cap) / cost, to the cent
+    expected = u.r_estimate * np.minimum(cost, cap) / cost
+    assert np.allclose(w.r_estimate[acting], expected[acting], atol=0.02, rtol=1e-9)
+    assert (w.r_estimate[acting] < u.r_estimate[acting]).any()
+    assert (w.r_estimate <= u.r_estimate + 0.005).all()
+    # a nil claim at or below the cap is unchanged
+    assert np.array_equal(w.r_estimate[nil & ~acting], u.r_estimate[nil & ~acting])
+
+
+def test_the_reserve_of_a_claim_that_does_not_close_at_nil_is_unchanged(capped_and_uncapped):
+    capped, uncapped = capped_and_uncapped
+    live = ~capped.world.c_nil[capped.world.r_claim]
+    assert live.sum() > 0
+    assert np.array_equal(capped.world.r_estimate[live], uncapped.world.r_estimate[live])
+
+
+def test_paid_and_ultimates_do_not_depend_on_the_nil_reserve_cap(capped_and_uncapped):
+    capped, uncapped = capped_and_uncapped
+    for name in ("p_claim", "p_day", "p_amount"):
+        assert np.array_equal(getattr(capped.world, name), getattr(uncapped.world, name))
+    # the truth moves only where it holds case reserves (and what is derived from them)
+    reserve_based = {"case_reserve_at_cutoff", "incurred_at_cutoff", "ibnr_at_cutoff"}
+    a, b = capped.truth["ultimates"], uncapped.truth["ultimates"]
+    assert a.columns == b.columns
+    assert {c for c in a.columns if not a[c].equals(b[c])} <= reserve_based
+    a = capped.clean["claim_valuations"].drop("case_reserve", "ceded_reserve")
+    b = uncapped.clean["claim_valuations"].drop("case_reserve", "ceded_reserve")
+    assert a.equals(b)

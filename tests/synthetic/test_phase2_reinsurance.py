@@ -209,3 +209,15 @@ def test_a_scenario_without_surplus_has_the_same_claim_data_as_one_with_it(clean
     assert not heavy.clean["claim_valuations"]["ceded_paid_to_date"].equals(
         clean_baseline.clean["claim_valuations"]["ceded_paid_to_date"]
     )
+
+
+def test_no_premium_movement_precedes_the_first_contract_period_of_its_treaty(sim):
+    """DV-RTR-06, premium half (record 0392): premium is ceded from the first contract period
+    the treaty table lists, so no premium movement is booked before it."""
+    treaties, moves = _frame(sim, TREATIES), _frame(sim, MOVES)
+    first = treaties.group_by("treaty_id").agg(pl.col("inception_date").min().alias("first"))
+    premium = moves.join(first, on="treaty_id").filter(
+        pl.col("type").is_in(["CEDED_PREMIUM", "REINSTATEMENT_PREMIUM", "RI_COMMISSION"])
+    )
+    assert premium.height > 0
+    assert premium.filter(pl.col("booking_date") < pl.col("first")).height == 0

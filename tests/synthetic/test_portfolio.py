@@ -7,10 +7,16 @@ import polars as pl
 import pytest
 
 from actuarycanary.synthetic.build import simulate
-from actuarycanary.synthetic.days import to_day
+from actuarycanary.synthetic.days import first_contract_start, to_day
 from actuarycanary.synthetic.feeds import earned_premium
-from actuarycanary.synthetic.portfolio import NO_DAY, WRITTEN_TYPES, Policies, PremiumRows
-from actuarycanary.synthetic.scenario import SizeSpec, load_scenario
+from actuarycanary.synthetic.portfolio import (
+    NO_DAY,
+    WRITTEN_TYPES,
+    Policies,
+    PremiumRows,
+    simulation_years,
+)
+from actuarycanary.synthetic.scenario import SizeSpec, load_scenario, sized
 
 
 def test_policy_and_transaction_identifiers_are_zero_padded_text(baseline):
@@ -83,8 +89,21 @@ def test_quota_share_cedes_its_share_of_written_premium_and_pays_its_commission(
     rows, p = baseline.premiums, baseline.policies
     ceded = rows.amount[(rows.treaty == "QS_PROPERTY") & (rows.type == "CEDED_PREMIUM")]
     commission = rows.amount[(rows.treaty == "QS_PROPERTY") & (rows.type == "RI_COMMISSION")]
-    gross = rows.amount[np.isin(rows.type, WRITTEN_TYPES) & (p.line[rows.policy] == "PROPERTY")]
+    # premium is ceded from the first contract period of the treaty table (record 0392): the
+    # treaty began in 2016, the simulated years start in 2022, the first period ending after
+    # 2022-01-01 starts on 2022-01-01
+    first_year = simulation_years(baseline.scenario, sized(baseline.scenario, "tiny"))[0]
+    from_day = first_contract_start(to_day(date(2016, 1, 1)), to_day(date(first_year, 1, 1)))
+    gross = rows.amount[
+        np.isin(rows.type, WRITTEN_TYPES)
+        & (p.line[rows.policy] == "PROPERTY")
+        & (rows.booking >= from_day)
+    ]
     assert len(ceded) == len(commission) > 0
+    assert ceded.sum() == pytest.approx(0.30 * gross.sum(), rel=1e-3)
+    assert rows.booking[(rows.treaty == "QS_PROPERTY") & (rows.type == "CEDED_PREMIUM")].min() >= (
+        from_day
+    )
     assert ceded.sum() == pytest.approx(0.30 * gross.sum(), rel=1e-3)
     assert commission.sum() == pytest.approx(0.25 * ceded.sum(), rel=1e-3)
 
