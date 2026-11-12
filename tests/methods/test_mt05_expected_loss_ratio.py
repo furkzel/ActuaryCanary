@@ -34,3 +34,16 @@ def test_no_ratio_and_wrong_axis_are_not_run() -> None:
     skipped = expected_loss_ratio([1000.0], 0.7, [0.0], origin_axis="report")
     assert isinstance(skipped, Skipped)
     assert "accident or underwriting origins" in skipped.reason
+
+
+def test_negative_ibnr_flag_uses_the_tolerance_of_the_diagnostic() -> None:
+    # R18: the flag, like the MT02 diagnostic, ignores an IBNR of -0.0000000019
+    noise = ExpectedLossRatio(
+        np.array([1000.0, 1000.0]),
+        np.array([0.7, 0.7]),
+        ("user", "user"),
+        np.array([1000.0 - 1.9e-9, 1000.0 - 0.01]),
+        np.array([1000.0, 1000.0]),
+        {},
+    )
+    assert noise.negative_ibnr.tolist() == [False, True]

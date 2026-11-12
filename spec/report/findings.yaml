@@ -1,5 +1,5 @@
 id: RP01
-version: 1.3.0
+version: 1.3.2
 title_en: Key finding rules
 title_tr: Temel bulgu kuralları
 status: draft
@@ -94,12 +94,13 @@ rules:
     condition: loss_ratio_change >= 0.05
     template: >-
       {segment}: the ultimate loss ratio rose from {loss_ratio_previous} for origin
-      {loss_ratio_previous_origin} to {loss_ratio_latest} for origin {loss_ratio_origin}.
+      {loss_ratio_previous_origin} to {loss_ratio_latest} for origin {loss_ratio_origin};
+      only these two origin years are compared, the latest against the one before it.
     title_tr: Hasar prim oranı yükseldi
     template_tr: >-
       {segment}: nihai hasar prim oranı {loss_ratio_previous_origin} kaynak yılı için
       {loss_ratio_previous} iken {loss_ratio_origin} kaynak yılı için {loss_ratio_latest}
-      değerine yükseldi.
+      değerine yükseldi; yalnızca bu iki kaynak yılı karşılaştırılır: sonuncusu, bir öncekiyle.
     evidence:
       section: profitability
       files: [measures.csv, lineage.csv]
@@ -111,12 +112,13 @@ rules:
     condition: loss_ratio_change <= -0.05
     template: >-
       {segment}: the ultimate loss ratio fell from {loss_ratio_previous} for origin
-      {loss_ratio_previous_origin} to {loss_ratio_latest} for origin {loss_ratio_origin}.
+      {loss_ratio_previous_origin} to {loss_ratio_latest} for origin {loss_ratio_origin};
+      only these two origin years are compared, the latest against the one before it.
     title_tr: Hasar prim oranı düştü
     template_tr: >-
       {segment}: nihai hasar prim oranı {loss_ratio_previous_origin} kaynak yılı için
       {loss_ratio_previous} iken {loss_ratio_origin} kaynak yılı için {loss_ratio_latest}
-      değerine düştü.
+      değerine düştü; yalnızca bu iki kaynak yılı karşılaştırılır: sonuncusu, bir öncekiyle.
     evidence:
       section: profitability
       files: [measures.csv, lineage.csv]
@@ -539,14 +541,18 @@ rules:
     priority: 15
     condition: range_upper_width >= 0.25
     template: >-
-      The selected unpaid of all lines, {range_reserve} {currency}, has a 95th percentile of
-      {range_p95} {currency}, {range_upper_width} above it ({range_source}); the range is an
-      indicative approximation, not a capital requirement.
+      The mean of the range of all lines, {range_reserve} {currency} ({range_source}), has a
+      95th percentile of {range_p95} {currency}, {range_upper_width} above it; the selected
+      unpaid of all lines is {range_selected} {currency}, and the uncertainty page shows the
+      steps from it to the mean of the range; the range is an indicative approximation, not a
+      capital requirement.
     title_tr: Rezerv aralığının genişliği
     template_tr: >-
-      Tüm branşların seçilen ödenmemiş tutarı {range_reserve} {currency}; 95. yüzdeliği
-      {range_p95} {currency}, yani {range_upper_width} üzerinde ({range_source}); aralık
-      gösterge niteliğinde bir yaklaşımdır, sermaye gereksinimi değildir.
+      Tüm branşların aralık ortalaması {range_reserve} {currency} ({range_source}); 95.
+      yüzdeliği {range_p95} {currency}, yani {range_upper_width} üzerinde; tüm branşların
+      seçilen ödenmemişi {range_selected} {currency} olup belirsizlik sayfası ondan aralık
+      ortalamasına giden adımları gösterir; aralık gösterge niteliğinde bir yaklaşımdır,
+      sermaye gereksinimi değildir.
     evidence:
       section: uncertainty
       files: [risk_measures.csv]
@@ -558,15 +564,16 @@ rules:
     condition: discount_share >= 0.05
     template: >-
       Discounted with the curve {discount_curve} of {discount_curve_date}, the selected unpaid
-      of all lines falls from {discount_nominal} to {discount_present} {currency}
-      ({discount_share} less); switch the value basis at the top of the page to see the
-      discounted figures.
+      of all lines (the figure of the uncertainty page, not the mean of the simulation) falls
+      from {discount_nominal} to {discount_present} {currency} ({discount_share} less); switch
+      the value basis at the top of the page to see the discounted figures.
     title_tr: İndirgeme etkisi
     template_tr: >-
       {discount_curve_date} tarihli {discount_curve} eğrisiyle indirgendiğinde tüm
-      branşların seçilen ödenmemiş tutarı {discount_nominal} değerinden {discount_present}
-      {currency} değerine düşer ({discount_share} daha az); indirgenmiş tutarları görmek için
-      sayfanın üstündeki değer bazını değiştirin.
+      branşların seçilen ödenmemişi (belirsizlik sayfasındaki tutar; simülasyonun ortalaması
+      değil) {discount_nominal} değerinden {discount_present} {currency} değerine düşer
+      ({discount_share} daha az); indirgenmiş tutarları görmek için sayfanın üstündeki değer
+      bazını değiştirin.
     evidence:
       section: uncertainty
       files: [risk_measures.csv, discount_curve.csv]
@@ -734,3 +741,18 @@ change_log:
       without expense rows. Three settings: recovery_drop_limit 0.5,
       expense_ratio_change_limit 0.02, unallocated_expense_share_limit 0.25. Implemented before
       owner review; draft.
+  - version: 1.3.1
+    date: 2026-11-12
+    change: >-
+      KF04 and KF05 say what they compare (A1a, R20, record 0750): only the latest origin
+      year against the one before it, in English and Turkish. Conditions and placeholders do
+      not change. Not reviewed by the owner yet.
+  - version: 1.3.2
+    date: 2026-11-12
+    change: >-
+      KF33 and KF34 name the figure they quote (A1a, R07, record 0752). KF33 speaks of the
+      mean of the range of all lines (it was called the selected unpaid) and gives the
+      selected unpaid of all lines in a new fact, range_selected, with the pointer to the
+      steps on the uncertainty page; KF34 says that its figure is the selected unpaid of the
+      uncertainty page and not the mean of the simulation. Conditions do not change. English
+      and Turkish. Not reviewed by the owner yet.

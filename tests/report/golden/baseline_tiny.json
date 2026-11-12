@@ -294,7 +294,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "e714ce9617e26f80"
+    "value": "5daa3cb3d3c5cebd"
    },
    {
     "label": "Valuation date",
@@ -4463,7 +4463,7 @@
    }
   }
  },
- "findings_spec": "RP01 v1.3.0",
+ "findings_spec": "RP01 v1.3.2",
  "further_findings": [
   {
    "banner": false,
@@ -4635,7 +4635,7 @@
    "specs": [
     "RT01"
    ],
-   "text": "LIFE: the ultimate loss ratio rose from 68.6% for origin 2024 to 105.4% for origin 2025.",
+   "text": "LIFE: the ultimate loss ratio rose from 68.6% for origin 2024 to 105.4% for origin 2025; only these two origin years are compared, the latest against the one before it.",
    "title": "Loss ratio rose"
   },
   {
@@ -5241,6 +5241,44 @@
    "title": "Back-testing of past selections"
   }
  ],
+ "module_runs": {
+  "M01": {
+   "state": "ran",
+   "why": ""
+  },
+  "M02": {
+   "state": "ran",
+   "why": ""
+  },
+  "M03": {
+   "state": "limited",
+   "why": "MT17 severity fits did not run for NON_LIFE / MOTOR_TPL: 22 claims, fewer than 50; MT17 severity fits did not run for LIFE / GROUP_TERM_LIFE: 34 claims, fewer than 50; MT17 severity fits did not run for NON_LIFE / PROPERTY: 4 claims, fewer than 50; MT19 survival analysis: no Cox model for LIFE: no covariate varies between the claims of the segment"
+  },
+  "M04": {
+   "state": "limited",
+   "why": "MT06 Mack standard error did not run for 8 of 8 triangles: too few link ratios to estimate variance; MT11 bootstrap did not run for 4 of 4 groups: the bootstrap needs a chain ladder on at least 5 origin periods; MT12 Munich chain ladder did not run for 4 of 4 groups: Munich chain ladder needs at least 5 origin periods; MT14 tail factor fitting did not run for 7 of 8 triangles: too few factors above 1 to fit a tail; MT15 separation did not run for 1 of 4 groups: separation needs claim counts per origin"
+  },
+  "M05": {
+   "state": "ran",
+   "why": ""
+  },
+  "M06": {
+   "state": "limited",
+   "why": "MT08: 6 groups have too few values to score; MT09: 1 group has too few claims to score; MT18 extreme values did not run for LIFE / GROUP_TERM_LIFE: 37 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8); MT18 extreme values did not run for NON_LIFE / MOTOR_TPL: 44 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8); MT18 extreme values did not run for NON_LIFE / PROPERTY: 5 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8); MT18 extreme values did not run for NON_LIFE / MOTOR_OD: 67 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)"
+  },
+  "M07": {
+   "state": "ran",
+   "why": ""
+  },
+  "M09": {
+   "state": "ran",
+   "why": ""
+  },
+  "M12": {
+   "state": "limited",
+   "why": "RS04: no discounted figures: no curve is named: name one with --curve or a register entry (CV10, curve_id); RS05: no simulated reserve distribution: LIFE / GROUP_TERM_LIFE: MT06 did not run: no Mack range; LIFE / GROUP_TERM_LIFE: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / MOTOR_OD: MT06 did not run: no Mack range; NON_LIFE / MOTOR_OD: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / MOTOR_TPL: MT06 did not run: no Mack range; NON_LIFE / MOTOR_TPL: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / PROPERTY: MT06 did not run: no Mack range; NON_LIFE / PROPERTY: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; LIFE / GROUP_TERM_LIFE: MT06 did not run: no Mack range; LIFE / GROUP_TERM_LIFE: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / MOTOR_OD: MT06 did not run: no Mack range; NON_LIFE / MOTOR_OD: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / MOTOR_TPL: MT06 did not run: no Mack range; NON_LIFE / MOTOR_TPL: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / PROPERTY: MT06 did not run: no Mack range; NON_LIFE / PROPERTY: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range"
+  }
+ },
  "not_run": {
   "modules": [
    {
@@ -6073,6 +6111,7 @@
        "fits": {
         "claims": "34",
         "family": "",
+        "no_fit": false,
         "quantiles": [
          "–",
          "–",
@@ -6103,6 +6142,7 @@
        "fits": {
         "claims": "61",
         "family": "lognormal",
+        "no_fit": false,
         "quantiles": [
          "198,549",
          "993,611",
@@ -6174,6 +6214,7 @@
        "fits": {
         "claims": "22",
         "family": "",
+        "no_fit": false,
         "quantiles": [
          "–",
          "–",
@@ -6204,6 +6245,7 @@
        "fits": {
         "claims": "4",
         "family": "",
+        "no_fit": false,
         "quantiles": [
          "–",
          "–",
@@ -6826,9 +6868,11 @@
     "blocks": [
      {
       "basis": "NOMINAL",
+      "bridge": null,
       "headline": [],
       "histograms": [],
       "label": "nominal",
+      "present_values": [],
       "range_figure": "",
       "ranges": []
      }
@@ -6862,11 +6906,13 @@
     "discount_reason": "no curve is named: name one with --curve or a register entry (CV10, curve_id)",
     "discounted": false,
     "footnotes": {
+     "bridge": "An origin that is fully developed in the simulated triangle carries no simulated development and keeps zero in the simulation (records 0325, 0349), although its selected unpaid is not zero; its selected unpaid is left out of the simulated mean and listed. The remaining difference is the mean of the simulation for the other origins less their selected unpaid: zero where the simulation is scaled to the selected unpaid, sampling difference otherwise. Rows add up before rounding.",
      "calibration": "Share of the incurred known later that fell inside the range given at an earlier valuation, summed over the lines (AE02 rows of back_test.csv, MT22 v1.0.0, AE02 v1.0.0). Coverage on model data is in records 0075 (Mack), 0282 (bootstrap) and 0325 (this module); Mack ranges are known to be too narrow on inflation-driven or long-tailed lines (record 0062).",
      "cash_flows": "Expected payments of the selected unpaid by period after the valuation date, all lines added (RS04 v1.1.0, CV10 v1.1.0); rows of risk_cash_flows.csv.",
      "figure": "Ranges drawn as ranges: light bar from the median to the 99.5th percentile, dark bar from the 75th to the 95th, the mean as a diamond.",
-     "headline": "The reserve is the selected unpaid (RS02 with MT10) as M12 ranges it: the bootstrap (RS05 v1.1.0, MT11 v1.2.0) where it ran on the line, else the Mack approximation (RS03 v1.1.0, MT06 v1.1.0); the 5th percentile comes from risk_distribution.parquet or the lognormal of RS03. Indicative ranges, never capital requirements.",
-     "histogram": "Histogram of the simulated reserve (RS05 v1.1.0); the lines mark the mean, the VaR and the TVaR of the row in risk_measures.csv; simulations in risk_distribution.parquet.",
+     "headline": "The selected unpaid (RS02 with MT10) is the one total of the run; the mean of the range is the mean of M12's simulation: the bootstrap (RS05 v1.1.0, MT11 v1.2.0) where it ran on the line, else the Mack approximation (RS03 v1.1.0, MT06 v1.1.0). The two differ by the steps of the table below the ranges. The 5th percentile comes from risk_distribution.parquet or the lognormal of RS03. Indicative ranges, never capital requirements.",
+     "histogram": "Histogram of the simulated reserve (RS05 v1.1.0); the lines mark the mean, the VaR and the TVaR of the row in risk_measures.csv; simulations in risk_distribution.parquet, which holds all of them. The axis is cut at the 0.5th and 99.5th percentile so that a few extreme draws do not hide the shape; the caption of each histogram gives the extremes.",
+     "present_values": "Rows expected_cash_flows of risk_measures.csv (RS04 v1.1.0, CV10 v1.1.0): the selected unpaid less its discount effect is its present value. The simulated means in the table above are of the simulation, not of these cash flows, so the two discount effects differ.",
      "ranges": "Rows Total and All lines of risk_measures.csv (RS03 v1.1.0, RS05 v1.1.0, M12 v1.1.1). VaR at 99.5% and TVaR at 99%; both sources are approximations of the uncertainty of the selected reserve, labelled as such in the file."
     },
     "notes": [
@@ -6948,7 +6994,7 @@
   "basis": "",
   "change": "–",
   "label": "Data quality score",
-  "note": "0 blocking, 6 warning findings",
+  "note": "0 blocking, 6 warning findings; 8 of 63 rules failed (29 failed checks). The score measures cleanliness, not fitness for reserving.",
   "source": "DQ01 v1.0.0 · 63 rules",
   "value": "99.9 / 100"
  },
@@ -7318,7 +7364,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "e714ce9617e26f80",
+  "run_id": "5daa3cb3d3c5cebd",
   "settings": [
    {
     "name": "bases.currency",
@@ -8147,7 +8193,7 @@
    {
     "id": "RP01",
     "title": "Key finding rules",
-    "version": "1.3.0"
+    "version": "1.3.2"
    }
   ]
  },
@@ -8547,6 +8593,7 @@
     },
     "name": "LIFE · GROUP_TERM_LIFE",
     "origins": 4,
+    "range_coverage": "90% range; no back-test",
     "segment": "LIFE",
     "summary": {
      "anchor": "line-0",
@@ -9147,6 +9194,7 @@
     },
     "name": "NON_LIFE · MOTOR_OD",
     "origins": 4,
+    "range_coverage": "90% range; no back-test",
     "segment": "NON_LIFE",
     "summary": {
      "anchor": "line-1",
@@ -9844,6 +9892,7 @@
     },
     "name": "NON_LIFE · MOTOR_TPL",
     "origins": 4,
+    "range_coverage": "90% range; no back-test",
     "segment": "NON_LIFE",
     "summary": {
      "anchor": "line-2",
@@ -10475,6 +10524,7 @@
     },
     "name": "NON_LIFE · PROPERTY",
     "origins": 4,
+    "range_coverage": "90% range; no back-test",
     "segment": "NON_LIFE",
     "summary": {
      "anchor": "line-3",

@@ -100,6 +100,26 @@ def test_negative_ibnr_on_a_paid_ultimate() -> None:
     assert "paid ultimate of origin 2025" in found.message
 
 
+def test_negative_ibnr_has_a_tolerance_at_the_boundary() -> None:
+    # R18: absolute 0.005 and relative 1e-9 of the ultimate, the larger of the two
+    origins = ["a", "b", "c", "d", "e"]
+    incurred = np.array([1000.0, 1000.0, 1.0e9, 1.0e9, 1000.0])
+    ultimate = np.array(
+        [
+            1000.0 - 1.86e-9,  # float noise of a sum: not a finding
+            1000.0 - 0.0049,  # inside the absolute tolerance
+            1.0e9 - 0.9,  # inside the relative tolerance (1e-9 x 1e9 = 1.0)
+            1.0e9 - 1.1,  # outside it
+            1000.0 - 0.0051,  # outside the absolute tolerance
+        ]
+    )
+    found = negative_ibnr("MT02", ultimate, incurred, origins)
+    assert [f.target for f in found] == ["d", "e"]
+    assert not np.isnan(ultimate).any()
+    nan = negative_ibnr("MT02", np.array([np.nan]), np.array([10.0]), ["x"])
+    assert nan == []
+
+
 def test_a_skipped_method_becomes_a_diagnostic() -> None:
     found = skipped(Skipped("MT06", "too few link ratios to estimate variance"), "MT06")
     assert found is not None and found.code == "NOT_RUN"

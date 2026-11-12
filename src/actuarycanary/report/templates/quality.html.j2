@@ -1,15 +1,17 @@
 <section id="quality" class="page">
   <h2>{{ tr("Data quality appendix") }}</h2>
   <p>{{ trh("Score <strong>{score}</strong> out of 100 ({spec}): {rules} rules evaluated; {blocking} blocking, {warning} warning and {info} information findings. The score is a summary; read the findings before any result.", score=overall, spec=spec("DQ01"), rules=rules, blocking=counts.BLOCKING, warning=counts.WARNING, info=counts.INFO) }}</p>
+  <p>{{ tr("{failed} of {rules} rules failed on at least one row, pair or claim; {checks} failed checks in all (a row that fails two rules counts twice). The score measures how clean the data are, not whether they suit reserving: it says nothing about the volume, the length of the history, the stability of the portfolio or the definitions behind the figures.", failed=failed, rules=rules, checks=failed_checks) }}</p>
   <h3>{{ tr("What was loaded") }}</h3>
   <div class="scroll"><table>
     <thead><tr><th>{{ tr("Concept") }}</th><th>{{ tr("Rows") }}</th><th>{{ tr("First") }}</th><th>{{ tr("Last") }}</th><th>{{ tr("Score") }}</th><th>{{ tr("Source") }}</th></tr></thead>
     <tbody>{% for c in coverage %}<tr><td>{{ c.concept }}</td><td>{{ c.rows }}</td><td>{{ c.first }}</td><td>{{ c.last }}</td><td>{{ c.score }}</td><td class="text">{{ c.sources }}</td></tr>{% endfor %}</tbody>
   </table></div>
   <h3>{{ tr("Analyses") }}</h3>
+  <p>{{ tr("Data status says whether the data allow a module to run; it does not say that the module found nothing to report. What each module did in this run, and why it was limited, is in the last column.") }}</p>
   <div class="scroll"><table>
-    <thead><tr><th>{{ tr("Module") }}</th><th>{{ tr("Status") }}</th><th>{{ tr("Why") }}</th></tr></thead>
-    <tbody>{% for m in modules %}<tr><td class="text">{{ m.module }} {{ m.title }}</td><td class="text{% if m.status_code == 'unable' %} negative{% endif %}">{{ m.status }}</td><td class="text">{{ m.reasons }}</td></tr>{% endfor %}</tbody>
+    <thead><tr><th>{{ tr("Module") }}</th><th>{{ tr("Data status") }}</th><th>{{ tr("Why") }}</th><th>{{ tr("In this run") }}</th></tr></thead>
+    <tbody>{% for m in modules %}<tr><td class="text">{{ m.module }} {{ m.title }}</td><td class="text{% if m.status_code == 'unable' %} negative{% endif %}">{{ m.status }}</td><td class="text">{{ m.reasons }}</td><td class="text">{{ m.run_mark }}</td></tr>{% endfor %}</tbody>
   </table></div>
   <h3>{{ tr("Findings") }}</h3>
   {% if findings %}

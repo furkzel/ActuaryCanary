@@ -67,7 +67,7 @@ p, li { color: var(--text-secondary); }
 dl.cover { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0 0 12px; }
 dl.cover dt { color: var(--text-muted); }
 dl.cover dd { margin: 0; overflow-wrap: anywhere; }
-.scroll { overflow-x: auto; }
+.scroll { overflow-x: auto; max-width: 100%; }
 table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; margin: 8px 0; font-size: 0.92rem; }
 th, td { padding: 4px 8px; border-bottom: 1px solid var(--grid); text-align: right; white-space: nowrap; }
 th { color: var(--text-secondary); font-weight: 600; background: var(--surface-2); }
@@ -88,9 +88,11 @@ ol.findings li { margin: 6px 0; color: var(--text-primary); }
 .tile .v { font-size: 1.35rem; font-weight: 650; margin: 2px 0; overflow-wrap: anywhere; }
 .tile .d { font-size: 0.88rem; color: var(--text-primary); }
 .tile .n, .tile .s { font-size: 0.78rem; color: var(--text-muted); }
-.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
-.chart { min-height: 220px; width: 100%; }
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 16px; }
+.charts > * { min-width: 0; }
+.chart { min-height: 220px; width: 100%; max-width: 100%; overflow: hidden; }
 .footnote { font-size: 0.82rem; color: var(--text-muted); margin: 4px 0 12px; }
+.coverage { font-size: 0.82rem; color: var(--text-muted); }
 details { margin: 8px 0; }
 summary { cursor: pointer; color: var(--accent); }
 a { color: var(--accent); }
@@ -107,6 +109,17 @@ html[data-basis-shown="DISCOUNTED"] [data-basis="NOMINAL"] { display: none; }
 .basis-switch label { cursor: pointer; }
 .basis-switch .n { font-size: 0.82rem; color: var(--text-muted); }
 th.tier { text-align: center; border-bottom: 2px solid var(--border); }
+@media screen and (max-width: 640px) {
+  main { padding: 16px 12px 48px; }
+  h1 { font-size: 1.45rem; }
+  dl.cover { grid-template-columns: 1fr; gap: 0; }
+  dl.cover dd { margin-bottom: 6px; }
+  nav ul { columns: 1; }
+  th, td { padding: 4px 6px; }
+  .tiles { grid-template-columns: 1fr; }
+  img, svg, pre { max-width: 100%; }
+  pre { overflow-x: auto; }
+}
 @page { size: A4; margin: 14mm 12mm; }
 @media print {
   body { font-size: 10.5pt; background: #fff; }
@@ -343,8 +356,9 @@ th.tier { text-align: center; border-bottom: 2px solid var(--border); }
   <p class="footnote">{{ rv.footnotes.range }}</p>{% endif %}
   {% if mm.mack %}<div class="scroll"><table>
     <thead><tr><th>{{ tr("Total reserve (selected)") }}</th><th>{{ tr("Reserve") }}</th><th>{{ tr("75th percentile") }}</th><th>{{ tr("95th percentile") }}</th><th>{{ tr("99.5th percentile") }}</th><th>{{ tr("VaR 99.5%") }}</th><th>{{ tr("TVaR 99%") }}</th></tr></thead>
-    <tbody>{% for r in mm.mack.ranges %}<tr><td>{{ tr(r.measure) }}</td><td>{{ r.reserve }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}{% if not r.cells %}<td class="text" colspan="5">{{ tr("not shown: the reserve is not positive or the standard error is zero") }}</td>{% endif %}</tr>{% endfor %}</tbody>
-  </table></div>{% else %}<p>{{ tr("No range: the Mack standard error (MT06) did not run on this line, so no reserve range is given. A range needs more origin periods than are loaded.") }}</p>{% endif %}
+    <tbody>{% for r in mm.mack.ranges %}<tr><td>{{ r.label }}</td><td>{{ r.reserve }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}{% if not r.cells %}<td class="text" colspan="5">{{ tr("not shown: the reserve is not positive or the standard error is zero") }}</td>{% endif %}</tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="footnote">{{ tr("Mack range: {coverage}.", coverage=l.range_coverage) }}</p>{% else %}<p>{{ tr("No range: the Mack standard error (MT06) did not run on this line, so no reserve range is given. A range needs more origin periods than are loaded.") }}</p>{% endif %}
 
   {% if mm.inflation %}<h3>{{ tr("Inflation-adjusted chain ladder") }}</h3>
   <div class="scroll"><table>

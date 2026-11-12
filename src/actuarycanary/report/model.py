@@ -31,7 +31,7 @@ from actuarycanary.modules.runner import AnalysisResult, ModuleOutcome, ModuleSt
 from actuarycanary.modules.uncertainty import UncertaintyResult
 from actuarycanary.quality.model import QualityReport
 from actuarycanary.quality.output import show_score
-from actuarycanary.report import charts, language, numbers
+from actuarycanary.report import charts, coverage, language, numbers
 from actuarycanary.report.expenses_section import add_expense_facts, expenses_page
 from actuarycanary.report.facts import (
     FactSet,
@@ -51,6 +51,7 @@ from actuarycanary.report.language import t
 from actuarycanary.report.large_loss_section import large_loss_page
 from actuarycanary.report.methods_section import assumption_rows, group_methods
 from actuarycanary.report.phase2_facts import add_line_facts, add_run_facts, add_segment_facts
+from actuarycanary.report.quality_section import failed_rules
 from actuarycanary.report.recoveries_section import add_recovery_facts, recoveries_page
 from actuarycanary.report.sensitivity_section import sensitivity_page
 from actuarycanary.report.survival_section import survival_page
@@ -436,6 +437,7 @@ def _tiles(r: ReportInputs, spec: _Specs, segment_sets: dict[str, FactSet]) -> l
 
 
 def _quality_tile(r: ReportInputs, spec: _Specs) -> dict[str, str]:
+    failed, checks = failed_rules(r.quality)
     return _tile(
         t("Data quality score"),
         f"{show_score(r.quality.overall)} / 100",
@@ -443,9 +445,13 @@ def _quality_tile(r: ReportInputs, spec: _Specs) -> dict[str, str]:
         t("no earlier run to compare"),
         t("{spec} · {rules} rules", spec=spec("DQ01"), rules=r.quality.overall.rules),
         t(
-            "{blocking} blocking, {warning} warning findings",
+            "{blocking} blocking, {warning} warning findings; {failed} of {rules} rules failed "
+            "({checks} failed checks). The score measures cleanliness, not fitness for reserving.",
             blocking=r.quality.count("BLOCKING"),
             warning=r.quality.count("WARNING"),
+            failed=numbers.count(failed),
+            rules=r.quality.overall.rules,
+            checks=numbers.count(checks),
         ),
     )
 
@@ -904,7 +910,10 @@ def _reserving(
         if method_figure is not None:
             ids["methods"] = f"{anchor}-methods"
             figures[ids["methods"]] = method_figure
-        range_figure = charts.reserve_range(group, currency)
+        mack_coverage = coverage.sentence(
+            coverage.observed(r.tables, coverage.MACK_METHOD, *group.group[:2])
+        )
+        range_figure = charts.reserve_range(group, currency, mack_coverage)
         if range_figure is not None:
             ids["range"] = f"{anchor}-range"
             figures[ids["range"]] = range_figure
@@ -929,6 +938,7 @@ def _reserving(
                 },
                 "methods": _methods_with_tier_b(r, group),
                 "tier_b": line_tier_b(r.tables, group, spec),
+                "range_coverage": mack_coverage,
                 "thin_cells": thin_cells,
                 "findings": line_findings.get(anchor, []),
                 "summary": summary[-1],
@@ -1341,6 +1351,10 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
             **_reserving(r, spec, figures, line_findings),
         },
         "not_run": _not_run(r),
+        "module_runs": {
+            o.module: {"state": t(o.state.value), "why": "; ".join(t(x) for x in o.reasons)}
+            for o in r.analysis.modules
+        },
         "data_findings": [
             {
                 "rule": f.rule,

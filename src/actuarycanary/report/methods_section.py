@@ -17,6 +17,7 @@ from actuarycanary.methods.mack import Mack, applied_to_selected
 from actuarycanary.methods.selection import Selection
 from actuarycanary.modules.reserving import SELECTION_MEASURE, GroupReserving
 from actuarycanary.report import numbers
+from actuarycanary.report.charts import range_row_label
 from actuarycanary.report.language import t
 from actuarycanary.structures.triangles import MEASURES
 
@@ -170,11 +171,19 @@ def _mack(group: GroupReserving) -> dict[str, Any] | None:
         )
         shown = applied_to_selected(f.total_coefficient_of_variation, reserve)
         if shown.range is None:
-            ranges.append({"measure": measure, "reserve": numbers.amount(reserve), "cells": []})
+            ranges.append(
+                {
+                    "measure": measure,
+                    "label": range_row_label(measure),
+                    "reserve": numbers.amount(reserve),
+                    "cells": [],
+                }
+            )
             continue
         ranges.append(
             {
                 "measure": measure,
+                "label": range_row_label(measure),
                 "reserve": numbers.amount(reserve),
                 "cells": [numbers.amount(shown.range.percentiles[p]) for p in PERCENTILES]
                 + [

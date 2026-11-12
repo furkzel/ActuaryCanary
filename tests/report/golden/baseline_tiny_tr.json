@@ -294,7 +294,7 @@
   "rows": [
    {
     "label": "Çalıştırma kimliği",
-    "value": "d42fe1b25de13deb"
+    "value": "ccc81ac39b2fb50d"
    },
    {
     "label": "Değerleme tarihi",
@@ -4499,7 +4499,7 @@
    }
   }
  },
- "findings_spec": "RP01 v1.3.0",
+ "findings_spec": "RP01 v1.3.2",
  "further_findings": [
   {
    "banner": false,
@@ -4671,7 +4671,7 @@
    "specs": [
     "RT01"
    ],
-   "text": "LIFE: nihai hasar prim oranı 2024 kaynak yılı için %68,6 iken 2025 kaynak yılı için %105,4 değerine yükseldi.",
+   "text": "LIFE: nihai hasar prim oranı 2024 kaynak yılı için %68,6 iken 2025 kaynak yılı için %105,4 değerine yükseldi; yalnızca bu iki kaynak yılı karşılaştırılır: sonuncusu, bir öncekiyle.",
    "title": "Hasar prim oranı yükseldi"
   },
   {
@@ -5277,6 +5277,44 @@
    "title": "Geçmiş seçimlerin geriye dönük testi"
   }
  ],
+ "module_runs": {
+  "M01": {
+   "state": "çalıştı",
+   "why": ""
+  },
+  "M02": {
+   "state": "çalıştı",
+   "why": ""
+  },
+  "M03": {
+   "state": "sınırlı",
+   "why": "MT17 severity fits did not run for NON_LIFE / MOTOR_TPL: 22 claims, fewer than 50; MT17 severity fits did not run for LIFE / GROUP_TERM_LIFE: 34 claims, fewer than 50; MT17 severity fits did not run for NON_LIFE / PROPERTY: 4 claims, fewer than 50; MT19 survival analysis: no Cox model for LIFE: no covariate varies between the claims of the segment"
+  },
+  "M04": {
+   "state": "sınırlı",
+   "why": "MT06 Mack standard error did not run for 8 of 8 triangles: too few link ratios to estimate variance; MT11 bootstrap did not run for 4 of 4 groups: the bootstrap needs a chain ladder on at least 5 origin periods; MT12 Munich chain ladder did not run for 4 of 4 groups: Munich chain ladder needs at least 5 origin periods; MT14 tail factor fitting did not run for 7 of 8 triangles: too few factors above 1 to fit a tail; MT15 separation did not run for 1 of 4 groups: separation needs claim counts per origin"
+  },
+  "M05": {
+   "state": "çalıştı",
+   "why": ""
+  },
+  "M06": {
+   "state": "sınırlı",
+   "why": "MT08: 6 groups have too few values to score; MT09: 1 group has too few claims to score; MT18 extreme values did not run for LIFE / GROUP_TERM_LIFE: 37 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8); MT18 extreme values did not run for NON_LIFE / MOTOR_TPL: 44 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8); MT18 extreme values did not run for NON_LIFE / PROPERTY: 5 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8); MT18 extreme values did not run for NON_LIFE / MOTOR_OD: 67 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)"
+  },
+  "M07": {
+   "state": "çalıştı",
+   "why": ""
+  },
+  "M09": {
+   "state": "çalıştı",
+   "why": ""
+  },
+  "M12": {
+   "state": "sınırlı",
+   "why": "RS04: no discounted figures: no curve is named: name one with --curve or a register entry (CV10, curve_id); RS05: no simulated reserve distribution: LIFE / GROUP_TERM_LIFE: MT06 did not run: no Mack range; LIFE / GROUP_TERM_LIFE: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / MOTOR_OD: MT06 did not run: no Mack range; NON_LIFE / MOTOR_OD: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / MOTOR_TPL: MT06 did not run: no Mack range; NON_LIFE / MOTOR_TPL: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / PROPERTY: MT06 did not run: no Mack range; NON_LIFE / PROPERTY: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; LIFE / GROUP_TERM_LIFE: MT06 did not run: no Mack range; LIFE / GROUP_TERM_LIFE: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / MOTOR_OD: MT06 did not run: no Mack range; NON_LIFE / MOTOR_OD: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / MOTOR_TPL: MT06 did not run: no Mack range; NON_LIFE / MOTOR_TPL: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / PROPERTY: MT06 did not run: no Mack range; NON_LIFE / PROPERTY: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range"
+  }
+ },
  "not_run": {
   "modules": [
    {
@@ -6109,6 +6147,7 @@
        "fits": {
         "claims": "34",
         "family": "",
+        "no_fit": false,
         "quantiles": [
          "–",
          "–",
@@ -6139,6 +6178,7 @@
        "fits": {
         "claims": "61",
         "family": "lognormal",
+        "no_fit": false,
         "quantiles": [
          "198.549",
          "993.611",
@@ -6210,6 +6250,7 @@
        "fits": {
         "claims": "22",
         "family": "",
+        "no_fit": false,
         "quantiles": [
          "–",
          "–",
@@ -6240,6 +6281,7 @@
        "fits": {
         "claims": "4",
         "family": "",
+        "no_fit": false,
         "quantiles": [
          "–",
          "–",
@@ -6862,9 +6904,11 @@
     "blocks": [
      {
       "basis": "NOMINAL",
+      "bridge": null,
       "headline": [],
       "histograms": [],
       "label": "nominal",
+      "present_values": [],
       "range_figure": "",
       "ranges": []
      }
@@ -6898,11 +6942,13 @@
     "discount_reason": "no curve is named: name one with --curve or a register entry (CV10, curve_id)",
     "discounted": false,
     "footnotes": {
+     "bridge": "Simüle edilen üçgende tamamen gelişmiş olan bir kaynak yılı simüle edilmiş gelişim taşımaz ve seçilen ödenmemişi sıfır olmasa da simülasyonda sıfır kalır (kayıtlar 0325, 0349); seçilen ödenmemişi simüle ortalamanın dışında kalır ve listelenir. Kalan fark, diğer kaynak yılları için simülasyon ortalaması eksi bunların seçilen ödenmemişidir: simülasyon seçilen ödenmemişe ölçeklendiğinde sıfır, aksi halde örnekleme farkı. Satırlar yuvarlamadan önce toplanır.",
      "calibration": "Sonradan bilinen gerçekleşenin, daha önceki bir değerlemede verilen aralığın içine düşen payı, branşlar üzerinden toplanarak (back_test.csv içindeki AE02 satırları, MT22 v1.0.0, AE02 v1.0.0). Model verisindeki kapsama kayıt 0075 (Mack), 0282 (bootstrap) ve 0325'tedir (bu modül); Mack aralıklarının enflasyon etkili veya uzun kuyruklu branşlarda fazla dar olduğu bilinmektedir (kayıt 0062).",
      "cash_flows": "Seçilen ödenmemişin değerleme tarihinden sonraki dönemlere göre beklenen ödemeleri, tüm branşlar toplanarak (RS04 v1.1.0, CV10 v1.1.0); risk_cash_flows.csv satırları.",
      "figure": "Aralıklar aralık olarak çizilmiştir: açık çubuk medyandan 99,5. yüzdeliğe, koyu çubuk 75.'den 95.'ye, ortalama elmas işaretiyle.",
-     "headline": "Rezerv, M12'nin aralık verdiği seçilen ödenmemiştir (RS02 ile MT10): branşta çalıştıysa bootstrap (RS05 v1.1.0, MT11 v1.2.0), yoksa Mack yaklaşımı (RS03 v1.1.0, MT06 v1.1.0); 5. yüzdelik risk_distribution.parquet dosyasından veya RS03'ün lognormal dağılımından gelir. Gösterge niteliğinde aralıklardır, asla sermaye gereksinimi değildir.",
-     "histogram": "Simüle edilen rezervin histogramı (RS05 v1.1.0); çizgiler risk_measures.csv satırının ortalamasını, VaR ve TVaR değerini gösterir; simülasyonlar risk_distribution.parquet içinde.",
+     "headline": "Seçilen ödenmemiş (RS02 ile MT10) çalıştırmanın tek toplamıdır; aralığın ortalaması M12'nin simülasyonunun ortalamasıdır: branşta çalıştıysa bootstrap (RS05 v1.1.0, MT11 v1.2.0), yoksa Mack yaklaşımı (RS03 v1.1.0, MT06 v1.1.0). İkisi arasındaki fark, aralıkların altındaki tablonun adımlarıyla açıklanır. 5. yüzdelik risk_distribution.parquet dosyasından veya RS03'ün lognormalinden gelir. Gösterge niteliğinde aralıklar; asla sermaye gereksinimi değil.",
+     "histogram": "Simüle edilen rezervin histogramı (RS05 v1.1.0); çizgiler risk_measures.csv satırının ortalamasını, VaR ve TVaR değerini gösterir; simülasyonların tümü risk_distribution.parquet içindedir. Birkaç uç çekiliş şekli gizlemesin diye eksen 0,5. ve 99,5. yüzdelikte kesilir; her histogramın açıklaması uç değerleri verir.",
+     "present_values": "risk_measures.csv'nin expected_cash_flows satırları (RS04 v1.1.0, CV10 v1.1.0): seçilen ödenmemiş eksi indirgeme etkisi, bugünkü değeridir. Yukarıdaki tablodaki simüle ortalamalar bu nakit akışlarının değil simülasyonun ortalamalarıdır; bu yüzden iki indirgeme etkisi farklıdır.",
      "ranges": "risk_measures.csv içindeki Total ve All lines satırları (RS03 v1.1.0, RS05 v1.1.0, M12 v1.1.1). VaR %99,5'te ve TVaR %99'da; iki kaynak da seçilen rezervin belirsizliğine yaklaşımdır ve dosyada böyle etiketlenmiştir."
     },
     "notes": [
@@ -6984,7 +7030,7 @@
   "basis": "",
   "change": "–",
   "label": "Veri kalitesi puanı",
-  "note": "0 engelleyici, 6 uyarı bulgusu",
+  "note": "0 engelleyici, 6 uyarı bulgusu; 63 kuraldan 8 tanesi başarısız (29 başarısız kontrol). Skor veri temizliğini ölçer, rezervleme için uygunluğu ölçmez.",
   "source": "DQ01 v1.0.0 · 63 kural",
   "value": "99.9 / 100"
  },
@@ -7354,7 +7400,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "d42fe1b25de13deb",
+  "run_id": "ccc81ac39b2fb50d",
   "settings": [
    {
     "name": "bases.currency",
@@ -8183,7 +8229,7 @@
    {
     "id": "RP01",
     "title": "Temel bulgu kuralları",
-    "version": "1.3.0"
+    "version": "1.3.2"
    }
   ]
  },
@@ -8583,6 +8629,7 @@
     },
     "name": "LIFE · GROUP_TERM_LIFE",
     "origins": 4,
+    "range_coverage": "%90 aralık; geriye dönük test yok",
     "segment": "LIFE",
     "summary": {
      "anchor": "line-0",
@@ -9183,6 +9230,7 @@
     },
     "name": "NON_LIFE · MOTOR_OD",
     "origins": 4,
+    "range_coverage": "%90 aralık; geriye dönük test yok",
     "segment": "NON_LIFE",
     "summary": {
      "anchor": "line-1",
@@ -9880,6 +9928,7 @@
     },
     "name": "NON_LIFE · MOTOR_TPL",
     "origins": 4,
+    "range_coverage": "%90 aralık; geriye dönük test yok",
     "segment": "NON_LIFE",
     "summary": {
      "anchor": "line-2",
@@ -10511,6 +10560,7 @@
     },
     "name": "NON_LIFE · PROPERTY",
     "origins": 4,
+    "range_coverage": "%90 aralık; geriye dönük test yok",
     "segment": "NON_LIFE",
     "summary": {
      "anchor": "line-3",

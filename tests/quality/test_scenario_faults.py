@@ -2,6 +2,7 @@
 and the data rules (F1bc stage 5): the messy layouts give the clean canonical data, and every
 fault the generator wrote into the four feeds is found with the count of the truth."""
 
+from functools import cache
 from pathlib import Path
 
 import polars as pl
@@ -27,30 +28,49 @@ def _counts(report) -> dict[str, int]:
     return counts
 
 
+@cache
+def _checked_truth(folder: Path) -> tuple[tuple[str, int], ...]:
+    return tuple(
+        (v.rule, v.count)
+        for v in check_folder(folder, later_feeds=True)
+        if v.rule.startswith(RULES)
+    )
+
+
 def _truth(folder: Path) -> dict[str, int]:
     """Counts of the generator's checker for the rules of the four feeds."""
-    return {
-        v.rule: v.count for v in check_folder(folder, later_feeds=True) if v.rule.startswith(RULES)
-    }
+    return dict(_checked_truth(folder))
 
 
 @pytest.fixture(scope="module", params=["baseline", "reinsurance_heavy"])
 def clean(request, scenario_folder, scenario_checked):
     folder = scenario_folder(request.param)
     feeds, report = scenario_checked(request.param)
+    _checked_truth(folder)  # the checker of the generator runs here, not in the first test
     return request.param, folder, feeds, report
+
+
+@pytest.fixture(scope="module", params=MESSY)
+def messy(request, scenario_folder, scenario_checked):
+    """A messy scenario, mapped and checked once for all the tests of this module (the cost
+    falls into the fixture, not into the first test that asks for it)."""
+    folder = scenario_folder(request.param)
+    feeds, report = scenario_checked(request.param)
+    return request.param, folder, feeds, report
+
+
+@pytest.fixture(scope="module")
+def life_book_report(scenario_checked):
+    return scenario_checked("life_book")[1]
 
 
 # --- the messy layouts map to the clean canonical data ------------------------------------
 
 
-@pytest.mark.parametrize("scenario", MESSY)
 @pytest.mark.parametrize("concept", NEW)
-def test_a_messy_feed_maps_to_the_canonical_data_of_the_generator(
-    scenario, concept, scenario_folder, scenario_checked
-) -> None:
-    feeds, _ = scenario_checked(scenario)
-    expected = pl.read_parquet(scenario_folder(scenario) / "canonical" / f"{concept}.parquet")
+def test_a_messy_feed_maps_to_the_canonical_data_of_the_generator(concept, messy) -> None:
+    scenario, folder, feeds, _ = messy
+    expected = pl.read_parquet(folder / "canonical" / f"{concept}.parquet")
     got = feeds[concept].frame.drop(SOURCE_COLUMNS)
     # the ledger header CERDIT is one swapped letter in six: too short for the fuzzy layer, so
     # the column waits for the user (record 0390, tests/recognition/test_new_feeds.py)
@@ -63,13 +83,12 @@ def test_a_messy_feed_maps_to_the_canonical_data_of_the_generator(
     assert got.sort(keys).equals(expected.sort(keys)), concept
 
 
-@pytest.mark.parametrize("scenario", MESSY)
 def test_the_messy_scenarios_have_the_findings_of_their_clean_scenario(
-    scenario, scenario_checked
+    messy, life_book_report
 ) -> None:
     """messy_headers and messy_incremental start from life_book: other headers, labels, date
     texts and title rows, the same data and so the same findings."""
-    assert _counts(scenario_checked(scenario)[1]) == _counts(scenario_checked("life_book")[1])
+    assert _counts(messy[3]) == _counts(life_book_report)
 
 
 # --- every fault of the truth is found with its count ---------------------------------------

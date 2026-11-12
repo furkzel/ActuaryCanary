@@ -172,6 +172,8 @@ def add_run_facts(facts: FactSet, uncertainty: UncertaintyResult | str | None) -
         _put(facts, "range_reserve", mean, "amount")
         _put(facts, "range_p95", p95, "amount")
         _put(facts, "range_source", str(ranged["source"]).replace("_", " "), "text")
+        # the one total of the run, called the selected unpaid of all lines (A1a, record 0752)
+        _put(facts, "range_selected", sum(x.selected_total for x in uncertainty.lines), "amount")
         if mean and p95 is not None:
             _put(facts, "range_upper_width", p95 / mean - 1, "ratio")
     expected = next(

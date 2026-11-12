@@ -223,6 +223,21 @@ def chain_ladder_diagnostics(
     )
 
 
+IBNR_ABSOLUTE_TOLERANCE = 0.005  # half a cent: below it the IBNR is shown as 0.00 (record 0751)
+IBNR_RELATIVE_TOLERANCE = 1e-9  # of the ultimate: rounding noise of sums of large amounts
+
+
+def below_incurred(ultimate: np.ndarray, incurred: np.ndarray) -> np.ndarray:
+    """True where the ultimate is below the incurred to date by more than the tolerance: the
+    larger of IBNR_ABSOLUTE_TOLERANCE and IBNR_RELATIVE_TOLERANCE times the ultimate (A1a,
+    record 0751). Not finite values are never flagged. No estimate depends on it."""
+    u = np.asarray(ultimate, dtype=float)
+    c = np.asarray(incurred, dtype=float)
+    with np.errstate(invalid="ignore"):
+        tolerance = np.maximum(IBNR_ABSOLUTE_TOLERANCE, IBNR_RELATIVE_TOLERANCE * np.abs(u))
+        return np.isfinite(u) & np.isfinite(c) & (u - c < -tolerance)
+
+
 def negative_ibnr(
     method: str,
     ultimate: np.ndarray,
@@ -230,11 +245,13 @@ def negative_ibnr(
     origins: Sequence[str],
     basis: str = "paid",
 ) -> list[Diagnostic]:
-    """Origins whose ultimate is below the incurred to date (for example a paid ultimate)."""
+    """Origins whose ultimate is below the incurred to date (for example a paid ultimate) by more
+    than the tolerance of `below_incurred`."""
     found: list[Diagnostic] = []
+    flagged = below_incurred(np.asarray(ultimate, dtype=float), np.asarray(incurred, dtype=float))
     for i, origin in enumerate(origins):
         u, c = ultimate[i], incurred[i]
-        if np.isfinite(u) and u < c:
+        if flagged[i]:
             found.append(
                 Diagnostic(
                     method,

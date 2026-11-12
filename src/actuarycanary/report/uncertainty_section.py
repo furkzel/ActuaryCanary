@@ -12,6 +12,7 @@ between the bases the run computed without a new run (record 0344). Numbers are 
 
 import math
 from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
@@ -26,9 +27,10 @@ from actuarycanary.modules.uncertainty import (
     MACK_SOURCE,
     NOMINAL,
     TOTAL,
+    LineRisk,
     UncertaintyResult,
 )
-from actuarycanary.report import numbers
+from actuarycanary.report import coverage, numbers
 from actuarycanary.report.charts import INK, MUTED, _layout, _round
 from actuarycanary.report.frames import table, text, value
 from actuarycanary.report.language import t
@@ -36,6 +38,7 @@ from actuarycanary.report.language import t
 BASES = (NOMINAL, DISCOUNTED)
 BINS = 40  # bars of the histogram of the simulated reserve
 LOW = 0.05  # the headline range: 5th to 95th percentile
+LEFT_OUT_FLOOR = 0.005  # a selected unpaid below half a cent is rounding noise, not an origin
 BASIS_TOKENS = {NOMINAL: "--value-nominal", DISCOUNTED: "--value-discounted"}
 SOURCE_LABELS = {
     MACK_SOURCE: "Mack, lognormal approximation (RS03)",
@@ -79,9 +82,41 @@ def _sims(distribution: pl.DataFrame, column: str) -> np.ndarray | None:
     return distribution[column].drop_nulls().to_numpy().astype(float)
 
 
-def headline(risk: pl.DataFrame, distribution: pl.DataFrame, basis: str) -> list[dict[str, Any]]:
-    """Per line and for all lines: the reserve with its 5th to 95th percentile and the
-    coefficient of variation, from the bootstrap where it ran, else from Mack."""
+def _coverage_text(
+    tables: Mapping[str, pl.DataFrame] | None, source: str, segment: str, line: str
+) -> str:
+    """The back-test coverage of the range of this source for this line, or pooled over all
+    lines (R12); empty for the expected cash flows, which carry no range."""
+    method = {MACK_SOURCE: coverage.MACK_METHOD, BOOTSTRAP_SOURCE: coverage.BOOTSTRAP_METHOD}.get(
+        source
+    )
+    if method is None or tables is None:
+        return ""
+    where = (None, None) if segment == ALL_LINES else (segment, line)
+    return coverage.sentence(coverage.observed(tables, method, *where))
+
+
+def selected_totals(lines: tuple[LineRisk, ...]) -> dict[tuple[str, str], float]:
+    """The selected unpaid per line and, added, of all lines: the one total of the run that
+    every table and sentence calls "the selected unpaid" (A1a, R07, record 0752)."""
+    totals = {line.key: line.selected_total for line in lines}
+    if totals:
+        totals[(ALL_LINES, ALL_LINES)] = sum(totals.values())
+    return totals
+
+
+def headline(
+    risk: pl.DataFrame,
+    distribution: pl.DataFrame,
+    basis: str,
+    selected: Mapping[tuple[str, str], float] | None = None,
+    tables: Mapping[str, pl.DataFrame] | None = None,
+) -> list[dict[str, Any]]:
+    """Per line and for all lines: the selected unpaid and the mean of the range with its 5th to
+    95th percentile and the coefficient of variation, from the bootstrap where it ran, else
+    from Mack. On the discounted basis the row also holds the nominal mean of the same range
+    and the discount effect on that mean, so that nominal mean less effect is the mean shown
+    (R06): the discount effect of the expected cash flows (RS04) is in `present_values`."""
     out = []
     rows = _totals(risk)
     keys = list(dict.fromkeys((r["segment"], r["line"]) for r in rows))
@@ -105,11 +140,16 @@ def headline(risk: pl.DataFrame, distribution: pl.DataFrame, basis: str) -> list
             low = float(np.quantile(sims, LOW)) if sims is not None and sims.size else None
         elif mack is not None:
             low = _lognormal_low(value(mack["mean"]), value(mack["standard_deviation"]))
-        reserve = value((chosen or expected or {}).get("mean"))
+        shown = chosen or expected or {}
+        reserve = value(shown.get("mean"))
+        before, effect = value(shown.get("nominal_mean")), value(shown.get("discount_effect"))
         out.append(
             {
                 "line": _line_name(segment, line),
+                "selected": numbers.amount((selected or {}).get((segment, line))),
                 "reserve": numbers.amount(reserve),
+                "nominal": numbers.amount(before),
+                "effect": numbers.amount(effect),
                 "low": numbers.amount(low),
                 "high": numbers.amount(value(chosen["p95"])) if chosen else numbers.EMPTY,
                 "cv": numbers.ratio(value(chosen["coefficient_of_variation"]))
@@ -118,13 +158,148 @@ def headline(risk: pl.DataFrame, distribution: pl.DataFrame, basis: str) -> list
                 "source": t(SOURCE_LABELS[chosen["source"]])
                 if chosen
                 else t(SOURCE_LABELS[EXPECTED_SOURCE]),
-                "effect": numbers.amount(value(expected["discount_effect"])) if expected else "",
+                "coverage": _coverage_text(tables, chosen["source"], segment, line)
+                if chosen
+                else "",
             }
         )
     return out
 
 
-def ranges(risk: pl.DataFrame, basis: str) -> list[dict[str, Any]]:
+def present_values(risk: pl.DataFrame) -> list[dict[str, Any]]:
+    """The present value of the selected unpaid by the expected cash flows (RS04), per line and
+    for all lines: selected unpaid less the discount effect is the present value. One
+    definition in the table (R06); the simulated means are in the table above it."""
+    out = []
+    for r in _totals(risk):
+        if r["source"] != EXPECTED_SOURCE or r["value_basis"] != DISCOUNTED:
+            continue
+        out.append(
+            {
+                "line": _line_name(r["segment"], r["line"]),
+                "selected": numbers.amount(value(r["nominal_mean"])),
+                "effect": numbers.amount(value(r["discount_effect"])),
+                "present": numbers.amount(value(r["mean"])),
+            }
+        )
+    return out
+
+
+@dataclass(frozen=True)
+class Bridge:
+    """From the selected unpaid of a line to the mean of its simulation (R05, record 0752)."""
+
+    selected: float
+    left_out: float  # selected unpaid of the origins that carry no simulated development
+    left_out_origins: tuple[tuple[str, float], ...]
+    other: (
+        float  # what is left: the simulation mean of the other origins less their selected unpaid
+    )
+    mean: float  # the simulated mean
+
+    @property
+    def balance(self) -> float:
+        """selected - left out + other; equal to the simulated mean."""
+        return self.selected - self.left_out + self.other
+
+
+def bridge_of(origins: tuple[str, ...], selected: np.ndarray, origin_sims: np.ndarray) -> Bridge:
+    """The bridge of one line from its selected unpaid per origin and its simulations per
+    origin (simulations x origins, scaled as M12 scales them). An origin is left out when it has
+    a selected unpaid of half a cent or more but a simulated mean of zero: it is fully developed
+    in the simulated triangle, carries no simulated development and keeps zero in the simulation
+    (0325, 0349)."""
+    means = origin_sims.mean(axis=0)
+    picked = np.nan_to_num(selected, nan=0.0)
+    out = (np.abs(picked) >= LEFT_OUT_FLOOR) & (np.abs(means) < LEFT_OUT_FLOOR)
+    left = tuple((origins[i], float(picked[i])) for i in np.nonzero(out)[0])
+    total, left_out, mean = float(picked.sum()), float(picked[out].sum()), float(means.sum())
+    return Bridge(total, left_out, left, mean - (total - left_out), mean)
+
+
+def _discounted_means(risk: pl.DataFrame) -> dict[tuple[str, str], float]:
+    return {
+        (r["segment"], r["line"]): value(r["mean"]) or 0.0
+        for r in _totals(risk)
+        if r["source"] == BOOTSTRAP_SOURCE and r["value_basis"] == DISCOUNTED
+    }
+
+
+def bridge_table(result: UncertaintyResult, basis: str) -> dict[str, Any] | None:
+    """Steps as rows, the lines and all lines as columns: selected unpaid, less the origins
+    without simulated development, plus the remaining difference, equals the simulated mean;
+    on the discounted basis the discount effect on the simulated mean in its own row."""
+    columns: list[tuple[str, Bridge | None, float | None]] = []
+    discounted = _discounted_means(result.risk) if basis == DISCOUNTED else {}
+    for line in result.lines:
+        if line.origin_sims is None:
+            columns.append((_line_name(*line.key), None, None))
+            continue
+        found = bridge_of(line.origins, line.selected_unpaid, line.origin_sims)
+        columns.append((_line_name(*line.key), found, discounted.get(line.key)))
+    done = [c for c in columns if c[1] is not None]
+    if not done:
+        return None
+    if len(done) == len(columns) and len(columns) > 1:
+        total = Bridge(
+            sum(c[1].selected for c in done),  # type: ignore[union-attr]
+            sum(c[1].left_out for c in done),  # type: ignore[union-attr]
+            (),
+            sum(c[1].other for c in done),  # type: ignore[union-attr]
+            sum(c[1].mean for c in done),  # type: ignore[union-attr]
+        )
+        columns.append(
+            (
+                t(ALL_LINES),
+                total,
+                (
+                    sum(c[2] or 0.0 for c in done)
+                    if basis == DISCOUNTED and all(c[2] is not None for c in done)
+                    else None
+                ),
+            )
+        )
+
+    def cells(pick: Callable[[Bridge, float | None], float | None]) -> list[str]:
+        return [
+            numbers.amount(pick(b, d)) if b is not None else numbers.EMPTY for _, b, d in columns
+        ]
+
+    steps = [
+        (t("Selected unpaid"), cells(lambda b, d: b.selected)),
+        (t("less the origins without simulated development"), cells(lambda b, d: -b.left_out)),
+        (
+            t("plus the difference of the simulation for the other origins"),
+            cells(lambda b, d: b.other),
+        ),
+        (t("Mean of the simulation, nominal"), cells(lambda b, d: b.mean)),
+    ]
+    if basis == DISCOUNTED:
+        steps += [
+            (
+                t("less the discount effect on the simulated mean (RS05)"),
+                cells(lambda b, d: None if d is None else d - b.mean),
+            ),
+            (t("Mean of the simulation, present value"), cells(lambda b, d: d)),
+        ]
+    left = [
+        {
+            "line": _line_name(*line.key),
+            "origin": origin,
+            "amount": numbers.amount(amount),
+        }
+        for line in result.lines
+        if line.origin_sims is not None
+        for origin, amount in bridge_of(
+            line.origins, line.selected_unpaid, line.origin_sims
+        ).left_out_origins
+    ]
+    return {"heads": [c[0] for c in columns], "steps": steps, "left_out": left}
+
+
+def ranges(
+    risk: pl.DataFrame, basis: str, tables: Mapping[str, pl.DataFrame] | None = None
+) -> list[dict[str, Any]]:
     """RS03 and RS05 side by side per line and for all lines on one basis."""
     out = []
     for r in _totals(risk):
@@ -144,6 +319,7 @@ def ranges(risk: pl.DataFrame, basis: str) -> list[dict[str, Any]]:
                     numbers.amount(value(r["tail_value_at_risk"])),
                 ],
                 "simulations": numbers.count(value(r["simulations"])),
+                "coverage": _coverage_text(tables, str(r["source"]), r["segment"], r["line"]),
                 "label": text(r["label"]),
                 "note": text(r["note"]),
             }
@@ -151,7 +327,12 @@ def ranges(risk: pl.DataFrame, basis: str) -> list[dict[str, Any]]:
     return out
 
 
-def range_figure(risk: pl.DataFrame, basis: str, currency: str) -> dict[str, Any] | None:
+def range_figure(
+    risk: pl.DataFrame,
+    basis: str,
+    currency: str,
+    tables: Mapping[str, pl.DataFrame] | None = None,
+) -> dict[str, Any] | None:
     """The ranges drawn as ranges: a light bar from the median to the 99.5th percentile, a dark
     bar from the 75th to the 95th, the mean as a diamond, one row per line and source."""
     rows = [
@@ -169,6 +350,21 @@ def range_figure(risk: pl.DataFrame, basis: str, currency: str) -> dict[str, Any
     for r in rows:
         source = t("bootstrap") if r["source"] == BOOTSTRAP_SOURCE else t("Mack")
         label = f"{_line_name(r['segment'], r['line'])} · {source}"
+        if r["source"] == MACK_SOURCE and tables is not None:
+            found = coverage.observed(
+                tables,
+                coverage.MACK_METHOD,
+                *((None, None) if r["segment"] == ALL_LINES else (r["segment"], r["line"])),
+            )
+            label += (
+                " ("
+                + (
+                    t("back-test coverage {share}", share=numbers.ratio(found.share))
+                    if found
+                    else t("no back-test")
+                )
+                + ")"
+            )
         labels.append(label)
         for low, high, width, opacity, name in (
             ("p50", "p99_5", 8, 0.35, t("median to 99.5th percentile")),
@@ -217,11 +413,18 @@ def range_figure(risk: pl.DataFrame, basis: str, currency: str) -> dict[str, Any
     }
 
 
+AXIS_LOW, AXIS_HIGH = 0.005, 0.995  # the histogram axis: 0.5th to 99.5th percentile (R21)
+
+
 def histogram(
     risk: pl.DataFrame, distribution: pl.DataFrame, basis: str, currency: str
-) -> list[tuple[str, dict[str, Any]]]:
+) -> list[tuple[str, dict[str, Any], str]]:
     """One histogram per simulated column on this basis (a line with a bootstrap, and all lines
-    when every line has one), with the mean, VaR and TVaR as vertical lines."""
+    when every line has one), with the mean, VaR and TVaR as vertical lines. A few extreme
+    draws would put nearly all the mass into two bars, so the axis runs from the 0.5th to the
+    99.5th percentile of the simulations; the third item is the caption that states the
+    extremes, the share outside the axis and the marks that fall outside (R21). The
+    simulations in the file stay complete."""
     out = []
     for r in _totals(risk):
         if r["source"] != BOOTSTRAP_SOURCE or r["value_basis"] != basis:
@@ -229,8 +432,12 @@ def histogram(
         sims = _sims(distribution, _column(r["segment"], r["line"], basis))
         if sims is None or not sims.size:
             continue
-        counts, edges = np.histogram(sims, bins=BINS)
+        low, high = (float(x) for x in np.quantile(sims, [AXIS_LOW, AXIS_HIGH]))
+        if high <= low:  # no spread: draw all of it
+            low, high = float(sims.min()), float(sims.max())
+        counts, edges = np.histogram(sims, bins=BINS, range=(low, high))
         centres = (edges[:-1] + edges[1:]) / 2
+        outside = int(((sims < low) | (sims > high)).sum())
         marks = [
             (value(r["mean"]), t("mean"), "solid"),
             (
@@ -244,11 +451,36 @@ def histogram(
                 "dot",
             ),
         ]
+        shown = [m for m in marks if m[0] is not None and low <= m[0] <= high]
+        beyond = [m for m in marks if m[0] is not None and not low <= m[0] <= high]
+        caption = t(
+            "Axis from the 0.5th to the 99.5th percentile of the simulations ({low} to {high}); "
+            "minimum {minimum}, maximum {maximum}; {share} of the {n} simulations are outside "
+            "the axis.",
+            low=numbers.amount(low),
+            high=numbers.amount(high),
+            minimum=numbers.amount(float(sims.min())),
+            maximum=numbers.amount(float(sims.max())),
+            share=numbers.ratio(outside / sims.size),
+            n=numbers.count(sims.size),
+        )
+        if beyond:
+            caption += " " + t(
+                "Beyond the axis: {list}.",
+                list=", ".join(f"{name} {numbers.amount(x)}" for x, name, _ in beyond),
+            )
         layout = _layout(
             t("Simulated reserve, {line}", line=_line_name(r["segment"], r["line"])),
             t("Reserve ({currency})", currency=currency),
             t("Simulations"),
             height=260,
+            xaxis={
+                "title": {"text": t("Reserve ({currency})", currency=currency)},
+                "range": [
+                    _round(low),
+                    _round(high),
+                ],
+            },
         )
         layout["shapes"] = [
             {
@@ -260,8 +492,7 @@ def histogram(
                 "y1": 1,
                 "line": {"color": INK if dash == "solid" else MUTED, "dash": dash, "width": 1.5},
             }
-            for x, _, dash in marks
-            if x is not None
+            for x, _, dash in shown
         ]
         layout["annotations"] = [
             {
@@ -273,8 +504,7 @@ def histogram(
                 "yanchor": "bottom",
                 "font": {"size": 10},
             }
-            for x, name, _ in marks
-            if x is not None
+            for x, name, _ in shown
         ]
         figure = {
             "data": [
@@ -290,7 +520,7 @@ def histogram(
             ],
             "layout": layout,
         }
-        out.append((f"{r['segment']}-{r['line']}", figure))
+        out.append((f"{r['segment']}-{r['line']}", figure, caption))
     return out
 
 
@@ -377,13 +607,21 @@ def curve(result: UncertaintyResult, frame: pl.DataFrame) -> dict[str, Any] | No
     found = result.discount.curve
     if found is None:
         return None
+    inputs = found.input_rates()
+    if found.rate_type == "PAR":
+        kind = t("par rate, annual coupons")
+    elif found.rate_type == "FORWARD":
+        kind = t("one-year forward rate, annually compounded")
+    else:
+        kind = t("spot rate, {compounding}", compounding=found.compounding)
     return {
+        "input_heading": t("Input rate ({kind})", kind=kind),
         "rows": [
             (t("Curve"), found.curve_id),
             (t("Curve date"), found.curve_date.isoformat()),
             (t("Currency"), found.currency),
             (t("Rate type"), found.rate_type),
-            (t("Compounding"), found.compounding),
+            (t("Compounding of the input rate"), found.compounding),
             (t("Source"), found.source or numbers.EMPTY),
             (t("Discount date"), result.discount.discount_date.isoformat()),
             (t("Payment timing"), t(result.discount.timing.value.replace("_", " "))),
@@ -392,11 +630,12 @@ def curve(result: UncertaintyResult, frame: pl.DataFrame) -> dict[str, Any] | No
         "points": [
             {
                 "tenor": numbers.factor(value(r["tenor_years"])),
+                "input": numbers.ratio(float(inputs[i])),
                 "zero": numbers.ratio(value(r["zero_rate"])),
                 "factor": numbers.factor(value(r["discount_factor"])),
                 "forward": numbers.ratio(value(r["forward_rate"])),
             }
-            for r in frame.to_dicts()
+            for i, r in enumerate(frame.to_dicts())
         ],
     }
 
@@ -495,22 +734,32 @@ def uncertainty_page(
     blocks = []
     for basis in bases:
         range_id = f"uncertainty-range-{basis.lower()}"
-        found = range_figure(uncertainty.risk, basis, currency)
+        found = range_figure(uncertainty.risk, basis, currency, tables)
         if found is not None:
             figures[range_id] = found
         histograms = []
-        for key, figure in histogram(uncertainty.risk, uncertainty.distribution, basis, currency):
+        for key, figure, caption in histogram(
+            uncertainty.risk, uncertainty.distribution, basis, currency
+        ):
             figure_id = f"uncertainty-histogram-{basis.lower()}-{key}".replace(" ", "-").replace(
                 "/", "-"
             )
             figures[figure_id] = figure
-            histograms.append(figure_id)
+            histograms.append({"id": figure_id, "caption": caption})
         blocks.append(
             {
                 "basis": basis,
                 "label": t("present value") if basis == DISCOUNTED else t("nominal"),
-                "headline": headline(uncertainty.risk, uncertainty.distribution, basis),
-                "ranges": ranges(uncertainty.risk, basis),
+                "headline": headline(
+                    uncertainty.risk,
+                    uncertainty.distribution,
+                    basis,
+                    selected_totals(uncertainty.lines),
+                    tables,
+                ),
+                "present_values": present_values(uncertainty.risk) if basis == DISCOUNTED else [],
+                "bridge": bridge_table(uncertainty, basis),
+                "ranges": ranges(uncertainty.risk, basis, tables),
                 "range_figure": range_id if found is not None else "",
                 "histograms": histograms,
             }
@@ -534,12 +783,30 @@ def uncertainty_page(
         "notes": list(uncertainty.notes),
         "footnotes": {
             "headline": t(
-                "The reserve is the selected unpaid (RS02 with MT10) as M12 ranges it: the "
-                "bootstrap ({rs05}) where it ran on the line, else the Mack approximation "
-                "({rs03}); the 5th percentile comes from risk_distribution.parquet or the "
-                "lognormal of RS03. Indicative ranges, never capital requirements.",
+                "The selected unpaid (RS02 with MT10) is the one total of the run; the mean of "
+                "the range is the mean of M12's simulation: the bootstrap ({rs05}) where it ran "
+                "on the line, else the Mack approximation ({rs03}). The two differ by the steps "
+                "of the table below the ranges. The 5th percentile comes from "
+                "risk_distribution.parquet or the lognormal of RS03. Indicative ranges, never "
+                "capital requirements.",
                 rs05=spec("RS05", "MT11"),
                 rs03=spec("RS03", "MT06"),
+            ),
+            "present_values": t(
+                "Rows expected_cash_flows of risk_measures.csv ({specs}): the selected unpaid "
+                "less its discount effect is its present value. The simulated means in the "
+                "table above are of the simulation, not of these cash flows, so the two "
+                "discount effects differ.",
+                specs=spec("RS04", "CV10"),
+            ),
+            "bridge": t(
+                "An origin that is fully developed in the simulated triangle carries no "
+                "simulated development and keeps zero in the simulation (records 0325, 0349), "
+                "although its selected unpaid is not zero; its selected unpaid is left out of "
+                "the simulated mean and listed. The remaining difference is the mean of the "
+                "simulation for the other origins less their selected unpaid: zero where the "
+                "simulation is scaled to the selected unpaid, sampling difference otherwise. "
+                "Rows add up before rounding."
             ),
             "ranges": t(
                 "Rows Total and All lines of risk_measures.csv ({specs}). VaR at 99.5% and "
@@ -554,7 +821,9 @@ def uncertainty_page(
             "histogram": t(
                 "Histogram of the simulated reserve ({spec}); the lines mark the mean, the "
                 "VaR and the TVaR of the row in risk_measures.csv; simulations in "
-                "risk_distribution.parquet.",
+                "risk_distribution.parquet, which holds all of them. The axis is cut at the "
+                "0.5th and 99.5th percentile so that a few extreme draws do not hide the shape; "
+                "the caption of each histogram gives the extremes.",
                 spec=spec("RS05"),
             ),
             "cash_flows": t(

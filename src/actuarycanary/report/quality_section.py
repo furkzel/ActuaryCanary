@@ -3,13 +3,14 @@
 from functools import cache
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
+from markupsafe import Markup
 
 from actuarycanary.quality.model import QualityReport, SourceRef
 from actuarycanary.quality.output import show_score
 from actuarycanary.report import language, numbers
 from actuarycanary.report.language import t
 from actuarycanary.report.modules_section import module_title
-from actuarycanary.report.render import TEMPLATE_DIR
+from actuarycanary.report.render import RUN_STATE_MARK, TEMPLATE_DIR
 from actuarycanary.spec.catalogue import SpecCatalogue
 
 SECTION_TEMPLATE = "quality.html.j2"
@@ -25,6 +26,14 @@ def _environment() -> Environment:
     )
     environment.globals.update(tr=language.t, trh=language.th)
     return environment
+
+
+def failed_rules(report: QualityReport) -> tuple[int, int]:
+    """The rules that failed on at least one row, pair or claim, and the failed checks added
+    over them (A1a, R14). A row that fails two rules counts twice; the score DQ01 is built on
+    the same rule scores."""
+    failing = [x for x in report.rules if x.failed > 0]
+    return len(failing), sum(x.failed for x in failing)
 
 
 def _refs(refs: tuple[SourceRef, ...]) -> str:
@@ -48,11 +57,14 @@ def render_quality_section(
         )
         for name, s in group.items()
     ]
+    failed, checks = failed_rules(report)
     return (
         _environment()
         .get_template(SECTION_TEMPLATE)
         .render(
             overall=show_score(report.overall),
+            failed=numbers.count(failed),
+            failed_checks=numbers.count(checks),
             rules=report.overall.rules,
             counts={s: report.count(s) for s in ("BLOCKING", "WARNING", "INFO")},
             spec=lambda spec_id: f"{spec_id} v{dq01_version}",
@@ -77,6 +89,7 @@ def render_quality_section(
                     "title": module_title(catalogue, m.module, m.title),
                     "status": t(m.status),
                     "status_code": m.status,
+                    "run_mark": Markup(RUN_STATE_MARK.format(module=m.module)),
                     "reasons": "; ".join(t(x) for x in m.reasons)
                     + (
                         " " + t("Unavailable: {list}.", list=", ".join(m.unavailable))

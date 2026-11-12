@@ -11,6 +11,7 @@ from actuarycanary.methods.bornhuetter_ferguson import (
     premium_reasons,
 )
 from actuarycanary.methods.chain_ladder import Skipped
+from actuarycanary.methods.diagnostics import below_incurred
 
 
 @dataclass(frozen=True)
@@ -30,7 +31,7 @@ class ExpectedLossRatio:
     @property
     def negative_ibnr(self) -> np.ndarray:
         """Flag per origin (MT05 diagnostic)."""
-        return np.nan_to_num(self.ibnr, nan=0.0) < 0
+        return below_incurred(self.ultimate, self.incurred)
 
 
 def expected_loss_ratio(

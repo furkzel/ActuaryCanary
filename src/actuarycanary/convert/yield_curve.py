@@ -67,9 +67,27 @@ class YieldCurve:
         safe = np.where(t > 0, t, self.tenors[0])
         return self.minus_log_discount(safe) / safe
 
+    def input_rates(self) -> np.ndarray:
+        """The rate of each point in the terms the curve was given in (A1a, record 0751):
+        SPOT in its own compounding, PAR as the par rate with annual coupons, FORWARD as the
+        annually compounded one-year forward rate. For PAR and FORWARD the whole-year points
+        between the given ones are the interpolated ones."""
+        d = np.exp(-self.log_discount)
+        if self.rate_type == PAR:
+            return (1.0 - d) / np.cumsum(d)
+        if self.rate_type != SPOT:
+            return np.asarray(self.table()["forward_rate"].to_numpy())
+        z = self.log_discount / self.tenors
+        if self.compounding == CONTINUOUS:
+            return z
+        if self.compounding == SIMPLE:
+            return np.expm1(self.log_discount) / self.tenors
+        return np.expm1(z)
+
     def table(self) -> pl.DataFrame:
-        """The points of the curve: tenor in years, zero rate, discount factor and the
-        annually compounded one-year forward rate from the previous point."""
+        """The points of the curve: tenor in years, the continuously compounded zero rate, the
+        discount factor D(t) = exp(-z t) and the annually compounded forward rate from the
+        previous point (see `input_rates` for the rate as it was given)."""
         previous = np.concatenate(([0.0], self.log_discount[:-1]))
         gap = np.diff(np.concatenate(([0.0], self.tenors)))
         forward = np.expm1((self.log_discount - previous) / gap)
