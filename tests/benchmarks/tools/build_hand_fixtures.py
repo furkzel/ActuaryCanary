@@ -625,6 +625,31 @@ CLAIMS = [
 ]
 
 
+EVENTS = {3: "E1", 4: "E1", 5: "E1", 9: "E2", 11: "E2"}  # the other claims have no event code
+EVENT_RETENTION, EVENT_LIMIT = 120, 150  # event excess of loss 150 xs 120
+STOP_LOSS_RETENTION, STOP_LOSS_LIMIT = Fr(3, 5), Fr(3, 10)  # 30 % xs 60 % loss ratio
+STOP_LOSS_PREMIUM_ALONE, STOP_LOSS_PREMIUM_PROGRAMME = 6000, 1000  # earned premium, given
+
+
+def _event_layer(amounts: dict[int, Fr]) -> dict[int, Fr]:
+    """Event excess of loss on the claims with an event code, shared in proportion to amounts."""
+    out = {c: Fr(0) for c in amounts}
+    for event in sorted(set(EVENTS.values())):
+        members = [c for c in amounts if EVENTS.get(c) == event]
+        total = sum((amounts[c] for c in members), Fr(0))
+        layer = min(Fr(EVENT_LIMIT), max(Fr(0), total - EVENT_RETENTION))
+        for c in members:
+            out[c] = layer * amounts[c] / total if total else Fr(0)
+    return out
+
+
+def _stop_loss(amounts: dict[int, Fr], premium: int) -> tuple[Fr, dict[int, Fr]]:
+    """Stop loss on the year's loss ratio, shared in proportion to amounts."""
+    total = sum(amounts.values(), Fr(0))
+    ceded = premium * min(STOP_LOSS_LIMIT, max(Fr(0), total / premium - STOP_LOSS_RETENTION))
+    return ceded, {c: ceded * a / total for c, a in amounts.items()}
+
+
 def build_mt21() -> None:
     folder = HAND_TIER_B_DIR / "MT21-reinsurance-twelve-claims"
     premium_rate = Fr(3, 250)  # 1.2 % of the sum insured
@@ -633,9 +658,11 @@ def build_mt21() -> None:
     xl_retention, xl_limit, xl_premium = 100, 200, 40
     write_table(
         folder / "claims.csv",
-        ["claim_id", "sum_insured", "gross_loss", "annual_premium"],
-        [(c, si, g, repr(float(si * premium_rate))) for c, si, g in CLAIMS],
+        ["claim_id", "sum_insured", "gross_loss", "annual_premium", "event_code"],
+        [(c, si, g, repr(float(si * premium_rate)), EVENTS.get(c, "")) for c, si, g in CLAIMS],
     )
+    gross_of = {c: Fr(g) for c, _, g in CLAIMS}
+    net_after_xl: dict[int, Fr] = {}
     rows: list[tuple] = []
     tot = {
         k: Fr(0)
@@ -674,6 +701,7 @@ def build_mt21() -> None:
         prog_xl = Fr(min(xl_limit, max(0, after_qs - xl_retention)))
         net = after_qs - prog_xl
         assert net == gross - prog_sp - prog_qs - prog_xl
+        net_after_xl[c] = net
         for k, v in (
             ("qs", qs),
             ("sp", sp),
@@ -783,6 +811,7 @@ def build_mt21() -> None:
             "0.3 x premium retained after surplus",
         ),
     ]
+    rows += _mt21_event_and_stop_loss(gross_of, net_after_xl)
     write_values(folder, rows)
     write_manifest(
         folder,
@@ -796,17 +825,105 @@ def build_mt21() -> None:
                 f"Run {SCRIPT}. Amounts in thousands. Quota share 30 % with 25 % commission; surplus with a "
                 "retained line of 400 and four lines; per-risk excess of loss 200 xs 100 at 100 % placed, "
                 "flat premium 40. Programme: surplus on gross, quota share on what the surplus leaves, "
-                "excess of loss on what the quota share leaves (decision 0604)."
+                "excess of loss on what the quota share leaves (decision 0604). Event excess of loss "
+                f"{EVENT_LIMIT} xs {EVENT_RETENTION} on events E1 (claims 3, 4, 5) and E2 (claims 9, 11), "
+                "shared among an event's claims in proportion to their amounts; claims without an event "
+                "code are not covered. Stop loss 30 % xs 60 % of the loss ratio on the earned premium "
+                f"given ({STOP_LOSS_PREMIUM_ALONE} alone on gross, {STOP_LOSS_PREMIUM_PROGRAMME} in the "
+                "programme), shared in proportion to amounts. Full programme: surplus, quota share, "
+                "risk excess of loss, event excess of loss, stop loss (CV09, decision 0400)."
             ),
             "files": {"claims": "claims.csv", "values": "values.csv"},
             "tolerance_note": "1e-12 relative (all rational).",
             "not_covered": [
-                "Aggregate deductible and limit, reinstatements with premium, stop loss, event excess of loss "
-                "and the index clause: no hand case yet; they belong to the reinsurance item (P30) and the "
-                "spec MT21 fixture line stays open for them (decision 0273).",
+                "Aggregate deductible and limit, reinstatements with premium and the index clause: no hand "
+                "case yet; they belong to the reinsurance item (P30) and the spec MT21 fixture line stays "
+                "open for them (decision 0273).",
             ],
         },
     )
+
+
+def _mt21_event_and_stop_loss(gross: dict[int, Fr], after_xl: dict[int, Fr]) -> list[tuple]:
+    """Event excess of loss and stop loss, alone on gross and as the last two stages of the
+    programme (decision 0400)."""
+    rows: list[tuple] = []
+    event_alone = _event_layer(gross)
+    stop_alone_total, stop_alone = _stop_loss(gross, STOP_LOSS_PREMIUM_ALONE)
+    event_prog = _event_layer(after_xl)
+    after_event = {c: after_xl[c] - event_prog[c] for c in after_xl}
+    stop_prog_total, stop_prog = _stop_loss(after_event, STOP_LOSS_PREMIUM_PROGRAMME)
+    for c in sorted(gross):
+        net = after_event[c] - stop_prog[c]
+        rows += [
+            (
+                "event_excess_of_loss_ceded",
+                c,
+                f(event_alone[c]),
+                EXACT,
+                f"event {EVENTS.get(c, 'none')}, share of the layer by gross",
+            ),
+            ("stop_loss_ceded", c, f(stop_alone[c]), EXACT, "stop loss on gross, share by gross"),
+            (
+                "full_programme_event_excess_of_loss_ceded",
+                c,
+                f(event_prog[c]),
+                EXACT,
+                f"on {num(after_xl[c])} left by the risk excess of loss",
+            ),
+            (
+                "full_programme_stop_loss_ceded",
+                c,
+                f(stop_prog[c]),
+                EXACT,
+                f"on {num(after_event[c])} left by the event excess of loss",
+            ),
+            (
+                "full_programme_net",
+                c,
+                f(net),
+                EXACT,
+                "programme net less event excess of loss and stop loss",
+            ),
+        ]
+    rows += [
+        (
+            "total",
+            "event_excess_of_loss_ceded",
+            f(sum(event_alone.values(), Fr(0))),
+            EXACT,
+            "E1 and E2, 150 xs 120 each",
+        ),
+        (
+            "total",
+            "stop_loss_ceded",
+            f(stop_alone_total),
+            EXACT,
+            f"{STOP_LOSS_PREMIUM_ALONE} x MIN(0.3, MAX(0, {num(sum(gross.values(), Fr(0)))} / {STOP_LOSS_PREMIUM_ALONE} - 0.6))",
+        ),
+        (
+            "total",
+            "full_programme_event_excess_of_loss_ceded",
+            f(sum(event_prog.values(), Fr(0))),
+            EXACT,
+            "sum",
+        ),
+        (
+            "total",
+            "full_programme_stop_loss_ceded",
+            f(stop_prog_total),
+            EXACT,
+            f"{STOP_LOSS_PREMIUM_PROGRAMME} x MIN(0.3, MAX(0, {num(sum(after_event.values(), Fr(0)))} / {STOP_LOSS_PREMIUM_PROGRAMME} - 0.6))",
+        ),
+        (
+            "total",
+            "full_programme_net",
+            f(sum(after_event.values(), Fr(0)) - stop_prog_total),
+            EXACT,
+            "sum",
+        ),
+    ]
+    return rows
 
 
 # ------------------------------------------------------------------ MT19 Kaplan-Meier
