@@ -42,7 +42,7 @@ def test_the_seed_and_the_defaults_change_the_run_id() -> None:
         return run_id([], [], {"tier_b": settings}, "1.1.0")
 
     base = registry.settings()
-    assert base["seed"] == 1 and base["methods"]["MT11"]["n_simulations"] == 10_000
+    assert base["seed"] == 1 and base["methods"]["MT11"]["n_simulations"] == 50_000
     assert identity(1, base) == identity(1, registry.settings())
     assert identity(1, base) != identity(2, registry.settings(seed=2))
     changed = registry.settings()

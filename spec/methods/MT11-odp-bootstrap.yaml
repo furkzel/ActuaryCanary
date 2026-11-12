@@ -42,8 +42,11 @@ assumptions:
     check: Residual plots by development period; a few columns with much larger residuals suggest heteroscedasticity.
 parameters:
   - name: n_simulations
-    default: 10000
-    description: Number of bootstrap samples; 10,000 gives the 99.5th percentile from 50 tail values.
+    default: 50000
+    description: >-
+      Number of bootstrap samples; 50,000 gives the 99.5th percentile from 250 tail values. It
+      was 10,000 until 1.4.0; the larger size halves the seed noise of VaR 99.5 per cent and
+      TVaR 99 per cent and costs under 2 seconds on the demo (record 0785).
   - name: seed
     default: run seed
     description: Seed of the random generator, recorded in the manifest (blueprint 12).
@@ -76,6 +79,13 @@ parameters:
       A development column of the (cut) triangle that rests on fewer finite link ratios than
       this takes the factor 1.000 in the refit of every pseudo-triangle (the rule of decision
       0776 inside the refit, record 0783). The fitted model keeps its averages.
+  - name: floor_pseudo_increments
+    default: false at function level; true in a run (tier B parameter)
+    description: >-
+      The guard of the pseudo-triangle (record 0784): no pseudo increment is below zero, or
+      below the observed increment of its cell where that is negative. The over-dispersed
+      Poisson model has no negative increment; a pseudo value below zero comes from a residual
+      of a large cell resampled onto a small one.
 algorithm:
   - step: >-
       Cut of the trailing columns. With S_j the sum of incremental paid over the observed cells
@@ -104,8 +114,12 @@ algorithm:
       residuals are computed per column and residuals are rescaled to a common variance.
       With centre_residuals the mean of the pool is subtracted from every adjusted residual.
     formula: 'r^{\mathrm{adj}}_{i,j} = r_{i,j} \sqrt{\frac{n}{n - p}}, \qquad r^{\mathrm{c}}_{i,j} = r^{\mathrm{adj}}_{i,j} - \bar r^{\mathrm{adj}}'
-  - step: For each simulation b, resample residuals with replacement and form a pseudo-triangle.
-    formula: 'X^{*}_{i,j} = \hat\mu_{i,j} + r^{*}_{i,j} \sqrt{\hat\mu_{i,j}}'
+  - step: >-
+      For each simulation b, resample residuals with replacement and form a pseudo-triangle.
+      With floor_pseudo_increments, a pseudo increment below its floor (zero, or the observed
+      increment of the cell where that is negative) is set to the floor; no draw is made
+      (record 0784).
+    formula: 'X^{*}_{i,j} = \max\big(\hat\mu_{i,j} + r^{*}_{i,j} \sqrt{\hat\mu_{i,j}},\ \min(0, X_{i,j})\big)'
   - step: >-
       Refit the chain ladder on the cumulated pseudo-triangle, giving f*(j), and project the
       future incremental means of each origin from the cumulative of the pseudo-triangle on
@@ -308,4 +322,7 @@ change_log:
       every pseudo-triangle; the module passes the setting min_origins_per_factor of MT02
       (default 2). Function default 1: the benchmarks are unchanged. The fitted model, the
       residuals, phi, the pool and the order of the draws are unchanged; the output
-      ruled_columns names the columns. The owner has not reviewed this version.
+      ruled_columns names the columns. New parameter floor_pseudo_increments (record 0784): no
+      pseudo increment below zero, or below a negative observed increment of its cell; false at
+      function level, true by default in a run. The default n_simulations is 50,000 (was 10,000;
+      record 0785). The owner has not reviewed this version.

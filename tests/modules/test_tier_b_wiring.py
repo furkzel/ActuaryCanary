@@ -141,12 +141,18 @@ def test_tier_a_does_not_move_when_tier_b_runs(plain, wired) -> None:
 def test_mt11_runs_on_the_paid_triangle_from_the_stream_of_its_group(group) -> None:
     paid, _ = _triangles()
     # the rule of the refit comes from the setting of the chain ladder (default 2, record 0783)
+    # and the floor of the pseudo increments is on by default in a run (record 0784)
     limit = ChainLadderSettings().min_origins_per_factor
     direct = odp_bootstrap(
-        paid.cumulative, generator(1, *GROUP), n_simulations=SIMULATIONS, min_link_ratios=limit
+        paid.cumulative,
+        generator(1, *GROUP),
+        n_simulations=SIMULATIONS,
+        min_link_ratios=limit,
+        floor_pseudo_increments=True,
     )
     assert isinstance(group.tier_b.bootstrap, OdpBootstrap)
     assert group.tier_b.bootstrap.min_link_ratios == limit == 2
+    assert group.tier_b.bootstrap.floor_pseudo_increments
     np.testing.assert_array_equal(group.tier_b.bootstrap.reserves, direct.reserves)
     assert group.tier_b.bootstrap.reserves.shape[0] == SIMULATIONS  # the register entry
     other = odp_bootstrap(paid.cumulative, generator(1, "S", "M"), n_simulations=SIMULATIONS)

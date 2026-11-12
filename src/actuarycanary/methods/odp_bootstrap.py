@@ -13,7 +13,9 @@ simulated on the triangle cut after the last column with a positive sum.
 
 A development column that rests on fewer than `min_link_ratios` finite link ratios of the
 triangle takes the factor 1.000 in the refit of every pseudo-triangle (the rule of decision 0776
-inside the refit, A1c, records 0782 and 0783); the default 1 applies no rule.
+inside the refit, A1c, records 0782 and 0783); the default 1 applies no rule. With
+`floor_pseudo_increments` no pseudo increment is below zero, or below the observed increment of
+its cell where that is negative (record 0784); the default False applies no floor.
 """
 
 from collections.abc import Sequence
@@ -28,7 +30,7 @@ from actuarycanary.methods.diagnostics import WARNING, Diagnostic
 from actuarycanary.methods.mack import PERCENTILES, TVAR_LEVEL, VAR_LEVEL, Mack
 from actuarycanary.methods.seeding import RUN_SEED
 
-N_SIMULATIONS = 10_000
+N_SIMULATIONS = 50_000
 MIN_ORIGINS = 5
 MIN_DEGREES_OF_FREEDOM = 3  # n - p of 2 or less: not run
 NEGATIVE_SHARE_WARNING = 0.01
@@ -107,6 +109,7 @@ class OdpBootstrap:
     # the rule of the refit (record 0783): its limit and the factor columns it set to 1.000
     min_link_ratios: int = 1
     ruled_columns: tuple[int, ...] = ()
+    floor_pseudo_increments: bool = False  # the guard of the pseudo-triangle (record 0784)
 
     @property
     def pseudo_shares(self) -> dict[str, float]:
@@ -313,6 +316,14 @@ def _refit_and_project(
     return future, tail, defects
 
 
+def _floor(pseudo: np.ndarray, floor: np.ndarray) -> np.ndarray:
+    """The guard of the pseudo-triangle (record 0784): pseudo increments (batch x observed cells)
+    below their floor are set to it. The over-dispersed Poisson model has no negative increment;
+    a value below zero comes from a residual of a large cell put on a small one. The floor is 0,
+    or the observed increment of the cell where the data itself is negative. No draw is made."""
+    return np.maximum(pseudo, floor)
+
+
 def _process(
     rng: np.random.Generator, means: np.ndarray, phi: float, process: Process
 ) -> np.ndarray:
@@ -340,13 +351,15 @@ def odp_bootstrap(
     tvar_level: float = TVAR_LEVEL,
     min_origins: int = MIN_ORIGINS,
     min_link_ratios: int = 1,
+    floor_pseudo_increments: bool = False,
 ) -> OdpBootstrap | Skipped:
     """MT11 on a cumulative paid triangle whose latest diagonal is the cut-off (NaN after it).
 
     `rng` is the stream of this group (`seeding.generator(seed, *group)`); without one the
     stream is `default_rng(seed)`. `seed` is recorded in the result either way.
     `min_link_ratios` is the rule of the refit: a column with fewer finite link ratios in the
-    (cut) triangle takes the factor 1.000 in every pseudo-triangle; 1 applies no rule."""
+    (cut) triangle takes the factor 1.000 in every pseudo-triangle; 1 applies no rule.
+    `floor_pseudo_increments` is the guard of the pseudo-triangle (record 0784)."""
     cumulative = np.asarray(cumulative, dtype=float)
     if Scale(scale) is Scale.BY_DEVELOPMENT:
         return Skipped(
@@ -410,13 +423,16 @@ def odp_bootstrap(
     cash_flows = np.zeros((n_simulations, max(n_periods, 0)))
     mu = fitted[observed]
     root = np.sqrt(mu)
+    floor = np.minimum(incremental[observed], 0.0) if floor_pseudo_increments else None
     process = Process(process_distribution)
     defect_counts = dict.fromkeys((kind for kind, _, _ in PSEUDO_KINDS), 0)
     for start in range(0, n_simulations, BATCH):
         size = min(BATCH, n_simulations - start)
         draws = pool[rng.integers(0, len(pool), size=(size, n_cells))]
         pseudo = np.zeros((size, n_origins, n_dev))
-        pseudo[:, observed] = mu + draws * root
+        pseudo[:, observed] = (
+            mu + draws * root if floor is None else _floor(mu + draws * root, floor)
+        )
         means, tail, defects = _refit_and_project(
             pseudo, observed, latest_index, tail_factor, chain.factors, thin
         )
@@ -499,5 +515,6 @@ def odp_bootstrap(
         pseudo_negative_cumulative=defect_counts["negative_cumulative"],
         pseudo_extreme_factor=defect_counts["extreme_factor"],
         min_link_ratios=min_link_ratios,
+        floor_pseudo_increments=floor_pseudo_increments,
         ruled_columns=tuple(int(j) for j in np.nonzero(thin)[0]),
     )

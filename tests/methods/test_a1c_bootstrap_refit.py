@@ -110,3 +110,54 @@ def test_the_rule_moves_only_the_thin_column() -> None:
 def test_a_limit_below_one_is_refused() -> None:
     with pytest.raises(ValueError, match="min_link_ratios"):
         odp_bootstrap(_raa(), n_simulations=10, min_link_ratios=0)
+
+
+# --- remedy (b): the floor of the pseudo increments (record 0784) ---------------------------
+
+
+def test_the_floor_by_hand() -> None:
+    """Cells -5, 3, -1, -7 with observed increments 2, 4, -3, -3: the floor is 0, 0, -3, -3,
+    so the guard gives 0, 3, -1, -3."""
+    pseudo = np.array([[-5.0, 3.0, -1.0, -7.0]])
+    floor = np.minimum(np.array([2.0, 4.0, -3.0, -3.0]), 0.0)
+    np.testing.assert_array_equal(module._floor(pseudo, floor), [[0.0, 3.0, -1.0, -3.0]])
+
+
+def test_the_floor_keeps_every_pseudo_cumulative_at_or_above_zero() -> None:
+    result = odp_bootstrap(_raa(), n_simulations=2000, seed=3, floor_pseudo_increments=True)
+    plain = odp_bootstrap(_raa(), n_simulations=2000, seed=3)
+    assert isinstance(result, OdpBootstrap) and isinstance(plain, OdpBootstrap)
+    assert plain.pseudo_negative_cumulative > 0  # RAA without the guard has some
+    assert result.pseudo_negative_cumulative == 0 and result.pseudo_zero_denominator == 0
+    assert result.floor_pseudo_increments
+
+
+def _smooth() -> np.ndarray:
+    """A chain-ladder triangle with small noise on large cells: no pseudo cell is negative."""
+    pattern = np.array([0.4, 0.3, 0.15, 0.1, 0.05])
+    noise = np.random.default_rng(2).normal(1.0, 0.01, size=(6, 5))
+    incremental = 1e8 * np.outer(np.linspace(1.0, 1.5, 6), pattern) * noise
+    cumulative = np.cumsum(incremental, axis=1)
+    cumulative[np.add.outer(np.arange(6), np.arange(5)) > 5] = np.nan
+    return cumulative
+
+
+def test_where_the_floor_does_not_act_the_reserves_are_bit_identical() -> None:
+    off = odp_bootstrap(_smooth(), n_simulations=2000, seed=4, min_link_ratios=2)
+    on = odp_bootstrap(
+        _smooth(), n_simulations=2000, seed=4, min_link_ratios=2, floor_pseudo_increments=True
+    )
+    assert isinstance(off, OdpBootstrap) and isinstance(on, OdpBootstrap)
+    assert off.pseudo_negative_cumulative == 0
+    np.testing.assert_array_equal(on.reserves, off.reserves)
+    np.testing.assert_array_equal(on.cash_flows, off.cash_flows)
+
+
+def test_the_floor_makes_no_draw(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(module, "_process", _fixed_count_process)
+    after = []
+    for floor in (False, True):
+        rng = np.random.default_rng(8)
+        odp_bootstrap(_raa(), rng, n_simulations=1500, floor_pseudo_increments=floor)
+        after.append(rng.random(4))
+    np.testing.assert_array_equal(after[0], after[1])

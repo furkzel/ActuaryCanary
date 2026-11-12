@@ -391,7 +391,7 @@ def test_assumptions_diagnostics_and_anomalies_are_written_and_listed_in_the_man
     assert all(r["seed"] == 1 and r["purpose"] for r in manifest["randomness"])
     settings = manifest["settings"]
     assert settings["tier_b"]["seed"] == 1 and settings["severity"]["seed"] == 1
-    assert settings["tier_b"]["methods"]["MT11"]["n_simulations"] == 10_000
+    assert settings["tier_b"]["methods"]["MT11"]["n_simulations"] == 50_000  # record 0785
     assert settings["large_loss"] == {"percentile": 0.99, "source": "default", "thresholds": {}}
     ids = {s["id"] for s in manifest["specs"]}
     assert {"MT03", "MT04", "MT05", "MT07", "MT08", "MT09", "MT10", "PR02"} <= ids
