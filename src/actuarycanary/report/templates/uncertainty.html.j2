@@ -3,10 +3,28 @@
 {% for blk in b.blocks %}<div data-basis="{{ blk.basis }}">
   <h3>{{ tr("Reserve and its range, {basis}", basis=blk.label) }}</h3>
   <div class="scroll"><table>
-    <thead><tr><th>{{ tr("Line") }}</th><th>{{ tr("Reserve") }}</th><th>{{ tr("5th percentile") }}</th><th>{{ tr("95th percentile") }}</th><th>{{ tr("CV") }}</th><th class="text">{{ tr("Range from") }}</th>{% if blk.basis == "DISCOUNTED" %}<th>{{ tr("Discount effect") }}</th>{% endif %}</tr></thead>
-    <tbody>{% for h in blk.headline %}<tr><td>{{ h.line }}</td><td>{{ h.reserve }}</td><td>{{ h.low }}</td><td>{{ h.high }}</td><td>{{ h.cv }}</td><td class="text">{{ h.source }}</td>{% if blk.basis == "DISCOUNTED" %}<td>{{ h.effect }}</td>{% endif %}</tr>{% endfor %}</tbody>
+    {% if blk.basis == "DISCOUNTED" %}<thead><tr><th>{{ tr("Line") }}</th><th>{{ tr("Mean of the range, nominal") }}</th><th>{{ tr("Discount effect on the mean") }}</th><th>{{ tr("Mean of the range, present value") }}</th><th>{{ tr("5th percentile") }}</th><th>{{ tr("95th percentile") }}</th><th>{{ tr("CV") }}</th><th class="text">{{ tr("Range from") }}</th></tr></thead>
+    <tbody>{% for h in blk.headline %}<tr><td>{{ h.line }}</td><td>{{ h.nominal }}</td><td>{{ h.effect }}</td><td>{{ h.reserve }}</td><td>{{ h.low }}</td><td>{{ h.high }}</td><td>{{ h.cv }}</td><td class="text">{{ h.source }}</td></tr>{% endfor %}</tbody>
+    {% else %}<thead><tr><th>{{ tr("Line") }}</th><th>{{ tr("Selected unpaid") }}</th><th>{{ tr("Mean of the range") }}</th><th>{{ tr("5th percentile") }}</th><th>{{ tr("95th percentile") }}</th><th>{{ tr("CV") }}</th><th class="text">{{ tr("Range from") }}</th></tr></thead>
+    <tbody>{% for h in blk.headline %}<tr><td>{{ h.line }}</td><td>{{ h.selected }}</td><td>{{ h.reserve }}</td><td>{{ h.low }}</td><td>{{ h.high }}</td><td>{{ h.cv }}</td><td class="text">{{ h.source }}</td></tr>{% endfor %}</tbody>{% endif %}
   </table></div>
   <p class="footnote">{{ b.footnotes.headline }}</p>
+  {% if blk.present_values %}<h3>{{ tr("Present value of the selected unpaid (expected cash flows)") }}</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>{{ tr("Line") }}</th><th>{{ tr("Selected unpaid") }}</th><th>{{ tr("Discount effect (RS04)") }}</th><th>{{ tr("Present value (RS04)") }}</th></tr></thead>
+    <tbody>{% for h in blk.present_values %}<tr><td>{{ h.line }}</td><td>{{ h.selected }}</td><td>{{ h.effect }}</td><td>{{ h.present }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="footnote">{{ b.footnotes.present_values }}</p>{% endif %}
+  {% if blk.bridge %}<h3>{{ tr("From the selected unpaid to the simulated mean, {basis}", basis=blk.label) }}</h3>
+  <div class="scroll"><table>
+    <thead><tr><th class="text">{{ tr("Step") }}</th>{% for hd in blk.bridge.heads %}<th>{{ hd }}</th>{% endfor %}</tr></thead>
+    <tbody>{% for label, cells in blk.bridge.steps %}<tr><td class="text">{{ label }}</td>{% for c in cells %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table></div>
+  {% if blk.bridge.left_out %}<div class="scroll"><table>
+    <thead><tr><th class="text">{{ tr("Line") }}</th><th class="text">{{ tr("Origin without simulated development") }}</th><th>{{ tr("Selected unpaid left out") }}</th></tr></thead>
+    <tbody>{% for x in blk.bridge.left_out %}<tr><td class="text">{{ x.line }}</td><td class="text">{{ x.origin }}</td><td>{{ x.amount }}</td></tr>{% endfor %}</tbody>
+  </table></div>{% endif %}
+  <p class="footnote">{{ b.footnotes.bridge }}</p>{% endif %}
   <h3>{{ tr("Ranges side by side, {basis}", basis=blk.label) }}</h3>
   {{ figure(blk.range_figure, tr("Reserve ranges by line and source")) }}
   <p class="footnote">{{ b.footnotes.figure }}</p>
