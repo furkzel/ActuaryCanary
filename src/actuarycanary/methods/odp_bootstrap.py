@@ -10,6 +10,12 @@ seeded stream it is given (`methods.seeding`).
 Trailing development columns whose incremental paid sums to zero or less (the late columns of a
 short-tail line) are cut before the fit (MT11 1.2.0, decision 0349): the model is fitted and
 simulated on the triangle cut after the last column with a positive sum.
+
+A development column that rests on fewer than `min_link_ratios` finite link ratios of the
+triangle takes the factor 1.000 in the refit of every pseudo-triangle (the rule of decision 0776
+inside the refit, A1c, records 0782 and 0783); the default 1 applies no rule. With
+`floor_pseudo_increments` no pseudo increment is below zero, or below the observed increment of
+its cell where that is negative (record 0784); the default False applies no floor.
 """
 
 from collections.abc import Sequence
@@ -24,7 +30,7 @@ from actuarycanary.methods.diagnostics import WARNING, Diagnostic
 from actuarycanary.methods.mack import PERCENTILES, TVAR_LEVEL, VAR_LEVEL, Mack
 from actuarycanary.methods.seeding import RUN_SEED
 
-N_SIMULATIONS = 10_000
+N_SIMULATIONS = 50_000
 MIN_ORIGINS = 5
 MIN_DEGREES_OF_FREEDOM = 3  # n - p of 2 or less: not run
 NEGATIVE_SHARE_WARNING = 0.01
@@ -100,6 +106,10 @@ class OdpBootstrap:
     pseudo_zero_denominator: int = 0
     pseudo_negative_cumulative: int = 0
     pseudo_extreme_factor: int = 0
+    # the rule of the refit (record 0783): its limit and the factor columns it set to 1.000
+    min_link_ratios: int = 1
+    ruled_columns: tuple[int, ...] = ()
+    floor_pseudo_increments: bool = False  # the guard of the pseudo-triangle (record 0784)
 
     @property
     def pseudo_shares(self) -> dict[str, float]:
@@ -263,11 +273,16 @@ def _refit_and_project(
     latest_index: np.ndarray,
     tail_factor: float,
     fitted_factors: np.ndarray | None = None,
+    thin: np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray, dict[str, np.ndarray]]:
     """Future incremental means of each pseudo-triangle (batch x origins x columns, NaN on
     observed cells), the tail amount per origin (batch x origins) and, per kind of defect, a
     boolean per pseudo-triangle (MT11 diagnostics, record 0778). The defects are read from the
-    arrays the refit computes anyway; no random draw is made here."""
+    arrays the refit computes anyway; no random draw is made here.
+
+    `thin` (bool per factor column) marks the columns that rest on too few link ratios of the
+    triangle: their factor is 1.000 in every pseudo-triangle (record 0783), and their
+    denominator and factor are not counted as defects, since the refit does not use them."""
     batch, n_origins, n_dev = pseudo.shape
     cumulative = np.cumsum(np.where(observed, pseudo, 0.0), axis=2)
     both = observed[:, 1:] & observed[:, :-1]
@@ -275,6 +290,9 @@ def _refit_and_project(
     denominator = (cumulative[:, :, :-1] * both).sum(axis=1)
     with np.errstate(divide="ignore", invalid="ignore"):
         factors = np.where(denominator != 0, numerator / denominator, 1.0)  # batch x columns
+    refitted = np.ones(n_dev - 1, dtype=bool) if thin is None else ~thin
+    if thin is not None:
+        factors[:, thin] = 1.0
     rows = np.arange(n_origins)
     latest = cumulative[:, rows, latest_index]  # batch x origins
     projected = np.empty((batch, n_origins, n_dev))
@@ -287,15 +305,23 @@ def _refit_and_project(
     future[:, observed] = np.nan
     tail = projected[:, :, -1] * (tail_factor - 1)
     defects = {
-        "zero_denominator": (denominator <= 0).any(axis=1),
+        "zero_denominator": ((denominator <= 0) & refitted).any(axis=1),
         "negative_cumulative": ((cumulative < 0) & observed).any(axis=(1, 2)),
         "extreme_factor": (
             (factors < 0) | (factors > EXTREME_FACTOR_MULTIPLE * np.abs(fitted_factors))
             if fitted_factors is not None
             else factors < 0
-        ).any(axis=1),
+        )[:, refitted].any(axis=1),
     }
     return future, tail, defects
+
+
+def _floor(pseudo: np.ndarray, floor: np.ndarray) -> np.ndarray:
+    """The guard of the pseudo-triangle (record 0784): pseudo increments (batch x observed cells)
+    below their floor are set to it. The over-dispersed Poisson model has no negative increment;
+    a value below zero comes from a residual of a large cell put on a small one. The floor is 0,
+    or the observed increment of the cell where the data itself is negative. No draw is made."""
+    return np.maximum(pseudo, floor)
 
 
 def _process(
@@ -324,11 +350,16 @@ def odp_bootstrap(
     var_level: float = VAR_LEVEL,
     tvar_level: float = TVAR_LEVEL,
     min_origins: int = MIN_ORIGINS,
+    min_link_ratios: int = 1,
+    floor_pseudo_increments: bool = False,
 ) -> OdpBootstrap | Skipped:
     """MT11 on a cumulative paid triangle whose latest diagonal is the cut-off (NaN after it).
 
     `rng` is the stream of this group (`seeding.generator(seed, *group)`); without one the
-    stream is `default_rng(seed)`. `seed` is recorded in the result either way."""
+    stream is `default_rng(seed)`. `seed` is recorded in the result either way.
+    `min_link_ratios` is the rule of the refit: a column with fewer finite link ratios in the
+    (cut) triangle takes the factor 1.000 in every pseudo-triangle; 1 applies no rule.
+    `floor_pseudo_increments` is the guard of the pseudo-triangle (record 0784)."""
     cumulative = np.asarray(cumulative, dtype=float)
     if Scale(scale) is Scale.BY_DEVELOPMENT:
         return Skipped(
@@ -338,6 +369,8 @@ def odp_bootstrap(
         )
     if n_simulations < 2:
         raise ValueError(f"the bootstrap needs at least 2 simulations, not {n_simulations}")
+    if min_link_ratios < 1:
+        raise ValueError(f"min_link_ratios {min_link_ratios} must be at least 1")
     n_origins, n_dev = cumulative.shape
     chain = chain_ladder(cumulative, average=Average.VOLUME_WEIGHTED)
     no_chain = f"the bootstrap needs a chain ladder on at least {min_origins} origin periods"
@@ -380,6 +413,9 @@ def odp_bootstrap(
 
     rng = rng if rng is not None else np.random.default_rng(seed)
     latest_index = chain.latest_index
+    # the columns of the rule rest on too few finite link ratios of the triangle itself, so the
+    # set is the same for every pseudo-triangle (the fitted chain keeps its averages, record 0783)
+    thin = chain.n_ratios < min_link_ratios
     # future period of cell (i, k) after the cut-off: k - J(i); the tail falls after the last age
     periods = np.arange(n_dev)[None, :] - latest_index[:, None]
     n_periods = int(periods.max()) + (1 if tail_factor != 1 else 0)
@@ -387,15 +423,18 @@ def odp_bootstrap(
     cash_flows = np.zeros((n_simulations, max(n_periods, 0)))
     mu = fitted[observed]
     root = np.sqrt(mu)
+    floor = np.minimum(incremental[observed], 0.0) if floor_pseudo_increments else None
     process = Process(process_distribution)
     defect_counts = dict.fromkeys((kind for kind, _, _ in PSEUDO_KINDS), 0)
     for start in range(0, n_simulations, BATCH):
         size = min(BATCH, n_simulations - start)
         draws = pool[rng.integers(0, len(pool), size=(size, n_cells))]
         pseudo = np.zeros((size, n_origins, n_dev))
-        pseudo[:, observed] = mu + draws * root
+        pseudo[:, observed] = (
+            mu + draws * root if floor is None else _floor(mu + draws * root, floor)
+        )
         means, tail, defects = _refit_and_project(
-            pseudo, observed, latest_index, tail_factor, chain.factors
+            pseudo, observed, latest_index, tail_factor, chain.factors, thin
         )
         for kind, found in defects.items():
             defect_counts[kind] += int(found.sum())
@@ -475,4 +514,7 @@ def odp_bootstrap(
         pseudo_zero_denominator=defect_counts["zero_denominator"],
         pseudo_negative_cumulative=defect_counts["negative_cumulative"],
         pseudo_extreme_factor=defect_counts["extreme_factor"],
+        min_link_ratios=min_link_ratios,
+        floor_pseudo_increments=floor_pseudo_increments,
+        ruled_columns=tuple(int(j) for j in np.nonzero(thin)[0]),
     )

@@ -38,7 +38,7 @@ class Parameter:
 
 PARAMETERS: dict[str, tuple[Parameter, ...]] = {
     "MT11": (
-        Parameter("n_simulations", 10_000, ANY, "MT11 default: 10,000 bootstrap samples",
+        Parameter("n_simulations", 50_000, ANY, "MT11 default: 50,000 bootstrap samples",
                   minimum=2, whole=True),
         Parameter("process_distribution", "gamma", ("gamma", "odp"),
                   "MT11 default: gamma process error (decision 0609)"),
@@ -47,6 +47,8 @@ PARAMETERS: dict[str, tuple[Parameter, ...]] = {
         Parameter("centre_residuals", True, ANY,
                   "MT11 default: the residual pool is centred (decision 0612)"),
         Parameter("tail_factor", 1.0, ANY, "MT11 default: the tail of MT02", minimum=1.0),
+        Parameter("floor_pseudo_increments", True, ANY,
+                  "MT11 default: no pseudo increment below zero (record 0784)"),
     ),
     "MT12": (
         Parameter("sigma_extrapolation", "mack", ("mack",),

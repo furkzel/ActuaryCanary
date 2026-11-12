@@ -63,7 +63,7 @@ def test_the_whole_bootstrap_is_unchanged_by_the_counting(monkeypatch: pytest.Mo
     triangle = _triangle("raa")
     counted = odp_bootstrap(triangle, n_simulations=2500, seed=7)
 
-    def before(pseudo, observed, latest_index, tail_factor, fitted_factors=None):
+    def before(pseudo, observed, latest_index, tail_factor, fitted_factors=None, thin=None):
         future, tail = _refit_and_project_before(pseudo, observed, latest_index, tail_factor)
         none = np.zeros(len(pseudo), dtype=bool)
         return (

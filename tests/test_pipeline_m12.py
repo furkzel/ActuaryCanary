@@ -237,9 +237,9 @@ def test_the_demonstration_data_gives_the_bootstrap_range_and_its_discounted_dis
     nominal = boot.filter(pl.col("value_basis") == "NOMINAL").row(0, named=True)
     present = boot.filter(pl.col("value_basis") == "DISCOUNTED").row(0, named=True)
     assert present["mean"] < nominal["mean"] and present["value_at_risk"] < nominal["value_at_risk"]
-    assert nominal["simulations"] == 10_000
+    assert nominal["simulations"] == 50_000  # record 0785
     assert "mean of the simulated values" in nominal["estimator"]
     distribution = pl.read_parquet(result.folder / "risk_distribution.parquet")
-    assert distribution.height == 10_000 and "simulation" in distribution.columns
+    assert distribution.height == 50_000 and "simulation" in distribution.columns
     assert any(c.endswith("(discounted)") for c in distribution.columns)
     assert result.analysis.get("M12").state.value in ("ran", "limited")
