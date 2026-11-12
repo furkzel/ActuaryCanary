@@ -154,17 +154,20 @@ def chain_ladder_warnings(
     estimated = [j for j in range(n_columns) if counts[j] > 0]
     if estimated and chain.tail_factor == 1.0:
         last = estimated[-1]
-        if chain.factors[last] > LATE_DEVELOPMENT_FACTOR:
+        # a factor the rule set to 1.000 still shows the development its average saw
+        level = float(chain.averages[last] if chain.replaced[last] else chain.factors[last])
+        if level > LATE_DEVELOPMENT_FACTOR:
+            seen = " (the average of its single link ratio)" if chain.replaced[last] else ""
             warnings.append(
                 Diagnostic(
                     method,
                     "LATE_DEVELOPMENT",
                     WARNING,
                     f"development from {ages[last]} to {ages[last + 1]} months is still "
-                    f"{chain.factors[last]:.4g} and the tail factor is 1.0, so ultimates may "
+                    f"{level:.4g}{seen} and the tail factor is 1.0, so ultimates may "
                     "be understated; a tail factor can be set in the assumptions register",
                     column_label(ages, last),
-                    float(chain.factors[last]),
+                    level,
                 )
             )
     for j in estimated:

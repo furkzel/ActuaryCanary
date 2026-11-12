@@ -149,3 +149,17 @@ def test_a_thin_column_whose_average_is_one_anyway_is_not_replaced() -> None:
     assert result.replaced.tolist() == [False, False]  # 1.0 stays 1.0, and says nothing
     assert result.factors.tolist() == pytest.approx([1.5, 1.0])
     assert not result.warnings
+
+
+def test_late_development_still_sees_the_average_of_a_replaced_last_factor() -> None:
+    from actuarycanary.methods.diagnostics import chain_ladder_diagnostics
+
+    chain = fitted(_paid(), min_link_ratios=2)
+    assert chain.replaced[-1] and chain.factors[-1] == 1.0
+    found = chain_ladder_diagnostics(chain, _paid(), HAND_ORIGINS, HAND_AGES).warnings
+    late = [d for d in found if d.code == "LATE_DEVELOPMENT"]
+    assert [d.target for d in late] == ["36-48"]
+    assert (
+        late[0].value == pytest.approx(1.1)
+        and "average of its single link ratio" in late[0].message
+    )
