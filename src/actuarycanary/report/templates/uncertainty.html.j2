@@ -4,9 +4,9 @@
   <h3>{{ tr("Reserve and its range, {basis}", basis=blk.label) }}</h3>
   <div class="scroll"><table>
     {% if blk.basis == "DISCOUNTED" %}<thead><tr><th>{{ tr("Line") }}</th><th>{{ tr("Mean of the range, nominal") }}</th><th>{{ tr("Discount effect on the mean") }}</th><th>{{ tr("Mean of the range, present value") }}</th><th>{{ tr("5th percentile") }}</th><th>{{ tr("95th percentile") }}</th><th>{{ tr("CV") }}</th><th class="text">{{ tr("Range from") }}</th></tr></thead>
-    <tbody>{% for h in blk.headline %}<tr><td>{{ h.line }}</td><td>{{ h.nominal }}</td><td>{{ h.effect }}</td><td>{{ h.reserve }}</td><td>{{ h.low }}</td><td>{{ h.high }}</td><td>{{ h.cv }}</td><td class="text">{{ h.source }}</td></tr>{% endfor %}</tbody>
+    <tbody>{% for h in blk.headline %}<tr><td>{{ h.line }}</td><td>{{ h.nominal }}</td><td>{{ h.effect }}</td><td>{{ h.reserve }}</td><td>{{ h.low }}</td><td>{{ h.high }}</td><td>{{ h.cv }}</td><td class="text">{{ h.source }}{% if h.coverage %}<br><span class="coverage">{{ h.coverage }}</span>{% endif %}</td></tr>{% endfor %}</tbody>
     {% else %}<thead><tr><th>{{ tr("Line") }}</th><th>{{ tr("Selected unpaid") }}</th><th>{{ tr("Mean of the range") }}</th><th>{{ tr("5th percentile") }}</th><th>{{ tr("95th percentile") }}</th><th>{{ tr("CV") }}</th><th class="text">{{ tr("Range from") }}</th></tr></thead>
-    <tbody>{% for h in blk.headline %}<tr><td>{{ h.line }}</td><td>{{ h.selected }}</td><td>{{ h.reserve }}</td><td>{{ h.low }}</td><td>{{ h.high }}</td><td>{{ h.cv }}</td><td class="text">{{ h.source }}</td></tr>{% endfor %}</tbody>{% endif %}
+    <tbody>{% for h in blk.headline %}<tr><td>{{ h.line }}</td><td>{{ h.selected }}</td><td>{{ h.reserve }}</td><td>{{ h.low }}</td><td>{{ h.high }}</td><td>{{ h.cv }}</td><td class="text">{{ h.source }}{% if h.coverage %}<br><span class="coverage">{{ h.coverage }}</span>{% endif %}</td></tr>{% endfor %}</tbody>{% endif %}
   </table></div>
   <p class="footnote">{{ b.footnotes.headline }}</p>
   {% if blk.present_values %}<h3>{{ tr("Present value of the selected unpaid (expected cash flows)") }}</h3>
@@ -29,8 +29,8 @@
   {{ figure(blk.range_figure, tr("Reserve ranges by line and source")) }}
   <p class="footnote">{{ b.footnotes.figure }}</p>
   <div class="scroll"><table class="wide">
-    <thead><tr><th>{{ tr("Line") }}</th><th class="text">{{ tr("Source") }}</th><th>{{ tr("Mean") }}</th><th>{{ tr("CV") }}</th><th>{{ tr("Median") }}</th><th>{{ tr("75th percentile") }}</th><th>{{ tr("95th percentile") }}</th><th>{{ tr("VaR 99.5%") }}</th><th>{{ tr("TVaR 99%") }}</th><th>{{ tr("Simulations") }}</th></tr></thead>
-    <tbody>{% for x in blk.ranges %}<tr title="{{ x.label }}{% if x.note %} · {{ x.note }}{% endif %}"><td>{{ x.line }}</td><td class="text">{{ x.source }}</td>{% for c in x.cells %}<td>{{ c }}</td>{% endfor %}<td>{{ x.simulations }}</td></tr>{% endfor %}</tbody>
+    <thead><tr><th>{{ tr("Line") }}</th><th class="text">{{ tr("Source") }}</th><th>{{ tr("Mean") }}</th><th>{{ tr("CV") }}</th><th>{{ tr("Median") }}</th><th>{{ tr("75th percentile") }}</th><th>{{ tr("95th percentile") }}</th><th>{{ tr("VaR 99.5%") }}</th><th>{{ tr("TVaR 99%") }}</th><th>{{ tr("Simulations") }}</th><th class="text">{{ tr("Back-test") }}</th></tr></thead>
+    <tbody>{% for x in blk.ranges %}<tr title="{{ x.label }}{% if x.note %} · {{ x.note }}{% endif %}"><td>{{ x.line }}</td><td class="text">{{ x.source }}</td>{% for c in x.cells %}<td>{{ c }}</td>{% endfor %}<td>{{ x.simulations }}</td><td class="text">{{ x.coverage }}</td></tr>{% endfor %}</tbody>
   </table></div>
   <p class="footnote">{{ b.footnotes.ranges }}</p>
   {% if blk.histograms %}<h3>{{ tr("Distribution of the simulated reserve, {basis}", basis=blk.label) }}</h3>

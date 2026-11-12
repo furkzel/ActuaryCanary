@@ -13,6 +13,7 @@ from actuarycanary.report.uncertainty_section import (
     bridge_table,
     headline,
     present_values,
+    ranges,
     selected_totals,
 )
 
@@ -141,3 +142,156 @@ def test_a_line_without_a_simulation_shows_dashes_and_no_total() -> None:
     assert dict(table["steps"])["Mean of the simulation, nominal"] == ["100", "–"]
     only = bridge_table(SimpleNamespace(lines=(c,), risk=_risk([])), NOMINAL)  # type: ignore[arg-type]
     assert only is None
+
+
+# --- R12: the observed coverage beside every Mack range (record 0753) ---------------------
+
+
+def _back_test(rows: list[tuple[str, str, str, int, int, int]]) -> dict[str, pl.DataFrame]:
+    """(segment, line, method, horizon, origins, inside) of AE02 range calibrations."""
+    return {
+        "back_test.csv": pl.DataFrame(
+            [
+                {
+                    "segment": a,
+                    "line": b,
+                    "kind": "range_calibration",
+                    "method": m,
+                    "horizon_months": h,
+                    "origins": n,
+                    "inside": k,
+                }
+                for a, b, m, h, n, k in rows
+            ]
+            + [
+                {
+                    "segment": "S",
+                    "line": "A",
+                    "kind": "summary",
+                    "method": "MT06",
+                    "horizon_months": 12,
+                    "origins": 99,
+                    "inside": None,
+                }
+            ],
+            schema_overrides={"inside": pl.Int64},
+        )
+    }
+
+
+def test_coverage_pools_the_horizons_of_one_line_and_of_all_lines() -> None:
+    from actuarycanary.report import coverage
+
+    tables = _back_test(
+        [
+            ("S", "A", "MT06", 12, 8, 3),
+            ("S", "A", "MT06", 24, 7, 5),
+            ("S", "A", "MT11", 12, 8, 8),
+            ("S", "B", "MT06", 12, 5, 1),
+        ]
+    )
+    one = coverage.observed(tables, "MT06", "S", "A")
+    assert one is not None and (one.inside, one.n) == (8, 15)
+    assert coverage.sentence(one) == "90% range; observed coverage in back-test 53.3% (n = 15)"
+    everything = coverage.observed(tables, "MT06")
+    assert everything is not None and (everything.inside, everything.n) == (9, 20)
+    boot = coverage.observed(tables, "MT11", "S", "A")
+    assert boot is not None and boot.share == 1.0
+    assert coverage.observed(tables, "MT06", "S", "C") is None
+    assert coverage.observed({}, "MT06") is None
+    assert coverage.sentence(None) == "90% range; no back-test"
+
+
+def test_the_mack_rows_of_the_uncertainty_page_carry_their_coverage_and_the_others_do_not() -> None:
+    tables = _back_test([("S", "A", "MT06", 12, 8, 3), ("S", "A", "MT11", 12, 8, 6)])
+    risk = (
+        _risk(
+            [
+                ("S", "A", "mack_lognormal", NOMINAL, 100.0, None, None),
+                ("S", "A", "bootstrap", NOMINAL, 100.0, None, None),
+                ("S", "A", "expected_cash_flows", NOMINAL, 100.0, None, None),
+                ("S", "B", "mack_lognormal", NOMINAL, 50.0, None, None),
+            ]
+        )
+        .with_columns(
+            pl.lit(0.0).alias(c)
+            for c in ("p50", "p75", "value_at_risk", "tail_value_at_risk", "simulations")
+        )
+        .with_columns(pl.lit("").alias("label"), pl.lit("").alias("note"))
+    )
+    shown = {(r["line"], r["source"]): r["coverage"] for r in ranges(risk, NOMINAL, tables)}
+    assert shown[("S · A", "Mack, lognormal approximation (RS03)")] == (
+        "90% range; observed coverage in back-test 37.5% (n = 8)"
+    )
+    assert shown[("S · A", "Bootstrap (RS05, MT11)")] == (
+        "90% range; observed coverage in back-test 75.0% (n = 8)"
+    )
+    assert shown[("S · B", "Mack, lognormal approximation (RS03)")] == "90% range; no back-test"
+    rows = headline(risk, pl.DataFrame(), NOMINAL, None, tables)
+    by_line = {r["line"]: r for r in rows}
+    assert by_line["S · A"]["coverage"].endswith("75.0% (n = 8)")  # the bootstrap is chosen
+    assert by_line["S · B"]["coverage"] == "90% range; no back-test"
+
+
+# --- R14: the failed rules beside the data quality score (record 0753) ---------------------
+
+
+def test_the_quality_page_counts_the_failed_rules_and_says_what_the_score_leaves_out() -> None:
+    from actuarycanary.quality.model import QualityReport, RuleScore, Score
+    from actuarycanary.report.quality_section import failed_rules, render_quality_section
+
+    def rule(name: str, checked: int, failed: int) -> RuleScore:
+        return RuleScore(name, "claims", "validity", "WARNING", 1, ("f",), checked, failed)
+
+    rules = (rule("R1", 100, 0), rule("R2", 100, 6), rule("R3", 50, 14), rule("R4", 10, 0))
+    report = QualityReport(None, Score(99.9, 4), {}, {}, {}, rules, (), (), ())
+    assert failed_rules(report) == (2, 20)
+    html = render_quality_section(report, "1.0.0")
+    assert "2 of 4 rules failed on at least one row, pair or claim; 20 failed checks" in html
+    assert "not whether they suit reserving" in html
+    nothing = QualityReport(None, Score(100.0, 1), {}, {}, {}, (rule("R1", 5, 0),), (), (), ())
+    assert failed_rules(nothing) == (0, 0)
+    assert "0 of 1 rules failed" in render_quality_section(nothing, "1.0.0")
+
+
+# --- R17: no severity quantiles for a line whose every family is rejected ------------------
+
+
+def _severity_tables(why: str) -> dict[str, pl.DataFrame]:
+    key = {"segment": "LIFE", "line": "TERM"}
+    return {
+        "severity_groups.csv": pl.DataFrame([{**key, "claims": 398, "status": "fitted"}]),
+        "severity_selected.csv": pl.DataFrame(
+            [{**key, "family": "lognormal", "why": why, "claims": 398, "reason": "", "aic": 1.0}]
+        ),
+        "severity_fits.csv": pl.DataFrame(
+            [
+                {
+                    **key,
+                    "family": "lognormal",
+                    "aic": 1.0,
+                    "bic": 2.0,
+                    "ks_p": 0.0,
+                    "ad_p": 0.0,
+                    "rejected": True,
+                    "converged": True,
+                    "selected": True,
+                }
+            ]
+        ),
+        "severity_quantiles.csv": pl.DataFrame(
+            [{**key, "family": "lognormal", "probability": 0.5, "quantile": 3146680.6}]
+        ),
+    }
+
+
+def test_a_line_with_every_family_rejected_shows_no_severity_quantiles() -> None:
+    from actuarycanary.methods.severity.fitting import NO_FAMILY_FITS, SELECTED_BY_AIC
+    from actuarycanary.report.large_loss_section import fits
+
+    rejected = fits(_severity_tables(NO_FAMILY_FITS), "LIFE", "TERM")
+    assert rejected["no_fit"] is True
+    assert [r["selected"] for r in rejected["rows"]] == [False]  # nothing is "selected"
+    kept = fits(_severity_tables(SELECTED_BY_AIC), "LIFE", "TERM")
+    assert kept["no_fit"] is False and kept["rows"][0]["selected"] is True
+    assert kept["quantiles"][0] == "3,146,681"

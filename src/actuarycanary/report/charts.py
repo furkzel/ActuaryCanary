@@ -240,10 +240,13 @@ def range_row_label(measure: str) -> str:
     return t("IBNR (incurred triangle)")
 
 
-def reserve_range(group: GroupReserving, currency: str) -> dict[str, Any] | None:
+def reserve_range(
+    group: GroupReserving, currency: str, coverage: str = ""
+) -> dict[str, Any] | None:
     """The Mack range around the selected reserve, per triangle, drawn as a range: the 5th
     to 95th percentile as a light bar, the 25th to 75th as a dark bar inside it, and the
-    selected reserve (the mean of the lognormal) as a diamond."""
+    selected reserve (the mean of the lognormal) as a diamond. `coverage` is the sentence that
+    says how often such ranges held in the back-test; it stands under the title (R12)."""
     rows: list[tuple[str, float, dict[float, float]]] = []
     selected = group.selected_ultimates()
     for measure in ("paid", "incurred"):
@@ -296,7 +299,8 @@ def reserve_range(group: GroupReserving, currency: str) -> dict[str, Any] | None
     return {
         "data": data,
         "layout": _layout(
-            t("Selected reserve and its range, {currency}", currency=currency),
+            t("Selected reserve and its range, {currency}", currency=currency)
+            + (f"<br><sup>{coverage}</sup>" if coverage else ""),
             t("Reserve ({currency})", currency=currency),
             t("Triangle"),
             yaxis={"title": {"text": t("Triangle")}, "type": "category"},

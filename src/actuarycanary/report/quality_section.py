@@ -28,6 +28,14 @@ def _environment() -> Environment:
     return environment
 
 
+def failed_rules(report: QualityReport) -> tuple[int, int]:
+    """The rules that failed on at least one row, pair or claim, and the failed checks added
+    over them (A1a, R14). A row that fails two rules counts twice; the score DQ01 is built on
+    the same rule scores."""
+    failing = [x for x in report.rules if x.failed > 0]
+    return len(failing), sum(x.failed for x in failing)
+
+
 def _refs(refs: tuple[SourceRef, ...]) -> str:
     return "; ".join(f"{r.file} [{r.sheet}] row {r.row}" for r in refs)
 
@@ -49,11 +57,14 @@ def render_quality_section(
         )
         for name, s in group.items()
     ]
+    failed, checks = failed_rules(report)
     return (
         _environment()
         .get_template(SECTION_TEMPLATE)
         .render(
             overall=show_score(report.overall),
+            failed=numbers.count(failed),
+            failed_checks=numbers.count(checks),
             rules=report.overall.rules,
             counts={s: report.count(s) for s in ("BLOCKING", "WARNING", "INFO")},
             spec=lambda spec_id: f"{spec_id} v{dq01_version}",

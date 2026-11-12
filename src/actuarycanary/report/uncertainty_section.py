@@ -30,7 +30,7 @@ from actuarycanary.modules.uncertainty import (
     LineRisk,
     UncertaintyResult,
 )
-from actuarycanary.report import numbers
+from actuarycanary.report import coverage, numbers
 from actuarycanary.report.charts import INK, MUTED, _layout, _round
 from actuarycanary.report.frames import table, text, value
 from actuarycanary.report.language import t
@@ -82,6 +82,20 @@ def _sims(distribution: pl.DataFrame, column: str) -> np.ndarray | None:
     return distribution[column].drop_nulls().to_numpy().astype(float)
 
 
+def _coverage_text(
+    tables: Mapping[str, pl.DataFrame] | None, source: str, segment: str, line: str
+) -> str:
+    """The back-test coverage of the range of this source for this line, or pooled over all
+    lines (R12); empty for the expected cash flows, which carry no range."""
+    method = {MACK_SOURCE: coverage.MACK_METHOD, BOOTSTRAP_SOURCE: coverage.BOOTSTRAP_METHOD}.get(
+        source
+    )
+    if method is None or tables is None:
+        return ""
+    where = (None, None) if segment == ALL_LINES else (segment, line)
+    return coverage.sentence(coverage.observed(tables, method, *where))
+
+
 def selected_totals(lines: tuple[LineRisk, ...]) -> dict[tuple[str, str], float]:
     """The selected unpaid per line and, added, of all lines: the one total of the run that
     every table and sentence calls "the selected unpaid" (A1a, R07, record 0752)."""
@@ -96,6 +110,7 @@ def headline(
     distribution: pl.DataFrame,
     basis: str,
     selected: Mapping[tuple[str, str], float] | None = None,
+    tables: Mapping[str, pl.DataFrame] | None = None,
 ) -> list[dict[str, Any]]:
     """Per line and for all lines: the selected unpaid and the mean of the range with its 5th to
     95th percentile and the coefficient of variation, from the bootstrap where it ran, else
@@ -143,6 +158,9 @@ def headline(
                 "source": t(SOURCE_LABELS[chosen["source"]])
                 if chosen
                 else t(SOURCE_LABELS[EXPECTED_SOURCE]),
+                "coverage": _coverage_text(tables, chosen["source"], segment, line)
+                if chosen
+                else "",
             }
         )
     return out
@@ -279,7 +297,9 @@ def bridge_table(result: UncertaintyResult, basis: str) -> dict[str, Any] | None
     return {"heads": [c[0] for c in columns], "steps": steps, "left_out": left}
 
 
-def ranges(risk: pl.DataFrame, basis: str) -> list[dict[str, Any]]:
+def ranges(
+    risk: pl.DataFrame, basis: str, tables: Mapping[str, pl.DataFrame] | None = None
+) -> list[dict[str, Any]]:
     """RS03 and RS05 side by side per line and for all lines on one basis."""
     out = []
     for r in _totals(risk):
@@ -299,6 +319,7 @@ def ranges(risk: pl.DataFrame, basis: str) -> list[dict[str, Any]]:
                     numbers.amount(value(r["tail_value_at_risk"])),
                 ],
                 "simulations": numbers.count(value(r["simulations"])),
+                "coverage": _coverage_text(tables, str(r["source"]), r["segment"], r["line"]),
                 "label": text(r["label"]),
                 "note": text(r["note"]),
             }
@@ -306,7 +327,12 @@ def ranges(risk: pl.DataFrame, basis: str) -> list[dict[str, Any]]:
     return out
 
 
-def range_figure(risk: pl.DataFrame, basis: str, currency: str) -> dict[str, Any] | None:
+def range_figure(
+    risk: pl.DataFrame,
+    basis: str,
+    currency: str,
+    tables: Mapping[str, pl.DataFrame] | None = None,
+) -> dict[str, Any] | None:
     """The ranges drawn as ranges: a light bar from the median to the 99.5th percentile, a dark
     bar from the 75th to the 95th, the mean as a diamond, one row per line and source."""
     rows = [
@@ -324,6 +350,21 @@ def range_figure(risk: pl.DataFrame, basis: str, currency: str) -> dict[str, Any
     for r in rows:
         source = t("bootstrap") if r["source"] == BOOTSTRAP_SOURCE else t("Mack")
         label = f"{_line_name(r['segment'], r['line'])} · {source}"
+        if r["source"] == MACK_SOURCE and tables is not None:
+            found = coverage.observed(
+                tables,
+                coverage.MACK_METHOD,
+                *((None, None) if r["segment"] == ALL_LINES else (r["segment"], r["line"])),
+            )
+            label += (
+                " ("
+                + (
+                    t("back-test coverage {share}", share=numbers.ratio(found.share))
+                    if found
+                    else t("no back-test")
+                )
+                + ")"
+            )
         labels.append(label)
         for low, high, width, opacity, name in (
             ("p50", "p99_5", 8, 0.35, t("median to 99.5th percentile")),
@@ -659,7 +700,7 @@ def uncertainty_page(
     blocks = []
     for basis in bases:
         range_id = f"uncertainty-range-{basis.lower()}"
-        found = range_figure(uncertainty.risk, basis, currency)
+        found = range_figure(uncertainty.risk, basis, currency, tables)
         if found is not None:
             figures[range_id] = found
         histograms = []
@@ -678,10 +719,11 @@ def uncertainty_page(
                     uncertainty.distribution,
                     basis,
                     selected_totals(uncertainty.lines),
+                    tables,
                 ),
                 "present_values": present_values(uncertainty.risk) if basis == DISCOUNTED else [],
                 "bridge": bridge_table(uncertainty, basis),
-                "ranges": ranges(uncertainty.risk, basis),
+                "ranges": ranges(uncertainty.risk, basis, tables),
                 "range_figure": range_id if found is not None else "",
                 "histograms": histograms,
             }

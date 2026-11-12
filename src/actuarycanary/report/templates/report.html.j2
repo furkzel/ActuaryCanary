@@ -91,6 +91,7 @@ ol.findings li { margin: 6px 0; color: var(--text-primary); }
 .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
 .chart { min-height: 220px; width: 100%; }
 .footnote { font-size: 0.82rem; color: var(--text-muted); margin: 4px 0 12px; }
+.coverage { font-size: 0.82rem; color: var(--text-muted); }
 details { margin: 8px 0; }
 summary { cursor: pointer; color: var(--accent); }
 a { color: var(--accent); }
@@ -344,7 +345,8 @@ th.tier { text-align: center; border-bottom: 2px solid var(--border); }
   {% if mm.mack %}<div class="scroll"><table>
     <thead><tr><th>{{ tr("Total reserve (selected)") }}</th><th>{{ tr("Reserve") }}</th><th>{{ tr("75th percentile") }}</th><th>{{ tr("95th percentile") }}</th><th>{{ tr("99.5th percentile") }}</th><th>{{ tr("VaR 99.5%") }}</th><th>{{ tr("TVaR 99%") }}</th></tr></thead>
     <tbody>{% for r in mm.mack.ranges %}<tr><td>{{ r.label }}</td><td>{{ r.reserve }}</td>{% for c in r.cells %}<td>{{ c }}</td>{% endfor %}{% if not r.cells %}<td class="text" colspan="5">{{ tr("not shown: the reserve is not positive or the standard error is zero") }}</td>{% endif %}</tr>{% endfor %}</tbody>
-  </table></div>{% else %}<p>{{ tr("No range: the Mack standard error (MT06) did not run on this line, so no reserve range is given. A range needs more origin periods than are loaded.") }}</p>{% endif %}
+  </table></div>
+  <p class="footnote">{{ tr("Mack range: {coverage}.", coverage=l.range_coverage) }}</p>{% else %}<p>{{ tr("No range: the Mack standard error (MT06) did not run on this line, so no reserve range is given. A range needs more origin periods than are loaded.") }}</p>{% endif %}
 
   {% if mm.inflation %}<h3>{{ tr("Inflation-adjusted chain ladder") }}</h3>
   <div class="scroll"><table>

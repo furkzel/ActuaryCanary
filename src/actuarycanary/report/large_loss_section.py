@@ -12,6 +12,7 @@ from typing import Any
 
 import polars as pl
 
+from actuarycanary.methods.severity.fitting import NO_FAMILY_FITS
 from actuarycanary.report import numbers
 from actuarycanary.report.charts import _layout, segment_colour
 from actuarycanary.report.frames import of_line, p_value, table, text, value
@@ -42,6 +43,7 @@ def fits(tables: Mapping[str, pl.DataFrame], segment: str, line: str) -> dict[st
     group = groups[0] if groups else {}
     selected = of_line(table(tables, "severity_selected.csv"), segment, line)
     chosen = selected[0] if selected else {}
+    no_fit = text(chosen.get("why")) == NO_FAMILY_FITS
     rows = [
         {
             "family": t(FAMILIES.get(str(r["family"]), str(r["family"]))),
@@ -51,7 +53,7 @@ def fits(tables: Mapping[str, pl.DataFrame], segment: str, line: str) -> dict[st
             "ad_p": p_value(r["ad_p"]),
             "rejected": bool(r["rejected"]),
             "converged": bool(r["converged"]),
-            "selected": bool(r["selected"]),
+            "selected": bool(r["selected"]) and not no_fit,
         }
         for r in of_line(table(tables, "severity_fits.csv"), segment, line)
     ]
@@ -68,6 +70,9 @@ def fits(tables: Mapping[str, pl.DataFrame], segment: str, line: str) -> dict[st
         "rows": rows,
         "family": t(FAMILIES.get(family, family)) if family else "",
         "why": text(chosen.get("why")),
+        # every family rejected: the file keeps the lowest-AIC family and its quantiles, the page
+        # shows none of them (A1a, R17, record 0753)
+        "no_fit": no_fit,
         "quantiles": [numbers.amount(quantiles.get(q)) for q in QUANTILES],
     }
 
