@@ -337,7 +337,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "7eaa8477d8aaab61"
+    "value": "4c9ed560ad01f5b8"
    },
    {
     "label": "Valuation date",
@@ -7371,7 +7371,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "7eaa8477d8aaab61",
+  "run_id": "4c9ed560ad01f5b8",
   "settings": [
    {
     "name": "bases.currency",
@@ -7524,6 +7524,30 @@
    {
     "name": "methods.selection_measure",
     "value": "incurred"
+   },
+   {
+    "name": "reinsurance.allocation_fallback",
+    "value": "aggregate"
+   },
+   {
+    "name": "reinsurance.index_clause",
+    "value": "payment_by_payment"
+   },
+   {
+    "name": "reinsurance.inuring_order",
+    "value": "CV09"
+   },
+   {
+    "name": "reinsurance.loss_view",
+    "value": "ultimate"
+   },
+   {
+    "name": "reinsurance.programme",
+    "value": "loaded"
+   },
+   {
+    "name": "reinsurance.simulate",
+    "value": "False"
    },
    {
     "name": "report.sensitivity.curve_step",

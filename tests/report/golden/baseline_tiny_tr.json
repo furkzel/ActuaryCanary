@@ -337,7 +337,7 @@
   "rows": [
    {
     "label": "Çalıştırma kimliği",
-    "value": "89aab15f3692bf8e"
+    "value": "30a766e143fd5cbc"
    },
    {
     "label": "Değerleme tarihi",
@@ -7407,7 +7407,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "89aab15f3692bf8e",
+  "run_id": "30a766e143fd5cbc",
   "settings": [
    {
     "name": "bases.currency",
@@ -7560,6 +7560,30 @@
    {
     "name": "methods.selection_measure",
     "value": "incurred"
+   },
+   {
+    "name": "reinsurance.allocation_fallback",
+    "value": "aggregate"
+   },
+   {
+    "name": "reinsurance.index_clause",
+    "value": "payment_by_payment"
+   },
+   {
+    "name": "reinsurance.inuring_order",
+    "value": "CV09"
+   },
+   {
+    "name": "reinsurance.loss_view",
+    "value": "ultimate"
+   },
+   {
+    "name": "reinsurance.programme",
+    "value": "loaded"
+   },
+   {
+    "name": "reinsurance.simulate",
+    "value": "False"
    },
    {
     "name": "report.sensitivity.curve_step",
