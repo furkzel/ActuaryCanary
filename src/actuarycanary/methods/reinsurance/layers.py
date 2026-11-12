@@ -154,7 +154,7 @@ def apply_aggregate(
         aggregate_exhausted=bool(np.isfinite(aal) and total_after >= aal * (1 - 1e-12)),
         largest_unit_ceded=float(inc[:, -1].max()),
     )
-    return pl.concat([sub, rest]).sort(["unit", "day"]), use
+    return pl.concat([sub, rest.select(sub.columns)]).sort(["unit", "day"]), use
 
 
 def layer_use(ud: pl.DataFrame) -> LayerUse:

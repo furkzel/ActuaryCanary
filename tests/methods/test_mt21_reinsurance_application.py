@@ -12,10 +12,13 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from actuarycanary.methods.reinsurance import (
+    OCCURRENCE_DATE,
+    PAYMENT_BY_PAYMENT,
     ClaimBook,
     Options,
     Section,
     apply_programme,
+    price_indices,
     sections_from_frame,
 )
 from actuarycanary.methods.reinsurance.application import EVENT_PER_CLAIM
@@ -248,3 +251,204 @@ def test_quota_share_is_linear(gross: list[int], factor: int) -> None:
     many = apply_programme([QUOTA], _simple_book([g * factor for g in gross]))
     a, b = one.net["ceded_incurred"].to_numpy(), many.net["ceded_incurred"].to_numpy()
     assert b == pytest.approx(a * factor, rel=1e-12, abs=1e-12)
+
+
+# ------------------------------------------------------------------ aggregate terms, index clause
+
+
+def _folder():
+    return load_reference("MT21-reinsurance-twelve-claims")["folder"]
+
+
+def _layer_book() -> ClaimBook:
+    rows = load_table(_folder() / "layers.csv")
+    ids = [r["claim_id"] for r in rows]
+    gross = [float(r["gross_loss"]) for r in rows]
+    return ClaimBook(
+        valuations=pl.DataFrame(
+            {"claim_id": ids, "valuation_date": [CUT] * len(ids), "paid": gross, "incurred": gross}
+        ),
+        claims=pl.DataFrame(
+            {
+                "claim_id": ids,
+                "occurrence_date": [date.fromisoformat(r["occurrence_date"]) for r in rows],
+            }
+        ),
+    )
+
+
+def test_reinstatements_and_aggregate_terms() -> None:
+    _, values = _fixture()
+    book = _layer_book()
+    ids = book.claims["claim_id"].to_list()
+    two = Section(
+        "XL",
+        "EXCESS_OF_LOSS",
+        retention=50,
+        limit=100,
+        reinstatements=2,
+        reinstatement_rate=1.0,
+        **YEAR,
+    )
+    app = apply_programme([two], book, Options(deposit_premium={two.key: 30.0}))
+    _check(values, "reinstatements_case_ceded", _ceded(app, "XL"), ids)
+    result = app.sections[0]
+    assert result.reinstatements_used == pytest.approx(
+        values[("reinstatements_case", "reinstatements_used")]["value"]
+    )
+    assert result.reinstatement_premium == pytest.approx(
+        values[("reinstatements_case", "reinstatement_premium")]["value"], rel=1e-12
+    )
+    assert result.use is not None and result.use.aggregate_exhausted
+    crossed = Section(
+        "XL",
+        "EXCESS_OF_LOSS",
+        retention=50,
+        limit=100,
+        aggregate_deductible=60,
+        aggregate_limit=130,
+        **YEAR,
+    )
+    app = apply_programme([crossed], book)
+    _check(values, "aggregate_case_ceded", _ceded(app, "XL"), ids)
+    assert app.sections[0].use is not None
+    assert app.sections[0].use.aggregate_deductible_used == 60
+
+
+def _index_book_and_options(clause: str) -> tuple[ClaimBook, Options]:
+    rows = load_table(_folder() / "valuations.csv")
+    index = load_table(_folder() / "index.csv")
+    market = pl.DataFrame(
+        {
+            "series_id": ["CPI"] * len(index),
+            "date": [date.fromisoformat(r["month"] + "-01") for r in index],
+            "value": [float(r["value"]) for r in index],
+            "kind": ["PRICE_INDEX"] * len(index),
+        }
+    )
+    book = ClaimBook(
+        valuations=pl.DataFrame(
+            {
+                "claim_id": [r["claim_id"] for r in rows],
+                "valuation_date": [date.fromisoformat(r["valuation_date"]) for r in rows],
+                "paid": [float(r["paid_to_date"]) for r in rows],
+                "incurred": [float(r["paid_to_date"]) + float(r["case_reserve"]) for r in rows],
+            }
+        ),
+        claims=pl.DataFrame(
+            {
+                "claim_id": ["I1", "I2"],
+                "occurrence_date": [date(2020, 3, 15), date(2020, 2, 10)],
+            }
+        ),
+    )
+    return book, Options(index_clause=clause, price_index=price_indices(market))
+
+
+@pytest.mark.parametrize("clause", [PAYMENT_BY_PAYMENT, OCCURRENCE_DATE])
+def test_index_clause_by_hand(clause: str) -> None:
+    _, values = _fixture()
+    book, options = _index_book_and_options(clause)
+    layer = Section("XL", "EXCESS_OF_LOSS", retention=100, limit=100, index_series="CPI", **YEAR)
+    app = apply_programme([layer], book, options)
+    for row in app.ceded.iter_rows(named=True):
+        key = f"{row['claim_id']} {row['valuation_date'].isoformat()}"
+        for basis in ("paid", "incurred"):
+            expected = values[(f"{clause}_ceded_{basis}", key)]["value"]
+            assert row[f"ceded_{basis}"] == pytest.approx(expected, rel=1e-12, abs=1e-12), (
+                key,
+                basis,
+            )
+    assert any(
+        clause.replace("_", " ") in n or "occurrence date" in n for n in app.sections[0].notes
+    )
+    # a series missing from market: no indexation, named
+    plain = apply_programme([layer], book, Options(index_clause=clause))
+    assert any("DV-RTY-10" in n for n in plain.sections[0].notes)
+
+
+@settings(max_examples=5, deadline=None)
+@given(
+    payments=st.lists(st.integers(min_value=-50, max_value=400), min_size=1, max_size=4),
+    retention=st.integers(min_value=0, max_value=300),
+    extra=st.integers(min_value=0, max_value=200),
+)
+def test_properties_hold_with_the_index_clause(
+    payments: list[int], retention: int, extra: int
+) -> None:
+    days = [date(2020, 6, 30), date(2020, 9, 30), date(2020, 12, 31), date(2021, 3, 31)][
+        : len(payments)
+    ]
+    paid = [max(0.0, float(sum(payments[: i + 1]))) for i in range(len(payments))]
+    book = ClaimBook(
+        valuations=pl.DataFrame(
+            {
+                "claim_id": ["A"] * len(paid),
+                "valuation_date": days,
+                "paid": paid,
+                "incurred": [p + 50 for p in paid],
+            }
+        ),
+        claims=pl.DataFrame({"claim_id": ["A"], "occurrence_date": [date(2020, 3, 15)]}),
+    )
+    for clause in (PAYMENT_BY_PAYMENT, OCCURRENCE_DATE):
+        options = _index_book_and_options(clause)[1]
+        net = {}
+        for r in (retention, retention + extra):
+            layer = Section(
+                "XL", "EXCESS_OF_LOSS", retention=r, limit=150, index_series="CPI", **YEAR
+            )
+            app = apply_programme([layer], book, options)
+            for basis in ("paid", "incurred"):
+                g, c = app.net[f"gross_{basis}"].to_numpy(), app.net[f"ceded_{basis}"].to_numpy()
+                assert (app.net[f"net_{basis}"].to_numpy() == g - c).all()
+                assert (c <= g + 1e-9).all() and (c >= -1e-12).all()
+            net[r] = float(app.net["ceded_incurred"].sum())
+        assert net[retention + extra] <= net[retention] + 1e-9
+
+
+def test_event_layer_with_the_index_clause_adds_its_claims() -> None:
+    """Two claims of one event paid in the same months cede, together, what one claim with the
+    summed payments cedes under the same indexed layer."""
+    _, options = _index_book_and_options(PAYMENT_BY_PAYMENT)
+    days = [date(2020, 6, 30), date(2020, 9, 30), date(2020, 12, 31)]
+    a, b = [60.0, 100.0, 150.0], [40.0, 90.0, 95.0]
+
+    def book(paid: dict[str, list[float]]) -> ClaimBook:
+        ids = [c for c in paid for _ in days]
+        return ClaimBook(
+            valuations=pl.DataFrame(
+                {
+                    "claim_id": ids,
+                    "valuation_date": days * len(paid),
+                    "paid": [x for c in paid for x in paid[c]],
+                    "incurred": [x + 20 for c in paid for x in paid[c]],
+                }
+            ),
+            claims=pl.DataFrame(
+                {
+                    "claim_id": list(paid),
+                    "occurrence_date": [date(2020, 3, 15)] * len(paid),
+                    "event_code": ["E"] * len(paid),
+                }
+            ),
+        )
+
+    event = Section(
+        "CAT",
+        "EXCESS_OF_LOSS",
+        loss_basis="EVENT",
+        retention=150,
+        limit=200,
+        index_series="CPI",
+        **YEAR,
+    )
+    risk = Section("XL", "EXCESS_OF_LOSS", retention=150, limit=200, index_series="CPI", **YEAR)
+    pair = apply_programme([event], book({"A": a, "B": b}), options).net
+    one = apply_programme(
+        [risk], book({"S": [x + y for x, y in zip(a, b, strict=True)]}), options
+    ).net
+    together = (
+        pair.group_by("valuation_date").agg(pl.col("ceded_paid").sum()).sort("valuation_date")
+    )
+    assert together["ceded_paid"].to_list() == pytest.approx(one["ceded_paid"].to_list(), rel=1e-12)
