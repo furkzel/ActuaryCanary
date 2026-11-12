@@ -62,6 +62,7 @@ from actuarycanary.modules.methods_port import ReservingPort
 from actuarycanary.modules.output import analysis_json
 from actuarycanary.modules.premium_input import earned_premium_by_origin
 from actuarycanary.modules.recoveries import RecoveryTables, recovery_tables
+from actuarycanary.modules.reinsurance import ReinsuranceSettings
 from actuarycanary.modules.reserving import (
     SELECTION_MEASURE,
     ChainLadderSettings,
@@ -216,6 +217,8 @@ class RunSettings(BaseModel):
     # the curve and the date of the discounted figures (CV10, records 0322 and 0327); part of the
     # settings, so of the run id
     discount: DiscountSettings = Field(default_factory=DiscountSettings)
+    # M08 and MT21: the index clause, the allocation fallback of CV09 and the what-if (F2a)
+    reinsurance: ReinsuranceSettings = Field(default_factory=ReinsuranceSettings)
 
     @field_validator("currency_view")
     @classmethod
