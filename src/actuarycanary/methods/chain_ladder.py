@@ -10,6 +10,7 @@ from enum import StrEnum
 
 import numpy as np
 
+REPLACED_MIN_DIFFERENCE = 1e-9  # the rule replaces an average that differs from 1.000 by more
 HIGH_LOW_MIN_RATIOS = 5  # exclude_high_low applies to columns with at least this many
 
 
@@ -47,6 +48,7 @@ class ChainLadder:
     # average the rule `min_link_ratios` replaced by 1.000 (a subset of `overridden`)
     n_ratios: np.ndarray
     replaced: np.ndarray
+    min_link_ratios: int = 1  # the rule's limit the run was made with (1: no rule)
 
     @property
     def reserve(self) -> np.ndarray:
@@ -104,8 +106,9 @@ def chain_ladder(
     `selected` replaces the average of single columns (column index to factor); the averages
     stay in the result as the alternative. A column that rests on fewer than `min_link_ratios`
     usable link ratios, but on at least one, is not taken from the average: its factor is set to
-    1.000 (neutral) and the column is marked in `replaced`; a selected factor wins over the rule.
-    The default 1 applies no rule."""
+    1.000 (neutral) and the column is marked in `replaced` (a column whose average is 1.000
+    anyway is left as it is); a selected factor wins over the rule. The default 1 applies no
+    rule."""
     cumulative = np.asarray(cumulative, dtype=float)
     n_origins, n_dev = cumulative.shape
     if n_origins < min_origins:
@@ -149,7 +152,13 @@ def chain_ladder(
         overridden[j] = True
 
     n_ratios = (used & np.isfinite(link_ratios)).sum(axis=0).astype(np.int64)
-    replaced = (n_ratios > 0) & (n_ratios < min_link_ratios) & ~overridden
+    # a column whose average is 1.000 anyway is not replaced: nothing would change
+    replaced = (
+        (n_ratios > 0)
+        & (n_ratios < min_link_ratios)
+        & ~overridden
+        & (np.abs(averages - 1.0) > REPLACED_MIN_DIFFERENCE)
+    )
     for j in np.flatnonzero(replaced):
         factors[j] = 1.0
         overridden[j] = True
@@ -189,4 +198,5 @@ def chain_ladder(
         overridden=overridden,
         n_ratios=n_ratios,
         replaced=replaced,
+        min_link_ratios=min_link_ratios,
     )

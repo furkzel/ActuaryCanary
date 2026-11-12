@@ -1,5 +1,5 @@
 id: MT02
-version: 1.0.0
+version: 1.1.0
 title_en: Chain ladder
 title_tr: Zincir merdiven (chain ladder)
 status: reviewed
@@ -44,6 +44,14 @@ parameters:
   - name: min_origins
     default: 3
     description: Fewest origin periods for which chain ladder runs.
+  - name: min_link_ratios
+    default: 1
+    description: >-
+      Fewest usable link ratios behind a development factor. A column with at least one
+      but fewer than this many ratios is not taken from the average: its factor is 1.000.
+      The function default 1 applies no rule; the reserving module (M04) runs with 2, its
+      setting min_origins_per_factor, so that a factor resting on a single link ratio is
+      replaced (record 0776).
 algorithm:
   - step: Link ratios for every pair of observed cells.
     formula: 'F_{i,j} = C_{i,j+1} / C_{i,j}'
@@ -56,7 +64,12 @@ algorithm:
     formula: 'f_j^{\mathrm{vw}} = \frac{\sum_{i \in A_j} C_{i,j+1}}{\sum_{i \in A_j} C_{i,j}}, \qquad f_j^{\mathrm{simple}} = \frac{1}{|A_j|} \sum_{i \in A_j} F_{i,j}'
   - step: >-
       Selected factors are the averages unless the user overrides single columns in the
-      assumptions register; overrides are recorded with the alternative.
+      assumptions register; overrides are recorded with the alternative. A column that rests
+      on fewer than min_link_ratios usable link ratios (at least one) and whose average
+      differs from 1 has the factor 1.000 instead of the average; the average stays as the
+      alternative, the column is marked as replaced by the rule and the register lists it
+      as a selected factor with who = rule. A factor the user selects wins over the rule.
+    formula: 'f_j = 1 \quad \text{if } 1 \le |A_j| < m'
   - step: Cumulative factors and ultimates.
     formula: 'CDF_j = \tau \prod_{k=j}^{J-2} f_k, \qquad \hat U_i = C_{i,J_i} \cdot CDF_{J_i}, \qquad CDF_{J-1} = \tau'
   - step: Projected cells of the lower triangle.
@@ -68,6 +81,8 @@ outputs:
     description: Volume-weighted, simple and latest-n averages for comparison.
   - name: selected_factors
     description: f(j) used, the tail factor and CDF(j).
+  - name: link_ratio_counts
+    description: Usable link ratios behind each average, and the columns the rule replaced.
   - name: ultimate
     description: U(i) per origin.
   - name: unpaid
@@ -78,6 +93,7 @@ outputs:
     description: Completed lower triangle.
 diagnostics:
   - Coefficient of variation of link ratios per column.
+  - THIN_FACTOR warning for each column the rule replaced (said instead of FEW_LINK_RATIOS for that column).
   - Standardised residuals by origin, development and calendar diagonal.
   - Age-to-age factor plots per column with selected factor.
 failure_modes:
@@ -85,6 +101,8 @@ failure_modes:
     action: Not run; reason "chain ladder needs at least 3 origin periods".
   - condition: Column with no usable link ratio, or a volume-weighted denominator of zero.
     action: Factor set to 1 with a WARNING naming the column.
+  - condition: Column with fewer usable link ratios than min_link_ratios and an average other than 1.
+    action: Factor set to 1.000, the average kept as the alternative, THIN_FACTOR warning naming the column.
   - condition: Latest cumulative cell of an origin is zero.
     action: Ultimate equals zero; flagged with the advice to use Bornhuetter–Ferguson for that origin.
   - condition: Negative cumulative values.
@@ -113,3 +131,10 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-11-12
+    change: >-
+      A development factor that rests on fewer usable link ratios than the new parameter
+      min_link_ratios is set to 1.000 (A1b, R08, record 0776); the function default 1 applies no
+      rule, so the published benchmarks do not change; the reserving module runs with 2. New
+      outputs link_ratio_counts and the THIN_FACTOR diagnostic. Not reviewed by the owner yet.

@@ -11,7 +11,7 @@ from typing import Any
 import numpy as np
 
 from actuarycanary.methods.assumptions import Assumption
-from actuarycanary.methods.chain_ladder import Skipped
+from actuarycanary.methods.chain_ladder import ChainLadder, Skipped
 from actuarycanary.methods.inflation_adjusted import InflationAdjusted
 from actuarycanary.methods.mack import Mack, applied_to_selected
 from actuarycanary.methods.selection import Selection
@@ -235,11 +235,14 @@ def _stability(group: GroupReserving) -> list[dict[str, Any]]:
             continue
         s = found.stability
         averages = found.averages
+        chain = group.chain_ladder.get(measure)
         rows = []
         for j, column in enumerate(s.columns):
+            replaced = isinstance(chain, ChainLadder) and bool(chain.replaced[j])
             rows.append(
                 {
                     "column": column,
+                    "note": t("set to 1.000 by the rule (one link ratio)") if replaced else "",
                     "cells": [
                         f"{int(s.used[j])}",
                         numbers.factor(float(s.minimum[j])),

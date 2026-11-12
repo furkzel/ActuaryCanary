@@ -1,5 +1,5 @@
 id: MT06
-version: 1.1.0
+version: 1.2.0
 title_en: Mack standard error with lognormal range
 title_tr: Mack standart hatası ve lognormal aralık
 status: reviewed
@@ -34,6 +34,14 @@ parameters:
   - name: tvar_level
     default: 0.99
     description: Tail value-at-risk level; 99 per cent is the common expected-shortfall calibration.
+  - name: min_link_ratios
+    default: 1
+    description: >-
+      The rule of MT02: a development factor resting on fewer usable link ratios is 1.000.
+      The function default 1 applies no rule; the reserving module runs with its setting
+      min_origins_per_factor (2), so that Mack uses the factors of MT02. The variance
+      parameter of such a column is extrapolated as for any column with fewer than two
+      link ratios; the formulas do not change (record 0776).
 algorithm:
   - step: >-
       Fit chain ladder on the same triangle with the volume-weighted average over all
@@ -125,3 +133,9 @@ change_log:
       to a calibration test on triangles drawn from Mack's model (GenIns parameters, at least
       2000 runs, same range); the synthetic baseline coverage per line is information without
       a tolerance. Owner-approved; decision 0062 gives the evidence, decision 0075 records the change.
+  - version: 1.2.0
+    date: 2026-11-12
+    change: >-
+      The parameter min_link_ratios of MT02 is passed through, so that the Mack chain ladder
+      has the same factors as the chain ladder of the run (A1b, R08, record 0776). Default 1
+      (no rule) leaves the published standard errors unchanged. Not reviewed by the owner yet.

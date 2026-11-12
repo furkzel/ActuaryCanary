@@ -133,3 +133,19 @@ def test_a_user_entry_wins_in_the_register_too() -> None:
 
 def test_too_few_origins_still_skips() -> None:
     assert isinstance(chain_ladder(_paid()[:2], min_origins=3, min_link_ratios=2), Skipped)
+
+
+def test_a_thin_column_whose_average_is_one_anyway_is_not_replaced() -> None:
+    triangle = np.array(
+        [
+            [100.0, 150.0, 150.0],
+            [200.0, 300.0, 300.0],
+            [300.0, 450.0, np.nan],
+            [400.0, np.nan, np.nan],
+        ]
+    )
+    result = fitted(triangle, min_link_ratios=3)
+    assert result.n_ratios.tolist() == [3, 2]
+    assert result.replaced.tolist() == [False, False]  # 1.0 stays 1.0, and says nothing
+    assert result.factors.tolist() == pytest.approx([1.5, 1.0])
+    assert not result.warnings

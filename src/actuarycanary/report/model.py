@@ -55,7 +55,13 @@ from actuarycanary.report.quality_section import failed_rules
 from actuarycanary.report.recoveries_section import add_recovery_facts, recoveries_page
 from actuarycanary.report.sensitivity_section import sensitivity_page
 from actuarycanary.report.survival_section import survival_page
-from actuarycanary.report.tier_b_section import line_tier_b, merged_ultimates, ultimate_columns
+from actuarycanary.report.thin_tail import add_thin_tail_facts, tail_box, thin_factors
+from actuarycanary.report.tier_b_section import (
+    line_tier_b,
+    merged_ultimates,
+    tail_effect,
+    ultimate_columns,
+)
 from actuarycanary.report.uncertainty_section import uncertainty_page
 from actuarycanary.spec.catalogue import SpecCatalogue
 from actuarycanary.structures.triangles import MEASURES, THIN_CELL_CLAIMS
@@ -938,6 +944,8 @@ def _reserving(
                 },
                 "methods": _methods_with_tier_b(r, group),
                 "tier_b": line_tier_b(r.tables, group, spec),
+                "thin_factors": thin_factors(r.tables, group),
+                "tail_box": tail_box(r.tables, group, r.analysis, tail_effect(r.tables, group)),
                 "range_coverage": mack_coverage,
                 "thin_cells": thin_cells,
                 "findings": line_findings.get(anchor, []),
@@ -1212,6 +1220,7 @@ def scoped_facts(
     lines = {line_name(g.group): line_facts(g, rates, currency) for g in reserving.groups}
     for g in reserving.groups:
         add_line_facts(lines[line_name(g.group)], tables, g)
+        add_thin_tail_facts(lines[line_name(g.group)], tables, g, analysis)
     premium = segment_premium(analysis)
     ratios = segment_loss_ratios(analysis)
     triangles = reserving.triangles

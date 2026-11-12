@@ -3,7 +3,8 @@
 Tables: factor stability per column (MT02), standardised residuals by origin, column and
 diagonal (MT02, MT06) and the averages side by side (MT02). Warnings: thin evidence (every
 method), late development with tail 1, factors resting on few origins or on a zero
-denominator (MT02), and negative IBNR (paid ultimate below incurred to date).
+denominator (MT02), a factor replaced by 1.000 because it rests on too few link ratios (the
+rule of record 0776, THIN_FACTOR) and negative IBNR (paid ultimate below incurred to date).
 """
 
 from collections.abc import Sequence
@@ -167,7 +168,22 @@ def chain_ladder_warnings(
                 )
             )
     for j in estimated:
-        if counts[j] < FEW_LINK_RATIOS:
+        if chain.replaced[j]:  # said once, by THIN_FACTOR, with what the rule did
+            warnings.append(
+                Diagnostic(
+                    method,
+                    "THIN_FACTOR",
+                    WARNING,
+                    f"factor {column_label(ages, j)} rests on {int(chain.n_ratios[j])} link "
+                    f"ratio{'s' if chain.n_ratios[j] != 1 else ''}, fewer than "
+                    f"{chain.min_link_ratios}: the average {chain.averages[j]:.4g} is not used "
+                    f"and the factor is {chain.factors[j]:.4g} (rule of the run; a factor "
+                    "selected in the assumptions register wins over it)",
+                    column_label(ages, j),
+                    float(chain.averages[j]),
+                )
+            )
+        elif counts[j] < FEW_LINK_RATIOS:
             warnings.append(
                 Diagnostic(
                     method,

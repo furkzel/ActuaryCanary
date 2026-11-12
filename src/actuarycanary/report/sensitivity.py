@@ -8,6 +8,9 @@ the run had it, and compares the result with the run's own:
 - tail: the MT02 tail factor of every triangle raised by a fixed step, and the tail of the
   curve MT14 fitted (MT14 `selected_curve`, the curve the run's register chose); the selected
   IBNR;
+- thin factors: the factors the rule of record 0776 set to 1.000 (a column resting on one link
+  ratio) put back to the average, entered as MT02 `selected_factor` register entries; the
+  selected unpaid (MT10, RS02), the unpaid being what the rule moves;
 - future inflation: the MT07 unpaid at the run's future inflation (none means value-date
   prices, that is 0) moved by +/- one step; MT07 itself re-inflates the same future payments;
 - discount curve: the present value of the expected unpaid (RS04) with the continuously
@@ -42,6 +45,7 @@ WHO = "sensitivity"
 WHY = "sensitivity variant of the report (record 0343), never a judgement of the run"
 
 IBNR = "selected IBNR (MT10, RS02)"
+UNPAID = "selected unpaid (MT10, RS02)"
 UNPAID_MT07 = "unpaid, nominal (MT07)"
 PRESENT_VALUE = "present value of the expected unpaid (RS04)"
 
@@ -74,6 +78,7 @@ VARIANTS = (
     Variant("factors_down", "development factors", f"(f − 1) × {1 - FACTOR_STEP:.2f}"),
     Variant("tail_up", "tail factor", f"+ {TAIL_STEP:.2f}"),
     Variant("tail_fitted", "tail factor", "curve fitted by MT14"),
+    Variant("thin_average", "thin development factors", "average instead of 1.000"),
     Variant("inflation_up", "future inflation", f"+ {INFLATION_STEP * 100:.0f} point"),
     Variant("inflation_down", "future inflation", f"− {INFLATION_STEP * 100:.0f} point"),
     Variant("curve_up", "discount curve", f"+ {CURVE_STEP * 10000:.0f} basis points"),
@@ -176,6 +181,37 @@ def selected_ibnr(group: GroupReserving) -> float | None:
     return float(np.nansum(np.array(ultimates, dtype=float)) - np.nansum(incurred))
 
 
+def selected_unpaid(group: GroupReserving) -> float | None:
+    ultimates = group.selected_ultimates()
+    if not ultimates or any(u is None or not np.isfinite(u) for u in ultimates):
+        return None
+    paid = group.triangles["paid"].latest
+    return float(np.nansum(np.array(ultimates, dtype=float)) - np.nansum(paid))
+
+
+def thin_register(
+    result: ReservingResult, register: AssumptionsRegister
+) -> tuple[AssumptionsRegister, set[tuple[str, ...]]]:
+    """The run's register with the average entered as the selected factor of every column the
+    rule replaced; the groups that have such a column."""
+    added: list[Assumption] = []
+    changed: set[tuple[str, ...]] = set()
+    for group in result.groups:
+        for measure in MEASURES:
+            chain = group.chain_ladder.get(measure)
+            if not isinstance(chain, ChainLadder):
+                continue
+            ages = group.triangles[measure].ages
+            for j in np.flatnonzero(chain.replaced):
+                scope = _scope(group, measure)
+                added.append(
+                    _entry("MT02", "selected_factor", scope, column_label(ages, int(j)),
+                           float(chain.averages[j]))
+                )  # fmt: skip
+                changed.add(group.group)
+    return AssumptionsRegister(entries=(*register.entries, *added)), changed
+
+
 def rerun(result: ReservingResult, register: AssumptionsRegister) -> ReservingResult:
     inputs = replace(result.inputs, register=register, tier_b=None)
     return run_reserving(result.triangles, result.settings, inputs)
@@ -247,6 +283,21 @@ def run_sensitivity(
     }
     fitted, changed = fitted_register(result, register)
     reruns["tail_fitted"] = rerun(result, fitted)
+    thin, thin_groups = thin_register(result, register)
+    base_unpaid = {g.group: selected_unpaid(g) for g in result.groups}
+    if thin_groups:
+        found_thin = rerun(result, thin)
+        by_unpaid = {g.group: selected_unpaid(g) for g in found_thin.groups}
+    for group in result.groups:
+        variant = BY_NAME["thin_average"]
+        before = base_unpaid.get(group.group)
+        if group.group not in thin_groups:
+            why = "the rule replaced no development factor on this line"
+            rows.append(_row(group.group, variant, UNPAID, "NOMINAL", before, None, why))
+            continue
+        after = by_unpaid.get(group.group)
+        note = "" if before is not None and after is not None else "no selected ultimate"
+        rows.append(_row(group.group, variant, UNPAID, "NOMINAL", before, after, note))
     for name, found in reruns.items():
         variant = BY_NAME[name]
         by_group = {g.group: selected_ibnr(g) for g in found.groups}
@@ -312,5 +363,6 @@ __all__ = [
     "rerun",
     "run_sensitivity",
     "selected_ibnr",
+    "selected_unpaid",
     "settings",
 ]
