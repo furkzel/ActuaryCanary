@@ -15,8 +15,7 @@ from actuarycanary.synthetic.check import check_folder
 NEW = ("reinsurance_treaties", "reinsurance_transactions", "recoveries", "ledger")
 RULES = ("DV-RTY", "DV-RTR", "DV-RCV", "DV-LDG")
 MESSY = ("messy_headers", "messy_incremental")
-# what the platform finds beyond the generator's checker, or cannot evaluate yet (record 0384)
-PREMIUM_BEFORE_INCEPTION = "DV-RTR-06"  # the checker implements the claim half only
+# what the platform cannot evaluate yet (record 0384)
 NEEDS_THE_PROFILE = "DV-LDG-09"  # the account-mapping profile (CV12) is not built
 
 
@@ -97,7 +96,6 @@ def test_the_messy_scenarios_have_the_findings_of_their_clean_scenario(
 def test_the_data_rules_agree_with_the_checker_of_the_generator(clean) -> None:
     name, folder, _, report = clean
     found, truth = _counts(report), _truth(folder)
-    found.pop(PREMIUM_BEFORE_INCEPTION, None)
     truth.pop(NEEDS_THE_PROFILE, None)
     assert found == truth, name
     assert found  # the scenarios are not free of faults
@@ -152,21 +150,23 @@ def test_fault_ceded_above_gross_and_disagreeing_ceded_fields(scenario_folder, s
     assert "DV-RTR-08" not in _counts(scenario_checked("baseline")[1])
 
 
-def test_premium_movements_before_the_first_treaty_period_are_listed(clean) -> None:
-    """Beyond the generator's checker (record 0384): the movements of the year before the first
-    contract period in the treaties file fail the premium half of DV-RTR-06."""
-    _, folder, feeds, report = clean
+def test_no_premium_movement_precedes_its_treaty_and_the_rule_is_silent(clean) -> None:
+    """Record 0392: premium is ceded from the first contract period in the treaties file, so the
+    premium half of DV-RTR-06 finds nothing (the rule itself is tested on tables built in code in
+    test_checks_feeds.py)."""
+    name, _, feeds, report = clean
     moves = feeds["reinsurance_transactions"].frame
     first = (
         feeds["reinsurance_treaties"]
         .frame.group_by("treaty_id")
         .agg(pl.col("inception_date").min().alias("first"))
     )
-    early = moves.join(first, on="treaty_id").filter(
+    premium = moves.join(first, on="treaty_id").filter(
         pl.col("type").is_in(["CEDED_PREMIUM", "REINSTATEMENT_PREMIUM"])
-        & (pl.col("booking_date") < pl.col("first"))
     )
-    assert early.height > 0 and _counts(report)["DV-RTR-06"] == early.height
+    assert premium.height > 0, name
+    assert premium.filter(pl.col("booking_date") < pl.col("first")).height == 0, name
+    assert "DV-RTR-06" not in _counts(report), name
 
 
 def test_recoveries_agree_with_the_truth_and_with_the_to_date_fields(clean) -> None:

@@ -50,3 +50,20 @@ def add_months(days: np.ndarray, months: int) -> np.ndarray:
 
 def years_since(days: np.ndarray, base_day: int) -> np.ndarray:
     return (np.asarray(days, dtype=np.float64) - base_day) / DAYS_PER_YEAR
+
+
+def anniversary(inception: int, year_offset: int) -> int:
+    """The day of the inception date `year_offset` years later."""
+    start = from_day(inception)
+    return to_day(start.replace(year=start.year + year_offset))
+
+
+def first_contract_start(inception: int, first_day: int) -> int:
+    """Start of the first annual contract period from `inception` that ends after `first_day`.
+
+    This is the first period the treaty table lists; a premium cannot be ceded to a treaty
+    before it (DV-RTR-06)."""
+    k = 0
+    while anniversary(inception, k + 1) <= first_day:
+        k += 1
+    return anniversary(inception, k)

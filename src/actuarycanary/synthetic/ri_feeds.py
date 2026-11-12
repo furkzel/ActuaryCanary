@@ -23,7 +23,14 @@ import numpy as np
 import polars as pl
 
 from actuarycanary.synthetic.claims import END_OF_TIME, ClaimWorld
-from actuarycanary.synthetic.days import from_day, month_end, month_index, month_start, to_day
+from actuarycanary.synthetic.days import (
+    anniversary,
+    from_day,
+    month_end,
+    month_index,
+    month_start,
+    to_day,
+)
 from actuarycanary.synthetic.feeds import date_series, id_text
 from actuarycanary.synthetic.market import Market
 from actuarycanary.synthetic.portfolio import Policies, PremiumRows
@@ -65,18 +72,13 @@ class Period:
     end: int  # exclusive
 
 
-def _anniversary(inception: int, year_offset: int) -> int:
-    start = from_day(inception)
-    return to_day(start.replace(year=start.year + year_offset))
-
-
 def contract_periods(inception: int, first_day: int, cut_off: int, treaty_id: str) -> list[Period]:
     """Annual contract periods from the inception date that end after `first_day` and start on
     or before the cut-off."""
     periods: list[Period] = []
     k = 0
     while True:
-        start, end = _anniversary(inception, k), _anniversary(inception, k + 1)
+        start, end = anniversary(inception, k), anniversary(inception, k + 1)
         if start > cut_off:
             return periods
         if end > first_day:

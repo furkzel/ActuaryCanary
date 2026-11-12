@@ -226,6 +226,15 @@ def _transactions(
         )
         by_claim = x.with_columns(kind.alias("kind")).filter(pl.col("claim_id").is_not_null())
         claims = tables.get("claims")
+        bad_rtr06 = 0
+        first = treaties.group_by("treaty_id").agg(pl.col("inception_date").min().alias("_first"))
+        early = (
+            x.with_columns(kind.alias("kind"))
+            .filter(pl.col("kind").is_in(["CEDED_PREMIUM", "REINSTATEMENT_PREMIUM"]))
+            .join(first, on="treaty_id")
+            .filter(pl.col("booking_date") < pl.col("_first"))
+        )
+        bad_rtr06 += early.height
         if claims is not None:
             occurrence = claims["claims"].select("claim_id", "occurrence_date")
             joined = by_claim.join(occurrence, on="claim_id", how="left").join(
@@ -241,12 +250,14 @@ def _transactions(
                 .group_by(["transaction_id"])
                 .agg(pl.col("covered").any())
             )
-            out += _count(
-                "DV-RTR-06",
-                f,
-                (~inside["covered"]).sum(),
-                "claim movement outside every contract period of the treaty",
-            )
+            bad_rtr06 += int((~inside["covered"]).sum())
+        out += _count(
+            "DV-RTR-06",
+            f,
+            bad_rtr06,
+            "claim movement outside every contract period of the treaty, or premium booked "
+            "before the first inception date",
+        )
     claims = tables.get("claims")
     if claims is not None:
         have = x.filter(pl.col("claim_id").is_not_null())

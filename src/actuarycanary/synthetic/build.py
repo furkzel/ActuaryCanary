@@ -23,7 +23,14 @@ from actuarycanary.synthetic.messy import (
     sheet_name_for,
 )
 from actuarycanary.synthetic.phase2 import PHASE2_FEEDS, TRUTH_USERS, Phase2Output, build_phase2
-from actuarycanary.synthetic.portfolio import Policies, PremiumRows, build_policies, build_premiums
+from actuarycanary.synthetic.portfolio import (
+    Policies,
+    PremiumRows,
+    _jan1,
+    build_policies,
+    build_premiums,
+    simulation_years,
+)
 from actuarycanary.synthetic.reinsurance import Reinsurance
 from actuarycanary.synthetic.scenario import Scenario, SizeSpec, load_scenario, sized
 from actuarycanary.synthetic.writer import (
@@ -65,7 +72,10 @@ def simulate(scenario: str | Scenario, size: str | SizeSpec) -> Simulation:
 
     market = build_market(scenario, streams)
     policies = build_policies(scenario, spec, market, streams)
-    premiums = build_premiums(scenario, policies, streams, market)
+    first_year, _ = simulation_years(scenario, spec)
+    premiums = build_premiums(
+        scenario, policies, streams, market, first_day=to_day(_jan1(first_year))
+    )
     world = build_claims(scenario, spec, market, policies, streams)
     reinsurance = Reinsurance(scenario, world)
 

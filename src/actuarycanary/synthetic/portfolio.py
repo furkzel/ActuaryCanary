@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from actuarycanary.synthetic.days import add_months, to_day
+from actuarycanary.synthetic.days import add_months, first_contract_start, to_day
 from actuarycanary.synthetic.draws import Streams, draw
 from actuarycanary.synthetic.market import Market
 from actuarycanary.synthetic.scenario import Scenario, SizeSpec
@@ -192,9 +192,17 @@ def _weights(values: list[float]) -> np.ndarray:
 
 
 def build_premiums(
-    scenario: Scenario, policies: Policies, streams: Streams, market: Market | None = None
+    scenario: Scenario,
+    policies: Policies,
+    streams: Streams,
+    market: Market | None = None,
+    first_day: int | None = None,
 ) -> PremiumRows:
-    """Written, commission, endorsement, cancellation and refund rows, then the ceded rows."""
+    """Written, commission, endorsement, cancellation and refund rows, then the ceded rows.
+
+    A treaty cedes premium from the start of its first contract period that ends after
+    `first_day` (the first day of the simulated years), the first period the treaty table
+    lists; earlier premium is not ceded (DV-RTR-06)."""
     cut_off = to_day(scenario.meta.valuation.last)
     n = len(policies)
     index = np.arange(n)
@@ -280,7 +288,7 @@ def build_premiums(
             factor = treaty.rate_on_gross_premium
         else:
             continue
-        covered &= gross.booking >= to_day(treaty.inception)
+        covered &= gross.booking >= _ceding_start(treaty.inception, first_day)
         ceded = factor * gross.amount[covered]
         parts = [
             (
@@ -318,7 +326,9 @@ def build_premiums(
         assert market is not None, "a surplus treaty needs the market for exchange rates and prices"
         share = surplus_policy_share(policies, market, surplus)
         covered = np.isin(policies.line[gross.policy], surplus.lines) & written
-        covered &= (gross.booking >= to_day(surplus.inception)) & (share[gross.policy] > 0)
+        covered &= (gross.booking >= _ceding_start(surplus.inception, first_day)) & (
+            share[gross.policy] > 0
+        )
         ceded = share[gross.policy[covered]] * gross.amount[covered]
         parts = [(ceded, "CEDED_PREMIUM")]
         if surplus.commission:
@@ -349,6 +359,12 @@ def build_premiums(
         rows.type[order],
         rows.treaty[order],
     )
+
+
+def _ceding_start(inception, first_day: int | None) -> int:
+    if first_day is None:
+        return to_day(inception)
+    return first_contract_start(to_day(inception), first_day)
 
 
 def _concat(chunks: list[PremiumRows]) -> PremiumRows:
