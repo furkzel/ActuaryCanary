@@ -13,6 +13,6 @@ open_items:
   MT20:
     - Buehlmann-Straub credibility has no frozen reference yet; the spec now names the estimators (decision 0610) and the hand-worked fixture is built by the item that implements MT20 (P33). A reference table for expected rates waits for the owner (HANDOVER, before P32).
   MT21:
-    - Aggregate deductible and limit, reinstatements, stop loss, event excess of loss and the index clause have no hand case; they go with the reinsurance item P30 (decision 0273).
+    - Facultative cover and an aggregate excess of loss (loss basis AGGREGATE) have no hand case; the index clause on an event layer is proved by the method tests only (decisions 0400 to 0402).
   MT16:
     - Catastrophe claims and the inflation-adjusted basis are not covered; the fixture has none and uses nominal amounts.
