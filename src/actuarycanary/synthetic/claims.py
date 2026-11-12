@@ -37,6 +37,16 @@ STATUS_NAMES = {
 REGULAR, CATASTROPHE, SHOCK = 0, 1, 2
 
 
+def _nil_reserve_cap(line, fx0: np.ndarray) -> np.ndarray:
+    """Most a nil-closing claim's case reserve is built from, at base-date prices in the claim's
+    currency: the line's tail threshold (the lowest cost of a tail claim); none for a line
+    without a tail model (record 0393)."""
+    tail = line.severity.tail
+    if tail is None:
+        return np.full(len(fx0), np.inf)
+    return tail.threshold / fx0
+
+
 class Cumulative:
     """Running totals of event amounts per claim, queried at any day.
 
@@ -426,6 +436,7 @@ def build_claims(
                 prices_on=np.full(n, index_spec is None or index_spec.prices),
                 foreign=foreign,
                 fx0=fx0,
+                nil_cap=_nil_reserve_cap(line, fx0),
                 step=np.full(n, line.case_reserve.review_every_months * MONTH_DAYS),
                 cause=cause,
             )
@@ -545,7 +556,13 @@ def build_claims(
     r_claim, r_day, unit = r_claim[order], r_day[order], unit[order]
     paid_weight = Cumulative(p_claim, p_day, p_w).at(r_claim, r_day)[0]
     remaining = np.maximum(u_weight_end[unit] - paid_weight, 0.0)
-    estimate = merged["cost"][r_claim] * skeleton.index_for(r_claim, r_day) * remaining
+    # a claim that closes at nil is reserved from its latent cost, capped at the line's tail
+    # threshold (record 0393); the cap is at base-date prices like the cost, so it moves with
+    # the same price index
+    held_cost = np.where(
+        merged["nil"], np.minimum(merged["cost"], merged["nil_cap"]), merged["cost"]
+    )
+    estimate = held_cost[r_claim] * skeleton.index_for(r_claim, r_day) * remaining
     factor = np.ones(len(r_claim))
     for name, line in scenario.lines.items():
         at = np.flatnonzero(merged["line"][r_claim] == name)

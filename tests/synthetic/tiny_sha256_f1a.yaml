@@ -4,19 +4,21 @@
 # later feeds are now held to this file. Same 26 file names as the version 1.0 file.
 # The workbook digests are taken over the uncompressed parts of the archive, as the test and
 # `writer.sha256` take them (they were whole-file digests until record 0383; same bytes).
+# Renewed after item F1d (records 0392 and 0395): the premium file of the scenarios and the truth files
+# that depend on its rows moved on purpose; the other digests are as written after F1a.
 baseline:
   canonical/claim_valuations.parquet: 13b3cda5952bb1b3392be5fc4f369f5223affec15f28bc2b0723577bf5f67757
   canonical/claims.parquet: abb9bd3bf060fc624639503cd3a2441b6edf73a644a25eae050ec349c44a5b1c
   canonical/expenses.parquet: 15bd44bd7cbbebcafd8ef1ebec3d5ba724d79ae55e8859dc4e654e6fd6479809
   canonical/market.parquet: bfdda655cb94277d23793e03b14bbeae9dac04c1347f34cd132e26dd64159d40
   canonical/policies.parquet: 5eb349417ce29109821c8841d700d1fd38c3b8b882f76032ae794539a89a0b19
-  canonical/premiums.parquet: a31bddf8b8cd9f7760d5d8d000d4b7bf85a97d144eec2fc99c5fe9276b4c20d9
+  canonical/premiums.parquet: aa680c882fdf5b3ed8f6f7b50f7a5d8bfc8fb3c47549026ef307521a03519b3f
   claim_valuations.xlsx: cb2191722b5c3aac39f26a7787cfce1da1094f142b6c667c7e874121d65c87cd
   claims.xlsx: e075ccabbe3ad4605f7967006efd47d78637b2b100e2dd2631fe3cae30ed1dec
   expenses.xlsx: e33c8c5e0b930410854fdf5971ef85dc61577dc56c077e5eea14f511867e7bc8
   market.xlsx: cb773e9fb8c08ced01076a500c506a0f8bd9d3ce6c13c120f22779ab76d0329c
   policies.xlsx: 18a9a2e8144c6b27a84d9f01fb07d616b1136363fbe19bc5925206e53a2c9b0c
-  premiums.xlsx: f5e306847d035fc6147e197a0067c8a529a58919b12a9caf1f7a8ebab10864b2
+  premiums.xlsx: f04dec1bdefd0fbd7d4e6c0b6c283e81ae0dceffd34147ef072c239150e6ad3e
   truth/anomalies.csv: bc53f5dec66cc4aca6cc3de42907e8c79cd7bc5daf0365beca5abc3b8a034892
   truth/column_map.csv: 593ac4558fe6acb7946deb892ffe66bfe086544526fb744921ee2c6f2ec743f7
   truth/date_formats.csv: 2e641e350fa393205bb394a6a28e3d915de4dd7791f10865c4b66947e4d0053d
@@ -25,7 +27,7 @@ baseline:
   truth/ibnr_by_valuation.csv: 94f46b3806e314e6f264949446bae20910bcaaf434104f20cd9d8b01ee67a7c6
   truth/inflation.csv: 0b9ff46ef4e05f7205e305cff4d6f5e103226d1ac4b8dbb3c36c95f0bc39a041
   truth/injected_faults.csv: 1d6e1c6fe9f0d363e8c9ea76554e36f45ce2d6c29150ba3345df6cb435f7a139
-  truth/layout.csv: 9d7c3dba868370077741394cd503165bc346c6185ccdb58956a3863f44bac155
+  truth/layout.csv: 894fc34780248c9fdfba4af0a7dc2d534b5d1577386dd95111fc76a211a3ee08
   truth/money_columns.csv: 1abe5c2dc7717ee41cf0c59bae5f2f13952a7d7cff16866b8cd2e0976aca54de
   truth/personal_data_columns.csv: 50dd1d2833cf71f0c8b9dbf5fe0c4e95cc70a96321c490a1503dbd7db98420fa
   truth/scenario.yaml: e73e2c82977cad0b00c6e8d379c84e2f91aef8ee73dd26c9ffec7382dfdfe275
@@ -37,24 +39,24 @@ messy_headers:
   canonical/expenses.parquet: 15bd44bd7cbbebcafd8ef1ebec3d5ba724d79ae55e8859dc4e654e6fd6479809
   canonical/market.parquet: bfdda655cb94277d23793e03b14bbeae9dac04c1347f34cd132e26dd64159d40
   canonical/policies.parquet: 5eb349417ce29109821c8841d700d1fd38c3b8b882f76032ae794539a89a0b19
-  canonical/premiums.parquet: 658a320505efcc480e0d825f19e3bb9b1e7d617123e77def58c25542286f04dc
+  canonical/premiums.parquet: 54f22fb2b05726160945a4a4125576924ac5bdc62882b34d2af56e8c21523b24
   claim_valuations.xlsx: 1df43a6e2e53537e8b106485cf5fed6a8bb98d7d45c172da2438843e0db2aab5
   claims.xlsx: 7eace814af8ceeaa629085ff7ba90a51217332b58e2984abfee1b4f905a8c84e
   expenses.xlsx: 72963da74ad989cb3f46cc605d875d23d8ffcfc08b9d6131a16ab66d4295e170
   market.xlsx: 3d7ef85c575b4ccf462231df1533ce8254c5eaa6c7cf40795480824fe974b3aa
   policies.xlsx: ecf4cc4651f53c55bf359bee86f683240bc0fb2f29d73729dd1e2a4a5c8ddbf5
-  premiums.xlsx: ac43877b5118c0092814645d7ab0704f0bc4d479a0d8298d399e932e536bb6f3
-  truth/anomalies.csv: 06a96adb6ac155deee0f9a18dc55a823a8c548f5db1423d652b214d27cb22261
+  premiums.xlsx: bc2c45fc05d608d51bd1a22b7ed6d4c151102451836e1d915907d3916dbee6e4
+  truth/anomalies.csv: c3531f1637cb631e16fd482db05ba53e24b04587fd70d73b987bf6e02ef17230
   truth/column_map.csv: bb69a04a7547000ad6ad014d1adefa6c295f19136f6884aa27ab3fddebbadbbe
   truth/date_formats.csv: ed83258e58852ecb2a58f0fe233ec83d302f2b97eff01728fb236ff47fbcd650
   truth/development_pattern.csv: 3241bd1b3875e39e7850add0baa9665bdc7b6569a02527583014fd0bdda215a5
   truth/frequency_severity.csv: f5770342f8df16dc97cf2977fa1e423dc8a1bd1f6af6a6e7966f970a9cb38b2b
   truth/ibnr_by_valuation.csv: 94f46b3806e314e6f264949446bae20910bcaaf434104f20cd9d8b01ee67a7c6
   truth/inflation.csv: 0b9ff46ef4e05f7205e305cff4d6f5e103226d1ac4b8dbb3c36c95f0bc39a041
-  truth/injected_faults.csv: 1882e35cbf0bb7f88d333f435ba2bef29489a336191e36a9140e070744fe8cbf
-  truth/layout.csv: e0fe4925424a963c77368cb5e3c1e518099f435f13244d1f3bc4bd5efb656506
+  truth/injected_faults.csv: a2a1738ccbbe20277b73ee0c72c322b96a313417ed8eb2798cabbbeb600e7062
+  truth/layout.csv: e245514491e85b1cd00f9cef3ff8a6fdc556de1cb0f69de96f62fc8a5eba0252
   truth/money_columns.csv: 1abe5c2dc7717ee41cf0c59bae5f2f13952a7d7cff16866b8cd2e0976aca54de
   truth/personal_data_columns.csv: 6a642a6a5c8db8e81290db9894840b1bb285aec673dcf35934768639e745d234
   truth/scenario.yaml: d596b6deb5c44edfc6c82c2df649b52a2536995e539ee7350a4de78c7a80366b
   truth/ultimates.csv: 5f2db3162edc6324fa3d8850db8cafbb868dcd69dee082dd68d16f81f7c71b78
-  truth/value_map.csv: 144f1111fb5b9d0278713185d485236a779ff449a70893d7b1a4bf31a4510fa6
+  truth/value_map.csv: e076e545bf0e675dd42250f4f6c73ee448232408124bf40be8a1624aa6a9b0b9
