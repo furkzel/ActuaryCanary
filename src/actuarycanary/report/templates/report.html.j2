@@ -67,7 +67,7 @@ p, li { color: var(--text-secondary); }
 dl.cover { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0 0 12px; }
 dl.cover dt { color: var(--text-muted); }
 dl.cover dd { margin: 0; overflow-wrap: anywhere; }
-.scroll { overflow-x: auto; }
+.scroll { overflow-x: auto; max-width: 100%; }
 table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; margin: 8px 0; font-size: 0.92rem; }
 th, td { padding: 4px 8px; border-bottom: 1px solid var(--grid); text-align: right; white-space: nowrap; }
 th { color: var(--text-secondary); font-weight: 600; background: var(--surface-2); }
@@ -88,8 +88,9 @@ ol.findings li { margin: 6px 0; color: var(--text-primary); }
 .tile .v { font-size: 1.35rem; font-weight: 650; margin: 2px 0; overflow-wrap: anywhere; }
 .tile .d { font-size: 0.88rem; color: var(--text-primary); }
 .tile .n, .tile .s { font-size: 0.78rem; color: var(--text-muted); }
-.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
-.chart { min-height: 220px; width: 100%; }
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 16px; }
+.charts > * { min-width: 0; }
+.chart { min-height: 220px; width: 100%; max-width: 100%; overflow: hidden; }
 .footnote { font-size: 0.82rem; color: var(--text-muted); margin: 4px 0 12px; }
 .coverage { font-size: 0.82rem; color: var(--text-muted); }
 details { margin: 8px 0; }
@@ -108,6 +109,17 @@ html[data-basis-shown="DISCOUNTED"] [data-basis="NOMINAL"] { display: none; }
 .basis-switch label { cursor: pointer; }
 .basis-switch .n { font-size: 0.82rem; color: var(--text-muted); }
 th.tier { text-align: center; border-bottom: 2px solid var(--border); }
+@media screen and (max-width: 640px) {
+  main { padding: 16px 12px 48px; }
+  h1 { font-size: 1.45rem; }
+  dl.cover { grid-template-columns: 1fr; gap: 0; }
+  dl.cover dd { margin-bottom: 6px; }
+  nav ul { columns: 1; }
+  th, td { padding: 4px 6px; }
+  .tiles { grid-template-columns: 1fr; }
+  img, svg, pre { max-width: 100%; }
+  pre { overflow-x: auto; }
+}
 @page { size: A4; margin: 14mm 12mm; }
 @media print {
   body { font-size: 10.5pt; background: #fff; }

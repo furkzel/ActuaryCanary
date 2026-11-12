@@ -34,7 +34,7 @@
   </table></div>
   <p class="footnote">{{ b.footnotes.ranges }}</p>
   {% if blk.histograms %}<h3>{{ tr("Distribution of the simulated reserve, {basis}", basis=blk.label) }}</h3>
-  <div class="charts">{% for id in blk.histograms %}{{ figure(id, tr("Histogram of the simulated reserve")) }}{% endfor %}</div>
+  <div class="charts">{% for h in blk.histograms %}<div>{{ figure(h.id, tr("Histogram of the simulated reserve")) }}<p class="footnote">{{ h.caption }}</p></div>{% endfor %}</div>
   <p class="footnote">{{ b.footnotes.histogram }}</p>{% endif %}
 </div>{% endfor %}
 

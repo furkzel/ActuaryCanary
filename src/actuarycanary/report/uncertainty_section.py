@@ -413,11 +413,18 @@ def range_figure(
     }
 
 
+AXIS_LOW, AXIS_HIGH = 0.005, 0.995  # the histogram axis: 0.5th to 99.5th percentile (R21)
+
+
 def histogram(
     risk: pl.DataFrame, distribution: pl.DataFrame, basis: str, currency: str
-) -> list[tuple[str, dict[str, Any]]]:
+) -> list[tuple[str, dict[str, Any], str]]:
     """One histogram per simulated column on this basis (a line with a bootstrap, and all lines
-    when every line has one), with the mean, VaR and TVaR as vertical lines."""
+    when every line has one), with the mean, VaR and TVaR as vertical lines. A few extreme
+    draws would put nearly all the mass into two bars, so the axis runs from the 0.5th to the
+    99.5th percentile of the simulations; the third item is the caption that states the
+    extremes, the share outside the axis and the marks that fall outside (R21). The
+    simulations in the file stay complete."""
     out = []
     for r in _totals(risk):
         if r["source"] != BOOTSTRAP_SOURCE or r["value_basis"] != basis:
@@ -425,8 +432,12 @@ def histogram(
         sims = _sims(distribution, _column(r["segment"], r["line"], basis))
         if sims is None or not sims.size:
             continue
-        counts, edges = np.histogram(sims, bins=BINS)
+        low, high = (float(x) for x in np.quantile(sims, [AXIS_LOW, AXIS_HIGH]))
+        if high <= low:  # no spread: draw all of it
+            low, high = float(sims.min()), float(sims.max())
+        counts, edges = np.histogram(sims, bins=BINS, range=(low, high))
         centres = (edges[:-1] + edges[1:]) / 2
+        outside = int(((sims < low) | (sims > high)).sum())
         marks = [
             (value(r["mean"]), t("mean"), "solid"),
             (
@@ -440,11 +451,36 @@ def histogram(
                 "dot",
             ),
         ]
+        shown = [m for m in marks if m[0] is not None and low <= m[0] <= high]
+        beyond = [m for m in marks if m[0] is not None and not low <= m[0] <= high]
+        caption = t(
+            "Axis from the 0.5th to the 99.5th percentile of the simulations ({low} to {high}); "
+            "minimum {minimum}, maximum {maximum}; {share} of the {n} simulations are outside "
+            "the axis.",
+            low=numbers.amount(low),
+            high=numbers.amount(high),
+            minimum=numbers.amount(float(sims.min())),
+            maximum=numbers.amount(float(sims.max())),
+            share=numbers.ratio(outside / sims.size),
+            n=numbers.count(sims.size),
+        )
+        if beyond:
+            caption += " " + t(
+                "Beyond the axis: {list}.",
+                list=", ".join(f"{name} {numbers.amount(x)}" for x, name, _ in beyond),
+            )
         layout = _layout(
             t("Simulated reserve, {line}", line=_line_name(r["segment"], r["line"])),
             t("Reserve ({currency})", currency=currency),
             t("Simulations"),
             height=260,
+            xaxis={
+                "title": {"text": t("Reserve ({currency})", currency=currency)},
+                "range": [
+                    _round(low),
+                    _round(high),
+                ],
+            },
         )
         layout["shapes"] = [
             {
@@ -456,8 +492,7 @@ def histogram(
                 "y1": 1,
                 "line": {"color": INK if dash == "solid" else MUTED, "dash": dash, "width": 1.5},
             }
-            for x, _, dash in marks
-            if x is not None
+            for x, _, dash in shown
         ]
         layout["annotations"] = [
             {
@@ -469,8 +504,7 @@ def histogram(
                 "yanchor": "bottom",
                 "font": {"size": 10},
             }
-            for x, name, _ in marks
-            if x is not None
+            for x, name, _ in shown
         ]
         figure = {
             "data": [
@@ -486,7 +520,7 @@ def histogram(
             ],
             "layout": layout,
         }
-        out.append((f"{r['segment']}-{r['line']}", figure))
+        out.append((f"{r['segment']}-{r['line']}", figure, caption))
     return out
 
 
@@ -704,12 +738,14 @@ def uncertainty_page(
         if found is not None:
             figures[range_id] = found
         histograms = []
-        for key, figure in histogram(uncertainty.risk, uncertainty.distribution, basis, currency):
+        for key, figure, caption in histogram(
+            uncertainty.risk, uncertainty.distribution, basis, currency
+        ):
             figure_id = f"uncertainty-histogram-{basis.lower()}-{key}".replace(" ", "-").replace(
                 "/", "-"
             )
             figures[figure_id] = figure
-            histograms.append(figure_id)
+            histograms.append({"id": figure_id, "caption": caption})
         blocks.append(
             {
                 "basis": basis,
@@ -785,7 +821,9 @@ def uncertainty_page(
             "histogram": t(
                 "Histogram of the simulated reserve ({spec}); the lines mark the mean, the "
                 "VaR and the TVaR of the row in risk_measures.csv; simulations in "
-                "risk_distribution.parquet.",
+                "risk_distribution.parquet, which holds all of them. The axis is cut at the "
+                "0.5th and 99.5th percentile so that a few extreme draws do not hide the shape; "
+                "the caption of each histogram gives the extremes.",
                 spec=spec("RS05"),
             ),
             "cash_flows": t(

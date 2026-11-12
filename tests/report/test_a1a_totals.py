@@ -8,6 +8,7 @@ import polars as pl
 import pytest
 
 from actuarycanary.modules.uncertainty import ALL_LINES, DISCOUNTED, NOMINAL
+from actuarycanary.pipeline import RunResult
 from actuarycanary.report.uncertainty_section import (
     bridge_of,
     bridge_table,
@@ -295,3 +296,79 @@ def test_a_line_with_every_family_rejected_shows_no_severity_quantiles() -> None
     kept = fits(_severity_tables(SELECTED_BY_AIC), "LIFE", "TERM")
     assert kept["no_fit"] is False and kept["rows"][0]["selected"] is True
     assert kept["quantiles"][0] == "3,146,681"
+
+
+# --- R21: histogram axis and phone layout (record 0754) ------------------------------------
+
+
+def test_the_histogram_axis_is_cut_and_the_caption_names_the_extremes() -> None:
+    from actuarycanary.report.uncertainty_section import BINS, histogram
+
+    rng = np.random.default_rng(7)
+    body = rng.normal(100.0, 10.0, 9_990)
+    sims = np.concatenate([body, [900.0, 1_500.0, 5_000.0, 20_000.0, 90_000.0] * 2])
+    distribution = pl.DataFrame({"S / L": sims})
+    risk = _risk([("S", "L", "bootstrap", NOMINAL, float(sims.mean()), None, None)]).with_columns(
+        pl.lit(float(np.quantile(sims, 0.995))).alias("value_at_risk"),
+        pl.lit(float(np.sort(sims)[-100:].mean())).alias("tail_value_at_risk"),
+        pl.lit(0.995).alias("var_level"),
+        pl.lit(0.99).alias("tvar_level"),
+    )
+    [(key, figure, caption)] = histogram(risk, distribution, NOMINAL, "TRY")
+    low, high = np.quantile(sims, [0.005, 0.995])
+    assert figure["layout"]["xaxis"]["range"] == [round(low, 2), round(high, 2)] or (
+        figure["layout"]["xaxis"]["range"][0] == pytest.approx(low, abs=0.01)
+    )
+    counts = figure["data"][0]["y"]
+    outside = int(((sims < low) | (sims > high)).sum())
+    assert len(counts) == BINS and sum(counts) == sims.size - outside
+    assert sum(1 for c in counts if c > 0) >= BINS - 4  # the shape is visible, not two bars
+    assert "minimum" in caption and "maximum 90,000" in caption
+    assert f"{outside / sims.size:.1%} of the 10,000 simulations are outside" in caption
+    assert "Beyond the axis: TVaR 99.0% 2,462" in caption  # the TVaR lies in the extreme draws
+    assert len(figure["layout"]["shapes"]) == 2  # mean and VaR are inside the axis
+    assert distribution["S / L"].len() == sims.size  # the data stay complete
+    assert key == "S-L"
+
+
+def test_every_table_of_the_page_sits_in_a_scroll_box_and_the_phone_rules_exist(
+    default_run: RunResult,
+) -> None:
+    from html.parser import HTMLParser
+
+    from actuarycanary.report.quality_section import render_quality_section
+    from actuarycanary.report.render import render_report
+
+    page = render_report(
+        default_run.report_data,
+        quality_html=render_quality_section(default_run.quality, "1.0.0"),
+    )
+
+    class _Tables(HTMLParser):
+        def __init__(self) -> None:
+            super().__init__()
+            self.stack: list[tuple[str, str]] = []
+            self.outside = 0
+            self.total = 0
+
+        def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+            if tag in {"br", "meta", "link", "img", "input", "hr", "col"}:
+                return
+            self.stack.append((tag, dict(attrs).get("class") or ""))
+            if tag == "table":
+                self.total += 1
+                if not any("scroll" in c.split() for _, c in self.stack[:-1]):
+                    self.outside += 1
+
+        def handle_endtag(self, tag: str) -> None:
+            for i in range(len(self.stack) - 1, -1, -1):
+                if self.stack[i][0] == tag:
+                    del self.stack[i:]
+                    break
+
+    parsed = _Tables()
+    parsed.feed(page)
+    assert parsed.total > 10 and parsed.outside == 0
+    assert "max-width: 1080px" in page and "@media print" in page  # the existing rules stay
+    assert "@media screen and (max-width: 640px)" in page
+    assert "minmax(min(320px, 100%), 1fr)" in page
