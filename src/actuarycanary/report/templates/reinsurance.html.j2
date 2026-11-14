@@ -1,0 +1,41 @@
+{#- The M08 page (record 0408); `b` is the body built by report/reinsurance_section.py. -#}
+{% if b.available %}
+<p>{{ tr("Ceded share of written premium") }}: <strong>{{ b.premium_share }}</strong>; {{ tr("of claims incurred") }}: <strong>{{ b.claims_share }}</strong>. {{ tr("Index clause in use") }}: {{ b.clause }}.</p>
+{% if b.years %}<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Period") }}</th><th>{{ tr("Reinsurance result") }} ({{ b.currency }})</th></tr></thead>
+  <tbody>{% for r in b.years %}<tr><td>{{ r.period }}</td><td>{{ r.result }}</td></tr>{% endfor %}</tbody>
+</table></div>{% endif %}
+<h3>{{ tr("Treaties") }}</h3>
+<div class="scroll"><table>
+  <thead><tr><th class="text">{{ tr("Treaty") }}</th><th>{{ tr("Treaty year") }}</th><th class="text">{{ tr("Type") }}</th><th class="text">{{ tr("Terms") }}</th><th class="text">{{ tr("Index clause") }}</th><th>{{ tr("Ceded share of claims") }}</th><th>{{ tr("Ceded share of premium") }}</th><th>{{ tr("Computed ceded incurred") }}</th><th>{{ tr("Reported ceded incurred") }}</th><th>{{ tr("Claims or events hit") }}</th><th>{{ tr("Layer exhausted") }}</th><th>{{ tr("Reinstatements used") }}</th></tr></thead>
+  <tbody>{% for r in b.treaties %}<tr><td class="text">{{ r.treaty }}</td><td>{{ r.year }}</td><td class="text">{{ r.type }}</td><td class="text">{{ r.terms }}</td><td class="text">{{ r.clause }}</td><td>{{ r.claims_share }}</td><td>{{ r.premium_share }}</td><td>{{ r.computed }}</td><td{% if r.differs %} class="negative"{% endif %}>{{ r.reported }}</td><td>{{ r.hit }}</td><td>{{ r.exhausted }}</td><td>{{ r.reinstatements }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% if b.origins %}<h3>{{ tr("Gross, ceded and net loss ratios by origin") }}</h3>
+<div class="scroll"><table>
+  <thead><tr><th>{{ tr("Origin") }}</th><th>{{ tr("Gross") }}</th><th>{{ tr("Ceded") }}</th><th>{{ tr("Net") }}</th><th>{{ tr("Reinsurance result ratio") }}</th></tr></thead>
+  <tbody>{% for r in b.origins %}<tr><td>{{ r.origin }}</td><td>{{ r.gross }}</td><td>{{ r.ceded }}</td><td>{{ r.net }}</td><td>{{ r.ri04 }}</td></tr>{% endfor %}</tbody>
+</table></div>
+<p class="footnote">{{ tr("Loss ratios on incurred claims at the cut-off over earned premium; the result ratio uses ceded incurred because no ceded ultimate is selected.") }}</p>{% endif %}
+<h3>{{ tr("What-if: programmes side by side") }}</h3>
+{% if b.programmes %}<div class="scroll"><table>
+  <thead><tr><th class="text">{{ tr("Programme") }}</th><th>{{ tr("Treaties") }}</th><th>{{ tr("Loss view") }}</th><th>{{ tr("Ceded premium") }}</th><th>{{ tr("Expected ceded loss") }}</th><th>{{ tr("Commission") }}</th><th>{{ tr("Reinstatement premium") }}</th><th>{{ tr("Reinsurance result") }}</th><th>{{ tr("Volatility ratio, net over gross") }}</th></tr></thead>
+  <tbody>{% for r in b.programmes %}<tr><td class="text">{{ r.name }}</td><td>{{ r.treaties }}</td><td>{{ r.view }}</td><td>{{ r.premium }}</td><td>{{ r.loss }}</td><td>{{ r.commission }}</td><td>{{ r.reinstatement }}</td><td>{{ r.result }}</td><td>{{ r.volatility }}</td></tr>{% endfor %}</tbody>
+</table></div>{% endif %}
+{% if b.volatility %}<div class="scroll"><table>
+  <thead><tr><th class="text">{{ tr("Line") }}</th><th>{{ tr("Gross loss ratio, standard deviation") }}</th><th>{{ tr("Net loss ratio, standard deviation") }}</th><th>{{ tr("Ratio") }}</th><th class="text">{{ tr("Note") }}</th></tr></thead>
+  <tbody>{% for r in b.volatility %}<tr><td class="text">{{ r.line }}</td><td>{{ r.gross }}</td><td>{{ r.net }}</td><td>{{ r.ratio }}</td><td class="text">{{ r.note }}</td></tr>{% endfor %}</tbody>
+</table></div>{% endif %}
+<p class="footnote">{{ tr("An alternative programme is written in the assumptions register (method MT21); the gross figures never change. Simulated annual losses are not built.") }}</p>
+<h3>{{ tr("Allocation notes") }}</h3>
+{% if b.allocation %}<div class="scroll"><table>
+  <thead><tr><th class="text">{{ tr("How the booked amounts reach claims and policies") }}</th><th>{{ tr("Parts") }}</th><th>{{ tr("Amount") }}</th></tr></thead>
+  <tbody>{% for r in b.allocation %}<tr><td class="text{% if r.approximate %} negative{% endif %}">{{ r.method }}</td><td>{{ r.parts }}</td><td>{{ r.amount }}</td></tr>{% endfor %}</tbody>
+</table></div>{% endif %}
+<h3>{{ tr("Reconciliation with the reported ceded amounts") }}</h3>
+<p>{{ tr("The programme applied to the gross claims against the ceded movements booked, per treaty year: {differences} of {compared} differ by more than 1 per cent (and 1.00).", differences=b.differences, compared=b.compared) }}</p>
+{% if b.reconciliation %}<div class="scroll"><table>
+  <thead><tr><th class="text">{{ tr("Treaty") }}</th><th>{{ tr("Treaty year") }}</th><th>{{ tr("Computed ceded incurred") }}</th><th>{{ tr("Reported ceded incurred") }}</th><th>{{ tr("Difference") }}</th></tr></thead>
+  <tbody>{% for r in b.reconciliation %}<tr><td class="text">{{ r.treaty }}</td><td>{{ r.year }}</td><td>{{ r.computed }}</td><td>{{ r.reported }}</td><td>{{ r.difference }}</td></tr>{% endfor %}</tbody>
+</table></div>{% endif %}
+<p class="footnote">{{ b.footnote }}</p>
+{% endif %}

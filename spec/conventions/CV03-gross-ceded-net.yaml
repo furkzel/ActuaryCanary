@@ -1,5 +1,5 @@
 id: CV03
-version: 1.0.0
+version: 1.1.0
 title_en: Gross, ceded and net
 title_tr: Brüt, devredilen ve net
 status: reviewed
@@ -12,8 +12,12 @@ rules:
     amounts, before any aggregation.
   - >-
     Claim amounts: gross paid is paid_to_date, gross case reserve is case_reserve; ceded paid
-    is ceded_paid_to_date, ceded case reserve is ceded_reserve. Ceded amounts are taken as
-    given; version 1.0 allocates nothing from treaty level.
+    is ceded_paid_to_date, ceded case reserve is ceded_reserve. Ceded amounts given per claim
+    are taken as given; treaty-level amounts are allocated by the rules of CV09. When
+    claim_valuations carries no ceded field and reinsurance_transactions is loaded, ceded paid
+    and ceded case reserve of a claim at a valuation date are its given and allocated ceded
+    movements booked up to that date, and every view that uses them says that the figure rests
+    on allocated amounts where it does (record 0403). With the fields present nothing changes.
   - >-
     Premium amounts: gross written premium is PR01; ceded written premium is the sum of
     CEDED_PREMIUM; reinsurance commission is the sum of RI_COMMISSION. Ceded premium and
@@ -35,7 +39,7 @@ formulas:
 requires:
   - claim_valuations.paid_to_date
   - claim_valuations.case_reserve
-uses: [CV05]
+uses: [CV05, CV09]
 change_log:
   - version: 0.1.0
     date: 2026-10-20
@@ -43,3 +47,10 @@ change_log:
   - version: 1.0.0
     date: 2026-10-20
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-11-14
+    change: >-
+      CV09 folded in (F2a, records 0403 and 0406): treaty-level ceded amounts are allocated by
+      CV09; without ceded fields in claim_valuations the given and allocated movements of
+      reinsurance_transactions become them. No value moves on data with the fields. The owner
+      has not reviewed this version.

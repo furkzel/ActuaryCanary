@@ -56,8 +56,8 @@ from actuarycanary.methods.seeding import RUN_SEED
 from actuarycanary.methods.selection import BF_BELOW_MATURITY
 from actuarycanary.methods.severity import LargeLossError, LargeLossSettings, parse_large_loss
 from actuarycanary.modules import reinsurance as reinsurance_module
+from actuarycanary.modules import reinsurance_whatif, severity_run, survival_run
 from actuarycanary.modules import reserving_tier_b_output as tier_b_output
-from actuarycanary.modules import severity_run, survival_run
 from actuarycanary.modules.anomalies import AnomalyResult, run_anomalies
 from actuarycanary.modules.expenses import ExpenseTable, expense_table
 from actuarycanary.modules.methods_port import ReservingPort
@@ -186,6 +186,7 @@ CEDED_BY_TREATY_NAME = "ceded_by_treaty.csv"  # M08 (record 0406)
 CEDED_ALLOCATION_NAME = "ceded_allocation.csv"
 REINSURANCE_RECONCILIATION_NAME = "reinsurance_reconciliation.csv"
 CEDED_BY_SIZE_BAND_NAME = "ceded_by_size_band.csv"
+PROGRAMME_COMPARISON_NAME = "programme_comparison.csv"  # MT21 what-if (record 0408)
 
 Progress = Callable[[str], None]
 # Shown the sheets whose layout has no saved profile; returns them accepted, edited or skipped.
@@ -1069,6 +1070,9 @@ def run(
             CEDED_ALLOCATION_NAME: reinsurance_run_used.allocation_table(),
             REINSURANCE_RECONCILIATION_NAME: reinsurance_run_used.reconciliation(),
             CEDED_BY_SIZE_BAND_NAME: reinsurance_run_used.size_bands(),
+            PROGRAMME_COMPARISON_NAME: reinsurance_whatif.comparison(
+                measure_inputs, reinsurance_run_used, settings.assumptions
+            )[0],
         }
         report_tables |= module_tables
         for name, table in module_tables.items():
@@ -1125,6 +1129,7 @@ def run(
                 declared_value=declared.triangles.value_basis.value,
                 recoveries=recovery_tables_run,
                 expenses=expense_table_run,
+                reinsurance=reinsurance_run_used,
             )
         )
     with language.using(settings.language):

@@ -1,5 +1,5 @@
 id: RP01
-version: 1.4.0
+version: 1.5.0
 title_en: Key finding rules
 title_tr: Temel bulgu kuralları
 status: draft
@@ -28,6 +28,7 @@ settings:
   expense_ratio_change_limit: 0.02
   unallocated_expense_share_limit: 0.25
   thin_factor_change_limit: 0.02
+  approximate_allocation_share_limit: 0.05
 rules:
   - id: KF01
     title: Thin evidence
@@ -738,6 +739,62 @@ rules:
       section: line
       files: [assumptions.csv, sensitivity.csv, tier_b_parameters.csv]
       specs: [MT02, MT14, M04]
+  - id: KF44
+    title: Computed and reported ceded amounts differ
+    scope: run
+    priority: 24
+    condition: reinsurance_differences > 0
+    template: >-
+      The treaty programme applied to the gross claims cedes another amount than the data report
+      in {reinsurance_differences} of {reinsurance_years_compared} treaty years (more than 1 per
+      cent apart): {reinsurance_differing_treaties}. Each difference is listed with the claims on
+      both sides.
+    title_tr: Hesaplanan ve bildirilen devredilen tutarlar farklı
+    template_tr: >-
+      Brüt hasarlara uygulanan anlaşma programı, {reinsurance_years_compared} anlaşma yılının
+      {reinsurance_differences} tanesinde verilerin bildirdiğinden farklı bir tutar devreder
+      (yüzde 1'den fazla fark): {reinsurance_differing_treaties}. Her fark, iki taraftaki
+      hasarlarla birlikte listelenir.
+    evidence:
+      section: reinsurance
+      files: [reinsurance_reconciliation.csv, ceded_by_treaty.csv]
+      specs: [MT21, CV09, M08]
+  - id: KF45
+    title: A layer is exhausted or its reinstatements are used up
+    scope: run
+    priority: 25
+    condition: layers_exhausted > 0
+    template: >-
+      {layers_exhausted} treaty years have a layer exhausted by a claim or an event, or their
+      aggregate limit or reinstatements used up: {layers_exhausted_names}. Losses above the cover
+      stay with the company.
+    title_tr: Bir katman tükendi veya reenstalmanları bitti
+    template_tr: >-
+      {layers_exhausted} anlaşma yılında bir katman bir hasar veya olayla tükendi ya da yıllık
+      limiti veya reenstalmanları bitti: {layers_exhausted_names}. Teminatın üzerindeki hasar
+      şirkette kalır.
+    evidence:
+      section: reinsurance
+      files: [ceded_by_treaty.csv]
+      specs: [MT21, CV09, M08]
+  - id: KF46
+    title: Ceded amounts allocated only approximately
+    scope: run
+    priority: 26
+    condition: approximate_allocation_share > approximate_allocation_share_limit
+    template: >-
+      {approximate_allocation_share} of the booked ceded amounts could not be placed on claims or
+      policies and are spread over line and origin cells, or left on the treaty; the net figures
+      that rest on them are an approximation.
+    title_tr: Devredilen tutarlar yalnızca yaklaşık dağıtıldı
+    template_tr: >-
+      Kaydedilen devredilen tutarların {approximate_allocation_share} kadarı hasarlara veya
+      poliçelere yerleştirilemedi; branş ve kaza yılı hücrelerine yayıldı ya da anlaşmada
+      bırakıldı; bunlara dayanan net rakamlar bir yaklaşımdır.
+    evidence:
+      section: reinsurance
+      files: [ceded_allocation.csv]
+      specs: [CV09, M08]
 change_log:
   - version: 1.0.0
     date: 2026-10-22
@@ -805,3 +862,12 @@ change_log:
       claims or more are open or the fitted curves would move the selected IBNR by five per
       cent or more (the two limits are in the code that builds the fact tail_default_reasons,
       like the limits of the diagnostics). English and Turkish. Not reviewed by the owner yet.
+  - version: 1.5.0
+    date: 2026-11-14
+    change: >-
+      Three rules for the page of M08 (F2a, record 0408): KF44 the programme applied to the
+      gross claims and the reported ceded amounts differ in a treaty year (the tolerance of
+      record 0405), KF45 a layer exhausted by a claim or an event, or its aggregate limit or
+      reinstatements used up, KF46 more than approximate_allocation_share_limit (new setting,
+      0.05) of the booked ceded amounts allocated as an aggregate approximation or left
+      unallocated. English and Turkish. Implemented before owner review; draft.

@@ -1,5 +1,5 @@
 id: RI04
-version: 0.1.0
+version: 0.2.0
 title_en: Reinsurance result ratio
 title_tr: Reasürans sonuç oranı
 status: draft
@@ -63,3 +63,7 @@ change_log:
     change: >-
       Implemented before owner review (F2a): built on the treaty application of MT21 and the
       allocation of CV09; the text of the specification is unchanged here.
+  - version: 0.2.0
+    date: 2026-11-14
+    change: >-
+      Implemented before owner review (F2a, record 0406). Built per origin year over the whole programme on the incurred view (no ceded selection is built); reinstatement premium by the origin year of its allocation.

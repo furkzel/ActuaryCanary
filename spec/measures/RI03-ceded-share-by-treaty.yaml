@@ -1,5 +1,5 @@
 id: RI03
-version: 0.1.0
+version: 0.2.0
 title_en: Ceded share by treaty
 title_tr: Anlaşma bazında devir oranı
 status: draft
@@ -60,3 +60,7 @@ change_log:
     change: >-
       Implemented before owner review (F2a): built on the treaty application of MT21 and the
       allocation of CV09; the text of the specification is unchanged here.
+  - version: 0.2.0
+    date: 2026-11-14
+    change: >-
+      Implemented before owner review (F2a, record 0406). Built per treaty and treaty year; the breakdowns by segment, line and origin are not built (the scope of a treaty sets them).

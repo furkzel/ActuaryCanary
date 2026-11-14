@@ -263,8 +263,9 @@ def test_kf41_unit_costs_stopped_by_a_month_without_expense_rows() -> None:
 def test_the_new_rules_are_fixed_rules_with_both_languages_and_follow_the_old_ones() -> None:
     assert set(NEW) <= set(RULES)
     priorities = [RULES[r].priority for r in NEW]
+    # the rules before them (KF44 to KF46 of M08 came later, F2a, and follow these)
     assert priorities == sorted(priorities) and min(priorities) > max(
-        r.priority for r in RULES.values() if r.id not in NEW
+        r.priority for r in RULES.values() if r.id not in NEW and int(r.id[2:]) < 35
     )
     for rule in NEW:
         assert RULES[rule].template_tr and RULES[rule].title_tr and RULES[rule].scope == "run"
@@ -288,7 +289,7 @@ def test_a_run_writes_the_tables_of_both_modules_and_lists_them(default_run) -> 
         assert (default_run.folder / name).is_file()
     specs = {s["id"] for s in manifest["specs"]}
     assert {"M07", "M09", "RC03", "RC04", "EX04", "EX05"} <= specs
-    assert not {"M08", "M10"} & specs
+    assert "M10" not in specs  # M08 is built (F2a) and listed although the baseline skips it
 
 
 def test_a_run_has_both_pages_and_their_navigation_entries(default_run) -> None:

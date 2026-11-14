@@ -84,3 +84,45 @@ def test_without_treaties_m08_is_skipped_and_writes_nothing(default_run: RunResu
         "ceded_allocation.csv",
         "reinsurance_reconciliation.csv",
     }
+
+
+def test_what_if_compares_the_loaded_and_an_alternative_programme() -> None:
+    from actuarycanary.methods.assumptions import Assumption, AssumptionsRegister
+    from actuarycanary.modules.reinsurance_whatif import alternatives, comparison
+
+    def entry(name: str, value: float | str) -> Assumption:
+        return Assumption(
+            method="MT21",
+            name=name,
+            scope="QS50",
+            target="QS2",
+            value=value,
+            who="analyst",
+            why="a larger quota share",
+        )
+
+    register = AssumptionsRegister(
+        entries=(
+            entry("treaty_type", "QUOTA_SHARE"),
+            entry("cession_share", 0.5),
+            entry("line", "L"),
+            entry("ceding_commission", 0.25),
+        )
+    )
+    inputs = book()
+    run = reinsurance_run(inputs)
+    assert run is not None
+    found = alternatives(register, run.inputs.sections)
+    assert [p.name for p in found] == ["QS50"] and found[0].sections[0].inception.year == 2024
+    both = run.__class__(
+        **{**run.__dict__, "settings": ReinsuranceSettings(programme="both", loss_view="incurred")}
+    )
+    table, notes = comparison(inputs, both, register)
+    rows = {r["programme"]: r for r in table.iter_rows(named=True)}
+    assert rows["loaded"]["expected_ceded_loss"] == pytest.approx(445.0)  # 285 + 160
+    assert rows["QS50"]["expected_ceded_loss"] == pytest.approx(475.0)
+    assert rows["QS50"]["ceded_premium"] == pytest.approx(500.0)
+    assert rows["QS50"]["net_result"] == pytest.approx(475.0 + 125.0 - 500.0)
+    assert rows["loaded"]["gross_loss"] == rows["QS50"]["gross_loss"] == pytest.approx(950.0)
+    assert rows["loaded"]["loss_view"] == "incurred"
+    assert not notes

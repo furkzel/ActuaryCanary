@@ -279,6 +279,8 @@ th.tier { text-align: center; border-bottom: 2px solid var(--border); }
   {% set ll = b.large %}{% include "large_loss.html.j2" %}
   {% elif p.module == "M07" %}
   {% include "recoveries.html.j2" %}
+  {% elif p.module == "M08" %}
+  {% include "reinsurance.html.j2" %}
   {% elif p.module == "M09" %}
   {% include "expenses.html.j2" %}
   {% elif p.module == "M12" %}

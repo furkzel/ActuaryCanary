@@ -26,6 +26,7 @@ from actuarycanary.methods.assumptions import Assumption
 from actuarycanary.modules.anomalies import AnomalyResult
 from actuarycanary.modules.expenses import ExpenseTable
 from actuarycanary.modules.recoveries import RecoveryTables
+from actuarycanary.modules.reinsurance import ReinsuranceRun
 from actuarycanary.modules.reserving import SELECTION_MEASURE, GroupReserving, ReservingResult
 from actuarycanary.modules.runner import AnalysisResult, ModuleOutcome, ModuleState
 from actuarycanary.modules.uncertainty import UncertaintyResult
@@ -53,6 +54,7 @@ from actuarycanary.report.methods_section import assumption_rows, group_methods
 from actuarycanary.report.phase2_facts import add_line_facts, add_run_facts, add_segment_facts
 from actuarycanary.report.quality_section import failed_rules
 from actuarycanary.report.recoveries_section import add_recovery_facts, recoveries_page
+from actuarycanary.report.reinsurance_section import add_reinsurance_facts, reinsurance_page
 from actuarycanary.report.sensitivity_section import sensitivity_page
 from actuarycanary.report.survival_section import survival_page
 from actuarycanary.report.thin_tail import add_thin_tail_facts, tail_box, thin_factors
@@ -74,6 +76,7 @@ MODULE_ANCHORS = {
     "M05": "profitability",
     "M06": "anomalies",
     "M07": "recoveries",
+    "M08": "reinsurance",
     "M09": "expenses",
     "M12": "uncertainty",
 }
@@ -108,6 +111,7 @@ class ReportInputs:
     declared_value: str = "NOMINAL"  # the value basis the run was asked for
     recoveries: RecoveryTables | None = None  # the tables of M07, when it ran
     expenses: ExpenseTable | None = None  # the table of M09, when it ran
+    reinsurance: ReinsuranceRun | None = None  # the run of M08, when it ran
 
 
 class _Specs:
@@ -1211,6 +1215,7 @@ def scoped_facts(
     settings: Mapping[str, float] | None = None,
     recoveries: RecoveryTables | None = None,
     expenses: ExpenseTable | None = None,
+    reinsurance: ReinsuranceRun | None = None,
 ) -> tuple[dict[str, list[tuple[str, str, Facts]]], dict[str, FactSet]]:
     """The fact sets of every scope as (key, anchor, facts), and the segment facts. `tables`
     are the output tables of the run and `uncertainty` M12, for the rules of RP01 1.2.0;
@@ -1250,6 +1255,7 @@ def scoped_facts(
     add_run_facts(run, uncertainty)
     add_recovery_facts(run, analysis, recoveries)
     add_expense_facts(run, analysis, expenses, triangles.cut_off)
+    add_reinsurance_facts(run, reinsurance)
     for name, limit in (settings or {}).items():
         for facts in (*lines.values(), *(f for f in segments.values() if f), run):
             facts[name] = Fact(limit, "factor")
@@ -1290,6 +1296,7 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
         r.catalogue.finding_rules.settings,
         r.recoveries,
         r.expenses,
+        r.reinsurance,
     )
     fired = evaluate(r.catalogue.finding_rules.rules, scoped)
     headline = [f for f in fired if f.scope != "line"]
@@ -1312,6 +1319,13 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
             r.recoveries,
             spec,
             figures,
+            shown_currency(r.reserving.triangles.reporting_currency),
+        ),
+        "M08": lambda: reinsurance_page(
+            r.analysis,
+            r.reinsurance,
+            r.tables.get("programme_comparison.csv"),
+            spec,
             shown_currency(r.reserving.triangles.reporting_currency),
         ),
         "M09": lambda: expenses_page(

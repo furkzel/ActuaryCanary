@@ -1,5 +1,5 @@
 id: RI05
-version: 0.1.0
+version: 0.2.0
 title_en: Loss ratio volatility, gross and net
 title_tr: Brüt ve net hasar prim oranı oynaklığı
 status: draft
@@ -57,3 +57,7 @@ change_log:
     change: >-
       Implemented before owner review (F2a): built on the treaty application of MT21 and the
       allocation of CV09; the text of the specification is unchanged here.
+  - version: 0.2.0
+    date: 2026-11-14
+    change: >-
+      Implemented before owner review (F2a, record 0406). Built per segment and line on the selected ultimates (incurred view without them); the net of the loaded programme from MT21. The INFLATION_ADJUSTED value basis is not built.

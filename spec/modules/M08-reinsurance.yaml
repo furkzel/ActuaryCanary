@@ -1,5 +1,5 @@
 id: M08
-version: 0.1.0
+version: 0.2.0
 title_en: Reinsurance
 title_tr: Reasürans
 status: draft
@@ -24,6 +24,8 @@ outputs:
   - ceded_by_treaty.csv (ceded claims, premium, commission and reinstatement premium per treaty and year)
   - ceded_allocation.csv (treaty-level amounts allocated to claims or cells, CV09, with the method used)
   - programme_comparison.csv (MT21 results per programme)
+  - reinsurance_reconciliation.csv (computed application against the reported ceded amounts per treaty year, record 0405)
+  - ceded_by_size_band.csv (computed ceded share by claim size band and treaty)
 report_page:
   - Headline - ceded share of premium and of claims, and the reinsurance result over the last years.
   - Treaty table - type, terms, ceded share against the terms (RI03), layer use and reinstatements.
@@ -42,3 +44,9 @@ change_log:
     change: >-
       Implemented before owner review (F2a): built on the treaty application of MT21 and the
       allocation of CV09; the text of the specification is unchanged here.
+  - version: 0.2.0
+    date: 2026-11-14
+    change: >-
+      Implemented before owner review (F2a, records 0405 to 0408): two more outputs, the
+      reconciliation and the size bands; the page as outlined, in English and Turkish; RI04
+      on the incurred view because no ceded selection is built.
