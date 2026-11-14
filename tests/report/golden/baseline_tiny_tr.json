@@ -337,7 +337,7 @@
   "rows": [
    {
     "label": "Çalıştırma kimliği",
-    "value": "f964565e974e5920"
+    "value": "560026422b0dc901"
    },
    {
     "label": "Değerleme tarihi",
@@ -4540,7 +4540,7 @@
    }
   }
  },
- "findings_spec": "RP01 v1.4.0",
+ "findings_spec": "RP01 v1.5.0",
  "further_findings": [
   {
    "banner": false,
@@ -6540,7 +6540,7 @@
       "title": "Tahsilat / ödenen, Tüm tahsilatlar"
      }
     ],
-    "footnote": "TRY; hasar dönemi ve gelişim yaşına göre birikimli tahsilat / birikimli ödenen RC04 v0.1.0, rücu ve sovtaj oranları RC01 v1.0.0, RC02 v1.0.0, ilk ödemenin ay sonundan kayda kadar gün olarak süre RC03 v0.1.0. Tahsilatlar reasürans bazının dışındadır CV03 v1.0.0. Dosyalar: recoveries.csv, recovery_development.csv, recovery_reconciliation.csv.",
+    "footnote": "TRY; hasar dönemi ve gelişim yaşına göre birikimli tahsilat / birikimli ödenen RC04 v0.1.0, rücu ve sovtaj oranları RC01 v1.0.0, RC02 v1.0.0, ilk ödemenin ay sonundan kayda kadar gün olarak süre RC03 v0.1.0. Tahsilatlar reasürans bazının dışındadır CV03 v1.1.0. Dosyalar: recoveries.csv, recovery_development.csv, recovery_reconciliation.csv.",
     "headline": [
      {
       "before": "59.888",
@@ -7434,7 +7434,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "f964565e974e5920",
+  "run_id": "560026422b0dc901",
   "settings": [
    {
     "name": "bases.currency",
@@ -7935,7 +7935,7 @@
    {
     "id": "CV03",
     "title": "Brüt, devredilen ve net",
-    "version": "1.0.0"
+    "version": "1.1.0"
    },
    {
     "id": "CV04",
@@ -8190,22 +8190,22 @@
    {
     "id": "M08",
     "title": "Reasürans",
-    "version": "0.1.0"
+    "version": "0.2.0"
    },
    {
     "id": "RI03",
     "title": "Anlaşma bazında devir oranı",
-    "version": "0.1.0"
+    "version": "0.2.0"
    },
    {
     "id": "RI04",
     "title": "Reasürans sonuç oranı",
-    "version": "0.1.0"
+    "version": "0.2.0"
    },
    {
     "id": "RI05",
     "title": "Brüt ve net hasar prim oranı oynaklığı",
-    "version": "0.1.0"
+    "version": "0.2.0"
    },
    {
     "id": "M09",
@@ -8310,7 +8310,7 @@
    {
     "id": "RP01",
     "title": "Temel bulgu kuralları",
-    "version": "1.4.0"
+    "version": "1.5.0"
    }
   ]
  },

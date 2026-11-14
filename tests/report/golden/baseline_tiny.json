@@ -337,7 +337,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "beaec8582150a2a3"
+    "value": "fc234ffbb1cfe9c5"
    },
    {
     "label": "Valuation date",
@@ -4504,7 +4504,7 @@
    }
   }
  },
- "findings_spec": "RP01 v1.4.0",
+ "findings_spec": "RP01 v1.5.0",
  "further_findings": [
   {
    "banner": false,
@@ -6504,7 +6504,7 @@
       "title": "Recoveries over paid, All recoveries"
      }
     ],
-    "footnote": "TRY; cumulative recoveries over cumulative paid by origin and development age RC04 v0.1.0, subrogation and salvage ratios RC01 v1.0.0, RC02 v1.0.0, delay in days from the month end of the first payment to the booking RC03 v0.1.0. Recoveries are outside the reinsurance basis CV03 v1.0.0. Files: recoveries.csv, recovery_development.csv, recovery_reconciliation.csv.",
+    "footnote": "TRY; cumulative recoveries over cumulative paid by origin and development age RC04 v0.1.0, subrogation and salvage ratios RC01 v1.0.0, RC02 v1.0.0, delay in days from the month end of the first payment to the booking RC03 v0.1.0. Recoveries are outside the reinsurance basis CV03 v1.1.0. Files: recoveries.csv, recovery_development.csv, recovery_reconciliation.csv.",
     "headline": [
      {
       "before": "59,888",
@@ -7398,7 +7398,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "beaec8582150a2a3",
+  "run_id": "fc234ffbb1cfe9c5",
   "settings": [
    {
     "name": "bases.currency",
@@ -7899,7 +7899,7 @@
    {
     "id": "CV03",
     "title": "Gross, ceded and net",
-    "version": "1.0.0"
+    "version": "1.1.0"
    },
    {
     "id": "CV04",
@@ -8154,22 +8154,22 @@
    {
     "id": "M08",
     "title": "Reinsurance",
-    "version": "0.1.0"
+    "version": "0.2.0"
    },
    {
     "id": "RI03",
     "title": "Ceded share by treaty",
-    "version": "0.1.0"
+    "version": "0.2.0"
    },
    {
     "id": "RI04",
     "title": "Reinsurance result ratio",
-    "version": "0.1.0"
+    "version": "0.2.0"
    },
    {
     "id": "RI05",
     "title": "Loss ratio volatility, gross and net",
-    "version": "0.1.0"
+    "version": "0.2.0"
    },
    {
     "id": "M09",
@@ -8274,7 +8274,7 @@
    {
     "id": "RP01",
     "title": "Key finding rules",
-    "version": "1.4.0"
+    "version": "1.5.0"
    }
   ]
  },
