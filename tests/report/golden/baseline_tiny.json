@@ -337,7 +337,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "4c9ed560ad01f5b8"
+    "value": "beaec8582150a2a3"
    },
    {
     "label": "Valuation date",
@@ -4564,6 +4564,20 @@
     "modules.json"
    ],
    "key": "",
+   "rule": "KF15",
+   "scope": "run",
+   "section": "not-run",
+   "specs": [],
+   "text": "Modules that did not run because their data was not loaded: 1 of 10 (M08 Reinsurance).",
+   "title": "Modules not run"
+  },
+  {
+   "banner": false,
+   "evidence": "",
+   "files": [
+    "modules.json"
+   ],
+   "key": "",
    "rule": "KF16",
    "scope": "run",
    "section": "not-run",
@@ -5283,6 +5297,10 @@
    "state": "ran",
    "why": ""
   },
+  "M08": {
+   "state": "skipped",
+   "why": "Reinsurance did not run: no reinsurance treaties were loaded. Load reinsurance_treaties.xlsx with reinsurance_transactions.xlsx (or claim_valuations.xlsx with ceded columns) to enable it; add claims.xlsx and policies.xlsx for claim-level allocation and what-if programmes."
+  },
   "M09": {
    "state": "ran",
    "why": ""
@@ -5331,6 +5349,15 @@
      "MT18 extreme values did not run for NON_LIFE / MOTOR_TPL: 44 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
      "MT18 extreme values did not run for NON_LIFE / PROPERTY: 5 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
      "MT18 extreme values did not run for NON_LIFE / MOTOR_OD: 67 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)"
+    ]
+   },
+   {
+    "load": "Reinsurance did not run: no reinsurance treaties were loaded. Load reinsurance_treaties.xlsx with reinsurance_transactions.xlsx (or claim_valuations.xlsx with ceded columns) to enable it; add claims.xlsx and policies.xlsx for claim-level allocation and what-if programmes.",
+    "missing": [],
+    "module": "M08 Reinsurance",
+    "state": "skipped",
+    "why": [
+     "Reinsurance did not run: no reinsurance treaties were loaded. Load reinsurance_treaties.xlsx with reinsurance_transactions.xlsx (or claim_valuations.xlsx with ceded columns) to enable it; add claims.xlsx and policies.xlsx for claim-level allocation and what-if programmes."
     ]
    },
    {
@@ -7083,8 +7110,8 @@
   "outputs": [
    {
     "name": "quality.json",
-    "sha256": "35831f868045b7cc67ef38a6492a86261520e9ab8a41e187abd2e7d8890a2767",
-    "size": "36,859"
+    "sha256": "a011f855b7570cb326326c68ccdf36011c8ffacbddf3662ca84b57e6b14f8117",
+    "size": "37,406"
    },
    {
     "name": "triangles.csv",
@@ -7118,8 +7145,8 @@
    },
    {
     "name": "modules.json",
-    "sha256": "a7cbd81202bb50583656e559e84fbeca963aa7b06486d5e5d53c363dbbf3d147",
-    "size": "31,452"
+    "sha256": "00f5d41d8895d18070ec8777e03ff940b254d10a024d3d6b494919a7fbf6d950",
+    "size": "32,098"
    },
    {
     "name": "assumptions.csv",
@@ -7371,7 +7398,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "4c9ed560ad01f5b8",
+  "run_id": "beaec8582150a2a3",
   "settings": [
    {
     "name": "bases.currency",
@@ -8122,6 +8149,26 @@
    {
     "id": "RC04",
     "title": "Recovery development ratio",
+    "version": "0.1.0"
+   },
+   {
+    "id": "M08",
+    "title": "Reinsurance",
+    "version": "0.1.0"
+   },
+   {
+    "id": "RI03",
+    "title": "Ceded share by treaty",
+    "version": "0.1.0"
+   },
+   {
+    "id": "RI04",
+    "title": "Reinsurance result ratio",
+    "version": "0.1.0"
+   },
+   {
+    "id": "RI05",
+    "title": "Loss ratio volatility, gross and net",
     "version": "0.1.0"
    },
    {

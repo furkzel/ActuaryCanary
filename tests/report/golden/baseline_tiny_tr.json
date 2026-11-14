@@ -337,7 +337,7 @@
   "rows": [
    {
     "label": "Çalıştırma kimliği",
-    "value": "30a766e143fd5cbc"
+    "value": "f964565e974e5920"
    },
    {
     "label": "Değerleme tarihi",
@@ -4600,6 +4600,20 @@
     "modules.json"
    ],
    "key": "",
+   "rule": "KF15",
+   "scope": "run",
+   "section": "not-run",
+   "specs": [],
+   "text": "Verileri yüklenmediği için çalışmayan modüller: 10 modülün 1 tanesi (M08 Reasürans).",
+   "title": "Çalışmayan modüller"
+  },
+  {
+   "banner": false,
+   "evidence": "",
+   "files": [
+    "modules.json"
+   ],
+   "key": "",
    "rule": "KF16",
    "scope": "run",
    "section": "not-run",
@@ -5319,6 +5333,10 @@
    "state": "çalıştı",
    "why": ""
   },
+  "M08": {
+   "state": "atlandı",
+   "why": "Reinsurance did not run: no reinsurance treaties were loaded. Load reinsurance_treaties.xlsx with reinsurance_transactions.xlsx (or claim_valuations.xlsx with ceded columns) to enable it; add claims.xlsx and policies.xlsx for claim-level allocation and what-if programmes."
+  },
   "M09": {
    "state": "çalıştı",
    "why": ""
@@ -5367,6 +5385,15 @@
      "MT18 extreme values did not run for NON_LIFE / MOTOR_TPL: 44 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
      "MT18 extreme values did not run for NON_LIFE / PROPERTY: 5 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
      "MT18 extreme values did not run for NON_LIFE / MOTOR_OD: 67 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)"
+    ]
+   },
+   {
+    "load": "Reinsurance did not run: no reinsurance treaties were loaded. Load reinsurance_treaties.xlsx with reinsurance_transactions.xlsx (or claim_valuations.xlsx with ceded columns) to enable it; add claims.xlsx and policies.xlsx for claim-level allocation and what-if programmes.",
+    "missing": [],
+    "module": "M08 Reasürans",
+    "state": "atlandı",
+    "why": [
+     "Reinsurance did not run: no reinsurance treaties were loaded. Load reinsurance_treaties.xlsx with reinsurance_transactions.xlsx (or claim_valuations.xlsx with ceded columns) to enable it; add claims.xlsx and policies.xlsx for claim-level allocation and what-if programmes."
     ]
    },
    {
@@ -7119,8 +7146,8 @@
   "outputs": [
    {
     "name": "quality.json",
-    "sha256": "35831f868045b7cc67ef38a6492a86261520e9ab8a41e187abd2e7d8890a2767",
-    "size": "36.859"
+    "sha256": "a011f855b7570cb326326c68ccdf36011c8ffacbddf3662ca84b57e6b14f8117",
+    "size": "37.406"
    },
    {
     "name": "triangles.csv",
@@ -7154,8 +7181,8 @@
    },
    {
     "name": "modules.json",
-    "sha256": "a7cbd81202bb50583656e559e84fbeca963aa7b06486d5e5d53c363dbbf3d147",
-    "size": "31.452"
+    "sha256": "00f5d41d8895d18070ec8777e03ff940b254d10a024d3d6b494919a7fbf6d950",
+    "size": "32.098"
    },
    {
     "name": "assumptions.csv",
@@ -7407,7 +7434,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "30a766e143fd5cbc",
+  "run_id": "f964565e974e5920",
   "settings": [
    {
     "name": "bases.currency",
@@ -8158,6 +8185,26 @@
    {
     "id": "RC04",
     "title": "Tahsilat gelişim oranı",
+    "version": "0.1.0"
+   },
+   {
+    "id": "M08",
+    "title": "Reasürans",
+    "version": "0.1.0"
+   },
+   {
+    "id": "RI03",
+    "title": "Anlaşma bazında devir oranı",
+    "version": "0.1.0"
+   },
+   {
+    "id": "RI04",
+    "title": "Reasürans sonuç oranı",
+    "version": "0.1.0"
+   },
+   {
+    "id": "RI05",
+    "title": "Brüt ve net hasar prim oranı oynaklığı",
     "version": "0.1.0"
    },
    {
