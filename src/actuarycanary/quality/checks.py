@@ -22,6 +22,7 @@ from actuarycanary.convert.market import (
     month_of,
 )
 from actuarycanary.io.excel import SOURCE_COLUMNS, SOURCE_FILE, SOURCE_ROW, SOURCE_SHEET
+from actuarycanary.ledger.profile import AccountProfile
 from actuarycanary.methods.robust_z import MAD_SCALE, MEAN_AD_SCALE, THRESHOLD
 from actuarycanary.quality.model import EXAMPLES, Outcome, SourceRef
 from actuarycanary.spec.models import DataConceptSpec
@@ -51,6 +52,8 @@ class Context:
     adjusted: bool = False  # the run restates amounts with the price index (CV02)
     # the curve a run discounts with (CV10); None: DV-IRT-08 and -09 are not evaluated
     discount: DiscountContext | None = None
+    # the account-mapping profile a run uses (CV12); None: DV-LDG-09 proposes one from the ledger
+    account_profile: AccountProfile | None = None
 
 
 Check = Callable[[Context], Outcome | None]

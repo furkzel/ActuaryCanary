@@ -15,6 +15,8 @@ from actuarycanary.canonical.recoveries import (
     to_date_fields,
 )
 from actuarycanary.io.excel import SOURCE_COLUMNS, SOURCE_ROW
+from actuarycanary.ledger.profile import assign
+from actuarycanary.ledger.proposal import propose_profile
 from actuarycanary.quality.checks import (
     Check,
     Context,
@@ -55,9 +57,7 @@ NEEDS: dict[str, tuple[str, ...]] = {
     "DV-RCV-08": ("claim_valuations",),
 }
 # rules that cannot be evaluated yet, with the reason the quality report gives
-NOT_BUILT: dict[str, str] = {
-    "DV-LDG-09": "it needs the account-mapping profile (CV12), which is not built yet",
-}
+NOT_BUILT: dict[str, str] = {}
 
 
 def _column(frame: pl.DataFrame, name: str, dtype: pl.DataType | None = None) -> pl.Expr:
@@ -487,8 +487,37 @@ def every_month_has_a_row(ctx: Context) -> Outcome | None:  # DV-LDG-10
     return _grouped("DV-LDG-10", LEDGER, expected, len(missing), message, listed)
 
 
-def not_evaluated_yet(_: Context) -> Outcome | None:  # rules of NOT_BUILT
-    return None
+def accounts_are_mapped(ctx: Context) -> Outcome | None:  # DV-LDG-09
+    """Every account with a non-zero balance is mapped by the account-mapping profile (CV12): the
+    profile of the run, or, where the check runs without one, the proposal made from the ledger
+    itself. An account two rules claim equally is a profile error and counts as not mapped."""
+    frame = _frame(ctx, LEDGER, ("entity", "account", "period", "closing_balance"))
+    if frame is None:
+        return None
+    profile = ctx.account_profile or propose_profile(frame)
+    live = frame.filter(pl.col("closing_balance").abs() > _EPSILON)
+    last = live.sort("period").group_by("entity", "account", maintain_order=True).last()
+    assignment = assign(profile, last.select("entity", "account").iter_rows())
+    bad = {*assignment.unmapped, *((t.entity, t.account) for t in assignment.ties)}
+    listed = last.filter(
+        pl.concat_str("entity", pl.lit("\x00"), "account").is_in([f"{e}\x00{a}" for e, a in bad])
+    ).sort("entity", "account")
+    shown = "; ".join(
+        f"{r['account']} of {r['entity']}: {r['closing_balance']:,.2f} at {r['period']}"
+        for r in listed.head(3).iter_rows(named=True)
+    )
+    state = (
+        "profile confirmed"
+        if profile.confirmed
+        else "profile proposed, not confirmed"
+        if ctx.account_profile is not None
+        else "no saved profile: the proposal is used"
+    )
+    message = (
+        f"{len(bad)} of {last.height} accounts with a balance are not mapped to a class ({state}): "
+        f"{shown}; FN02 measures their share"
+    )
+    return _grouped("DV-LDG-09", LEDGER, last.height, len(bad), message, listed)
 
 
 positive = pl.col("amount") > 0
@@ -518,6 +547,6 @@ FEED_CHECKS: dict[str, Check] = {
     "DV-LDG-06": closing_is_opening_plus_movement,
     "DV-LDG-07": opening_is_previous_closing,
     "DV-LDG-08": books_balance,
-    "DV-LDG-09": not_evaluated_yet,
+    "DV-LDG-09": accounts_are_mapped,
     "DV-LDG-10": every_month_has_a_row,
 }

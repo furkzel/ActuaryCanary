@@ -323,6 +323,19 @@ CASES: dict[str, tuple[Rows, Rows, int, int]] = {
         2,
         1,
     ),
+    "DV-LDG-09": (
+        {"ledger": [balance(account_class="OTHER"), balance(2, account_class="OTHER")]},
+        {
+            "ledger": [
+                balance(account_class="OTHER"),
+                balance(account="297", closing_balance=7.0),
+                balance(2, account="297", closing_balance=9.0),
+                balance(account="999", closing_balance=0.0),  # no balance, nothing to map
+            ]
+        },
+        2,
+        1,
+    ),
     "DV-LDG-10": (
         {"ledger": [balance(1), balance(2), balance(3, entity="F")]},
         {"ledger": [balance(1), balance(4), balance(2, entity="F"), balance(3, entity="F")]},
@@ -447,7 +460,7 @@ def test_the_report_says_which_second_feed_is_missing_and_what_is_not_built() ->
     assert why["DV-RTR-05"] == "reinsurance_treaties is not loaded"
     assert why["DV-RTR-06"] == "reinsurance_treaties and claims are not loaded"
     assert why["DV-RTR-11"] == "premiums and policies are not loaded"
-    assert "CV12" in why["DV-LDG-09"]
+    assert "DV-LDG-09" not in why  # evaluated since the account-mapping profile exists (F2b)
     assert why["DV-RCV-01"] == "recoveries is not loaded"
 
 

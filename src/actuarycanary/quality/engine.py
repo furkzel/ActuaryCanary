@@ -8,6 +8,7 @@ import polars as pl
 
 from actuarycanary.canonical.feeds import CanonicalFeed
 from actuarycanary.convert.discount import DiscountContext
+from actuarycanary.ledger.profile import AccountProfile
 from actuarycanary.quality.checks import CANONICAL_RULES, CAST_RULE, Context, from_canonical
 from actuarycanary.quality.checks import CHECKS as FIRST_CHECKS
 from actuarycanary.quality.checks_feeds import FEED_CHECKS, NEEDS, NOT_BUILT
@@ -215,6 +216,7 @@ def evaluate(
     price_index: str | None = None,
     adjusted: bool = False,
     discount: DiscountContext | None = None,
+    account_profile: AccountProfile | None = None,
 ) -> QualityReport:
     """The quality report of the loaded feeds. `raw` holds each concept's table as read, before
     the canonical rules, so that rows read and source references are complete. The reporting
@@ -223,7 +225,14 @@ def evaluate(
     if cut_off is None and "claim_valuations" in frames:
         cut_off = _range(frames["claim_valuations"], "valuation_date")[1]
     ctx = Context(
-        frames, catalogue.data, cut_off, reporting_currency, price_index, adjusted, discount
+        frames,
+        catalogue.data,
+        cut_off,
+        reporting_currency,
+        price_index,
+        adjusted,
+        discount,
+        account_profile,
     )
     outcomes: list[Outcome] = []
     not_evaluated: list[tuple[str, str]] = []

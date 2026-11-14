@@ -15,8 +15,6 @@ from actuarycanary.synthetic.check import check_folder
 NEW = ("reinsurance_treaties", "reinsurance_transactions", "recoveries", "ledger")
 RULES = ("DV-RTY", "DV-RTR", "DV-RCV", "DV-LDG")
 MESSY = ("messy_headers", "messy_incremental")
-# what the platform cannot evaluate yet (record 0384)
-NEEDS_THE_PROFILE = "DV-LDG-09"  # the account-mapping profile (CV12) is not built
 
 
 def _counts(report) -> dict[str, int]:
@@ -96,7 +94,6 @@ def test_the_messy_scenarios_have_the_findings_of_their_clean_scenario(
 def test_the_data_rules_agree_with_the_checker_of_the_generator(clean) -> None:
     name, folder, _, report = clean
     found, truth = _counts(report), _truth(folder)
-    truth.pop(NEEDS_THE_PROFILE, None)
     assert found == truth, name
     assert found  # the scenarios are not free of faults
 
@@ -121,13 +118,15 @@ def test_fault_books_that_do_not_balance(clean) -> None:
     assert finding.severity == "INFO" and "do not sum to zero" in finding.message
 
 
-def test_fault_unmapped_account_waits_for_the_mapping_profile(clean) -> None:
-    """Truth kind `unmapped_account` is what DV-LDG-09 lists; it needs the profile of CV12."""
+def test_fault_unmapped_account_is_what_dv_ldg_09_lists(clean) -> None:
+    """Truth kind `unmapped_account` is what DV-LDG-09 lists, through the proposed profile
+    (record 0421): the suspense account of the entity that has it."""
     _, folder, _, report = clean
     truth = pl.read_csv(folder / "truth" / "ledger_differences.csv")
-    assert truth.filter(pl.col("kind") == "unmapped_account").height >= 1
-    assert "DV-LDG-09" not in _counts(report)
-    assert "CV12" in dict(report.not_evaluated)["DV-LDG-09"]
+    suspense = truth.filter(pl.col("kind") == "unmapped_account")
+    assert suspense.height >= 1
+    assert _counts(report)["DV-LDG-09"] == suspense.select("entity", "account").unique().height
+    assert "DV-LDG-09" not in dict(report.not_evaluated)
 
 
 def test_fault_reversed_ceded_movements_are_listed_as_information(clean) -> None:

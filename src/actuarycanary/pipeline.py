@@ -32,6 +32,7 @@ from actuarycanary.convert.views import (
     split_policies,
 )
 from actuarycanary.io.excel import RawTable, Workbook, read_workbooks, spreadsheets
+from actuarycanary.ledger.resolve import profile_in_use
 from actuarycanary.manifest.metadata import load_metadata
 from actuarycanary.manifest.run import (
     InputRecord,
@@ -102,6 +103,7 @@ from actuarycanary.quality.output import QUALITY_NAME, quality_json
 from actuarycanary.recognition.amounts import detect_amounts
 from actuarycanary.recognition.dictionary import Dictionary, build_dictionary
 from actuarycanary.recognition.mapping_profiles import (
+    ProfileError,
     load_profile,
     profile_sha256,
     save_profile,
@@ -178,6 +180,8 @@ RISK_NAME = "risk_measures.csv"
 RISK_CASH_FLOWS_NAME = "risk_cash_flows.csv"
 RISK_DISTRIBUTION_NAME = "risk_distribution.parquet"
 DISCOUNT_CURVE_NAME = "discount_curve.csv"
+LEDGER = "ledger"
+ACCOUNT_MAPPING = "ledger_account_mapping"  # CV12: the profile that maps accounts to classes
 RECOVERIES_NAME = "recoveries.csv"  # M07
 RECOVERY_DEVELOPMENT_NAME = "recovery_development.csv"
 RECOVERY_RECONCILIATION_NAME = "recovery_reconciliation.csv"
@@ -667,6 +671,21 @@ def _write_tables(folder: Path, reserving: ReservingResult) -> list[OutputRecord
     ]
 
 
+def _account_mapping_record(use: Any) -> dict[str, Any] | None:
+    """The manifest's record of the account-mapping profile a run used, or None without a ledger."""
+    if use is None:
+        return None
+    profile = use.profile
+    return {
+        "fingerprint": profile.fingerprint,
+        "sha256": use.sha256,
+        "status": use.status,
+        "confirmed_on": profile.confirmed_on.isoformat() if profile.confirmed_on else None,
+        "file": use.path.name if use.path else None,
+        "rules": len(profile.rules),
+    }
+
+
 def run(
     folder: Path,
     out_root: Path,
@@ -828,6 +847,15 @@ def run(
     if discounted and not discount.available:
         raise InputError(f"the discounted basis needs a curve: {discount.reason}")
     sources = {c: tuple(i.recognition.label for i in by_concept[c]) for c in checked}
+    # the account-mapping profile of the ledger (CV12): saved or proposed, used either way
+    account_use = None
+    if LEDGER in checked:
+        try:
+            account_use = profile_in_use(
+                checked[LEDGER].frame, profiles_dir, settings.triangles.fiscal_year_start_month
+            )
+        except ProfileError as error:
+            raise InputError(f"account-mapping profile: {error}") from error
     quality = evaluate(
         specs,
         checked,
@@ -839,6 +867,7 @@ def run(
         price_index=price_index,
         adjusted=adjusted,
         discount=discount,
+        account_profile=account_use.profile if account_use else None,
     )
     rate_notes = tuple(_rate_findings(rates)) if market is not None and not adjusted else ()
     findings = (
@@ -989,6 +1018,8 @@ def run(
         }
         for m in mappings
     ]
+    if account_use is not None:  # the profile's content is part of what the figures rest on
+        applied.append({"concept": ACCOUNT_MAPPING, "sha256": account_use.sha256})
     run = run_id(inputs, spec_records, settings_record, __version__, applied)
     out = out_root / run
     out.mkdir(parents=True, exist_ok=True)
@@ -1155,6 +1186,7 @@ def run(
         findings=[asdict(f) for f in findings],
         assumptions=records(in_force),
         randomness=randomness,
+        account_mapping=_account_mapping_record(account_use),
     )
     tables = tuple(t.recognition for t in loaded)
     return RunResult(
