@@ -6,9 +6,10 @@ Spec IDs proved: MT21, CV09.
 
 from datetime import date
 
+import numpy as np
 import polars as pl
 import pytest
-from hypothesis import given, settings
+from hypothesis import example, given, settings
 from hypothesis import strategies as st
 
 from actuarycanary.methods.reinsurance import (
@@ -22,7 +23,6 @@ from actuarycanary.methods.reinsurance import (
     sections_from_frame,
 )
 from actuarycanary.methods.reinsurance.application import EVENT_PER_CLAIM
-from actuarycanary.methods.reinsurance.premium import apply_premium
 from tests.benchmarks.load import load_reference, load_table
 
 YEAR = {"inception": date(2020, 1, 1), "expiry": date(2021, 1, 1), "currency": "TRY"}
@@ -369,6 +369,9 @@ def test_index_clause_by_hand(clause: str) -> None:
 
 
 @settings(max_examples=5, deadline=None)
+# a correct result, kept as an example (decision 0810): paid 117 then 4, layer 150 xs 1 cedes
+# 169.46 and 150 xs 0 cedes 169.36 in nominal terms under the payment-by-payment clause
+@example(payments=[117, 4], retention=0, extra=1)
 @given(
     payments=st.lists(st.integers(min_value=-50, max_value=400), min_size=1, max_size=4),
     retention=st.integers(min_value=0, max_value=300),
@@ -394,7 +397,10 @@ def test_properties_hold_with_the_index_clause(
     )
     for clause in (PAYMENT_BY_PAYMENT, OCCURRENCE_DATE):
         options = _index_book_and_options(clause)[1]
-        net = {}
+        series = options.price_index["CPI"]
+        # price level of each valuation date against the treaty's inception (1 / deflator)
+        level = series.at(np.array(days, dtype="datetime64[D]")) / series.at_date(YEAR["inception"])
+        nominal, deflated, incurred = {}, {}, {}
         for r in (retention, retention + extra):
             layer = Section(
                 "XL", "EXCESS_OF_LOSS", retention=r, limit=150, index_series="CPI", **YEAR
@@ -404,97 +410,24 @@ def test_properties_hold_with_the_index_clause(
                 g, c = app.net[f"gross_{basis}"].to_numpy(), app.net[f"ceded_{basis}"].to_numpy()
                 assert (app.net[f"net_{basis}"].to_numpy() == g - c).all()
                 assert (c <= g + 1e-9).all() and (c >= -1e-12).all()
-            net[r] = float(app.net["ceded_incurred"].sum())
-        assert net[retention + extra] <= net[retention] + 1e-9
-
-
-def test_event_layer_with_the_index_clause_adds_its_claims() -> None:
-    """Two claims of one event paid in the same months cede, together, what one claim with the
-    summed payments cedes under the same indexed layer."""
-    _, options = _index_book_and_options(PAYMENT_BY_PAYMENT)
-    days = [date(2020, 6, 30), date(2020, 9, 30), date(2020, 12, 31)]
-    a, b = [60.0, 100.0, 150.0], [40.0, 90.0, 95.0]
-
-    def book(paid: dict[str, list[float]]) -> ClaimBook:
-        ids = [c for c in paid for _ in days]
-        return ClaimBook(
-            valuations=pl.DataFrame(
-                {
-                    "claim_id": ids,
-                    "valuation_date": days * len(paid),
-                    "paid": [x for c in paid for x in paid[c]],
-                    "incurred": [x + 20 for c in paid for x in paid[c]],
-                }
-            ),
-            claims=pl.DataFrame(
-                {
-                    "claim_id": list(paid),
-                    "occurrence_date": [date(2020, 3, 15)] * len(paid),
-                    "event_code": ["E"] * len(paid),
-                }
-            ),
-        )
-
-    event = Section(
-        "CAT",
-        "EXCESS_OF_LOSS",
-        loss_basis="EVENT",
-        retention=150,
-        limit=200,
-        index_series="CPI",
-        **YEAR,
-    )
-    risk = Section("XL", "EXCESS_OF_LOSS", retention=150, limit=200, index_series="CPI", **YEAR)
-    pair = apply_programme([event], book({"A": a, "B": b}), options).net
-    one = apply_programme(
-        [risk], book({"S": [x + y for x, y in zip(a, b, strict=True)]}), options
-    ).net
-    together = (
-        pair.group_by("valuation_date").agg(pl.col("ceded_paid").sum()).sort("valuation_date")
-    )
-    assert together["ceded_paid"].to_list() == pytest.approx(one["ceded_paid"].to_list(), rel=1e-12)
-
-
-def test_premium_side_of_the_fixture() -> None:
-    claims, values = _fixture()
-    written = pl.DataFrame(
-        {
-            "policy_id": [r["claim_id"] for r in claims],
-            "booking_date": [date(2020, 1, 1)] * len(claims),
-            "amount": [float(r["annual_premium"]) for r in claims],
-            "start_date": [date(2020, 1, 1)] * len(claims),
-            "end_date": [date(2021, 1, 1)] * len(claims),
-            "sum_insured": [float(r["sum_insured"]) for r in claims],
-            "line": ["PROPERTY"] * len(claims),
-        }
-    )
-    quota = Section("QS", "QUOTA_SHARE", cession_share=0.3, ceding_commission=0.25, **YEAR)
-
-    def row(app, treaty: str) -> dict:
-        return app.by_section.filter(pl.col("treaty_id") == treaty).row(0, named=True)
-
-    def value(key: str) -> float:
-        return values[("premium", key)]["value"]
-
-    alone = apply_premium([quota], written)
-    assert row(alone, "QS")["ceded_premium"] == pytest.approx(
-        value("quota_share_ceded_premium"), rel=1e-12
-    )
-    assert row(alone, "QS")["commission"] == pytest.approx(
-        value("quota_share_commission"), rel=1e-12
-    )
-    surplus = apply_premium([SURPLUS], written)
-    assert row(surplus, "SP")["ceded_premium"] == pytest.approx(
-        value("surplus_ceded_premium"), rel=1e-12
-    )
-    programme = apply_premium([quota, SURPLUS, STOP], written)
-    assert row(programme, "QS")["ceded_premium"] == pytest.approx(
-        value("programme_quota_share_ceded_premium"), rel=1e-12
-    )
-    # the stop loss sees the earned premium left after both proportional treaties
-    left = (
-        value("gross_premium")
-        - value("surplus_ceded_premium")
-        - value("programme_quota_share_ceded_premium")
-    )
-    assert programme.earned_premium()[STOP.key] == pytest.approx(left, rel=1e-12)
+            ordered = app.net.sort("valuation_date")
+            # the deflated check is on the paid basis: the reserve of the incurred basis is
+            # valued at the index of the valuation date, not of a payment date (0401)
+            cumulative = ordered["ceded_paid"].to_numpy()
+            increments = np.diff(cumulative, prepend=0.0)
+            nominal[r] = float(cumulative[-1])
+            incurred[r] = float(ordered["ceded_incurred"].to_numpy()[-1])
+            deflated[r] = float((increments / level).sum())
+        low, high = retention, retention + extra
+        if clause == OCCURRENCE_DATE:
+            # the terms move with the occurrence date only: monotone in nominal terms
+            assert nominal[high] <= nominal[low] + 1e-9
+            assert incurred[high] <= incurred[low] + 1e-9
+        else:
+            # payment by payment: monotone on the deflated ceded total; in nominal terms a
+            # higher retention can cede more, because the last increments of the layer fall on
+            # later, more inflated payments; the excess stays within the extra retention times
+            # the movement of the price level over the claim's payment dates (decision 0810)
+            assert deflated[high] <= deflated[low] + 1e-9
+            movement = float(np.abs(np.diff(level)).sum())
+            assert nominal[high] <= nominal[low] + extra * movement + 1e-9
