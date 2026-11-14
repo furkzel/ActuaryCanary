@@ -147,6 +147,7 @@ scenario:
           alpha: 2.2
         superimposed_inflation: 0.03
         capped_at_sum_insured: false
+        sum_insured_index: null
       reporting_delay_days:
         dist: lognormal
         median: 5.0
@@ -273,6 +274,7 @@ scenario:
           alpha: 1.8
         superimposed_inflation: 0.05
         capped_at_sum_insured: false
+        sum_insured_index: null
       reporting_delay_days:
         dist: lognormal
         median: 20.0
@@ -393,6 +395,7 @@ scenario:
           alpha: 1.5
         superimposed_inflation: 0.02
         capped_at_sum_insured: true
+        sum_insured_index: null
       reporting_delay_days:
         dist: lognormal
         median: 10.0
@@ -510,6 +513,9 @@ scenario:
         tail: null
         superimposed_inflation: 0.0
         capped_at_sum_insured: false
+        sum_insured_index:
+          by: occurrence
+          prices: true
       reporting_delay_days:
         dist: lognormal
         median: 30.0

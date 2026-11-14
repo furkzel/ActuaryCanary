@@ -6,19 +6,19 @@ translation,ENT_A,600,2024-07-31,2432.190000,foreign-currency premium translated
 missing_row,ENT_B,690,2023-12-31,0.000000,the account has no row for the month
 premium_timing,ENT_C,600,2023-06-30,-2036565.390000,premium of the month booked in the next month (cut-off timing)
 premium_timing,ENT_C,600,2023-07-31,2036565.390000,premium of the month before booked in this month (cut-off timing)
-ibnr_in_outstanding,ENT_C,360,2024-05-31,347221.920000,the ledger outstanding includes an IBNR loading
-ibnr_in_outstanding,ENT_C,360,2024-06-30,242724.090000,the ledger outstanding includes an IBNR loading
-ibnr_in_outstanding,ENT_C,360,2024-07-31,242724.090000,the ledger outstanding includes an IBNR loading
-ibnr_in_outstanding,ENT_C,360,2024-08-31,581984.480000,the ledger outstanding includes an IBNR loading
-ibnr_in_outstanding,ENT_C,360,2024-09-30,446207.650000,the ledger outstanding includes an IBNR loading
-ibnr_in_outstanding,ENT_C,360,2024-10-31,351447.740000,the ledger outstanding includes an IBNR loading
-ibnr_in_outstanding,ENT_C,360,2024-11-30,185325.900000,the ledger outstanding includes an IBNR loading
-ibnr_in_outstanding,ENT_C,360,2025-01-31,920480.980000,the ledger outstanding includes an IBNR loading
-ibnr_in_outstanding,ENT_C,360,2025-02-28,1222379.640000,the ledger outstanding includes an IBNR loading
-ibnr_in_outstanding,ENT_C,360,2025-06-30,128093.770000,the ledger outstanding includes an IBNR loading
-ibnr_in_outstanding,ENT_C,360,2025-07-31,804568.720000,the ledger outstanding includes an IBNR loading
-ibnr_in_outstanding,ENT_C,360,2025-08-31,531977.780000,the ledger outstanding includes an IBNR loading
-ibnr_in_outstanding,ENT_C,360,2025-09-30,403884.020000,the ledger outstanding includes an IBNR loading
-ibnr_in_outstanding,ENT_C,360,2025-10-31,587545.260000,the ledger outstanding includes an IBNR loading
-ibnr_in_outstanding,ENT_C,360,2025-11-30,649270.320000,the ledger outstanding includes an IBNR loading
-ibnr_in_outstanding,ENT_C,360,2025-12-31,849553.270000,the ledger outstanding includes an IBNR loading
+ibnr_in_outstanding,ENT_C,360,2024-05-31,411832.080000,the ledger outstanding includes an IBNR loading
+ibnr_in_outstanding,ENT_C,360,2024-06-30,255338.050000,the ledger outstanding includes an IBNR loading
+ibnr_in_outstanding,ENT_C,360,2024-07-31,255338.050000,the ledger outstanding includes an IBNR loading
+ibnr_in_outstanding,ENT_C,360,2024-08-31,671296.650000,the ledger outstanding includes an IBNR loading
+ibnr_in_outstanding,ENT_C,360,2024-09-30,526528.000000,the ledger outstanding includes an IBNR loading
+ibnr_in_outstanding,ENT_C,360,2024-10-31,409746.950000,the ledger outstanding includes an IBNR loading
+ibnr_in_outstanding,ENT_C,360,2024-11-30,226206.390000,the ledger outstanding includes an IBNR loading
+ibnr_in_outstanding,ENT_C,360,2025-01-31,1162519.860000,the ledger outstanding includes an IBNR loading
+ibnr_in_outstanding,ENT_C,360,2025-02-28,1591598.170000,the ledger outstanding includes an IBNR loading
+ibnr_in_outstanding,ENT_C,360,2025-06-30,137450.650000,the ledger outstanding includes an IBNR loading
+ibnr_in_outstanding,ENT_C,360,2025-07-31,894073.380000,the ledger outstanding includes an IBNR loading
+ibnr_in_outstanding,ENT_C,360,2025-08-31,550161.570000,the ledger outstanding includes an IBNR loading
+ibnr_in_outstanding,ENT_C,360,2025-09-30,412710.920000,the ledger outstanding includes an IBNR loading
+ibnr_in_outstanding,ENT_C,360,2025-10-31,644136.260000,the ledger outstanding includes an IBNR loading
+ibnr_in_outstanding,ENT_C,360,2025-11-30,703001.380000,the ledger outstanding includes an IBNR loading
+ibnr_in_outstanding,ENT_C,360,2025-12-31,944805.200000,the ledger outstanding includes an IBNR loading

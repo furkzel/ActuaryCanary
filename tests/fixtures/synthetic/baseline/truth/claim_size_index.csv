@@ -1,0 +1,5 @@
+line,sum_insured_line,index_day,follows_prices,superimposed_inflation,claims_index_column
+MOTOR_OD,false,payment,true,0.030000,claims_index_MOTOR_OD
+MOTOR_TPL,false,payment,true,0.050000,claims_index_MOTOR_TPL
+PROPERTY,false,payment,true,0.020000,claims_index_PROPERTY
+GROUP_TERM_LIFE,true,occurrence,true,0.000000,claims_index_GROUP_TERM_LIFE

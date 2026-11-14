@@ -82,6 +82,10 @@ def test_demo_equals_a_run_on_the_same_folder_by_fingerprints(
             "TRY_GOV",
             "--out",
             str(tmp_path / "run"),
+            # the demo has saved its proposed ledger profile in ./profiles; a second run on that
+            # folder would read it as saved, so the run starts from none, as the demo did (0811)
+            "--profiles",
+            str(tmp_path / "other_profiles"),
         ],
     )
     assert run.exit_code == 0, run.output

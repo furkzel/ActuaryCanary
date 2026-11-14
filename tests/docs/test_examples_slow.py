@@ -2,6 +2,7 @@
 generates or runs the demo, about half a minute)."""
 
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -14,7 +15,18 @@ from actuarycanary.synthetic.build import synthesize
 from actuarycanary.synthetic.writer import sha256
 
 ROOT = find_spec_root().parent
-FEEDS = ["claim_valuations", "claims", "policies", "premiums", "expenses", "market"]
+FEEDS = [
+    "claim_valuations",
+    "claims",
+    "policies",
+    "premiums",
+    "expenses",
+    "market",
+    "reinsurance_treaties",
+    "reinsurance_transactions",
+    "recoveries",
+    "ledger",
+]  # the six feeds and the four of records 0382 and 0811
 
 pytestmark = [pytest.mark.slow, pytest.mark.integration]
 
@@ -37,9 +49,11 @@ def test_running_an_example_gives_the_run_id_of_its_committed_report(
 ) -> None:
     curve = DEMO_CURVE if example == "demo" else None  # as `canary demo` runs it (0346)
     settings = RunSettings(discount=DiscountSettings(curve_id=curve))
-    result = run(
-        ROOT / "examples" / example, tmp_path / "out", settings, profiles_dir=tmp_path / "profiles"
-    )
+    profiles = tmp_path / "profiles"
+    for shipped in (ROOT / "examples" / example / "report").glob("ledger-*.yaml"):
+        profiles.mkdir(exist_ok=True)  # the confirmed profile the committed run used (0811)
+        shutil.copy(shipped, profiles / shipped.name)
+    result = run(ROOT / "examples" / example, tmp_path / "out", settings, profiles_dir=profiles)
     manifest = json.loads(
         (ROOT / "examples" / example / "report" / "manifest.json").read_text(encoding="utf-8")
     )
