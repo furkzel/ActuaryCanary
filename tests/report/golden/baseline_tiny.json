@@ -337,7 +337,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "fc234ffbb1cfe9c5"
+    "value": "56dd2aa2f1aae99f"
    },
    {
     "label": "Valuation date",
@@ -4504,7 +4504,7 @@
    }
   }
  },
- "findings_spec": "RP01 v1.5.0",
+ "findings_spec": "RP01 v1.6.0",
  "further_findings": [
   {
    "banner": false,
@@ -4568,7 +4568,7 @@
    "scope": "run",
    "section": "not-run",
    "specs": [],
-   "text": "Modules that did not run because their data was not loaded: 1 of 10 (M08 Reinsurance).",
+   "text": "Modules that did not run because their data was not loaded: 2 of 11 (M08 Reinsurance, M10 Ledger reconciliation).",
    "title": "Modules not run"
   },
   {
@@ -5305,6 +5305,10 @@
    "state": "ran",
    "why": ""
   },
+  "M10": {
+   "state": "skipped",
+   "why": "Ledger reconciliation did not run: no trial balance was loaded, or no feed to compare it with. Load ledger.xlsx and at least one of premiums.xlsx, claim_valuations.xlsx, expenses.xlsx or reinsurance_transactions.xlsx, and confirm the account-mapping profile."
+  },
   "M12": {
    "state": "limited",
    "why": "RS04: no discounted figures: no curve is named: name one with --curve or a register entry (CV10, curve_id); RS05: no simulated reserve distribution: LIFE / GROUP_TERM_LIFE: MT06 did not run: no Mack range; LIFE / GROUP_TERM_LIFE: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / MOTOR_OD: MT06 did not run: no Mack range; NON_LIFE / MOTOR_OD: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / MOTOR_TPL: MT06 did not run: no Mack range; NON_LIFE / MOTOR_TPL: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / PROPERTY: MT06 did not run: no Mack range; NON_LIFE / PROPERTY: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; LIFE / GROUP_TERM_LIFE: MT06 did not run: no Mack range; LIFE / GROUP_TERM_LIFE: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / MOTOR_OD: MT06 did not run: no Mack range; NON_LIFE / MOTOR_OD: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / MOTOR_TPL: MT06 did not run: no Mack range; NON_LIFE / MOTOR_TPL: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range; NON_LIFE / PROPERTY: MT06 did not run: no Mack range; NON_LIFE / PROPERTY: the bootstrap needs a chain ladder on at least 5 origin periods: no bootstrap range"
@@ -5358,6 +5362,15 @@
     "state": "skipped",
     "why": [
      "Reinsurance did not run: no reinsurance treaties were loaded. Load reinsurance_treaties.xlsx with reinsurance_transactions.xlsx (or claim_valuations.xlsx with ceded columns) to enable it; add claims.xlsx and policies.xlsx for claim-level allocation and what-if programmes."
+    ]
+   },
+   {
+    "load": "Ledger reconciliation did not run: no trial balance was loaded, or no feed to compare it with. Load ledger.xlsx and at least one of premiums.xlsx, claim_valuations.xlsx, expenses.xlsx or reinsurance_transactions.xlsx, and confirm the account-mapping profile.",
+    "missing": [],
+    "module": "M10 Ledger reconciliation",
+    "state": "skipped",
+    "why": [
+     "Ledger reconciliation did not run: no trial balance was loaded, or no feed to compare it with. Load ledger.xlsx and at least one of premiums.xlsx, claim_valuations.xlsx, expenses.xlsx or reinsurance_transactions.xlsx, and confirm the account-mapping profile."
     ]
    },
    {
@@ -7110,8 +7123,8 @@
   "outputs": [
    {
     "name": "quality.json",
-    "sha256": "a011f855b7570cb326326c68ccdf36011c8ffacbddf3662ca84b57e6b14f8117",
-    "size": "37,406"
+    "sha256": "275eb62b0b59d5cbb06cf6652471f22a83e76eda010de8f548b10c2d1a740bc5",
+    "size": "37,859"
    },
    {
     "name": "triangles.csv",
@@ -7145,8 +7158,8 @@
    },
    {
     "name": "modules.json",
-    "sha256": "00f5d41d8895d18070ec8777e03ff940b254d10a024d3d6b494919a7fbf6d950",
-    "size": "32,098"
+    "sha256": "d6115aeb1db4b6bf8a015a26513263a27b9cc022f628069650d4e989f0295f80",
+    "size": "32,574"
    },
    {
     "name": "assumptions.csv",
@@ -7398,7 +7411,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "fc234ffbb1cfe9c5",
+  "run_id": "56dd2aa2f1aae99f",
   "settings": [
    {
     "name": "bases.currency",
@@ -7495,6 +7508,14 @@
    {
     "name": "large_loss.source",
     "value": "default"
+   },
+   {
+    "name": "ledger.materiality_amount",
+    "value": "0.0"
+   },
+   {
+    "name": "ledger.materiality_ratio",
+    "value": "0.005"
    },
    {
     "name": "lineage_format",
@@ -8187,6 +8208,21 @@
     "version": "0.1.0"
    },
    {
+    "id": "M10",
+    "title": "Ledger reconciliation",
+    "version": "0.2.0"
+   },
+   {
+    "id": "FN01",
+    "title": "Ledger reconciliation gap",
+    "version": "0.2.0"
+   },
+   {
+    "id": "FN02",
+    "title": "Unmapped ledger share",
+    "version": "0.2.0"
+   },
+   {
     "id": "M12",
     "title": "Uncertainty and risk",
     "version": "1.3.0"
@@ -8274,7 +8310,7 @@
    {
     "id": "RP01",
     "title": "Key finding rules",
-    "version": "1.5.0"
+    "version": "1.6.0"
    }
   ]
  },

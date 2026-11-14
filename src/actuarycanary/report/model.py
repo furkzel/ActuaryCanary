@@ -25,6 +25,7 @@ from actuarycanary.manifest.run import InputRecord, OutputRecord, SpecRecord
 from actuarycanary.methods.assumptions import Assumption
 from actuarycanary.modules.anomalies import AnomalyResult
 from actuarycanary.modules.expenses import ExpenseTable
+from actuarycanary.modules.ledger_reconciliation import LedgerTables
 from actuarycanary.modules.recoveries import RecoveryTables
 from actuarycanary.modules.reinsurance import ReinsuranceRun
 from actuarycanary.modules.reserving import SELECTION_MEASURE, GroupReserving, ReservingResult
@@ -50,6 +51,7 @@ from actuarycanary.report.facts import (
 from actuarycanary.report.findings import KEY_FINDINGS, Fact, Facts, KeyFinding, evaluate
 from actuarycanary.report.language import t
 from actuarycanary.report.large_loss_section import large_loss_page
+from actuarycanary.report.ledger_section import add_ledger_facts, ledger_page
 from actuarycanary.report.methods_section import assumption_rows, group_methods
 from actuarycanary.report.phase2_facts import add_line_facts, add_run_facts, add_segment_facts
 from actuarycanary.report.quality_section import failed_rules
@@ -78,6 +80,7 @@ MODULE_ANCHORS = {
     "M07": "recoveries",
     "M08": "reinsurance",
     "M09": "expenses",
+    "M10": "ledger",
     "M12": "uncertainty",
 }
 TOP_FLAGS = 10  # anomaly flags listed on the page; all are in anomalies.csv
@@ -112,6 +115,7 @@ class ReportInputs:
     recoveries: RecoveryTables | None = None  # the tables of M07, when it ran
     expenses: ExpenseTable | None = None  # the table of M09, when it ran
     reinsurance: ReinsuranceRun | None = None  # the run of M08, when it ran
+    ledger: LedgerTables | None = None  # the tables of M10, when it ran
 
 
 class _Specs:
@@ -1216,6 +1220,7 @@ def scoped_facts(
     recoveries: RecoveryTables | None = None,
     expenses: ExpenseTable | None = None,
     reinsurance: ReinsuranceRun | None = None,
+    ledger: LedgerTables | None = None,
 ) -> tuple[dict[str, list[tuple[str, str, Facts]]], dict[str, FactSet]]:
     """The fact sets of every scope as (key, anchor, facts), and the segment facts. `tables`
     are the output tables of the run and `uncertainty` M12, for the rules of RP01 1.2.0;
@@ -1256,6 +1261,7 @@ def scoped_facts(
     add_recovery_facts(run, analysis, recoveries)
     add_expense_facts(run, analysis, expenses, triangles.cut_off)
     add_reinsurance_facts(run, reinsurance)
+    add_ledger_facts(run, ledger)
     for name, limit in (settings or {}).items():
         for facts in (*lines.values(), *(f for f in segments.values() if f), run):
             facts[name] = Fact(limit, "factor")
@@ -1297,6 +1303,7 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
         r.recoveries,
         r.expenses,
         r.reinsurance,
+        r.ledger,
     )
     fired = evaluate(r.catalogue.finding_rules.rules, scoped)
     headline = [f for f in fired if f.scope != "line"]
@@ -1331,6 +1338,13 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
         "M09": lambda: expenses_page(
             r.analysis,
             r.expenses,
+            r.reserving.triangles.cut_off,
+            spec,
+            figures,
+            shown_currency(r.reserving.triangles.reporting_currency),
+        ),
+        "M10": lambda: ledger_page(
+            r.ledger,
             r.reserving.triangles.cut_off,
             spec,
             figures,

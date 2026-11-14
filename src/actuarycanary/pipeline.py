@@ -1186,6 +1186,7 @@ def run(
                 recoveries=recovery_tables_run,
                 expenses=expense_table_run,
                 reinsurance=reinsurance_run_used,
+                ledger=ledger_tables_run,
             )
         )
     with language.using(settings.language):

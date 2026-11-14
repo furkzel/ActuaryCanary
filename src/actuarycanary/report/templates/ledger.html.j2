@@ -1,0 +1,37 @@
+{#- The M10 page (record 0425); `b` is the body built by report/ledger_section.py. -#}
+{% if b.available %}
+<p>{{ tr("Material gaps") }}: <strong>{{ b.material }}</strong> {{ tr("of {computed} entity-class-months compared", computed=b.computed) }}; {{ tr("the largest") }}: <strong>{{ b.largest }}</strong>. {{ tr("Share of the books that no rule of the profile maps") }}: <strong>{{ b.unmapped_share }}</strong>{% if b.unmapped_where %} ({{ b.unmapped_where }}){% endif %}.</p>
+<p>{{ tr("Account-mapping profile") }} <code>{{ b.profile.fingerprint }}</code>: <strong{% if b.profile.proposed %} class="negative"{% endif %}>{{ b.profile.state }}</strong>. {% if b.profile.proposed %}{{ tr("Every ledger figure below rests on a mapping that nobody has checked yet; set confirmed_on in the profile file to confirm it.") }}{% endif %} {{ tr("A gap is material above {limit}.", limit=b.limit) }}</p>
+<h3>{{ tr("Classes") }}</h3>
+<div class="scroll"><table>
+  <thead><tr><th class="text">{{ tr("Account class") }}</th><th class="text">{{ tr("State") }}</th><th>{{ tr("Months compared") }}</th><th>{{ tr("Material gaps") }}</th><th>{{ tr("Largest gap") }}</th><th>{{ tr("Largest gap, share of the ledger amount") }}</th><th class="text">{{ tr("Reason") }}</th></tr></thead>
+  <tbody>{% for r in b.classes %}<tr><td class="text">{{ r.account_class }}</td><td class="text">{{ r.state }}</td><td>{{ r.months }}</td><td>{{ r.material }}</td><td>{{ r.largest }}</td><td>{{ r.largest_share }}</td><td class="text">{{ r.reason }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% if b.figure %}<h3>{{ tr("Gap trend by class") }}</h3>
+{{ figure(b.figure, tr("Gap between the platform and the ledger, by class and month")) }}{% endif %}
+{% if b.matrix.rows %}<h3>{{ tr("Gaps by month") }}</h3>
+<p class="footnote">{{ tr("The gap as a share of the ledger amount for the entity-class pairs that have a material gap; a material gap is marked.") }}{% if b.matrix.more %} {{ tr("{more} more pairs are in reconciliation.csv.", more=b.matrix.more) }}{% endif %}</p>
+<div class="scroll"><table>
+  <thead><tr><th class="text">{{ tr("Entity · class") }}</th>{% for m in b.matrix.months %}<th>{{ m }}</th>{% endfor %}</tr></thead>
+  <tbody>{% for r in b.matrix.rows %}<tr><td class="text">{{ r.label }}</td>{% for c in r.cells %}<td{% if c.material %} class="negative"{% endif %}>{{ c.text }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+</table></div>{% endif %}
+{% if b.largest_gaps %}<h3>{{ tr("Largest material gaps ({n} listed)", n=b.listed) }}</h3>
+<div class="scroll"><table>
+  <thead><tr><th class="text">{{ tr("Entity") }}</th><th class="text">{{ tr("Account class") }}</th><th>{{ tr("Month") }}</th><th>{{ tr("Platform") }}</th><th>{{ tr("Ledger") }}</th><th>{{ tr("Gap") }}</th><th>{{ tr("Share of the ledger amount") }}</th><th class="text">{{ tr("Suggested cause") }}</th><th class="text">{{ tr("Evidence") }}</th></tr></thead>
+  <tbody>{% for r in b.largest_gaps %}<tr><td class="text">{{ r.entity }}</td><td class="text">{{ r.account_class }}</td><td>{{ r.month }}</td><td>{{ r.platform }}</td><td>{{ r.ledger }}</td><td class="negative">{{ r.gap }}</td><td>{{ r.share }}</td><td class="text">{{ r.causes }}</td><td class="text">{{ r.evidence }}</td></tr>{% endfor %}</tbody>
+</table></div>
+<p class="footnote">{{ tr("The causes are suggestions with their evidence, not findings of fact.") }}</p>{% endif %}
+<h3>{{ tr("Accounts without a class") }}</h3>
+{% if b.unmapped %}<div class="scroll"><table>
+  <thead><tr><th class="text">{{ tr("Entity") }}</th><th class="text">{{ tr("Account") }}</th><th class="text">{{ tr("Name") }}</th><th>{{ tr("Latest month") }}</th><th>{{ tr("Latest balance") }}</th><th>{{ tr("Largest balance") }}</th><th>{{ tr("Months with a balance") }}</th><th class="text">{{ tr("Reason") }}</th></tr></thead>
+  <tbody>{% for r in b.unmapped %}<tr><td class="text">{{ r.entity }}</td><td class="text">{{ r.account }}</td><td class="text">{{ r.name }}</td><td>{{ r.latest }}</td><td>{{ r.balance }}</td><td>{{ r.largest }}</td><td>{{ r.months }}</td><td class="text">{{ r.reason }}</td></tr>{% endfor %}</tbody>
+</table></div>{% else %}<p>{{ tr("Every account with a balance is mapped to a class.") }}</p>{% endif %}
+<h3>{{ tr("Profile in use") }}</h3>
+<p>{{ tr("Fingerprint of the chart of accounts") }} <code>{{ b.profile.fingerprint }}</code>, {{ tr("SHA-256 of the profile") }} <code>{{ b.profile.sha256 }}</code>.</p>
+<div class="scroll"><table>
+  <thead><tr><th class="text">{{ tr("Entity") }}</th><th class="text">{{ tr("Account pattern") }}</th><th class="text">{{ tr("Account class") }}</th><th>{{ tr("Sign") }}</th><th class="text">{{ tr("Balance kind") }}</th></tr></thead>
+  <tbody>{% for r in b.profile.rules %}<tr><td class="text">{{ r.entity }}</td><td class="text">{{ r.pattern }}</td><td class="text">{{ r.account_class }}</td><td>{{ r.sign }}</td><td class="text">{{ r.kind }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% if b.notes %}<ul class="notes">{% for n in b.notes %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+<p class="footnote">{{ b.footnote }}</p>
+{% endif %}

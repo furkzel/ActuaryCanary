@@ -109,6 +109,13 @@ CASES: dict[str, tuple[dict[str, float], dict[str, float]]] = {
         {"approximate_allocation_share": 0.06, "approximate_allocation_share_limit": 0.05},
         {"approximate_allocation_share": 0.05, "approximate_allocation_share_limit": 0.05},
     ),
+    # RP01 1.6.0 (F2b, record 0425): the facts come from the tables of M10
+    "KF47": ({"ledger_material_gaps": 1}, {"ledger_material_gaps": 0}),
+    "KF48": (
+        {"ledger_unmapped_share": 0.05, "ledger_unmapped_share_limit": 0.05},
+        {"ledger_unmapped_share": 0.049, "ledger_unmapped_share_limit": 0.05},
+    ),
+    "KF49": ({"ledger_profile_proposed": 1}, {"ledger_profile_proposed": 0}),
 }
 # RP01 1.3.0 (record 0388): their facts come from the tables of M07 and M09, which
 # tests/report/test_pages_m07_m09.py builds
@@ -116,6 +123,8 @@ NEW_IN_1_3 = {f"KF{n}" for n in range(35, 42)}
 NEW_IN_1_2 = {f"KF{n}" for n in range(27, 35)}
 # RP01 1.5.0 (record 0408): their facts come from the run of M08, which the tiny baseline skips
 NEW_IN_1_5 = {"KF44", "KF45", "KF46"}
+# RP01 1.6.0 (record 0425): their facts come from the tables of M10, which the baseline skips
+NEW_IN_1_6 = {"KF47", "KF48", "KF49"}
 
 
 def _facts(rule: FindingRule, values: dict[str, float]) -> dict[str, Fact]:
@@ -189,6 +198,7 @@ def test_every_fact_a_rule_names_is_computed_for_its_scope(default_run: RunResul
         not in NEW_IN_1_2
         | NEW_IN_1_3
         | NEW_IN_1_5
+        | NEW_IN_1_6
         | {"KF42"}  # need methods or tables the call lacks
         for name in facts_named(rule)
         if name not in known[rule.scope]
@@ -229,6 +239,7 @@ def test_the_rule_file_names_its_settings() -> None:
         "unallocated_expense_share_limit": 0.25,
         "thin_factor_change_limit": 0.02,
         "approximate_allocation_share_limit": 0.05,  # RP01 1.5.0, record 0408
+        "ledger_unmapped_share_limit": 0.05,  # RP01 1.6.0, record 0425
     }
 
 
