@@ -1,9 +1,9 @@
 id: CV09
-version: 0.2.0
+version: 0.3.0
 title_en: Treaty-level ceded allocation
 title_tr: Anlaşma düzeyindeki devredilen tutarların dağıtımı
 status: draft
-implemented: false
+implemented: true
 definition: >-
   When ceded amounts arrive per treaty rather than per claim or policy, they are allocated
   to claims, policies or line and origin cells by the treaty's own terms, so that net equals
@@ -48,10 +48,15 @@ rules:
     applied per contract period in claim order of booking date; the claim that exhausts or
     crosses a term gets the part that fits.
   - >-
-    Index clause: when index_series is set, retention and limit of a claim are scaled by
-    the index of the claim's payment month over the index of the inception month, using the
-    paid-weighted average month of the claim's payments to the cut-off (an approximation
-    of a payment-by-payment clause, stated in the report).
+    Index clause (owner decision, record 0401): a treaty with index_series states retention
+    and limit at the price level of its inception month. Payment by payment (the default
+    setting index_clause): each payment of a claim (or event) is deflated to inception prices
+    with the index of its month, the layer is applied to the cumulative deflated payments,
+    and each ceded increment is inflated back with the index of its month; the case reserve
+    at a valuation date is valued with the index of that date, an approximation stated in
+    the report. The setting occurrence_date instead fixes retention and limit at the price
+    level of the claim's (or event's) occurrence date. The report names the clause in use
+    beside every indexed treaty.
   - >-
     Inuring order: SURPLUS first, then QUOTA_SHARE on the retained part, then risk
     EXCESS_OF_LOSS, then event EXCESS_OF_LOSS, then STOP_LOSS, each on what the previous
@@ -131,7 +136,7 @@ notes: >-
   reads "ceded amounts given per claim are taken as given; treaty-level amounts are
   allocated by these rules". Until then CV03 1.0.0 is in force and allocates nothing
   (decision 0200). The inuring order rule is accepted by the owner as written
-  (record 0604); the index-clause approximation is not decided there.
+  (record 0604); the index clause is the owner's decision of 2026-11-12 (record 0401).
 change_log:
   - version: 0.1.0
     date: 2026-10-23
@@ -140,3 +145,10 @@ change_log:
     date: 2026-10-24
     change: >-
       Owner decision (record 0604): the inuring order is accepted as written.
+  - version: 0.3.0
+    date: 2026-11-12
+    change: >-
+      Owner decision (record 0401): the index clause works payment by payment; the
+      paid-weighted average month is dropped; the setting index_clause keeps the
+      occurrence-date clause of the generator. Implemented before owner review (F2a,
+      records 0400 to 0403).

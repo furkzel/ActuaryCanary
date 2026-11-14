@@ -3,7 +3,7 @@ version: 0.1.0
 title_en: Reinsurance result ratio
 title_tr: Reasürans sonuç oranı
 status: draft
-implemented: false
+implemented: true
 definition: >-
   The reinsurance result (RI02) as a share of gross earned premium, on the ultimate view per
   origin year when ceded ultimates exist: what reinsurance costs or brings per unit of
@@ -58,3 +58,8 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft for module M08 (P20).
+  - version: 0.1.0
+    date: 2026-11-12
+    change: >-
+      Implemented before owner review (F2a): built on the treaty application of MT21 and the
+      allocation of CV09; the text of the specification is unchanged here.

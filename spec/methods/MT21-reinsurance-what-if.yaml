@@ -3,7 +3,7 @@ version: 0.1.0
 title_en: Reinsurance what-if
 title_tr: Reasürans senaryo analizi
 status: draft
-implemented: false
+implemented: true
 definition: >-
   Applies a reinsurance programme (the treaties loaded, or an alternative written in the
   assumptions register) to claim-level gross losses and to premium, giving ceded and net
@@ -118,3 +118,8 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 9.2 (P20).
+  - version: 0.1.0
+    date: 2026-11-12
+    change: >-
+      Implemented before owner review (F2a): the application step (records 0400 to 0403); the
+      text of the specification is unchanged here.

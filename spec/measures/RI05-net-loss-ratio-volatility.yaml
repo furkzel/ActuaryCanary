@@ -3,7 +3,7 @@ version: 0.1.0
 title_en: Loss ratio volatility, gross and net
 title_tr: Brüt ve net hasar prim oranı oynaklığı
 status: draft
-implemented: false
+implemented: true
 definition: >-
   Standard deviation of the ultimate loss ratio across origin years, gross and net of a
   reinsurance programme, and their ratio: how much the programme steadies results.
@@ -52,3 +52,8 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft for module M08 (P20).
+  - version: 0.1.0
+    date: 2026-11-12
+    change: >-
+      Implemented before owner review (F2a): built on the treaty application of MT21 and the
+      allocation of CV09; the text of the specification is unchanged here.
