@@ -268,6 +268,7 @@ def test_run_says_which_modules_ran_and_why_others_did_not(default_run: RunResul
         "M07": "ran",  # on the to-date recovery fields of claim valuations (derived flows)
         "M08": "skipped",  # no reinsurance treaties in the folder (F2a, record 0406)
         "M09": "ran",
+        "M10": "skipped",  # no ledger in the folder (F2b)
         "M12": "limited",  # no curve is named, and the 4 x 4 triangles are too small to bootstrap
     }
     # the 4 x 4 triangles of the tiny baseline are too small for the Mack variance (record 0041)
@@ -286,6 +287,7 @@ def test_run_says_which_modules_ran_and_why_others_did_not(default_run: RunResul
         "M07",
         "M08",
         "M09",
+        "M10",
         "M12",
     ]
 

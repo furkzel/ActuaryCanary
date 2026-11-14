@@ -40,14 +40,17 @@ _GROSS_ORIGINAL = Basis(ReinsuranceBasis.GROSS, CurrencyView.ORIGINAL, ValueBasi
 ENTITY = "entity"
 MONTH = "period"
 AMOUNT = "amount"
+FOREIGN = "foreign"
 
 
 @dataclass(frozen=True)
 class Side:
-    """One class's platform amounts: `frame` (entity, period, amount; one row per entity and
-    month end of the feed's own range, zero where it has no row) or None with the reason."""
+    """One class's platform amounts: `frame` (entity, period, amount, and `foreign`, the size of
+    the part of `amount` that came from rows in another currency than the reporting currency; one
+    row per entity and month end of the feed's own range, zero where it has no row) or None with
+    the reason."""
 
-    frame: pl.DataFrame | None
+    frame: pl.DataFrame | None  # entity, period, amount, foreign
     reason: str = ""
     notes: tuple[str, ...] = ()
 
@@ -70,17 +73,21 @@ def _flow_grid(rows: pl.DataFrame, first: date, last: date) -> pl.DataFrame:
     grid = entities.join(pl.DataFrame({MONTH: months}, schema={MONTH: pl.Date}), how="cross")
     return (
         grid.join(rows, on=[ENTITY, MONTH], how="left")
-        .with_columns(pl.col(AMOUNT).fill_null(0.0))
+        .with_columns(pl.col(AMOUNT, FOREIGN).fill_null(0.0))
         .sort(ENTITY, MONTH)
     )
 
 
-def _by_month(rows: pl.DataFrame, date_column: str) -> pl.DataFrame:
+def _by_month(rows: pl.DataFrame, date_column: str, foreign: pl.Expr) -> pl.DataFrame:
+    """Entity, month end, amount and the absolute amount of the rows `foreign` marks."""
     return (
         rows.filter(pl.col(ENTITY).is_not_null() & (pl.col(ENTITY) != "UNKNOWN"))
         .with_columns(pl.col(date_column).dt.month_end().alias(MONTH))
         .group_by(ENTITY, MONTH)
-        .agg(pl.col(AMOUNT).sum())
+        .agg(
+            pl.col(AMOUNT).sum(),
+            pl.col(AMOUNT).abs().filter(foreign.fill_null(False)).sum().alias(FOREIGN),
+        )
     )
 
 
@@ -109,7 +116,8 @@ def _premium_flows(inputs: MeasureInputs, *, types: tuple[str, ...] | None) -> S
     if covered is None or rows.height == 0:
         what = "premium transactions" if types is None else f"{', '.join(types)} rows"
         return Side(None, f"no {what} up to the cut-off")
-    return Side(_flow_grid(_by_month(rows, "booking_date"), *covered), notes=tuple(notes))
+    marked = (pl.col("rate") != 1.0).fill_null(False)
+    return Side(_flow_grid(_by_month(rows, "booking_date", marked), *covered), notes=tuple(notes))
 
 
 def written_premium(inputs: MeasureInputs) -> Side:
@@ -128,8 +136,10 @@ def _claim_flows(inputs: MeasureInputs, basis: Basis, measure: str) -> Side:
     covered = _range(inputs.feeds[VALUATIONS], "valuation_date", inputs.cut_off)
     if covered is None or rows.height == 0:
         return Side(None, "no claim valuations up to the cut-off")
+    marked = pl.col("currency") != inputs.reporting_currency
     return Side(
-        _flow_grid(_by_month(rows, "valuation_date"), *covered), notes=tuple([*notes, *left])
+        _flow_grid(_by_month(rows, "valuation_date", marked), *covered),
+        notes=tuple([*notes, *left]),
     )
 
 
@@ -161,8 +171,10 @@ def outstanding(inputs: MeasureInputs) -> Side:
         if done.not_converted.height
         else []
     )
+    marked = pl.col("currency") != inputs.reporting_currency
     return Side(
-        _flow_grid(_by_month(kept, "end"), ends[0], ends[-1]), notes=tuple([*notes, *left, *extra])
+        _flow_grid(_by_month(kept, "end", marked), ends[0], ends[-1]),
+        notes=tuple([*notes, *left, *extra]),
     )
 
 
@@ -193,7 +205,11 @@ def unearned(inputs: MeasureInputs) -> Side:
             )
     except (PremiumError, ValueError) as error:
         return Side(None, str(error))
-    rows = pl.concat(parts).filter(pl.col(ENTITY) != "UNKNOWN")
+    rows = (
+        pl.concat(parts)
+        .filter(pl.col(ENTITY) != "UNKNOWN")
+        .with_columns(pl.lit(0.0).alias(FOREIGN))
+    )
     return Side(_flow_grid(rows, *covered))
 
 
@@ -206,7 +222,8 @@ def expenses(inputs: MeasureInputs) -> Side:
     covered = _range(inputs.feeds[EXPENSES], "period", inputs.cut_off)
     if covered is None or rows.height == 0:
         return Side(None, "no expense rows up to the cut-off", tuple(notes))
-    return Side(_flow_grid(_by_month(rows, "period"), *covered), notes=tuple(notes))
+    marked = (pl.col("rate") != 1.0).fill_null(False)
+    return Side(_flow_grid(_by_month(rows, "period", marked), *covered), notes=tuple(notes))
 
 
 def reinsurance_net_cost(inputs: MeasureInputs) -> Side:
@@ -226,7 +243,7 @@ def reinsurance_net_cost(inputs: MeasureInputs) -> Side:
     both = pl.concat(parts)
     frame = (
         both.group_by(ENTITY, MONTH)
-        .agg((pl.col(AMOUNT) * pl.col("sign")).sum().alias(AMOUNT))
+        .agg((pl.col(AMOUNT) * pl.col("sign")).sum().alias(AMOUNT), pl.col(FOREIGN).sum())
         .sort(ENTITY, MONTH)
     )
     notes = (*premium.notes, *paid.notes)

@@ -465,9 +465,9 @@ def test_the_report_says_which_second_feed_is_missing_and_what_is_not_built() ->
 
 
 def test_impacts_name_built_modules_only() -> None:
-    """A rule of a feed that only M08 or M10 will use has no impact listed until that module is
+    """A rule of a feed that only M08 will use has no impact listed until that module is
     built (record 0381)."""
     report = _report({"claim_valuations": [cv()], **CASES["DV-LDG-06"][1]})
     found = next(f for f in report.findings if f.rule == "DV-LDG-06")
     assert set(found.modules) <= set(CATALOGUE.modules)
-    assert not {"M08", "M10"} & set(found.modules)
+    assert "M08" not in set(found.modules)  # M10 is built (F2b) and a ledger rule names it

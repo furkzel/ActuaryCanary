@@ -289,7 +289,8 @@ def test_a_run_writes_the_tables_of_both_modules_and_lists_them(default_run) -> 
         assert (default_run.folder / name).is_file()
     specs = {s["id"] for s in manifest["specs"]}
     assert {"M07", "M09", "RC03", "RC04", "EX04", "EX05"} <= specs
-    assert "M10" not in specs  # M08 is built (F2a) and listed although the baseline skips it
+    # M08 and M10 are built and listed although the baseline skips them; no ledger, no CV12
+    assert {"M08", "M10"} <= specs and "CV12" not in specs
 
 
 def test_a_run_has_both_pages_and_their_navigation_entries(default_run) -> None:

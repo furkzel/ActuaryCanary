@@ -205,9 +205,11 @@ def test_the_tiny_baseline_says_its_evidence_is_thin(default_run: RunResult) -> 
     assert "not how precise it is" in first["text"]
     assert model["banners"] == [first["text"]]
     assert len(model["key_findings"]) <= 8
-    # every module ran except M08, which needs reinsurance treaties (F2a, record 0407)
+    # every module ran except M08, which needs reinsurance treaties (F2a, record 0407), and M10,
+    # which needs a ledger (F2b, record 0423)
     not_run = [f for f in model["key_findings"] + model["further_findings"] if f["rule"] == "KF15"]
-    assert len(not_run) == 1 and "(M08 Reinsurance)" in not_run[0]["text"]
+    assert len(not_run) == 1
+    assert "(M08 Reinsurance, M10 Ledger reconciliation)" in not_run[0]["text"]
 
 
 # RP01 1.2.1 (record 0347): the part of the condition that the sentence needs

@@ -1,4 +1,4 @@
-"""The module runner: runs the built modules (M01 to M07, M09, M12) whenever their concepts are
+"""The module runner: runs the built modules (M01 to M07, M09, M10, M12) whenever their concepts are
 present and says why the others did not (blueprint 10, decisions 0014, 0032, 0051).
 
 Whether a module can run comes from the quality report (`ModuleStatus`): a required concept
@@ -38,10 +38,21 @@ def _has_recovery_data(inputs: MeasureInputs) -> bool:
     return recoveries_of(inputs).available
 
 
+COMPARED_WITH_THE_LEDGER = ("premiums", "claim_valuations", "expenses", "reinsurance_transactions")
+
+
+def _can_reconcile(inputs: MeasureInputs) -> bool:
+    """M10: a ledger and at least one of the feeds it is compared with."""
+    return inputs.has("ledger") and any(inputs.has(c) for c in COMPARED_WITH_THE_LEDGER)
+
+
 # What a module needs beyond its loaded concepts; without it the module is skipped with the
 # skip reason of its specification. M07 lists claim_valuations among its concepts, but runs on
 # it only when a to-date recovery column exists.
-PRECONDITIONS: dict[str, Callable[[MeasureInputs], bool]] = {"M07": _has_recovery_data}
+PRECONDITIONS: dict[str, Callable[[MeasureInputs], bool]] = {
+    "M07": _has_recovery_data,
+    "M10": _can_reconcile,
+}
 
 
 class ModuleState(StrEnum):

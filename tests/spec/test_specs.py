@@ -31,10 +31,15 @@ MODULES_BUILT_F2A = {"M08"}
 MEASURES_BUILT_F2A = {"RI03", "RI04", "RI05"}
 METHODS_BUILT_F2A = {"MT21"}
 # Built by F2b (records 0420 to 0426): the ledger reconciliation, still drafts for the owner.
+MODULES_BUILT_F2B = {"M10"}
 MEASURES_BUILT_F2B = {"FN01", "FN02"}
 CONVENTIONS_BUILT_F2B = {"CV12"}
 MODULES_PLANNED = (
-    {f"M{n:02d}" for n in range(7, 14)} - MODULES_BUILT_P26 - MODULES_BUILT_F1BC - MODULES_BUILT_F2A
+    {f"M{n:02d}" for n in range(7, 14)}
+    - MODULES_BUILT_P26
+    - MODULES_BUILT_F1BC
+    - MODULES_BUILT_F2A
+    - MODULES_BUILT_F2B
 )
 # Built by the integration P25b (record 0620): the tier B reserving methods, the severity
 # methods, and the measure AE02, the back-test error. P25c built MT19 (survival).
@@ -79,7 +84,7 @@ def test_version_1_scope_is_complete(catalogue: SpecCatalogue) -> None:
         METHODS_BUILT_P25B | METHODS_BUILT_P25C | METHODS_BUILT_F2A
     )
     assert set(catalogue.modules) == (
-        MODULES_V1 | MODULES_BUILT_P26 | MODULES_BUILT_F1BC | MODULES_BUILT_F2A
+        MODULES_V1 | MODULES_BUILT_P26 | MODULES_BUILT_F1BC | MODULES_BUILT_F2A | MODULES_BUILT_F2B
     )
     assert {f"CV0{n}" for n in range(1, 7)} <= set(catalogue.conventions)
     assert set(catalogue.conventions) >= CONVENTIONS_BUILT_P26 | CONVENTIONS_BUILT_F2B

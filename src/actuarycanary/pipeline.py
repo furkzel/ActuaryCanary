@@ -33,6 +33,7 @@ from actuarycanary.convert.views import (
 )
 from actuarycanary.io.excel import RawTable, Workbook, read_workbooks, spreadsheets
 from actuarycanary.ledger.resolve import profile_in_use
+from actuarycanary.ledger.settings import LedgerSettings
 from actuarycanary.manifest.metadata import load_metadata
 from actuarycanary.manifest.run import (
     InputRecord,
@@ -45,6 +46,7 @@ from actuarycanary.manifest.run import (
     write_parquet_table,
     write_table,
 )
+from actuarycanary.measures import ledger_measures
 from actuarycanary.measures.lineage import DEFAULT_FORMAT, FORMATS, build_lineage
 from actuarycanary.measures.model import Basis, CurrencyView, MeasureInputs, with_refs
 from actuarycanary.measures.output import values_table
@@ -61,6 +63,7 @@ from actuarycanary.modules import reinsurance_whatif, severity_run, survival_run
 from actuarycanary.modules import reserving_tier_b_output as tier_b_output
 from actuarycanary.modules.anomalies import AnomalyResult, run_anomalies
 from actuarycanary.modules.expenses import ExpenseTable, expense_table
+from actuarycanary.modules.ledger_reconciliation import LedgerTables, ledger_tables
 from actuarycanary.modules.methods_port import ReservingPort
 from actuarycanary.modules.output import analysis_json
 from actuarycanary.modules.premium_input import earned_premium_by_origin
@@ -186,6 +189,8 @@ RECOVERIES_NAME = "recoveries.csv"  # M07
 RECOVERY_DEVELOPMENT_NAME = "recovery_development.csv"
 RECOVERY_RECONCILIATION_NAME = "recovery_reconciliation.csv"
 EXPENSES_BY_PERIOD_NAME = "expenses_by_period.csv"  # M09
+RECONCILIATION_NAME = "reconciliation.csv"  # M10
+UNMAPPED_ACCOUNTS_NAME = "unmapped_accounts.csv"  # M10
 CEDED_BY_TREATY_NAME = "ceded_by_treaty.csv"  # M08 (record 0406)
 CEDED_ALLOCATION_NAME = "ceded_allocation.csv"
 REINSURANCE_RECONCILIATION_NAME = "reinsurance_reconciliation.csv"
@@ -230,6 +235,8 @@ class RunSettings(BaseModel):
     discount: DiscountSettings = Field(default_factory=DiscountSettings)
     # M08 and MT21: the index clause, the allocation fallback of CV09 and the what-if (F2a)
     reinsurance: ReinsuranceSettings = Field(default_factory=ReinsuranceSettings)
+    # M10: the materiality of a gap between the platform and the books (CV12, record 0603)
+    ledger: LedgerSettings = Field(default_factory=LedgerSettings)
 
     @field_validator("currency_view")
     @classmethod
@@ -891,6 +898,10 @@ def run(
         large_loss_thresholds=large_loss.thresholds,
     )
     measure_inputs.cache[reinsurance_module.SETTINGS_KEY] = settings.reinsurance
+    if account_use is not None:
+        measure_inputs.cache[ledger_measures.RUN_KEY] = ledger_measures.LedgerRun(
+            account_use, settings.ledger
+        )
     measure_inputs = _with_ceded_fields(measure_inputs)
     reinsurance, value_basis = settings.triangles.reinsurance_basis, settings.triangles.value_basis
     period = settings.triangles.origin_period
@@ -984,7 +995,11 @@ def run(
     inputs = _input_records(
         [*concepts, *[c for c in checked_only if c not in concepts]], by_concept
     )
-    extra = [*(["CV02"] if adjusted else []), *(["CV10"] if discount.available else [])]
+    extra = [
+        *(["CV02"] if adjusted else []),
+        *(["CV10"] if discount.available else []),
+        *(["CV12"] if account_use is not None else []),
+    ]
     ran = [
         i
         for module in sorted(specs.modules.values(), key=lambda m: m.id)
@@ -1112,6 +1127,16 @@ def run(
         expense_table_run = expense_table(measure_inputs, view)
         report_tables[EXPENSES_BY_PERIOD_NAME] = expense_table_run.frame
         outputs.append(write_table(out, EXPENSES_BY_PERIOD_NAME, expense_table_run.frame))
+    ledger_tables_run: LedgerTables | None = None
+    if "M10" in modules_ran:
+        ledger_tables_run = ledger_tables(measure_inputs)
+        module_tables = {
+            RECONCILIATION_NAME: ledger_tables_run.reconciliation,
+            UNMAPPED_ACCOUNTS_NAME: ledger_tables_run.unmapped,
+        }
+        report_tables |= module_tables
+        for name, table in module_tables.items():
+            outputs.append(write_table(out, name, table))
     if isinstance(uncertainty, UncertaintyResult):
         report_tables |= {RISK_NAME: uncertainty.risk, RISK_CASH_FLOWS_NAME: uncertainty.cash_flows}
         if uncertainty.curve.height:

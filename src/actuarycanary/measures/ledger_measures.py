@@ -55,7 +55,7 @@ def ledger_run(inputs: MeasureInputs) -> LedgerRun:
     return LedgerRun(use, LedgerSettings())
 
 
-def _in_reporting_currency(inputs: MeasureInputs) -> tuple[pl.DataFrame, list[str]]:
+def reporting_ledger(inputs: MeasureInputs) -> tuple[pl.DataFrame, list[str]]:
     """The ledger rows in the reporting currency (an empty currency means it, DV-LDG-03); the
     rows of other currencies are left out, a ledger with several currencies is not built."""
     ledger = inputs.feeds[LEDGER]
@@ -189,7 +189,7 @@ def reconciliation_gap(
 ) -> Computed | Missing:
     """FN01: the platform's figure minus the mapped ledger amount per entity, class and month."""
     run = ledger_run(inputs)
-    ledger, notes = _in_reporting_currency(inputs)
+    ledger, notes = reporting_ledger(inputs)
     amounts, months = ledger_amounts(ledger, run, inputs.fiscal_year_start_month)
     if amounts.height == 0:
         return Missing("the account-mapping profile maps no account of the ledger to a class")
@@ -208,13 +208,11 @@ def reconciliation_gap(
     return Computed(frame, tuple(dict.fromkeys(notes)), (), {"not_reconciled": reasons})
 
 
-def unmapped_share(
-    spec: MeasureSpec, inputs: MeasureInputs, request: MeasureRequest
-) -> Computed | Missing:
-    """FN02: absolute closing balances of the accounts the profile does not map over all absolute
-    closing balances, per entity and month."""
+def share_frame(inputs: MeasureInputs) -> tuple[pl.DataFrame, list[str]]:
+    """FN02 per entity and month: `numerator`, `denominator`, `value` (null when all balances
+    are zero) and `note`."""
     run = ledger_run(inputs)
-    ledger, notes = _in_reporting_currency(inputs)
+    ledger, notes = reporting_ledger(inputs)
     assignment = assign(run.use.profile, ledger.select("entity", "account").unique().iter_rows())
     left = {*assignment.unmapped, *((t.entity, t.account) for t in assignment.ties)}
     key = pl.concat_str("entity", pl.lit("\x00"), "account")
@@ -234,8 +232,17 @@ def unmapped_share(
             .then(pl.lit(""))
             .otherwise(pl.lit("all balances are zero: not computed"))
             .alias("note"),
-            pl.col("period").dt.strftime("%Y-%m").alias("calendar_period"),
         )
         .sort("entity", "period")
     )
+    return frame, notes
+
+
+def unmapped_share(
+    spec: MeasureSpec, inputs: MeasureInputs, request: MeasureRequest
+) -> Computed | Missing:
+    """FN02: absolute closing balances of the accounts the profile does not map over all absolute
+    closing balances, per entity and month."""
+    frame, notes = share_frame(inputs)
+    frame = frame.with_columns(pl.col("period").dt.strftime("%Y-%m").alias("calendar_period"))
     return Computed(frame, tuple(notes), ())

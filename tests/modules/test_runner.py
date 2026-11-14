@@ -59,6 +59,7 @@ def test_modules_run_when_their_concepts_are_present(full) -> None:
         "M07",
         "M08",
         "M09",
+        "M10",
         "M12",
     ]
     found = states(analysis)
@@ -68,6 +69,9 @@ def test_modules_run_when_their_concepts_are_present(full) -> None:
     # no reinsurance treaties in these feeds: M08 says so in the words of its specification
     assert found.pop("M08") is ModuleState.SKIPPED
     assert analysis.get("M08").reasons == (CATALOGUE.modules["M08"].skip_reason,)
+    # no ledger in these feeds either: M10 says so in the words of its specification
+    assert found.pop("M10") is ModuleState.SKIPPED
+    assert analysis.get("M10").reasons == (CATALOGUE.modules["M10"].skip_reason,)
     assert all(state is not ModuleState.SKIPPED for state in found.values()), found
     assert found["M01"] is ModuleState.RAN
     assert analysis.get("M03").available  # claims measures were computed
@@ -115,6 +119,7 @@ def test_warning_findings_never_stop_a_module() -> None:
     found = states(run(FULL, {"claim_valuations": (warning,)}))
     assert found.pop("M07") is ModuleState.SKIPPED  # no recovery data in these feeds
     assert found.pop("M08") is ModuleState.SKIPPED  # no reinsurance treaties (F2a)
+    assert found.pop("M10") is ModuleState.SKIPPED  # no ledger (F2b)
     assert ModuleState.SKIPPED not in found.values()
     assert found["M01"] is ModuleState.RAN and found["M03"] is ModuleState.LIMITED
 
@@ -134,6 +139,7 @@ def test_results_list_each_measure_view_once_and_the_json_names_every_module(ful
         "M07",
         "M08",
         "M09",
+        "M10",
         "M12",
     ]
     m02 = data["modules"][1]
