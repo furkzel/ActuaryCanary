@@ -76,7 +76,7 @@ def test_the_module_asks_deeper_views_than_m05_and_leaves_m05_as_it_was() -> Non
     assert ("EX02", ("segment", "line", "calendar_period"), Period.MONTH) in m09
     assert ("EX01", ("calendar_period",), Period.MONTH) in m09
     assert ("EX04", ("segment", "line", "calendar_period"), Period.YEAR) in m09
-    assert set(MODULE_VIEWS) == {"M09"}
+    assert set(MODULE_VIEWS) == {"M09", "M10"}
     assert [v.breakdowns for v in views_of("M05", "EX02")] == [("calendar_period",)]
     # the yearly view is computed once and shared by both modules
     shared = [

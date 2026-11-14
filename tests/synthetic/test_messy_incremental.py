@@ -31,17 +31,13 @@ def _read_valuations(folder: Path):
 
 
 @pytest.fixture(scope="module")
-def headers(tmp_path_factory):
-    folder = tmp_path_factory.mktemp("headers")
-    synthesize("messy_headers", "tiny", folder)
-    return folder
+def headers(scenario_folder):
+    return scenario_folder("messy_headers")  # written once per session, shared (0420)
 
 
 @pytest.fixture(scope="module")
-def incremental(tmp_path_factory):
-    folder = tmp_path_factory.mktemp("incremental")
-    synthesize("messy_incremental", "tiny", folder)
-    return folder
+def incremental(scenario_folder):
+    return scenario_folder("messy_incremental")
 
 
 @pytest.fixture(scope="module")

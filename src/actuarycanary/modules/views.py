@@ -67,14 +67,17 @@ _BY_LINE_AND_MONTH = View((*SEGMENT_LINE, "calendar_period"), Period.MONTH)
 _BY_LINE = View((*SEGMENT_LINE, "calendar_period"))
 # Views a module asks for instead of the default ones. M09 goes deeper than M05 on the same
 # measures (by line and month, unit costs by line); M05 keeps the default views (record 0387).
+_LEDGER_MONTH = View(("entity", "account_class", "calendar_period"), Period.MONTH)
+_SHARE_MONTH = View(("entity", "calendar_period"), Period.MONTH)
 MODULE_VIEWS: dict[str, dict[str, tuple[View, ...]]] = {
+    "M10": {"FN01": (_LEDGER_MONTH,), "FN02": (_SHARE_MONTH,)},
     "M09": {
         "EX01": (_BY_PERIOD, _BY_MONTH, _BY_LINE_AND_MONTH),
         "EX02": (_BY_PERIOD, _BY_MONTH, _BY_LINE_AND_MONTH),
         "EX03": (_BY_PERIOD, _BY_MONTH),
         "EX04": (_BY_PERIOD, _BY_LINE),
         "EX05": (_BY_PERIOD, _BY_LINE),
-    }
+    },
 }
 
 

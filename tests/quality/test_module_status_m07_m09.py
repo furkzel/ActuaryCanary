@@ -57,7 +57,7 @@ def test_a_blocking_finding_on_a_required_field_limits_or_stops_the_module() -> 
     assert marked.status == "unable"  # period is required by the measures of the module
 
 
-def test_m10_gets_no_mark_and_m08_is_unable_without_treaties() -> None:
+def test_m10_is_unable_without_a_ledger_and_m08_without_treaties() -> None:
     marks = {m.module: m for m in evaluate(load_specs(), {}, {}).modules}
-    assert "M10" not in marks
+    assert marks["M10"].status == "unable"  # built by F2b; the ledger is required
     assert marks["M08"].status == "unable"  # built by F2a; reinsurance_treaties is required

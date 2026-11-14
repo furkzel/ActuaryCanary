@@ -1,5 +1,5 @@
 id: ledger
-version: 0.1.0
+version: 0.2.0
 title_en: Trial balance (ledger)
 title_tr: Mizan
 status: draft
@@ -131,8 +131,14 @@ validation:
     dimension: coverage
     severity: WARNING
     fields: [ledger.account]
-    rule: Every account with a non-zero balance is mapped to a class by the profile (CV12).
-    action: Unmapped accounts are listed with their balances; FN02 measures their share.
+    rule: >-
+      Every account with a non-zero balance is mapped to a class by the account-mapping profile
+      (CV12): the saved profile of the chart of accounts, or, when there is none, the proposal
+      the run makes and labels as not confirmed. An account that two rules of the same
+      precedence claim counts as not mapped.
+    action: >-
+      Unmapped accounts are listed with their latest balances (and the profile's state in the
+      message); FN02 measures their share.
   - id: DV-LDG-10
     dimension: coverage
     severity: INFO
@@ -152,3 +158,9 @@ change_log:
     change: >-
       Implemented before owner review (F1bc): the feed is read, recognised, typed and
       checked; the text of the specification is unchanged, so the version stays 0.1.0.
+  - version: 0.2.0
+    date: 2026-11-14
+    change: >-
+      DV-LDG-09 is evaluated (F2b, record 0421): it reads the account-mapping profile of the run
+      (saved, or proposed and labelled as such) and lists the unmapped accounts with their latest
+      balances. The other rules are unchanged. The owner has not reviewed this version yet.

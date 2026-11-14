@@ -283,6 +283,8 @@ th.tier { text-align: center; border-bottom: 2px solid var(--border); }
   {% include "reinsurance.html.j2" %}
   {% elif p.module == "M09" %}
   {% include "expenses.html.j2" %}
+  {% elif p.module == "M10" %}
+  {% include "ledger.html.j2" %}
   {% elif p.module == "M12" %}
   {% include "uncertainty.html.j2" %}
   {% endif %}

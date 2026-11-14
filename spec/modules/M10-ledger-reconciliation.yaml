@@ -1,9 +1,9 @@
 id: M10
-version: 0.1.0
+version: 0.2.0
 title_en: Ledger reconciliation
 title_tr: Mizan mutabakatı
 status: draft
-implemented: false
+implemented: true
 definition: >-
   Whether the actuarial figures agree with the books: each mapped account class of the
   trial balance against the platform's matching measure, per entity and month, with
@@ -23,7 +23,7 @@ blocking_rules: [DV-LDG-01]
 outputs:
   - reconciliation.csv (FN01 per entity, class and month, with materiality)
   - unmapped_accounts.csv (accounts without a class and their balances)
-  - account_mapping_profile (the confirmed CV12 profile, saved beside the mapping profiles)
+  - the account-mapping profile in use (ledger-<fingerprint>.yaml beside the mapping profiles; its SHA-256 and state in the manifest under account_mapping)
 report_page:
   - Headline - number of material gaps and the largest one, unmapped share (FN02).
   - Reconciliation table by account class and month, gaps coloured by materiality (FN01).
@@ -37,3 +37,9 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 10 (P20).
+  - version: 0.2.0
+    date: 2026-11-14
+    change: >-
+      Implemented before owner review (F2b, records 0420 to 0426): the module reads the profile
+      of the run (proposed and labelled as such until a person confirms it) and writes
+      reconciliation.csv with the suggested causes of each material gap and unmapped_accounts.csv.

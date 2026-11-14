@@ -30,8 +30,16 @@ MEASURES_BUILT_F1BC = {"RC03", "RC04", "EX04", "EX05"}
 MODULES_BUILT_F2A = {"M08"}
 MEASURES_BUILT_F2A = {"RI03", "RI04", "RI05"}
 METHODS_BUILT_F2A = {"MT21"}
+# Built by F2b (records 0420 to 0426): the ledger reconciliation, still drafts for the owner.
+MODULES_BUILT_F2B = {"M10"}
+MEASURES_BUILT_F2B = {"FN01", "FN02"}
+CONVENTIONS_BUILT_F2B = {"CV12"}
 MODULES_PLANNED = (
-    {f"M{n:02d}" for n in range(7, 14)} - MODULES_BUILT_P26 - MODULES_BUILT_F1BC - MODULES_BUILT_F2A
+    {f"M{n:02d}" for n in range(7, 14)}
+    - MODULES_BUILT_P26
+    - MODULES_BUILT_F1BC
+    - MODULES_BUILT_F2A
+    - MODULES_BUILT_F2B
 )
 # Built by the integration P25b (record 0620): the tier B reserving methods, the severity
 # methods, and the measure AE02, the back-test error. P25c built MT19 (survival).
@@ -70,15 +78,16 @@ def test_version_1_scope_is_complete(catalogue: SpecCatalogue) -> None:
         | MEASURES_BUILT_P26
         | MEASURES_BUILT_F1BC
         | MEASURES_BUILT_F2A
+        | MEASURES_BUILT_F2B
     )
     assert {m for m in catalogue.methods if int(m[2:]) >= 11} == (
         METHODS_BUILT_P25B | METHODS_BUILT_P25C | METHODS_BUILT_F2A
     )
     assert set(catalogue.modules) == (
-        MODULES_V1 | MODULES_BUILT_P26 | MODULES_BUILT_F1BC | MODULES_BUILT_F2A
+        MODULES_V1 | MODULES_BUILT_P26 | MODULES_BUILT_F1BC | MODULES_BUILT_F2A | MODULES_BUILT_F2B
     )
     assert {f"CV0{n}" for n in range(1, 7)} <= set(catalogue.conventions)
-    assert set(catalogue.conventions) >= CONVENTIONS_BUILT_P26
+    assert set(catalogue.conventions) >= CONVENTIONS_BUILT_P26 | CONVENTIONS_BUILT_F2B
 
 
 def test_every_reference_resolves(catalogue: SpecCatalogue) -> None:
@@ -135,7 +144,8 @@ def test_every_reference_of_the_planned_specs_resolves(planned: SpecCatalogue) -
 def test_phase_2_scope_is_planned(planned: SpecCatalogue) -> None:
     not_built = {f.spec.id for f in planned.files if not f.spec.implemented}
     assert not_built >= CONCEPTS_PLANNED | MODULES_PLANNED | METHODS_PLANNED
-    assert {"CV11", "CV12", "AL03", "AL04"} <= not_built  # CV09 is built by F2a
+    assert {"CV11", "AL03", "AL04"} <= not_built  # CV09 is built by F2a, CV12 by F2b
+    assert not CONVENTIONS_BUILT_F2B & not_built
     assert (
         not (CONCEPTS_BUILT_P26 | MODULES_BUILT_P26 | MEASURES_BUILT_P26 | CONVENTIONS_BUILT_P26)
         & not_built

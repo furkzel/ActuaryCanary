@@ -1,5 +1,5 @@
 id: RP01
-version: 1.5.0
+version: 1.6.0
 title_en: Key finding rules
 title_tr: Temel bulgu kuralları
 status: draft
@@ -29,6 +29,7 @@ settings:
   unallocated_expense_share_limit: 0.25
   thin_factor_change_limit: 0.02
   approximate_allocation_share_limit: 0.05
+  ledger_unmapped_share_limit: 0.05
 rules:
   - id: KF01
     title: Thin evidence
@@ -795,6 +796,66 @@ rules:
       section: reinsurance
       files: [ceded_allocation.csv]
       specs: [CV09, M08]
+  - id: KF47
+    title: The ledger differs from the platform's figures
+    scope: run
+    priority: 27
+    condition: ledger_material_gaps > 0
+    template: >-
+      {ledger_material_gaps} of {ledger_gap_rows} entity-class-months of the ledger differ from
+      the platform's figure by more than the materiality ({ledger_gap_classes}). The largest
+      is {ledger_largest_gap} {currency} in {ledger_largest_gap_class} of
+      {ledger_largest_gap_entity} in {ledger_largest_gap_month}, {ledger_largest_gap_share};
+      suggested cause: {ledger_largest_gap_cause}. The causes are suggestions with their
+      evidence, not findings of fact.
+    title_tr: Mizan, platformun rakamlarından farklı
+    template_tr: >-
+      Mizanın {ledger_gap_rows} varlık-sınıf-ay değerinin {ledger_material_gaps} tanesi,
+      platformun rakamından önemlilik sınırından fazla farklıdır ({ledger_gap_classes}). En
+      büyüğü {ledger_largest_gap_entity} varlığının {ledger_largest_gap_class} sınıfında
+      {ledger_largest_gap_month} ayında {ledger_largest_gap} {currency} olup
+      {ledger_largest_gap_share}; önerilen neden: {ledger_largest_gap_cause}.
+      Nedenler kanıtlarıyla birlikte öneridir, olgu tespiti değildir.
+    evidence:
+      section: ledger
+      files: [reconciliation.csv]
+      specs: [FN01, CV12, M10]
+  - id: KF48
+    title: Part of the books is not mapped
+    scope: run
+    priority: 28
+    condition: ledger_unmapped_share >= ledger_unmapped_share_limit
+    template: >-
+      {ledger_unmapped_share} of the absolute balances of the ledger of {ledger_unmapped_entity}
+      in {ledger_unmapped_month} are on accounts that no rule of the account-mapping profile
+      maps ({ledger_unmapped_accounts}); the reconciliation does not see them.
+    title_tr: Muhasebe kayıtlarının bir kısmı eşlenmemiş
+    template_tr: >-
+      {ledger_unmapped_entity} varlığının mizanındaki mutlak bakiyelerin {ledger_unmapped_share}
+      kadarı, {ledger_unmapped_month} ayında hesap eşleme profilinin hiçbir kuralının
+      eşlemediği hesaplardadır ({ledger_unmapped_accounts}); mutabakat bunları görmez.
+    evidence:
+      section: ledger
+      files: [unmapped_accounts.csv]
+      specs: [FN02, CV12, M10]
+  - id: KF49
+    title: The account mapping is only proposed
+    scope: run
+    priority: 29
+    condition: ledger_profile_proposed == 1
+    template: >-
+      The account-mapping profile of the ledger ({ledger_profile_fingerprint}) is proposed, not
+      confirmed: every ledger figure and gap of this run rests on a mapping that nobody has
+      checked. Check the profile file and set confirmed_on.
+    title_tr: Hesap eşlemesi yalnızca önerildi
+    template_tr: >-
+      Mizanın hesap eşleme profili ({ledger_profile_fingerprint}) önerilmiş olup
+      onaylanmamıştır: bu çalıştırmadaki her mizan rakamı ve fark, kimsenin kontrol etmediği bir
+      eşlemeye dayanır. Profil dosyasını kontrol edin ve confirmed_on alanını doldurun.
+    evidence:
+      section: ledger
+      files: [reconciliation.csv]
+      specs: [CV12, M10]
 change_log:
   - version: 1.0.0
     date: 2026-10-22
@@ -871,3 +932,12 @@ change_log:
       reinstatements used up, KF46 more than approximate_allocation_share_limit (new setting,
       0.05) of the booked ceded amounts allocated as an aggregate approximation or left
       unallocated. English and Turkish. Implemented before owner review; draft.
+  - version: 1.6.0
+    date: 2026-11-14
+    change: >-
+      Three rules for the page of M10 (F2b, record 0425): KF47 the ledger differs from the
+      platform's figures by more than the materiality in some entity-class-months, with the
+      largest and its suggested cause, KF48 the share of the books that no rule of the
+      account-mapping profile maps is at least ledger_unmapped_share_limit (new setting, 0.05,
+      the upper end of the typical range of FN02), KF49 the profile in use is only proposed.
+      English and Turkish. Implemented before owner review; draft.

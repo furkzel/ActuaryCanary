@@ -18,6 +18,7 @@ from actuarycanary.measures import (
     claim_amounts,
     claim_counts,
     expense_measures,
+    ledger_measures,
     premium_measures,
     ratio_measures,
     recovery_measures,
@@ -113,6 +114,11 @@ IMPLEMENTATIONS: dict[str, Implementation] = {
     "RT01": Implementation(ratio_measures.loss_ratio),
     "RT02": Implementation(ratio_measures.combined_ratio),
     "AE01": Implementation(ratio_measures.actual_versus_expected, {"entity": _TRIANGLES}),
+    "FN01": Implementation(
+        ledger_measures.reconciliation_gap,
+        {d: ledger_measures.GRAIN for d in ("segment", "line")},
+    ),
+    "FN02": Implementation(ledger_measures.unmapped_share),
 }
 METHOD_OUTPUTS = (
     "RS01",
