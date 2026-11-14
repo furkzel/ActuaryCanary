@@ -64,7 +64,7 @@
    {
     "entries": 4,
     "method": "MT11",
-    "name": "floor pseudo increments"
+    "name": "sahte artışlara taban uygula"
    },
    {
     "entries": 4,
@@ -337,7 +337,7 @@
   "rows": [
    {
     "label": "Çalıştırma kimliği",
-    "value": "7d61b8c43a55fdf8"
+    "value": "647e87b0405b476c"
    },
    {
     "label": "Değerleme tarihi",
@@ -369,7 +369,7 @@
    },
    {
     "label": "Yazılım",
-    "value": "ActuaryCanary 1.2.0"
+    "value": "ActuaryCanary 1.3.0"
    }
   ],
   "tagline": "Her düzendeki sigorta verisini, kendi bilgisayarınızda, denetlenebilir ve erken uyarı veren bir aktüeryal rapora dönüştürür.",
@@ -7447,7 +7447,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "7d61b8c43a55fdf8",
+  "run_id": "647e87b0405b476c",
   "settings": [
    {
     "name": "bases.currency",
@@ -7926,7 +7926,7 @@
     "value": "True"
    }
   ],
-  "software": "ActuaryCanary 1.2.0",
+  "software": "ActuaryCanary 1.3.0",
   "specs": [
    {
     "id": "claim_valuations",

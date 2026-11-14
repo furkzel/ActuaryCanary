@@ -1632,6 +1632,8 @@ entries:
     tr: "sahte üçgende negatif kümülatif"
   - en: "pseudo extreme factor"
     tr: "sahte üçgende aşırı faktör"
+  - en: "floor pseudo increments"
+    tr: "sahte artışlara taban uygula"
   # M08 reinsurance page (F2a, record 0408)
   - en: "Allocation notes"
     tr: "Dağıtım notları"

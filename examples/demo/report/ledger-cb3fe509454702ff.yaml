@@ -1,0 +1,88 @@
+# Account-mapping profile of a chart of accounts (CV12).
+# One rule per line: `entity` (empty: every entity), `pattern` (an account code, or a prefix
+# ending in *), `account_class`, `sign` (+1 or -1, to a positive platform amount),
+# `balance_kind` (PERIOD or YEAR_TO_DATE) and `line`. The longest pattern wins. Accounts no
+# rule matches stay unmapped. Set `confirmed_on` to a date once the mapping is checked.
+profile_version: 1
+fingerprint: cb3fe509454702ff
+confirmed_on: 2026-11-14
+accounts:
+- '100'
+- '297'
+- '340'
+- '360'
+- '590'
+- '600'
+- '632'
+- '650'
+- '660'
+- '690'
+- '700'
+- '770'
+rules:
+- entity: null
+  pattern: '100'
+  account_class: OTHER
+  sign: 1
+  balance_kind: PERIOD
+  line: null
+- entity: null
+  pattern: '340'
+  account_class: UPR
+  sign: -1
+  balance_kind: PERIOD
+  line: null
+- entity: null
+  pattern: '360'
+  account_class: OUTSTANDING
+  sign: -1
+  balance_kind: PERIOD
+  line: null
+- entity: null
+  pattern: '590'
+  account_class: OTHER
+  sign: -1
+  balance_kind: PERIOD
+  line: null
+- entity: null
+  pattern: '600'
+  account_class: PREMIUM
+  sign: -1
+  balance_kind: YEAR_TO_DATE
+  line: null
+- entity: null
+  pattern: '632'
+  account_class: COMMISSION
+  sign: 1
+  balance_kind: YEAR_TO_DATE
+  line: null
+- entity: null
+  pattern: '650'
+  account_class: RI
+  sign: 1
+  balance_kind: YEAR_TO_DATE
+  line: null
+- entity: null
+  pattern: '660'
+  account_class: INVESTMENT
+  sign: -1
+  balance_kind: YEAR_TO_DATE
+  line: null
+- entity: null
+  pattern: '690'
+  account_class: OTHER
+  sign: 1
+  balance_kind: YEAR_TO_DATE
+  line: null
+- entity: null
+  pattern: '700'
+  account_class: CLAIMS_PAID
+  sign: 1
+  balance_kind: YEAR_TO_DATE
+  line: null
+- entity: null
+  pattern: '770'
+  account_class: EXPENSE
+  sign: 1
+  balance_kind: YEAR_TO_DATE
+  line: null

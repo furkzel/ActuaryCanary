@@ -265,15 +265,15 @@
       "why": "MT07 default: no assumption, results at value-date prices only (record 0012)"
     },
     {
-      "default": 10000.0,
+      "default": 50000.0,
       "method": "MT11",
       "name": "n_simulations",
       "scope": "LIFE/GROUP_TERM_LIFE/paid",
       "target": "",
-      "value": 10000.0,
+      "value": 50000.0,
       "when": null,
       "who": "default",
-      "why": "MT11 default: 10,000 bootstrap samples"
+      "why": "MT11 default: 50,000 bootstrap samples"
     },
     {
       "default": "gamma",
@@ -318,6 +318,17 @@
       "when": null,
       "who": "default",
       "why": "MT11 default: the tail of MT02"
+    },
+    {
+      "default": true,
+      "method": "MT11",
+      "name": "floor_pseudo_increments",
+      "scope": "LIFE/GROUP_TERM_LIFE/paid",
+      "target": "",
+      "value": true,
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: no pseudo increment below zero (record 0784)"
     },
     {
       "default": "mack",
@@ -793,15 +804,15 @@
       "why": "MT07 default: no assumption, results at value-date prices only (record 0012)"
     },
     {
-      "default": 10000.0,
+      "default": 50000.0,
       "method": "MT11",
       "name": "n_simulations",
       "scope": "NON_LIFE/MOTOR_OD/paid",
       "target": "",
-      "value": 10000.0,
+      "value": 50000.0,
       "when": null,
       "who": "default",
-      "why": "MT11 default: 10,000 bootstrap samples"
+      "why": "MT11 default: 50,000 bootstrap samples"
     },
     {
       "default": "gamma",
@@ -846,6 +857,17 @@
       "when": null,
       "who": "default",
       "why": "MT11 default: the tail of MT02"
+    },
+    {
+      "default": true,
+      "method": "MT11",
+      "name": "floor_pseudo_increments",
+      "scope": "NON_LIFE/MOTOR_OD/paid",
+      "target": "",
+      "value": true,
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: no pseudo increment below zero (record 0784)"
     },
     {
       "default": "mack",
@@ -1095,10 +1117,10 @@
       "name": "selected_factor",
       "scope": "NON_LIFE/MOTOR_TPL/paid",
       "target": "36-48",
-      "value": 1.3818393976853904,
+      "value": 1.0,
       "when": null,
-      "who": "default",
-      "why": "MT02 default: the volume-weighted average"
+      "who": "rule",
+      "why": "rule: the column rests on 1 link ratio(s), fewer than 2; the average is not used and the factor is 1.000 (neutral)"
     },
     {
       "default": "exponential_decay",
@@ -1161,7 +1183,7 @@
       "name": "prior_loss_ratio",
       "scope": "NON_LIFE/MOTOR_TPL/paid",
       "target": "",
-      "value": 0.41640769813873146,
+      "value": 0.3199020331205739,
       "when": null,
       "who": "default",
       "why": "MT03 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
@@ -1172,7 +1194,7 @@
       "name": "expected_loss_ratio",
       "scope": "NON_LIFE/MOTOR_TPL/paid",
       "target": "",
-      "value": 0.41640769813873146,
+      "value": 0.3199020331205739,
       "when": null,
       "who": "default",
       "why": "MT05 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
@@ -1216,10 +1238,10 @@
       "name": "selected_factor",
       "scope": "NON_LIFE/MOTOR_TPL/incurred",
       "target": "36-48",
-      "value": 0.9507138250525071,
+      "value": 1.0,
       "when": null,
-      "who": "default",
-      "why": "MT02 default: the volume-weighted average"
+      "who": "rule",
+      "why": "rule: the column rests on 1 link ratio(s), fewer than 2; the average is not used and the factor is 1.000 (neutral)"
     },
     {
       "default": "exponential_decay",
@@ -1282,7 +1304,7 @@
       "name": "prior_loss_ratio",
       "scope": "NON_LIFE/MOTOR_TPL/incurred",
       "target": "",
-      "value": 0.37418363246681546,
+      "value": 0.39086527980619185,
       "when": null,
       "who": "default",
       "why": "MT03 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
@@ -1293,7 +1315,7 @@
       "name": "expected_loss_ratio",
       "scope": "NON_LIFE/MOTOR_TPL/incurred",
       "target": "",
-      "value": 0.37418363246681546,
+      "value": 0.39086527980619185,
       "when": null,
       "who": "default",
       "why": "MT05 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
@@ -1321,15 +1343,15 @@
       "why": "MT07 default: no assumption, results at value-date prices only (record 0012)"
     },
     {
-      "default": 10000.0,
+      "default": 50000.0,
       "method": "MT11",
       "name": "n_simulations",
       "scope": "NON_LIFE/MOTOR_TPL/paid",
       "target": "",
-      "value": 10000.0,
+      "value": 50000.0,
       "when": null,
       "who": "default",
-      "why": "MT11 default: 10,000 bootstrap samples"
+      "why": "MT11 default: 50,000 bootstrap samples"
     },
     {
       "default": "gamma",
@@ -1374,6 +1396,17 @@
       "when": null,
       "who": "default",
       "why": "MT11 default: the tail of MT02"
+    },
+    {
+      "default": true,
+      "method": "MT11",
+      "name": "floor_pseudo_increments",
+      "scope": "NON_LIFE/MOTOR_TPL/paid",
+      "target": "",
+      "value": true,
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: no pseudo increment below zero (record 0784)"
     },
     {
       "default": "mack",
@@ -1601,10 +1634,10 @@
       "name": "selected_factor",
       "scope": "NON_LIFE/PROPERTY/paid",
       "target": "12-24",
-      "value": 4.459374964752224,
+      "value": 1.0,
       "when": null,
-      "who": "default",
-      "why": "MT02 default: the volume-weighted average"
+      "who": "rule",
+      "why": "rule: the column rests on 1 link ratio(s), fewer than 2; the average is not used and the factor is 1.000 (neutral)"
     },
     {
       "default": 1.0,
@@ -1689,7 +1722,7 @@
       "name": "prior_loss_ratio",
       "scope": "NON_LIFE/PROPERTY/paid",
       "target": "",
-      "value": 0.23873476478769703,
+      "value": 0.15512676282266508,
       "when": null,
       "who": "default",
       "why": "MT03 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
@@ -1700,7 +1733,7 @@
       "name": "expected_loss_ratio",
       "scope": "NON_LIFE/PROPERTY/paid",
       "target": "",
-      "value": 0.23873476478769703,
+      "value": 0.15512676282266508,
       "when": null,
       "who": "default",
       "why": "MT05 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
@@ -1849,15 +1882,15 @@
       "why": "MT07 default: no assumption, results at value-date prices only (record 0012)"
     },
     {
-      "default": 10000.0,
+      "default": 50000.0,
       "method": "MT11",
       "name": "n_simulations",
       "scope": "NON_LIFE/PROPERTY/paid",
       "target": "",
-      "value": 10000.0,
+      "value": 50000.0,
       "when": null,
       "who": "default",
-      "why": "MT11 default: 10,000 bootstrap samples"
+      "why": "MT11 default: 50,000 bootstrap samples"
     },
     {
       "default": "gamma",
@@ -1902,6 +1935,17 @@
       "when": null,
       "who": "default",
       "why": "MT11 default: the tail of MT02"
+    },
+    {
+      "default": true,
+      "method": "MT11",
+      "name": "floor_pseudo_increments",
+      "scope": "NON_LIFE/PROPERTY/paid",
+      "target": "",
+      "value": true,
+      "when": null,
+      "who": "default",
+      "why": "MT11 default: no pseudo increment below zero (record 0784)"
     },
     {
       "default": "mack",
@@ -2977,13 +3021,13 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "1f95bcbad2361a5139a5a658abca1d341b68d7c68ad9004e975026d27945b73c",
-      "size": 5057548
+      "sha256": "e4a46c573500d7d5c4bc200cf6e41daf994bc12309a56529dfc506fce9a7e0ec",
+      "size": 5106775
     },
     {
       "name": "quality.json",
-      "sha256": "afaadc31842c194d0ee91ad51ac12bf67bbc0c43330084228064d4eb01985785",
-      "size": 33603
+      "sha256": "8bdc9039cfcd10df3b29cbdcbe126362132d6b282093601d7f1869d41502706a",
+      "size": 38619
     },
     {
       "name": "triangles.csv",
@@ -2992,43 +3036,43 @@
     },
     {
       "name": "factors.csv",
-      "sha256": "73628feea5a01967a7ccc2e9018646e13244315589aed4868d803f8dbe9f8e18",
-      "size": 1998
+      "sha256": "b1d87534bfbff915f48ee3269863aa3e07358fbd68d515071fe0411791018832",
+      "size": 1912
     },
     {
       "name": "chain_ladder.csv",
-      "sha256": "0254714b249dae8fae1fac4c1ee3099128b316ea3a9756383dc9578ca2603d15",
-      "size": 3412
+      "sha256": "294e58a84d028c6607ea5f67b0225046935e7bf7add81169c590e080892494ff",
+      "size": 3323
     },
     {
       "name": "measures.csv",
-      "sha256": "d46e7c36cb6aae1bbbe8552734d33577af8a53d77a5212d240c87e3a2265c245",
-      "size": 422151
+      "sha256": "28dcd2950da869b6f20e3f1f9dba437943666bb85cf4d4c1b20bcfcba0c9aeb6",
+      "size": 831149
     },
     {
       "name": "lineage.csv",
-      "sha256": "98d395daeb881c57896f460495fabd03a2865f951f62c71b4fee85e596b63a18",
-      "size": 51042
+      "sha256": "e98eced6afdb818775a9043c5e64060f5d101cbc7333ff5cfe5a86d832a9a6a1",
+      "size": 344063
     },
     {
       "name": "lineage_atoms.csv",
-      "sha256": "b441a440a1a5b0a83cc89b89ddcbcdcfa49802a196c59b325338939aa002f266",
-      "size": 61537
+      "sha256": "9fd5e8ca0c5fe92676f6c7303c717ba9954da331e744a1c048b2513c68fb6ad1",
+      "size": 139089
     },
     {
       "name": "modules.json",
-      "sha256": "88a06ce96b1aad923f57c7e8638adbbca91f80c4d2844f1ce3d121e7964c212a",
-      "size": 23556
+      "sha256": "d6115aeb1db4b6bf8a015a26513263a27b9cc022f628069650d4e989f0295f80",
+      "size": 32574
     },
     {
       "name": "assumptions.csv",
-      "sha256": "6f799c0b1e435da547c5d6f1b6caa26de5126567f601578c5fc3be2e35fba6d7",
-      "size": 28225
+      "sha256": "5bcf50f8c58582c7b6d1fc5fc54730f17ddf59c94589d8584b3e3b28aab6e8ca",
+      "size": 28939
     },
     {
       "name": "ultimates.csv",
-      "sha256": "d5c64ccde7414b7c6405e7cd3389a1dc5c71075b76aad94d0d217a6f0b5fe45b",
-      "size": 19390
+      "sha256": "5c1f87e4f3b31969b644d76216fe87bf5051a8f0c5bf54e348a12c16b4bd8d98",
+      "size": 19060
     },
     {
       "name": "reserve_range.csv",
@@ -3037,13 +3081,13 @@
     },
     {
       "name": "cash_flows.csv",
-      "sha256": "1a97487fa8038500d16a2844ba09d9389b679bb303289d701093cf6bcd5d83ce",
-      "size": 866
+      "sha256": "79e432763de2702a0ff469197c136b43a3e9190b627775892fc139f9dc5660b2",
+      "size": 838
     },
     {
       "name": "diagnostics.csv",
-      "sha256": "1d9468fc2e11a60fc36498d1313a4cb6d3618ac9d59ceef7a7439da79cad01a7",
-      "size": 8260
+      "sha256": "dc60758ab53f01d8684f5fd4371a98883ee3394fa60ac1103adec20450c4972f",
+      "size": 8472
     },
     {
       "name": "anomalies.csv",
@@ -3052,13 +3096,13 @@
     },
     {
       "name": "tier_b_ultimates.csv",
-      "sha256": "d85abe136649b97b894b8f179c4278636ef7f66c5490a2a6dc8c50ccfeb8f093",
-      "size": 4581
+      "sha256": "c2143b2a8574cc6251f22ee06328a1ef832ad7e088eae4331520f4f9c47921d0",
+      "size": 4580
     },
     {
       "name": "tier_b_parameters.csv",
-      "sha256": "0be2fe26baa5316f3446bf7c13975a5106c5790e2b1212a19bc462891c67682c",
-      "size": 12454
+      "sha256": "62abeed9ae634dd4772d4c9ec4cd5a7244de3bd6e976280195dd7af5d1e73167",
+      "size": 11979
     },
     {
       "name": "bootstrap_summary.csv",
@@ -3077,7 +3121,7 @@
     },
     {
       "name": "back_test.csv",
-      "sha256": "d50b25e1216fc1baf4e780846b67b4bd9291215c09781f2b18c504ad793e7029",
+      "sha256": "5bcc4a99df30148f8aa656b6a41f83a61c7da95098dea7b2ad601c036e9a7ad9",
       "size": 10304
     },
     {
@@ -3222,8 +3266,28 @@
     },
     {
       "name": "sensitivity.csv",
-      "sha256": "66b4fa00edfd15419d6e5055fbd59885eb77191f068c0f1de227b369e74c9bdd",
-      "size": 6079
+      "sha256": "561824b90eed333431ef9426fb46d41762c01a0f434d37060a943745ac711a0f",
+      "size": 6771
+    },
+    {
+      "name": "recoveries.csv",
+      "sha256": "4bd2f1085b95e0a387908f2fffff70730fadc7296df27805cd8545f6fe4cac70",
+      "size": 950
+    },
+    {
+      "name": "recovery_development.csv",
+      "sha256": "f80b84eac14e9ee4f3f264fbf4a03ab307b070629ab952fbb4602e335ae45e3d",
+      "size": 8446
+    },
+    {
+      "name": "recovery_reconciliation.csv",
+      "sha256": "0e5400beb3f36373f6261aa6befd250022dab7cef01a9faba2c1f975fb7bc09b",
+      "size": 55
+    },
+    {
+      "name": "expenses_by_period.csv",
+      "sha256": "16454b3004996b3487a94c47a0d841f8b6af6369dcb1d84983cbfb9689d4089e",
+      "size": 59706
     },
     {
       "name": "risk_measures.csv",
@@ -3232,8 +3296,8 @@
     },
     {
       "name": "risk_cash_flows.csv",
-      "sha256": "1585e303802dda7a683c9465ebd481c0ddfecfb95bafc92d575daaa30954010c",
-      "size": 1299
+      "sha256": "034c71cbf45ccd51467034a4b4f447e80dc7269765fded528d5baefc52a7e2bf",
+      "size": 1292
     }
   ],
   "randomness": [
@@ -3253,7 +3317,7 @@
       "seed": 1
     }
   ],
-  "run_id": "18795b0dafe8e675",
+  "run_id": "6e8aab673878c0cc",
   "settings": {
     "assumptions": {
       "entries": []
@@ -3268,6 +3332,7 @@
       "average": "volume_weighted",
       "exclude_high_low": false,
       "min_origins": 3,
+      "min_origins_per_factor": 2,
       "n_diagonals": null,
       "tail_factor": 1.0
     },
@@ -3291,6 +3356,10 @@
       "percentile": 0.99,
       "source": "default",
       "thresholds": {}
+    },
+    "ledger": {
+      "materiality_amount": 0.0,
+      "materiality_ratio": 0.005
     },
     "lineage_format": 2,
     "methods": {
@@ -3316,6 +3385,14 @@
         "threshold": 3.5
       },
       "selection_measure": "incurred"
+    },
+    "reinsurance": {
+      "allocation_fallback": "aggregate",
+      "index_clause": "payment_by_payment",
+      "inuring_order": "CV09",
+      "loss_view": "ultimate",
+      "programme": "loaded",
+      "simulate": false
     },
     "report": {
       "sensitivity": {
@@ -3393,7 +3470,8 @@
       "methods": {
         "MT11": {
           "centre_residuals": true,
-          "n_simulations": 10000,
+          "floor_pseudo_increments": true,
+          "n_simulations": 50000,
           "process_distribution": "gamma",
           "scale": "constant",
           "tail_factor": 1.0
@@ -3454,7 +3532,7 @@
     "use_market": true
   },
   "software": {
-    "actuarycanary": "1.2.0"
+    "actuarycanary": "1.3.0"
   },
   "specs": [
     {
@@ -3470,12 +3548,12 @@
     {
       "id": "AL01",
       "title": "Column aliases",
-      "version": "1.1.0"
+      "version": "1.2.0"
     },
     {
       "id": "AL02",
       "title": "Value aliases",
-      "version": "1.1.0"
+      "version": "1.2.0"
     },
     {
       "id": "CV01",
@@ -3485,7 +3563,7 @@
     {
       "id": "CV03",
       "title": "Gross, ceded and net",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "CV04",
@@ -3510,7 +3588,7 @@
     {
       "id": "MT02",
       "title": "Chain ladder",
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "id": "CL01",
@@ -3670,7 +3748,7 @@
     {
       "id": "M04",
       "title": "Reserving (indicative)",
-      "version": "1.1.0"
+      "version": "1.2.0"
     },
     {
       "id": "RS03",
@@ -3723,9 +3801,74 @@
       "version": "1.2.0"
     },
     {
+      "id": "M07",
+      "title": "Recoveries",
+      "version": "0.1.0"
+    },
+    {
+      "id": "RC03",
+      "title": "Recovery delay",
+      "version": "0.1.0"
+    },
+    {
+      "id": "RC04",
+      "title": "Recovery development ratio",
+      "version": "0.1.0"
+    },
+    {
+      "id": "M08",
+      "title": "Reinsurance",
+      "version": "0.2.0"
+    },
+    {
+      "id": "RI03",
+      "title": "Ceded share by treaty",
+      "version": "0.2.0"
+    },
+    {
+      "id": "RI04",
+      "title": "Reinsurance result ratio",
+      "version": "0.2.0"
+    },
+    {
+      "id": "RI05",
+      "title": "Loss ratio volatility, gross and net",
+      "version": "0.2.0"
+    },
+    {
+      "id": "M09",
+      "title": "Expenses",
+      "version": "0.1.0"
+    },
+    {
+      "id": "EX04",
+      "title": "Administration cost per policy",
+      "version": "0.1.0"
+    },
+    {
+      "id": "EX05",
+      "title": "Claims-handling cost per claim",
+      "version": "0.1.0"
+    },
+    {
+      "id": "M10",
+      "title": "Ledger reconciliation",
+      "version": "0.2.0"
+    },
+    {
+      "id": "FN01",
+      "title": "Ledger reconciliation gap",
+      "version": "0.2.0"
+    },
+    {
+      "id": "FN02",
+      "title": "Unmapped ledger share",
+      "version": "0.2.0"
+    },
+    {
       "id": "M12",
       "title": "Uncertainty and risk",
-      "version": "1.1.1"
+      "version": "1.3.0"
     },
     {
       "id": "RS04",
@@ -3766,11 +3909,6 @@
       "id": "MT13",
       "title": "Benktander blends",
       "version": "1.0.1"
-    },
-    {
-      "id": "MT14",
-      "title": "Tail factor fitting",
-      "version": "1.0.0"
     },
     {
       "id": "MT15",
@@ -3815,7 +3953,7 @@
     {
       "id": "RP01",
       "title": "Key finding rules",
-      "version": "1.2.1"
+      "version": "1.6.0"
     }
   ],
   "tables_not_used": []
