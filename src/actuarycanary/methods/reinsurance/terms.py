@@ -6,6 +6,7 @@ whose terms agree (the treaties feed has one row per line with the same terms). 
 rows for a period disagree on terms gives one section per set of terms. Decision 0400.
 """
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field, fields, replace
 from datetime import date
 from typing import Any
@@ -112,6 +113,10 @@ class Section:
         if self.reinstatements is not None and self.limit is not None:
             return self.limit * (1.0 + self.reinstatements)
         return None
+
+    def series_missing(self, indices: Mapping[str, object]) -> bool:
+        """An index series is named but not in market (DV-RTY-10)."""
+        return bool(self.index_series) and self.index_series not in indices
 
     def label(self, text: str) -> "Section":
         return self if text in self.labels else replace(self, labels=(*self.labels, text))

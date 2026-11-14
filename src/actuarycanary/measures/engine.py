@@ -22,6 +22,7 @@ from actuarycanary.measures import (
     ratio_measures,
     recovery_measures,
     reinsurance_measures,
+    reinsurance_programme,
     unit_cost_measures,
 )
 from actuarycanary.measures.claim_base import with_dimensions
@@ -90,6 +91,20 @@ IMPLEMENTATIONS: dict[str, Implementation] = {
     "RC04": Implementation(recovery_measures.recovery_development),
     "RI01": Implementation(reinsurance_measures.cession_ratio),
     "RI02": Implementation(reinsurance_measures.reinsurance_result),
+    "RI03": Implementation(
+        reinsurance_programme.ceded_share_by_treaty,
+        not_built={
+            d: reinsurance_programme.RI03_GRAIN for d in ("segment", "line", "origin_period")
+        },
+    ),
+    "RI04": Implementation(
+        reinsurance_programme.reinsurance_result_ratio,
+        not_built={
+            d: "RI04 is built per origin year over the whole programme"
+            for d in ("segment", "line", "entity", "treaty")
+        },
+    ),
+    "RI05": Implementation(reinsurance_programme.net_loss_ratio_volatility),
     "EX01": Implementation(expense_measures.commission_ratio),
     "EX02": Implementation(expense_measures.expense_ratio),
     "EX03": Implementation(expense_measures.claims_handling_ratio),

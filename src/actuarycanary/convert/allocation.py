@@ -285,14 +285,23 @@ class _Allocator:
             .filter(pl.col("w") > 0)
         )
 
-    def reinstatement_cells(self, treaty: str, day: date) -> pl.DataFrame:
+    def reinstatement_cells(self, treaty: str, day: date, effective: date | None) -> pl.DataFrame:
+        """Cells of the claims ceded by the section whose period holds the movement's effective
+        date, else its booking date, else any section of the treaty."""
         if self.ceded is None or self.cells is None:
             return pl.DataFrame(
                 schema={"line": pl.String, "origin_year": pl.Int64, "w": pl.Float64}
             )
+        when = effective or day
+        sections = self.by_treaty.get(treaty, [])
+        held = [s.inception for s in sections if s.inception <= when < s.expiry]
+        ceded = self.ceded.filter(
+            (pl.col("treaty_id") == treaty) & (pl.col("valuation_date") <= day)
+        )
+        if held:
+            ceded = ceded.filter(pl.col("inception_date").is_in(held))
         return (
-            self.ceded.filter((pl.col("treaty_id") == treaty) & (pl.col("valuation_date") <= day))
-            .join(self.cells, on="claim_id", how="left")
+            ceded.join(self.cells, on="claim_id", how="left")
             .group_by(["line", "origin_year"])
             .agg(pl.col("ceded_incurred").sum().alias("w"))
             .filter(pl.col("w") > 0)
@@ -402,7 +411,11 @@ def _weights(
             weights = weights.head(0)  # weights that cancel out carry no direction
         return weights, "claim", BY_CEDED_MOVEMENT
     if kind == "REINSTATEMENT_PREMIUM":
-        return al.reinstatement_cells(treaty, day), "cell", BY_CEDED_INCURRED
+        return (
+            al.reinstatement_cells(treaty, day, move.get("effective_date")),
+            "cell",
+            BY_CEDED_INCURRED,
+        )
     weights, method = al.premium_weights(treaty, month, move["line"])
     return weights, "policy", method
 

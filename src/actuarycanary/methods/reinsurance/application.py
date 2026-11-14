@@ -90,6 +90,11 @@ class Application:
     sections: list[SectionResult]
     excluded: list[Excluded]
     out_of_scope: pl.DataFrame  # treaty_id, inception_date, claim_id, reason
+    scope: pl.DataFrame = field(  # treaty_id, inception_date, claim_id: the claims in scope
+        default_factory=lambda: pl.DataFrame(
+            schema={"treaty_id": pl.String, "inception_date": pl.Date, "claim_id": pl.String}
+        )
+    )
 
     def ceded_at(self, day: date | None = None) -> pl.DataFrame:
         """Each claim's latest ceded amounts per section on or before `day` (default: all)."""
@@ -228,6 +233,7 @@ class _State:
     parts: list[pl.DataFrame]
     results: list[SectionResult]
     out: list[pl.DataFrame]
+    scopes: list[pl.DataFrame] = field(default_factory=list)
 
 
 def _proportional_share(
@@ -482,7 +488,15 @@ def apply_programme(
             else:
                 part, use = _layer_section(section, rows, mask, state, options, notes)
             used, rp = _reinstatement(section, use, options)
-            claims = int(rows.filter(pl.Series(mask))["claim_id"].n_unique())
+            in_scope = rows.filter(pl.Series(mask)).select("claim_id").unique(maintain_order=True)
+            claims = in_scope.height
+            state.scopes.append(
+                in_scope.select(
+                    pl.lit(section.treaty_id).alias("treaty_id"),
+                    pl.lit(section.inception).alias("inception_date"),
+                    pl.col("claim_id").cast(pl.String),
+                )
+            )
             state.results.append(
                 SectionResult(section, use, used, rp, claims, tuple(dict.fromkeys(notes)))
             )
@@ -582,4 +596,10 @@ def _assemble(state: _State, excluded: list[Excluded]) -> Application:
     out = out.sort(["treaty_id", "inception_date", "claim_id"]).unique(
         ["treaty_id", "claim_id", "reason"], keep="first", maintain_order=True
     )
-    return Application(ceded, net, state.results, excluded, out)
+    scope_schema = {"treaty_id": pl.String, "inception_date": pl.Date, "claim_id": pl.String}
+    scope = (
+        pl.concat([f.cast(scope_schema) for f in state.scopes])  # type: ignore[arg-type]
+        if state.scopes
+        else pl.DataFrame(schema=scope_schema)
+    )
+    return Application(ceded, net, state.results, excluded, out, scope)

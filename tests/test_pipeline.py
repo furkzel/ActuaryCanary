@@ -266,6 +266,7 @@ def test_run_says_which_modules_ran_and_why_others_did_not(default_run: RunResul
         "M05": "ran",
         "M06": "limited",
         "M07": "ran",  # on the to-date recovery fields of claim valuations (derived flows)
+        "M08": "skipped",  # no reinsurance treaties in the folder (F2a, record 0406)
         "M09": "ran",
         "M12": "limited",  # no curve is named, and the 4 x 4 triangles are too small to bootstrap
     }
@@ -283,6 +284,7 @@ def test_run_says_which_modules_ran_and_why_others_did_not(default_run: RunResul
         "M05",
         "M06",
         "M07",
+        "M08",
         "M09",
         "M12",
     ]
