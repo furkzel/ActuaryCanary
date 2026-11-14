@@ -625,6 +625,31 @@ CLAIMS = [
 ]
 
 
+EVENTS = {3: "E1", 4: "E1", 5: "E1", 9: "E2", 11: "E2"}  # the other claims have no event code
+EVENT_RETENTION, EVENT_LIMIT = 120, 150  # event excess of loss 150 xs 120
+STOP_LOSS_RETENTION, STOP_LOSS_LIMIT = Fr(3, 5), Fr(3, 10)  # 30 % xs 60 % loss ratio
+STOP_LOSS_PREMIUM_ALONE, STOP_LOSS_PREMIUM_PROGRAMME = 6000, 1000  # earned premium, given
+
+
+def _event_layer(amounts: dict[int, Fr]) -> dict[int, Fr]:
+    """Event excess of loss on the claims with an event code, shared in proportion to amounts."""
+    out = {c: Fr(0) for c in amounts}
+    for event in sorted(set(EVENTS.values())):
+        members = [c for c in amounts if EVENTS.get(c) == event]
+        total = sum((amounts[c] for c in members), Fr(0))
+        layer = min(Fr(EVENT_LIMIT), max(Fr(0), total - EVENT_RETENTION))
+        for c in members:
+            out[c] = layer * amounts[c] / total if total else Fr(0)
+    return out
+
+
+def _stop_loss(amounts: dict[int, Fr], premium: int) -> tuple[Fr, dict[int, Fr]]:
+    """Stop loss on the year's loss ratio, shared in proportion to amounts."""
+    total = sum(amounts.values(), Fr(0))
+    ceded = premium * min(STOP_LOSS_LIMIT, max(Fr(0), total / premium - STOP_LOSS_RETENTION))
+    return ceded, {c: ceded * a / total for c, a in amounts.items()}
+
+
 def build_mt21() -> None:
     folder = HAND_TIER_B_DIR / "MT21-reinsurance-twelve-claims"
     premium_rate = Fr(3, 250)  # 1.2 % of the sum insured
@@ -633,9 +658,11 @@ def build_mt21() -> None:
     xl_retention, xl_limit, xl_premium = 100, 200, 40
     write_table(
         folder / "claims.csv",
-        ["claim_id", "sum_insured", "gross_loss", "annual_premium"],
-        [(c, si, g, repr(float(si * premium_rate))) for c, si, g in CLAIMS],
+        ["claim_id", "sum_insured", "gross_loss", "annual_premium", "event_code"],
+        [(c, si, g, repr(float(si * premium_rate)), EVENTS.get(c, "")) for c, si, g in CLAIMS],
     )
+    gross_of = {c: Fr(g) for c, _, g in CLAIMS}
+    net_after_xl: dict[int, Fr] = {}
     rows: list[tuple] = []
     tot = {
         k: Fr(0)
@@ -674,6 +701,7 @@ def build_mt21() -> None:
         prog_xl = Fr(min(xl_limit, max(0, after_qs - xl_retention)))
         net = after_qs - prog_xl
         assert net == gross - prog_sp - prog_qs - prog_xl
+        net_after_xl[c] = net
         for k, v in (
             ("qs", qs),
             ("sp", sp),
@@ -783,6 +811,9 @@ def build_mt21() -> None:
             "0.3 x premium retained after surplus",
         ),
     ]
+    rows += _mt21_event_and_stop_loss(gross_of, net_after_xl)
+    rows += _mt21_aggregate_terms(folder)
+    rows += _mt21_index_clause(folder)
     write_values(folder, rows)
     write_manifest(
         folder,
@@ -796,17 +827,274 @@ def build_mt21() -> None:
                 f"Run {SCRIPT}. Amounts in thousands. Quota share 30 % with 25 % commission; surplus with a "
                 "retained line of 400 and four lines; per-risk excess of loss 200 xs 100 at 100 % placed, "
                 "flat premium 40. Programme: surplus on gross, quota share on what the surplus leaves, "
-                "excess of loss on what the quota share leaves (decision 0604)."
+                "excess of loss on what the quota share leaves (decision 0604). Event excess of loss "
+                f"{EVENT_LIMIT} xs {EVENT_RETENTION} on events E1 (claims 3, 4, 5) and E2 (claims 9, 11), "
+                "shared among an event's claims in proportion to their amounts; claims without an event "
+                "code are not covered. Stop loss 30 % xs 60 % of the loss ratio on the earned premium "
+                f"given ({STOP_LOSS_PREMIUM_ALONE} alone on gross, {STOP_LOSS_PREMIUM_PROGRAMME} in the "
+                "programme), shared in proportion to amounts. Full programme: surplus, quota share, "
+                "risk excess of loss, event excess of loss, stop loss (CV09, decision 0400). "
+                "Aggregate terms (layers.csv): risk excess of loss 100 xs 50 on five claims taken in "
+                "order of occurrence (one booking date), once with two reinstatements at 100 % pro rata "
+                "as to amount and a deposit premium of 30, once with an aggregate deductible of 60 and "
+                "an aggregate limit of 130 (decision 0402). Index clause (valuations.csv, index.csv): risk "
+                "excess of loss 100 xs 100 incepting 2020-01-01 at index 100, a claim with three payments "
+                "in months of index 110, 120 and 125 and a claim whose layer is exhausted by one payment, "
+                "under the payment-by-payment clause and the occurrence-date clause (decision 0401)."
             ),
-            "files": {"claims": "claims.csv", "values": "values.csv"},
+            "files": {
+                "claims": "claims.csv",
+                "layers": "layers.csv",
+                "valuations": "valuations.csv",
+                "index": "index.csv",
+                "values": "values.csv",
+            },
             "tolerance_note": "1e-12 relative (all rational).",
             "not_covered": [
-                "Aggregate deductible and limit, reinstatements with premium, stop loss, event excess of loss "
-                "and the index clause: no hand case yet; they belong to the reinsurance item (P30) and the "
-                "spec MT21 fixture line stays open for them (decision 0273).",
+                "Facultative cover and an aggregate excess of loss (loss basis AGGREGATE) have no hand case; "
+                "the index clause on an event layer is covered by the method tests only.",
             ],
         },
     )
+
+
+def _mt21_event_and_stop_loss(gross: dict[int, Fr], after_xl: dict[int, Fr]) -> list[tuple]:
+    """Event excess of loss and stop loss, alone on gross and as the last two stages of the
+    programme (decision 0400)."""
+    rows: list[tuple] = []
+    event_alone = _event_layer(gross)
+    stop_alone_total, stop_alone = _stop_loss(gross, STOP_LOSS_PREMIUM_ALONE)
+    event_prog = _event_layer(after_xl)
+    after_event = {c: after_xl[c] - event_prog[c] for c in after_xl}
+    stop_prog_total, stop_prog = _stop_loss(after_event, STOP_LOSS_PREMIUM_PROGRAMME)
+    for c in sorted(gross):
+        net = after_event[c] - stop_prog[c]
+        rows += [
+            (
+                "event_excess_of_loss_ceded",
+                c,
+                f(event_alone[c]),
+                EXACT,
+                f"event {EVENTS.get(c, 'none')}, share of the layer by gross",
+            ),
+            ("stop_loss_ceded", c, f(stop_alone[c]), EXACT, "stop loss on gross, share by gross"),
+            (
+                "full_programme_event_excess_of_loss_ceded",
+                c,
+                f(event_prog[c]),
+                EXACT,
+                f"on {num(after_xl[c])} left by the risk excess of loss",
+            ),
+            (
+                "full_programme_stop_loss_ceded",
+                c,
+                f(stop_prog[c]),
+                EXACT,
+                f"on {num(after_event[c])} left by the event excess of loss",
+            ),
+            (
+                "full_programme_net",
+                c,
+                f(net),
+                EXACT,
+                "programme net less event excess of loss and stop loss",
+            ),
+        ]
+    rows += [
+        (
+            "total",
+            "event_excess_of_loss_ceded",
+            f(sum(event_alone.values(), Fr(0))),
+            EXACT,
+            "E1 and E2, 150 xs 120 each",
+        ),
+        (
+            "total",
+            "stop_loss_ceded",
+            f(stop_alone_total),
+            EXACT,
+            f"{STOP_LOSS_PREMIUM_ALONE} x MIN(0.3, MAX(0, {num(sum(gross.values(), Fr(0)))} / {STOP_LOSS_PREMIUM_ALONE} - 0.6))",
+        ),
+        (
+            "total",
+            "full_programme_event_excess_of_loss_ceded",
+            f(sum(event_prog.values(), Fr(0))),
+            EXACT,
+            "sum",
+        ),
+        (
+            "total",
+            "full_programme_stop_loss_ceded",
+            f(stop_prog_total),
+            EXACT,
+            f"{STOP_LOSS_PREMIUM_PROGRAMME} x MIN(0.3, MAX(0, {num(sum(after_event.values(), Fr(0)))} / {STOP_LOSS_PREMIUM_PROGRAMME} - 0.6))",
+        ),
+        (
+            "total",
+            "full_programme_net",
+            f(sum(after_event.values(), Fr(0)) - stop_prog_total),
+            EXACT,
+            "sum",
+        ),
+    ]
+    return rows
+
+
+AGG_CLAIMS = [
+    ("R1", "2020-01-15", 120),
+    ("R2", "2020-02-15", 200),
+    ("R3", "2020-03-15", 90),
+    ("R4", "2020-04-15", 250),
+    ("R5", "2020-05-15", 180),
+]
+AGG_RETENTION, AGG_LIMIT = 50, 100
+
+
+def _aggregate(raw: list[Fr], deductible: Fr, limit: Fr) -> list[Fr]:
+    """Each claim's part of the cumulative layer losses that pass the aggregate terms."""
+    out, before, cumulative = [], Fr(0), Fr(0)
+    for c in raw:
+        cumulative += c
+        through = min(limit, max(Fr(0), cumulative - deductible))
+        out.append(through - before)
+        before = through
+    return out
+
+
+def _mt21_aggregate_terms(folder) -> list[tuple]:
+    """Two reinstatements at 100 % pro rata as to amount, and aggregate terms crossed (CV09)."""
+    write_table(
+        folder / "layers.csv",
+        ["claim_id", "occurrence_date", "valuation_date", "gross_loss"],
+        [(c, occ, "2020-12-31", g) for c, occ, g in AGG_CLAIMS],
+    )
+    raw = [Fr(min(AGG_LIMIT, max(0, g - AGG_RETENTION))) for _, _, g in AGG_CLAIMS]
+    rows: list[tuple] = []
+    reinstatements, rate, deposit = 2, Fr(1), Fr(30)
+    annual = Fr(AGG_LIMIT * (1 + reinstatements))
+    with_reinstatements = _aggregate(raw, Fr(0), annual)
+    ceded = sum(with_reinstatements, Fr(0))
+    used = min(reinstatements * AGG_LIMIT, ceded)
+    crossed = _aggregate(raw, Fr(60), Fr(130))
+    for (c, _, g), r, a, b in zip(AGG_CLAIMS, raw, with_reinstatements, crossed, strict=True):
+        rows += [
+            ("layer_ceded_before_aggregate", c, f(r), EXACT, f"MIN(100, MAX(0, {g} - 50))"),
+            (
+                "reinstatements_case_ceded",
+                c,
+                f(a),
+                EXACT,
+                "cumulative in order of occurrence, annual limit 300",
+            ),
+            ("aggregate_case_ceded", c, f(b), EXACT, "cumulative less 60, at most 130"),
+        ]
+    rows += [
+        ("reinstatements_case", "ceded", f(ceded), EXACT, "MIN(300, sum before aggregate)"),
+        (
+            "reinstatements_case",
+            "reinstatements_used",
+            f(used / AGG_LIMIT),
+            EXACT,
+            "MIN(2 x 100, ceded) / 100",
+        ),
+        (
+            "reinstatements_case",
+            "reinstatement_premium",
+            f(rate * deposit * used / AGG_LIMIT),
+            EXACT,
+            "1 x 30 x MIN(200, ceded) / 100",
+        ),
+        ("aggregate_case", "ceded", f(sum(crossed, Fr(0))), EXACT, "MIN(130, MAX(0, sum - 60))"),
+    ]
+    return rows
+
+
+INDEX = {
+    "2020-01": 100,
+    "2020-02": 102,
+    "2020-03": 104,
+    "2020-06": 110,
+    "2020-09": 120,
+    "2020-12": 125,
+}
+# claim, occurrence, (valuation date, paid to date, case reserve)
+INDEX_CLAIMS = [
+    (
+        "I1",
+        "2020-03-15",
+        [("2020-06-30", 80, 120), ("2020-09-30", 170, 70), ("2020-12-31", 230, 0)],
+    ),
+    ("I2", "2020-02-10", [("2020-06-30", 400, 0)]),
+]
+IDX_RETENTION, IDX_LIMIT = 100, 100
+
+
+def _idx(day: str) -> Fr:
+    month = day[:7]
+    return Fr(max(v for m, v in INDEX.items() if m <= month))
+
+
+def _layer(x: Fr, retention: Fr, limit: Fr) -> Fr:
+    return min(limit, max(Fr(0), x - retention))
+
+
+def _mt21_index_clause(folder) -> list[tuple]:
+    """The index clause by hand: payment by payment, and fixed at the occurrence date (0401)."""
+    write_table(folder / "index.csv", ["month", "value"], list(INDEX.items()))
+    write_table(
+        folder / "valuations.csv",
+        ["claim_id", "occurrence_date", "valuation_date", "paid_to_date", "case_reserve"],
+        [(c, occ, v, p, r) for c, occ, vals in INDEX_CLAIMS for v, p, r in vals],
+    )
+    rows: list[tuple] = []
+    base = _idx("2020-01")
+    for c, occ, vals in INDEX_CLAIMS:
+        paid_d = ceded_paid = before = Fr(0)
+        last_paid = Fr(0)
+        scale = _idx(occ) / base
+        for day, p, r in vals:
+            d = base / _idx(day)
+            paid_d += (p - last_paid) * d
+            last_paid = Fr(p)
+            layer = _layer(paid_d, Fr(IDX_RETENTION), Fr(IDX_LIMIT))
+            ceded_paid += (layer - before) / d
+            before = layer
+            reserve = (_layer(paid_d + r * d, Fr(IDX_RETENTION), Fr(IDX_LIMIT)) - layer) / d
+            key = f"{c} {day}"
+            fixed_ret, fixed_lim = IDX_RETENTION * scale, IDX_LIMIT * scale
+            fixed_paid = _layer(Fr(p), fixed_ret, fixed_lim)
+            fixed_inc = _layer(Fr(p + r), fixed_ret, fixed_lim)
+            rows += [
+                (
+                    "payment_by_payment_ceded_paid",
+                    key,
+                    f(ceded_paid),
+                    EXACT,
+                    "deflate each payment to 2020-01, layer on the cumulative, inflate each ceded increment",
+                ),
+                (
+                    "payment_by_payment_ceded_incurred",
+                    key,
+                    f(ceded_paid + reserve),
+                    EXACT,
+                    "reserve valued with the index of the valuation date",
+                ),
+                (
+                    "occurrence_date_ceded_paid",
+                    key,
+                    f(fixed_paid),
+                    EXACT,
+                    f"MIN({num(fixed_lim)}, MAX(0, {p} - {num(fixed_ret)})), terms x index(occurrence) / 100",
+                ),
+                (
+                    "occurrence_date_ceded_incurred",
+                    key,
+                    f(fixed_inc),
+                    EXACT,
+                    f"MIN({num(fixed_lim)}, MAX(0, {p + r} - {num(fixed_ret)}))",
+                ),
+            ]
+    return rows
 
 
 # ------------------------------------------------------------------ MT19 Kaplan-Meier

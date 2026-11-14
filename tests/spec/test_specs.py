@@ -26,13 +26,21 @@ CONCEPTS_PLANNED = {"life_in_force", "life_events", "fund_flows"}
 CONCEPTS_BUILT_F1BC = {"reinsurance_treaties", "reinsurance_transactions", "recoveries", "ledger"}
 MODULES_BUILT_F1BC = {"M07", "M09"}
 MEASURES_BUILT_F1BC = {"RC03", "RC04", "EX04", "EX05"}
-MODULES_PLANNED = {f"M{n:02d}" for n in range(7, 14)} - MODULES_BUILT_P26 - MODULES_BUILT_F1BC
+# Built by F2a (records 0400 to 0408): reinsurance, the treaty application and its measures.
+MODULES_BUILT_F2A = {"M08"}
+MEASURES_BUILT_F2A = {"RI03", "RI04", "RI05"}
+METHODS_BUILT_F2A = {"MT21"}
+MODULES_PLANNED = (
+    {f"M{n:02d}" for n in range(7, 14)} - MODULES_BUILT_P26 - MODULES_BUILT_F1BC - MODULES_BUILT_F2A
+)
 # Built by the integration P25b (record 0620): the tier B reserving methods, the severity
 # methods, and the measure AE02, the back-test error. P25c built MT19 (survival).
 METHODS_BUILT_P25B = {f"MT{n}" for n in (*range(11, 19), 22)}
 METHODS_BUILT_P25C = {"MT19"}
 MEASURES_BUILT_P25B = {"AE02"}
-METHODS_PLANNED = {f"MT{n}" for n in range(11, 30)} - METHODS_BUILT_P25B - METHODS_BUILT_P25C
+METHODS_PLANNED = (
+    {f"MT{n}" for n in range(11, 30)} - METHODS_BUILT_P25B - METHODS_BUILT_P25C - METHODS_BUILT_F2A
+)
 
 
 @pytest.fixture(scope="module")
@@ -57,12 +65,18 @@ def test_spec_ids_are_unique(catalogue: SpecCatalogue) -> None:
 def test_version_1_scope_is_complete(catalogue: SpecCatalogue) -> None:
     assert set(catalogue.data) == CONCEPTS_V1 | CONCEPTS_BUILT_P26 | CONCEPTS_BUILT_F1BC
     assert set(catalogue.measures) == (
-        MEASURES_V1 | MEASURES_BUILT_P25B | MEASURES_BUILT_P26 | MEASURES_BUILT_F1BC
+        MEASURES_V1
+        | MEASURES_BUILT_P25B
+        | MEASURES_BUILT_P26
+        | MEASURES_BUILT_F1BC
+        | MEASURES_BUILT_F2A
     )
     assert {m for m in catalogue.methods if int(m[2:]) >= 11} == (
-        METHODS_BUILT_P25B | METHODS_BUILT_P25C
+        METHODS_BUILT_P25B | METHODS_BUILT_P25C | METHODS_BUILT_F2A
     )
-    assert set(catalogue.modules) == MODULES_V1 | MODULES_BUILT_P26 | MODULES_BUILT_F1BC
+    assert set(catalogue.modules) == (
+        MODULES_V1 | MODULES_BUILT_P26 | MODULES_BUILT_F1BC | MODULES_BUILT_F2A
+    )
     assert {f"CV0{n}" for n in range(1, 7)} <= set(catalogue.conventions)
     assert set(catalogue.conventions) >= CONVENTIONS_BUILT_P26
 
@@ -121,7 +135,7 @@ def test_every_reference_of_the_planned_specs_resolves(planned: SpecCatalogue) -
 def test_phase_2_scope_is_planned(planned: SpecCatalogue) -> None:
     not_built = {f.spec.id for f in planned.files if not f.spec.implemented}
     assert not_built >= CONCEPTS_PLANNED | MODULES_PLANNED | METHODS_PLANNED
-    assert {"CV09", "CV11", "CV12", "AL03", "AL04"} <= not_built
+    assert {"CV11", "CV12", "AL03", "AL04"} <= not_built  # CV09 is built by F2a
     assert (
         not (CONCEPTS_BUILT_P26 | MODULES_BUILT_P26 | MEASURES_BUILT_P26 | CONVENTIONS_BUILT_P26)
         & not_built

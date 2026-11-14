@@ -42,6 +42,8 @@ SAME = {
     "Weibull",
     "Pareto II",
     "Segment",
+    "Net",  # M08 (F2a): the same word in Turkish
+    "Stop loss",  # the market term is used as it is
 }
 
 
@@ -86,7 +88,7 @@ def test_numbers_use_the_separators_of_the_language() -> None:
 
 def test_every_rule_of_rp01_has_a_turkish_sentence_with_the_same_facts() -> None:
     rules = SPECS.finding_rules.rules
-    assert len(rules) == 40 and SPECS.finding_rules.version == "1.4.0"
+    assert len(rules) == 43 and SPECS.finding_rules.version == "1.5.0"
     placeholder = re.compile(r"\{([a-z][a-z0-9_]*)\}")
     for rule in rules:
         assert set(placeholder.findall(rule.template)) == set(placeholder.findall(rule.template_tr))

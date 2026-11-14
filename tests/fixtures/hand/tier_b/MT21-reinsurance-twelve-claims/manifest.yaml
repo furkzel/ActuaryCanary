@@ -1,4 +1,4 @@
-produced_on: '2026-10-24'
+produced_on: '2026-11-12'
 id: MT21-reinsurance-twelve-claims
 spec_ids:
 - MT21
@@ -11,13 +11,25 @@ source:
 how_produced: 'Run tests/benchmarks/tools/build_hand_fixtures.py. Amounts in thousands. Quota share 30
   % with 25 % commission; surplus with a retained line of 400 and four lines; per-risk excess of loss
   200 xs 100 at 100 % placed, flat premium 40. Programme: surplus on gross, quota share on what the surplus
-  leaves, excess of loss on what the quota share leaves (decision 0604).'
+  leaves, excess of loss on what the quota share leaves (decision 0604). Event excess of loss 150 xs 120
+  on events E1 (claims 3, 4, 5) and E2 (claims 9, 11), shared among an event''s claims in proportion to
+  their amounts; claims without an event code are not covered. Stop loss 30 % xs 60 % of the loss ratio
+  on the earned premium given (6000 alone on gross, 1000 in the programme), shared in proportion to amounts.
+  Full programme: surplus, quota share, risk excess of loss, event excess of loss, stop loss (CV09, decision
+  0400). Aggregate terms (layers.csv): risk excess of loss 100 xs 50 on five claims taken in order of
+  occurrence (one booking date), once with two reinstatements at 100 % pro rata as to amount and a deposit
+  premium of 30, once with an aggregate deductible of 60 and an aggregate limit of 130 (decision 0402).
+  Index clause (valuations.csv, index.csv): risk excess of loss 100 xs 100 incepting 2020-01-01 at index
+  100, a claim with three payments in months of index 110, 120 and 125 and a claim whose layer is exhausted
+  by one payment, under the payment-by-payment clause and the occurrence-date clause (decision 0401).'
 files:
   claims: claims.csv
+  layers: layers.csv
+  valuations: valuations.csv
+  index: index.csv
   values: values.csv
 tolerance_note: 1e-12 relative (all rational).
 not_covered:
-- 'Aggregate deductible and limit, reinstatements with premium, stop loss, event excess of loss and the
-  index clause: no hand case yet; they belong to the reinsurance item (P30) and the spec MT21 fixture
-  line stays open for them (decision 0273).'
-checked_by_owner: true
+- Facultative cover and an aggregate excess of loss (loss basis AGGREGATE) have no hand case; the index
+  clause on an event layer is covered by the method tests only.
+checked_by_owner: false

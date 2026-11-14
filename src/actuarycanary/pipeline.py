@@ -18,6 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from actuarycanary import __version__
 from actuarycanary.canonical.amounts import INCREMENTAL, TO_DATE
 from actuarycanary.canonical.feeds import CanonicalError, CanonicalFeed, Finding, canonicalise
+from actuarycanary.convert.allocation import ceded_valuation_fields
 from actuarycanary.convert.bases import ValueBasis
 from actuarycanary.convert.discount import DiscountContext, DiscountSettings, resolve_discount
 from actuarycanary.convert.market import ConversionError, MarketData
@@ -54,14 +55,16 @@ from actuarycanary.methods.chain_ladder import ChainLadder
 from actuarycanary.methods.seeding import RUN_SEED
 from actuarycanary.methods.selection import BF_BELOW_MATURITY
 from actuarycanary.methods.severity import LargeLossError, LargeLossSettings, parse_large_loss
+from actuarycanary.modules import reinsurance as reinsurance_module
+from actuarycanary.modules import reinsurance_whatif, severity_run, survival_run
 from actuarycanary.modules import reserving_tier_b_output as tier_b_output
-from actuarycanary.modules import severity_run, survival_run
 from actuarycanary.modules.anomalies import AnomalyResult, run_anomalies
 from actuarycanary.modules.expenses import ExpenseTable, expense_table
 from actuarycanary.modules.methods_port import ReservingPort
 from actuarycanary.modules.output import analysis_json
 from actuarycanary.modules.premium_input import earned_premium_by_origin
 from actuarycanary.modules.recoveries import RecoveryTables, recovery_tables
+from actuarycanary.modules.reinsurance import ReinsuranceSettings
 from actuarycanary.modules.reserving import (
     SELECTION_MEASURE,
     ChainLadderSettings,
@@ -179,6 +182,11 @@ RECOVERIES_NAME = "recoveries.csv"  # M07
 RECOVERY_DEVELOPMENT_NAME = "recovery_development.csv"
 RECOVERY_RECONCILIATION_NAME = "recovery_reconciliation.csv"
 EXPENSES_BY_PERIOD_NAME = "expenses_by_period.csv"  # M09
+CEDED_BY_TREATY_NAME = "ceded_by_treaty.csv"  # M08 (record 0406)
+CEDED_ALLOCATION_NAME = "ceded_allocation.csv"
+REINSURANCE_RECONCILIATION_NAME = "reinsurance_reconciliation.csv"
+CEDED_BY_SIZE_BAND_NAME = "ceded_by_size_band.csv"
+PROGRAMME_COMPARISON_NAME = "programme_comparison.csv"  # MT21 what-if (record 0408)
 
 Progress = Callable[[str], None]
 # Shown the sheets whose layout has no saved profile; returns them accepted, edited or skipped.
@@ -216,6 +224,8 @@ class RunSettings(BaseModel):
     # the curve and the date of the discounted figures (CV10, records 0322 and 0327); part of the
     # settings, so of the run id
     discount: DiscountSettings = Field(default_factory=DiscountSettings)
+    # M08 and MT21: the index clause, the allocation fallback of CV09 and the what-if (F2a)
+    reinsurance: ReinsuranceSettings = Field(default_factory=ReinsuranceSettings)
 
     @field_validator("currency_view")
     @classmethod
@@ -381,6 +391,25 @@ def _mapping_record(rec: TableRecognition, values: list[ValueMapping]) -> dict[s
             for label, rows in v.unmapped
         ],
     }
+
+
+def _with_ceded_fields(inputs: MeasureInputs) -> MeasureInputs:
+    """CV03 1.1.0: without ceded fields in claim_valuations, the given and allocated ceded
+    movements of the treaties feed become them (record 0403); otherwise nothing changes."""
+    valuations = inputs.feeds.get("claim_valuations")
+    if (
+        valuations is None
+        or "reinsurance_transactions" not in inputs.feeds
+        or any(c in valuations.columns for c in ("ceded_paid_to_date", "ceded_reserve"))
+    ):
+        return inputs
+    run = reinsurance_module.reinsurance_run(inputs)
+    if run is None or run.allocation is None:
+        return inputs
+    filled, changed = ceded_valuation_fields(valuations, run.allocation)
+    if not changed:
+        return inputs
+    return replace(inputs, feeds={**inputs.feeds, "claim_valuations": filled})
 
 
 def _settings_record(
@@ -832,6 +861,8 @@ def run(
         large_loss_percentile=large_loss.percentile,
         large_loss_thresholds=large_loss.thresholds,
     )
+    measure_inputs.cache[reinsurance_module.SETTINGS_KEY] = settings.reinsurance
+    measure_inputs = _with_ceded_fields(measure_inputs)
     reinsurance, value_basis = settings.triangles.reinsurance_basis, settings.triangles.value_basis
     period = settings.triangles.origin_period
     cache: dict[Any, Any] = {}
@@ -1030,6 +1061,22 @@ def run(
         report_tables |= module_tables
         for name, table in module_tables.items():
             outputs.append(write_table(out, name, table))
+    reinsurance_run_used: reinsurance_module.ReinsuranceRun | None = None
+    if "M08" in modules_ran:
+        reinsurance_run_used = reinsurance_module.reinsurance_run(measure_inputs)
+    if reinsurance_run_used is not None:
+        module_tables = {
+            CEDED_BY_TREATY_NAME: reinsurance_run_used.treaty_table(),
+            CEDED_ALLOCATION_NAME: reinsurance_run_used.allocation_table(),
+            REINSURANCE_RECONCILIATION_NAME: reinsurance_run_used.reconciliation(),
+            CEDED_BY_SIZE_BAND_NAME: reinsurance_run_used.size_bands(),
+            PROGRAMME_COMPARISON_NAME: reinsurance_whatif.comparison(
+                measure_inputs, reinsurance_run_used, settings.assumptions
+            )[0],
+        }
+        report_tables |= module_tables
+        for name, table in module_tables.items():
+            outputs.append(write_table(out, name, table))
     if "M09" in modules_ran:
         expense_table_run = expense_table(measure_inputs, view)
         report_tables[EXPENSES_BY_PERIOD_NAME] = expense_table_run.frame
@@ -1082,6 +1129,7 @@ def run(
                 declared_value=declared.triangles.value_basis.value,
                 recoveries=recovery_tables_run,
                 expenses=expense_table_run,
+                reinsurance=reinsurance_run_used,
             )
         )
     with language.using(settings.language):

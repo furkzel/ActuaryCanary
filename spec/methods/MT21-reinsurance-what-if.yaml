@@ -1,9 +1,9 @@
 id: MT21
-version: 0.1.0
+version: 0.2.0
 title_en: Reinsurance what-if
 title_tr: Reasürans senaryo analizi
 status: draft
-implemented: false
+implemented: true
 definition: >-
   Applies a reinsurance programme (the treaties loaded, or an alternative written in the
   assumptions register) to claim-level gross losses and to premium, giving ceded and net
@@ -54,7 +54,14 @@ parameters:
     default: false
     description: >-
       Also apply the programme to simulated annual losses (attritional from MT11, large claims
-      from MT17), giving the distribution of the net result and its VaR.
+      from MT17), giving the distribution of the net result and its VaR. Not built in version
+      0.2.0: only false is accepted (record 0408).
+  - name: index_clause
+    default: payment_by_payment
+    description: >-
+      How an index clause works (CV09, record 0401): payment by payment, or retention and limit
+      fixed at the price level of the occurrence date (the generator's clause).
+    allowed: [payment_by_payment, occurrence_date]
   - name: inuring_order
     default: CV09
     description: Order in which treaties apply (CV09 default - surplus, quota share, risk XL, event XL, stop loss).
@@ -118,3 +125,16 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 9.2 (P20).
+  - version: 0.1.0
+    date: 2026-11-12
+    change: >-
+      Implemented before owner review (F2a): the application step (records 0400 to 0403); the
+      text of the specification is unchanged here.
+  - version: 0.2.0
+    date: 2026-11-14
+    change: >-
+      Implemented before owner review (F2a, records 0400 to 0408): the application with every
+      treaty type, aggregate terms, reinstatements and the index clause (new parameter
+      index_clause); the what-if on the loaded programme and alternatives of the assumptions
+      register (programme_comparison.csv). simulate is not built and accepts false only. The
+      ground truth was checked on reinsurance_heavy (tiny and medium) with occurrence_date.

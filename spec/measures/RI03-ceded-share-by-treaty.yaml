@@ -1,9 +1,9 @@
 id: RI03
-version: 0.1.0
+version: 0.2.0
 title_en: Ceded share by treaty
 title_tr: Anlaşma bazında devir oranı
 status: draft
-implemented: false
+implemented: true
 definition: >-
   Ceded claims incurred and ceded premium of each treaty as a share of the gross amounts in
   the treaty's scope, by treaty year: where each treaty takes its part.
@@ -55,3 +55,12 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft for module M08 (P20).
+  - version: 0.1.0
+    date: 2026-11-12
+    change: >-
+      Implemented before owner review (F2a): built on the treaty application of MT21 and the
+      allocation of CV09; the text of the specification is unchanged here.
+  - version: 0.2.0
+    date: 2026-11-14
+    change: >-
+      Implemented before owner review (F2a, record 0406). Built per treaty and treaty year; the breakdowns by segment, line and origin are not built (the scope of a treaty sets them).

@@ -102,11 +102,20 @@ CASES: dict[str, tuple[dict[str, float], dict[str, float]]] = {
         {"tail_default": 1, "tail_default_concern": 1},
         {"tail_default": 1, "tail_default_concern": 0},
     ),
+    # RP01 1.5.0 (F2a, record 0408): the facts come from the run of M08
+    "KF44": ({"reinsurance_differences": 1}, {"reinsurance_differences": 0}),
+    "KF45": ({"layers_exhausted": 1}, {"layers_exhausted": 0}),
+    "KF46": (
+        {"approximate_allocation_share": 0.06, "approximate_allocation_share_limit": 0.05},
+        {"approximate_allocation_share": 0.05, "approximate_allocation_share_limit": 0.05},
+    ),
 }
 # RP01 1.3.0 (record 0388): their facts come from the tables of M07 and M09, which
 # tests/report/test_pages_m07_m09.py builds
 NEW_IN_1_3 = {f"KF{n}" for n in range(35, 42)}
 NEW_IN_1_2 = {f"KF{n}" for n in range(27, 35)}
+# RP01 1.5.0 (record 0408): their facts come from the run of M08, which the tiny baseline skips
+NEW_IN_1_5 = {"KF44", "KF45", "KF46"}
 
 
 def _facts(rule: FindingRule, values: dict[str, float]) -> dict[str, Fact]:
@@ -177,7 +186,10 @@ def test_every_fact_a_rule_names_is_computed_for_its_scope(default_run: RunResul
         (rule.id, name)
         for rule in RULES.values()
         if rule.id
-        not in NEW_IN_1_2 | NEW_IN_1_3 | {"KF42"}  # need methods or tables the call lacks
+        not in NEW_IN_1_2
+        | NEW_IN_1_3
+        | NEW_IN_1_5
+        | {"KF42"}  # need methods or tables the call lacks
         for name in facts_named(rule)
         if name not in known[rule.scope]
     }
@@ -193,7 +205,9 @@ def test_the_tiny_baseline_says_its_evidence_is_thin(default_run: RunResult) -> 
     assert "not how precise it is" in first["text"]
     assert model["banners"] == [first["text"]]
     assert len(model["key_findings"]) <= 8
-    assert "KF15" not in {f["rule"] for f in model["further_findings"]}  # every module ran
+    # every module ran except M08, which needs reinsurance treaties (F2a, record 0407)
+    not_run = [f for f in model["key_findings"] + model["further_findings"] if f["rule"] == "KF15"]
+    assert len(not_run) == 1 and "(M08 Reinsurance)" in not_run[0]["text"]
 
 
 # RP01 1.2.1 (record 0347): the part of the condition that the sentence needs
@@ -212,6 +226,7 @@ def test_the_rule_file_names_its_settings() -> None:
         "expense_ratio_change_limit": 0.02,
         "unallocated_expense_share_limit": 0.25,
         "thin_factor_change_limit": 0.02,
+        "approximate_allocation_share_limit": 0.05,  # RP01 1.5.0, record 0408
     }
 
 

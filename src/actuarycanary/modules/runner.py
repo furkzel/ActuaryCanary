@@ -30,7 +30,7 @@ from actuarycanary.spec.catalogue import SpecCatalogue
 from actuarycanary.spec.models import MeasureSpec, ModuleSpec
 from actuarycanary.structures.periods import Period
 
-BUILT_METHODS = frozenset({"MT01", "MT02"})  # the methods this package runs itself
+BUILT_METHODS = frozenset({"MT01", "MT02", "MT21"})  # the methods this package runs itself
 
 
 def _has_recovery_data(inputs: MeasureInputs) -> bool:
