@@ -337,7 +337,7 @@
   "rows": [
    {
     "label": "Çalıştırma kimliği",
-    "value": "1c855e7412d9806e"
+    "value": "647e87b0405b476c"
    },
    {
     "label": "Değerleme tarihi",
@@ -365,11 +365,11 @@
    },
    {
     "label": "Girdiler",
-    "value": "claim_valuations.xlsx, claims.xlsx, market.xlsx, policies.xlsx, premiums.xlsx, expenses.xlsx, reinsurance_treaties.xlsx, reinsurance_transactions.xlsx, recoveries.xlsx, ledger.xlsx"
+    "value": "claim_valuations.xlsx, claims.xlsx, market.xlsx, policies.xlsx, premiums.xlsx, expenses.xlsx"
    },
    {
     "label": "Yazılım",
-    "value": "ActuaryCanary 1.2.0"
+    "value": "ActuaryCanary 1.3.0"
    }
   ],
   "tagline": "Her düzendeki sigorta verisini, kendi bilgisayarınızda, denetlenebilir ve erken uyarı veren bir aktüeryal rapora dönüştürür.",
@@ -484,7 +484,7 @@
      "orientation": "h",
      "type": "bar",
      "x": [
-      93750409.67,
+      77580233.07,
       18575490.41,
       20418156.15,
       944564.098
@@ -984,788 +984,6 @@
     }
    }
   },
-  "ledger-gap-trend": {
-   "data": [
-    {
-     "hovertemplate": "%{fullData.name} %{x}: %{y:.2%}<extra></extra>",
-     "line": {
-      "width": 2
-     },
-     "mode": "lines",
-     "name": "CLAIMS_PAID",
-     "type": "scatter",
-     "x": [
-      "2022-03",
-      "2022-04",
-      "2022-05",
-      "2022-06",
-      "2022-07",
-      "2022-08",
-      "2022-09",
-      "2022-10",
-      "2022-11",
-      "2022-12",
-      "2023-01",
-      "2023-02",
-      "2023-03",
-      "2023-04",
-      "2023-05",
-      "2023-06",
-      "2023-07",
-      "2023-08",
-      "2023-09",
-      "2023-10",
-      "2023-11",
-      "2023-12",
-      "2024-01",
-      "2024-02",
-      "2024-03",
-      "2024-04",
-      "2024-05",
-      "2024-06",
-      "2024-07",
-      "2024-08",
-      "2024-09",
-      "2024-10",
-      "2024-11",
-      "2024-12",
-      "2025-01",
-      "2025-02",
-      "2025-03",
-      "2025-04",
-      "2025-05",
-      "2025-07",
-      "2025-08",
-      "2025-09",
-      "2025-10",
-      "2025-11",
-      "2025-12"
-     ],
-     "y": [
-      0.0,
-      0.0,
-      0.0,
-      -0.585828,
-      1.28554,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      -0.51104,
-      0.191419,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      5.814196,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.009084,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0
-     ]
-    },
-    {
-     "hovertemplate": "%{fullData.name} %{x}: %{y:.2%}<extra></extra>",
-     "line": {
-      "width": 2
-     },
-     "mode": "lines",
-     "name": "COMMISSION",
-     "type": "scatter",
-     "x": [
-      "2022-01",
-      "2022-02",
-      "2022-03",
-      "2022-04",
-      "2022-05",
-      "2022-06",
-      "2022-07",
-      "2022-08",
-      "2022-09",
-      "2022-10",
-      "2022-11",
-      "2022-12",
-      "2023-01",
-      "2023-02",
-      "2023-03",
-      "2023-04",
-      "2023-05",
-      "2023-06",
-      "2023-07",
-      "2023-08",
-      "2023-09",
-      "2023-10",
-      "2023-11",
-      "2023-12",
-      "2024-01",
-      "2024-02",
-      "2024-03",
-      "2024-04",
-      "2024-05",
-      "2024-06",
-      "2024-07",
-      "2024-08",
-      "2024-09",
-      "2024-10",
-      "2024-11",
-      "2024-12",
-      "2025-01",
-      "2025-02",
-      "2025-03",
-      "2025-04",
-      "2025-05",
-      "2025-06",
-      "2025-07",
-      "2025-08",
-      "2025-09",
-      "2025-10",
-      "2025-11",
-      "2025-12"
-     ],
-     "y": [
-      6.9e-05,
-      -0.001666,
-      -0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      4.5e-05,
-      -8.6e-05,
-      -0.000887,
-      0.0,
-      -0.000489,
-      0.0,
-      0.0,
-      0.0,
-      -0.001213,
-      4.4e-05,
-      0.000125,
-      2.9e-05,
-      0.0,
-      0.0,
-      0.0,
-      -6.2e-05,
-      -0.00012,
-      0.0,
-      -3e-06,
-      0.000107,
-      0.0,
-      0.0,
-      0.000651,
-      -0.001672,
-      0.0,
-      0.0,
-      0.0,
-      -0.001647,
-      -0.000132,
-      0.0,
-      0.0,
-      -0.000381,
-      -2.6e-05,
-      -0.000422,
-      8.5e-05,
-      3.9e-05,
-      0.0,
-      -0.000264,
-      0.0,
-      -5e-05,
-      0.0
-     ]
-    },
-    {
-     "hovertemplate": "%{fullData.name} %{x}: %{y:.2%}<extra></extra>",
-     "line": {
-      "width": 2
-     },
-     "mode": "lines",
-     "name": "EXPENSE",
-     "type": "scatter",
-     "x": [
-      "2022-01",
-      "2022-02",
-      "2022-03",
-      "2022-04",
-      "2022-05",
-      "2022-06",
-      "2022-07",
-      "2022-08",
-      "2022-09",
-      "2022-10",
-      "2022-11",
-      "2022-12",
-      "2023-01",
-      "2023-02",
-      "2023-03",
-      "2023-04",
-      "2023-05",
-      "2023-06",
-      "2023-07",
-      "2023-08",
-      "2023-09",
-      "2023-10",
-      "2023-11",
-      "2023-12",
-      "2024-01",
-      "2024-02",
-      "2024-03",
-      "2024-04",
-      "2024-05",
-      "2024-06",
-      "2024-07",
-      "2024-08",
-      "2024-09",
-      "2024-10",
-      "2024-11",
-      "2024-12",
-      "2025-01",
-      "2025-02",
-      "2025-03",
-      "2025-04",
-      "2025-05",
-      "2025-06",
-      "2025-07",
-      "2025-08",
-      "2025-09",
-      "2025-10",
-      "2025-11",
-      "2025-12"
-     ],
-     "y": [
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0
-     ]
-    },
-    {
-     "hovertemplate": "%{fullData.name} %{x}: %{y:.2%}<extra></extra>",
-     "line": {
-      "width": 2
-     },
-     "mode": "lines",
-     "name": "OUTSTANDING",
-     "type": "scatter",
-     "x": [
-      "2022-01",
-      "2022-02",
-      "2022-03",
-      "2022-04",
-      "2022-05",
-      "2022-06",
-      "2022-07",
-      "2022-08",
-      "2022-09",
-      "2022-10",
-      "2022-11",
-      "2022-12",
-      "2023-01",
-      "2023-02",
-      "2023-03",
-      "2023-04",
-      "2023-05",
-      "2023-06",
-      "2023-07",
-      "2023-08",
-      "2023-09",
-      "2023-10",
-      "2023-11",
-      "2023-12",
-      "2024-01",
-      "2024-02",
-      "2024-03",
-      "2024-04",
-      "2024-05",
-      "2024-06",
-      "2024-07",
-      "2024-08",
-      "2024-09",
-      "2024-10",
-      "2024-11",
-      "2024-12",
-      "2025-01",
-      "2025-02",
-      "2025-03",
-      "2025-04",
-      "2025-05",
-      "2025-06",
-      "2025-07",
-      "2025-08",
-      "2025-09",
-      "2025-10",
-      "2025-11",
-      "2025-12"
-     ],
-     "y": [
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      -0.038773,
-      -0.029703,
-      -0.028491,
-      -0.04479,
-      -0.039134,
-      -0.0337,
-      -0.020754,
-      0.0,
-      -0.051766,
-      -0.055299,
-      0.0,
-      0.0,
-      0.0,
-      -0.018412,
-      -0.048165,
-      -0.038996,
-      -0.034257,
-      -0.04025,
-      -0.037852,
-      -0.044139
-     ]
-    },
-    {
-     "hovertemplate": "%{fullData.name} %{x}: %{y:.2%}<extra></extra>",
-     "line": {
-      "width": 2
-     },
-     "mode": "lines",
-     "name": "PREMIUM",
-     "type": "scatter",
-     "x": [
-      "2022-01",
-      "2022-02",
-      "2022-03",
-      "2022-04",
-      "2022-05",
-      "2022-06",
-      "2022-07",
-      "2022-08",
-      "2022-09",
-      "2022-10",
-      "2022-11",
-      "2022-12",
-      "2023-01",
-      "2023-02",
-      "2023-03",
-      "2023-04",
-      "2023-05",
-      "2023-06",
-      "2023-07",
-      "2023-08",
-      "2023-09",
-      "2023-10",
-      "2023-11",
-      "2023-12",
-      "2024-01",
-      "2024-02",
-      "2024-03",
-      "2024-04",
-      "2024-05",
-      "2024-06",
-      "2024-07",
-      "2024-08",
-      "2024-09",
-      "2024-10",
-      "2024-11",
-      "2024-12",
-      "2025-01",
-      "2025-02",
-      "2025-03",
-      "2025-04",
-      "2025-05",
-      "2025-06",
-      "2025-07",
-      "2025-08",
-      "2025-09",
-      "2025-10",
-      "2025-11",
-      "2025-12"
-     ],
-     "y": [
-      3.6e-05,
-      -0.000842,
-      -0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      2.3e-05,
-      -4.6e-05,
-      -0.000493,
-      0.0,
-      -0.000239,
-      0.0,
-      0.0,
-      0.0,
-      -0.000711,
-      2.3e-05,
-      2.796454,
-      -0.346857,
-      0.0,
-      0.0,
-      0.0,
-      -3e-05,
-      -6.6e-05,
-      0.0,
-      -2e-06,
-      6e-05,
-      0.0,
-      0.0,
-      0.00037,
-      -0.001784,
-      0.0,
-      0.0,
-      0.0,
-      -0.000939,
-      -6e-05,
-      0.0,
-      -1.9e-05,
-      -0.000203,
-      -1.3e-05,
-      -0.000185,
-      4e-05,
-      2.2e-05,
-      0.0,
-      -0.000124,
-      0.0,
-      -2.6e-05,
-      0.0
-     ]
-    },
-    {
-     "hovertemplate": "%{fullData.name} %{x}: %{y:.2%}<extra></extra>",
-     "line": {
-      "width": 2
-     },
-     "mode": "lines",
-     "name": "RI",
-     "type": "scatter",
-     "x": [
-      "2022-01",
-      "2022-02",
-      "2022-03",
-      "2022-04",
-      "2022-05",
-      "2022-06",
-      "2022-07",
-      "2022-08",
-      "2022-09",
-      "2022-10",
-      "2022-11",
-      "2022-12",
-      "2023-01",
-      "2023-02",
-      "2023-03",
-      "2023-04",
-      "2023-05",
-      "2023-06",
-      "2023-07",
-      "2023-08",
-      "2023-09",
-      "2023-10",
-      "2023-11",
-      "2023-12",
-      "2024-01",
-      "2024-02",
-      "2024-03",
-      "2024-04",
-      "2024-05",
-      "2024-06",
-      "2024-07",
-      "2024-08",
-      "2024-09",
-      "2024-10",
-      "2024-11",
-      "2024-12",
-      "2025-01",
-      "2025-02",
-      "2025-03",
-      "2025-04",
-      "2025-05",
-      "2025-06",
-      "2025-07",
-      "2025-08",
-      "2025-09",
-      "2025-10",
-      "2025-11",
-      "2025-12"
-     ],
-     "y": [
-      0.000985,
-      -0.011378,
-      -2e-06,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.000321,
-      -0.000425,
-      -0.005432,
-      0.0,
-      -0.004444,
-      0.0,
-      0.0,
-      0.0,
-      -0.004721,
-      0.000712,
-      0.00129,
-      0.000335,
-      0.0,
-      0.0,
-      0.0,
-      -0.000737,
-      -0.000936,
-      0.0,
-      -2.4e-05,
-      0.000685,
-      0.0,
-      0.0,
-      0.003147,
-      -0.006444,
-      0.0,
-      0.0,
-      0.0,
-      -0.011007,
-      -0.002209,
-      0.0,
-      -0.000455,
-      -0.004521,
-      -0.000168,
-      -0.007509,
-      0.001041,
-      0.00018,
-      0.0,
-      -0.002397,
-      0.0,
-      -0.000664,
-      0.0
-     ]
-    },
-    {
-     "hovertemplate": "%{fullData.name} %{x}: %{y:.2%}<extra></extra>",
-     "line": {
-      "width": 2
-     },
-     "mode": "lines",
-     "name": "UPR",
-     "type": "scatter",
-     "x": [
-      "2022-01",
-      "2022-02",
-      "2022-03",
-      "2022-04",
-      "2022-05",
-      "2022-06",
-      "2022-07",
-      "2022-08",
-      "2022-09",
-      "2022-10",
-      "2022-11",
-      "2022-12",
-      "2023-01",
-      "2023-02",
-      "2023-03",
-      "2023-04",
-      "2023-05",
-      "2023-06",
-      "2023-07",
-      "2023-08",
-      "2023-09",
-      "2023-10",
-      "2023-11",
-      "2023-12",
-      "2024-01",
-      "2024-02",
-      "2024-03",
-      "2024-04",
-      "2024-05",
-      "2024-06",
-      "2024-07",
-      "2024-08",
-      "2024-09",
-      "2024-10",
-      "2024-11",
-      "2024-12",
-      "2025-01",
-      "2025-02",
-      "2025-03",
-      "2025-04",
-      "2025-05",
-      "2025-06",
-      "2025-07",
-      "2025-08",
-      "2025-09",
-      "2025-10",
-      "2025-11",
-      "2025-12"
-     ],
-     "y": [
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      -0.0,
-      0.0,
-      0.0,
-      -0.0,
-      0.0,
-      -0.0,
-      -0.0,
-      0.0,
-      0.0,
-      -0.0,
-      -0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      -0.0,
-      0.0,
-      -0.0,
-      0.0,
-      -0.0,
-      0.0,
-      0.0,
-      -0.0,
-      -0.0,
-      0.0,
-      0.0,
-      0.0,
-      -0.0,
-      0.0,
-      0.0,
-      0.0,
-      -0.0,
-      0.0,
-      -0.0,
-      0.0,
-      0.0,
-      0.0
-     ]
-    }
-   ],
-   "layout": {
-    "height": 320,
-    "separators": ",.",
-    "showlegend": true,
-    "title": {
-     "text": "Platform ile mizan arasındaki fark, sınıf ve ay bazında"
-    },
-    "xaxis": {
-     "nticks": 12,
-     "title": {
-      "text": "Ay"
-     },
-     "type": "category"
-    },
-    "yaxis": {
-     "tickformat": ".1%",
-     "title": {
-      "text": "Fark, mizan tutarının payı"
-     }
-    }
-   }
-  },
   "line-0-factors-incurred": {
    "data": [
     {
@@ -1795,9 +1013,9 @@
       "36-48"
      ],
      "y": [
-      1.1372,
+      1.1407,
       1.0,
-      1.5756,
+      1.532,
       1.0,
       1.0,
       1.0
@@ -1822,7 +1040,7 @@
       "36-48"
      ],
      "y": [
-      1.3212,
+      1.3047,
       1.0,
       1.0
      ]
@@ -1876,9 +1094,9 @@
       "36-48"
      ],
      "y": [
-      1.1372,
-      1.3443,
-      1.5756,
+      1.1407,
+      1.4084,
+      1.532,
       1.0,
       1.0,
       1.0
@@ -1903,7 +1121,7 @@
       "36-48"
      ],
      "y": [
-      1.4505,
+      1.4465,
       1.0,
       1.0
      ]
@@ -1936,25 +1154,25 @@
      "showscale": false,
      "text": [
       [
-       "4.811.957 TRY · 7 hasar",
-       "5.472.206 TRY · 8 hasar",
-       "5.472.206 TRY · 8 hasar",
-       "5.472.206 TRY · 8 hasar"
+       "3.981.152 TRY · 7 hasar",
+       "4.541.477 TRY · 8 hasar",
+       "4.541.477 TRY · 8 hasar",
+       "4.541.477 TRY · 8 hasar"
       ],
       [
-       "13.557.888 TRY · 10 hasar",
-       "13.557.888 TRY · 10 hasar",
-       "13.557.888 TRY · 10 hasar",
+       "11.080.279 TRY · 10 hasar",
+       "11.080.279 TRY · 10 hasar",
+       "11.080.279 TRY · 10 hasar",
        ""
       ],
       [
-       "20.599.753 TRY · 7 hasar",
-       "32.457.905 TRY · 8 hasar",
+       "17.724.330 TRY · 7 hasar",
+       "27.153.819 TRY · 8 hasar",
        "",
        ""
       ],
       [
-       "42.262.410 TRY · 11 hasar",
+       "34.804.658 TRY · 11 hasar",
        "",
        "",
        ""
@@ -1977,25 +1195,25 @@
      "ygap": 2,
      "z": [
       [
-       4811956.7,
-       5472206.05,
-       5472206.05,
-       5472206.05
+       3981152.38,
+       4541477.12,
+       4541477.12,
+       4541477.12
       ],
       [
-       13557888.34,
-       13557888.34,
-       13557888.34,
+       11080279.0,
+       11080279.0,
+       11080279.0,
        null
       ],
       [
-       20599753.3,
-       32457905.17,
+       17724329.94,
+       27153819.23,
        null,
        null
       ],
       [
-       42262410.11,
+       34804657.72,
        null,
        null,
        null
@@ -2032,25 +1250,25 @@
      "showscale": false,
      "text": [
       [
-       "4.811.957 TRY · 7 hasar",
-       "5.472.206 TRY · 8 hasar",
-       "5.472.206 TRY · 8 hasar",
-       "5.472.206 TRY · 8 hasar"
+       "3.981.152 TRY · 7 hasar",
+       "4.541.477 TRY · 8 hasar",
+       "4.541.477 TRY · 8 hasar",
+       "4.541.477 TRY · 8 hasar"
       ],
       [
-       "10.085.712 TRY · 10 hasar",
-       "13.557.888 TRY · 10 hasar",
-       "13.557.888 TRY · 10 hasar",
+       "7.867.314 TRY · 10 hasar",
+       "11.080.279 TRY · 10 hasar",
+       "11.080.279 TRY · 10 hasar",
        ""
       ],
       [
-       "20.599.753 TRY · 7 hasar",
-       "32.457.905 TRY · 8 hasar",
+       "17.724.330 TRY · 7 hasar",
+       "27.153.819 TRY · 8 hasar",
        "",
        ""
       ],
       [
-       "30.452.345 TRY · 11 hasar",
+       "24.185.242 TRY · 11 hasar",
        "",
        "",
        ""
@@ -2073,25 +1291,25 @@
      "ygap": 2,
      "z": [
       [
-       4811956.7,
-       5472206.05,
-       5472206.05,
-       5472206.05
+       3981152.38,
+       4541477.12,
+       4541477.12,
+       4541477.12
       ],
       [
-       10085711.94,
-       13557888.34,
-       13557888.34,
+       7867313.88,
+       11080279.0,
+       11080279.0,
        null
       ],
       [
-       20599753.3,
-       32457905.17,
+       17724329.94,
+       27153819.23,
        null,
        null
       ],
       [
-       30452345.13,
+       24185241.83,
        null,
        null,
        null
@@ -2134,10 +1352,10 @@
      "name": "Zincir merdiven",
      "type": "scatter",
      "x": [
-      5472206.05,
-      13557888.34,
-      32457905.17,
-      55838577.91
+      4541477.12,
+      11080279.0,
+      27153819.23,
+      45409629.02
      ],
      "y": [
       "2022",
@@ -2158,10 +1376,10 @@
      "name": "Bornhuetter–Ferguson",
      "type": "scatter",
      "x": [
-      5472206.05,
-      13557888.34,
-      32457905.17,
-      52266150.42
+      4541477.12,
+      11080279.0,
+      27153819.23,
+      42723004.74
      ],
      "y": [
       "2022",
@@ -2182,10 +1400,10 @@
      "name": "Cape Cod",
      "type": "scatter",
      "x": [
-      5472206.05,
-      13557888.34,
-      32457905.17,
-      52266150.42
+      4541477.12,
+      11080279.0,
+      27153819.23,
+      42723004.74
      ],
      "y": [
       "2022",
@@ -2206,10 +1424,10 @@
      "name": "Beklenen hasar prim oranı",
      "type": "scatter",
      "x": [
-      10295114.92,
-      14511020.68,
-      37802778.04,
-      41145236.33
+      8483686.75,
+      11957802.79,
+      31151369.34,
+      33905721.21
      ],
      "y": [
       "2022",
@@ -2232,10 +1450,10 @@
      "name": "Seçilen",
      "type": "scatter",
      "x": [
-      5472206.05,
-      13557888.34,
-      32457905.17,
-      55838577.91
+      4541477.12,
+      11080279.0,
+      27153819.23,
+      45409629.02
      ],
      "y": [
       "2022",
@@ -3815,10 +3033,10 @@
       "2025"
      ],
      "y": [
-      0.507806,
-      0.892608,
-      0.820282,
-      1.296526
+      0.421437,
+      0.72949,
+      0.686236,
+      1.054375
      ]
     }
    ],
@@ -4002,25 +3220,25 @@
      "showscale": false,
      "text": [
       [
-       "%0,1 · ödenen 14.281.882 tutarın 9.353 kadarı tahsil edildi",
-       "%0,1 · ödenen 17.108.712 tutarın 9.353 kadarı tahsil edildi",
-       "%0,0 · ödenen 19.516.538 tutarın 9.353 kadarı tahsil edildi",
-       "%0,0 · ödenen 22.915.763 tutarın 9.353 kadarı tahsil edildi"
+       "%0,1 · ödenen 13.451.077 tutarın 9.353 kadarı tahsil edildi",
+       "%0,1 · ödenen 16.177.984 tutarın 9.353 kadarı tahsil edildi",
+       "%0,1 · ödenen 18.585.809 tutarın 9.353 kadarı tahsil edildi",
+       "%0,0 · ödenen 21.985.035 tutarın 9.353 kadarı tahsil edildi"
       ],
       [
-       "%0,2 · ödenen 12.225.311 tutarın 20.114 kadarı tahsil edildi",
-       "%0,3 · ödenen 17.180.338 tutarın 59.040 kadarı tahsil edildi",
-       "%0,3 · ödenen 17.723.352 tutarın 59.040 kadarı tahsil edildi",
+       "%0,2 · ödenen 10.006.913 tutarın 20.114 kadarı tahsil edildi",
+       "%0,4 · ödenen 14.702.729 tutarın 59.040 kadarı tahsil edildi",
+       "%0,4 · ödenen 15.245.742 tutarın 59.040 kadarı tahsil edildi",
        ""
       ],
       [
-       "%0,1 · ödenen 24.712.903 tutarın 20.962 kadarı tahsil edildi",
-       "%0,1 · ödenen 37.766.994 tutarın 20.962 kadarı tahsil edildi",
+       "%0,1 · ödenen 21.837.480 tutarın 20.962 kadarı tahsil edildi",
+       "%0,1 · ödenen 32.462.908 tutarın 20.962 kadarı tahsil edildi",
        "",
        ""
       ],
       [
-       "%0,2 · ödenen 34.822.255 tutarın 54.614 kadarı tahsil edildi",
+       "%0,2 · ödenen 28.555.152 tutarın 54.614 kadarı tahsil edildi",
        "",
        "",
        ""
@@ -4043,25 +3261,25 @@
      "ygap": 2,
      "z": [
       [
-       0.000655,
-       0.000547,
-       0.000479,
-       0.000408
+       0.000695,
+       0.000578,
+       0.000503,
+       0.000425
       ],
       [
-       0.001645,
-       0.003436,
-       0.003331,
+       0.00201,
+       0.004016,
+       0.003873,
        null
       ],
       [
-       0.000848,
-       0.000555,
+       0.00096,
+       0.000646,
        null,
        null
       ],
       [
-       0.001568,
+       0.001913,
        null,
        null,
        null
@@ -4099,25 +3317,25 @@
      "showscale": false,
      "text": [
       [
-       "%0,0 · ödenen 14.281.882 tutarın 0 kadarı tahsil edildi",
-       "%0,4 · ödenen 17.108.712 tutarın 76.615 kadarı tahsil edildi",
-       "%0,4 · ödenen 19.516.538 tutarın 76.615 kadarı tahsil edildi",
-       "%0,3 · ödenen 22.915.763 tutarın 76.615 kadarı tahsil edildi"
+       "%0,0 · ödenen 13.451.077 tutarın 0 kadarı tahsil edildi",
+       "%0,5 · ödenen 16.177.984 tutarın 76.615 kadarı tahsil edildi",
+       "%0,4 · ödenen 18.585.809 tutarın 76.615 kadarı tahsil edildi",
+       "%0,3 · ödenen 21.985.035 tutarın 76.615 kadarı tahsil edildi"
       ],
       [
-       "%0,0 · ödenen 12.225.311 tutarın 0 kadarı tahsil edildi",
-       "%2,0 · ödenen 17.180.338 tutarın 343.994 kadarı tahsil edildi",
-       "%3,2 · ödenen 17.723.352 tutarın 560.764 kadarı tahsil edildi",
+       "%0,0 · ödenen 10.006.913 tutarın 0 kadarı tahsil edildi",
+       "%2,3 · ödenen 14.702.729 tutarın 343.994 kadarı tahsil edildi",
+       "%3,7 · ödenen 15.245.742 tutarın 560.764 kadarı tahsil edildi",
        ""
       ],
       [
-       "%0,0 · ödenen 24.712.903 tutarın 0 kadarı tahsil edildi",
-       "%0,4 · ödenen 37.766.994 tutarın 150.354 kadarı tahsil edildi",
+       "%0,0 · ödenen 21.837.480 tutarın 0 kadarı tahsil edildi",
+       "%0,5 · ödenen 32.462.908 tutarın 150.354 kadarı tahsil edildi",
        "",
        ""
       ],
       [
-       "%0,0 · ödenen 34.822.255 tutarın 0 kadarı tahsil edildi",
+       "%0,0 · ödenen 28.555.152 tutarın 0 kadarı tahsil edildi",
        "",
        "",
        ""
@@ -4141,19 +3359,19 @@
      "z": [
       [
        0.0,
-       0.004478,
-       0.003926,
-       0.003343
+       0.004736,
+       0.004122,
+       0.003485
       ],
       [
        0.0,
-       0.020023,
-       0.03164,
+       0.023397,
+       0.036782,
        null
       ],
       [
        0.0,
-       0.003981,
+       0.004632,
        null,
        null
       ],
@@ -4196,25 +3414,25 @@
      "showscale": false,
      "text": [
       [
-       "%0,1 · ödenen 14.281.882 tutarın 9.353 kadarı tahsil edildi",
-       "%0,5 · ödenen 17.108.712 tutarın 85.968 kadarı tahsil edildi",
-       "%0,4 · ödenen 19.516.538 tutarın 85.968 kadarı tahsil edildi",
-       "%0,4 · ödenen 22.915.763 tutarın 85.968 kadarı tahsil edildi"
+       "%0,1 · ödenen 13.451.077 tutarın 9.353 kadarı tahsil edildi",
+       "%0,5 · ödenen 16.177.984 tutarın 85.968 kadarı tahsil edildi",
+       "%0,5 · ödenen 18.585.809 tutarın 85.968 kadarı tahsil edildi",
+       "%0,4 · ödenen 21.985.035 tutarın 85.968 kadarı tahsil edildi"
       ],
       [
-       "%0,2 · ödenen 12.225.311 tutarın 20.114 kadarı tahsil edildi",
-       "%2,3 · ödenen 17.180.338 tutarın 403.035 kadarı tahsil edildi",
-       "%3,5 · ödenen 17.723.352 tutarın 619.804 kadarı tahsil edildi",
+       "%0,2 · ödenen 10.006.913 tutarın 20.114 kadarı tahsil edildi",
+       "%2,7 · ödenen 14.702.729 tutarın 403.035 kadarı tahsil edildi",
+       "%4,1 · ödenen 15.245.742 tutarın 619.804 kadarı tahsil edildi",
        ""
       ],
       [
-       "%0,1 · ödenen 24.712.903 tutarın 20.962 kadarı tahsil edildi",
-       "%0,5 · ödenen 37.766.994 tutarın 171.316 kadarı tahsil edildi",
+       "%0,1 · ödenen 21.837.480 tutarın 20.962 kadarı tahsil edildi",
+       "%0,5 · ödenen 32.462.908 tutarın 171.316 kadarı tahsil edildi",
        "",
        ""
       ],
       [
-       "%0,2 · ödenen 34.822.255 tutarın 54.614 kadarı tahsil edildi",
+       "%0,2 · ödenen 28.555.152 tutarın 54.614 kadarı tahsil edildi",
        "",
        "",
        ""
@@ -4237,25 +3455,25 @@
      "ygap": 2,
      "z": [
       [
-       0.000655,
-       0.005025,
-       0.004405,
-       0.003751
+       0.000695,
+       0.005314,
+       0.004625,
+       0.00391
       ],
       [
-       0.001645,
-       0.023459,
-       0.034971,
+       0.00201,
+       0.027412,
+       0.040654,
        null
       ],
       [
-       0.000848,
-       0.004536,
+       0.00096,
+       0.005277,
        null,
        null
       ],
       [
-       0.001568,
+       0.001913,
        null,
        null,
        null
@@ -5295,7 +4513,7 @@
       "2"
      ],
      "y": [
-      33900283.99,
+      29738438.4,
       2585318.98
      ]
     }
@@ -5372,8 +4590,22 @@
    "specs": [
     "DQ01"
    ],
-   "text": "Veri kalitesi puanı 100 üzerinden 99,9. Uyarılar: 8, toplam 25 satırda; en büyüğü \"DV-CLV-06: identical duplicate rows kept once\".",
+   "text": "Veri kalitesi puanı 100 üzerinden 99,9. Uyarılar: 6, toplam 23 satırda; en büyüğü \"DV-CLV-06: identical duplicate rows kept once\".",
    "title": "Veri kalitesi uyarıları"
+  },
+  {
+   "banner": false,
+   "evidence": "",
+   "files": [
+    "modules.json"
+   ],
+   "key": "",
+   "rule": "KF15",
+   "scope": "run",
+   "section": "not-run",
+   "specs": [],
+   "text": "Verileri yüklenmediği için çalışmayan modüller: 11 modülün 2 tanesi (M08 Reasürans, M10 Mizan mutabakatı).",
+   "title": "Çalışmayan modüller"
   },
   {
    "banner": false,
@@ -5404,7 +4636,7 @@
     "RC04",
     "M07"
    ],
-   "text": "Bugüne kadarki rücu ve sovtaj tahsilatı 931.702 TRY; ödenen hasarların %0,8 kadarı (kaynak: rücu ve sovtaj hareketleri).",
+   "text": "Bugüne kadarki rücu ve sovtaj tahsilatı 931.702 TRY; ödenen hasarların %0,9 kadarı (kaynak: hasar değerlemelerindeki bugüne kadarki alanlardan türetildi).",
    "title": "Bugüne kadarki rücu ve sovtaj"
   },
   {
@@ -5425,41 +4657,6 @@
    ],
    "text": "4 dönemin 1 tanesinde birim maliyetler hesaplanmadı, çünkü bir ayda gider satırı yok; eksik bir kayıt sıfır maliyet olarak okunmaz.",
    "title": "Gider satırı olmayan ay nedeniyle hesaplanmayan birim maliyetler"
-  },
-  {
-   "banner": false,
-   "evidence": "FN01 v0.2.0, CV12 v0.3.0, M10 v0.2.0",
-   "files": [
-    "reconciliation.csv"
-   ],
-   "key": "",
-   "rule": "KF47",
-   "scope": "run",
-   "section": "ledger",
-   "specs": [
-    "FN01",
-    "CV12",
-    "M10"
-   ],
-   "text": "Mizanın 960 varlık-sınıf-ay değerinin 36 tanesi, platformun rakamından önemlilik sınırından fazla farklıdır (OUTSTANDING 16, RI 8, CLAIMS_PAID 8, PREMIUM 4). En büyüğü ENT_A varlığının CLAIMS_PAID sınıfında 2022-07 ayında 3.901.397 TRY olup mizan tutarının %8.079,5 kadarı; önerilen neden: neden önerilmedi. Nedenler kanıtlarıyla birlikte öneridir, olgu tespiti değildir.",
-   "title": "Mizan, platformun rakamlarından farklı"
-  },
-  {
-   "banner": false,
-   "evidence": "CV12 v0.3.0, M10 v0.2.0",
-   "files": [
-    "reconciliation.csv"
-   ],
-   "key": "",
-   "rule": "KF49",
-   "scope": "run",
-   "section": "ledger",
-   "specs": [
-    "CV12",
-    "M10"
-   ],
-   "text": "Mizanın hesap eşleme profili (cb3fe509454702ff) önerilmiş olup onaylanmamıştır: bu çalıştırmadaki her mizan rakamı ve fark, kimsenin kontrol etmediği bir eşlemeye dayanır. Profil dosyasını kontrol edin ve confirmed_on alanını doldurun.",
-   "title": "Hesap eşlemesi yalnızca önerildi"
   }
  ],
  "inflation_spec": "MT07 v1.1.0",
@@ -5495,7 +4692,7 @@
     "RS02",
     "MT10"
    ],
-   "text": "LIFE: seçilen nihai hasar 107.326.577 TRY; bunun 13.576.168 TRY tutarı (%12,6 nihai hasarın) bugüne kadar gerçekleşen hasarın üzerindedir (IBNR); en büyük pay GROUP_TERM_LIFE branşındadır: 13.576.168 TRY.",
+   "text": "LIFE: seçilen nihai hasar 88.185.204 TRY; bunun 10.604.971 TRY tutarı (%12,0 nihai hasarın) bugüne kadar gerçekleşen hasarın üzerindedir (IBNR); en büyük pay GROUP_TERM_LIFE branşındadır: 10.604.971 TRY.",
    "title": "Segment başına rezerv tahmini"
   },
   {
@@ -5529,7 +4726,7 @@
    "specs": [
     "RT01"
    ],
-   "text": "LIFE: nihai hasar prim oranı 2024 kaynak yılı için %82,0 iken 2025 kaynak yılı için %129,7 değerine yükseldi; yalnızca bu iki kaynak yılı karşılaştırılır: sonuncusu, bir öncekiyle.",
+   "text": "LIFE: nihai hasar prim oranı 2024 kaynak yılı için %68,6 iken 2025 kaynak yılı için %105,4 değerine yükseldi; yalnızca bu iki kaynak yılı karşılaştırılır: sonuncusu, bir öncekiyle.",
    "title": "Hasar prim oranı yükseldi"
   },
   {
@@ -5608,9 +4805,9 @@
  "language": "tr",
  "lineage": {
   "format": 2,
-  "lines": 2211,
-  "measures": 41,
-  "rows_cited": 411002,
+  "lines": 2188,
+  "measures": 36,
+  "rows_cited": 413153,
   "traced": [
    "AE01",
    "CL01",
@@ -5642,20 +4839,15 @@
    "RC04",
    "RI01",
    "RI02",
-   "RI03",
-   "RI04",
    "RS01",
    "RS02",
    "RS03",
    "RT01",
    "RT02"
   ],
-  "traced_values": 1223,
+  "traced_values": 1200,
   "untraced": [
-   "DQ01",
-   "FN01",
-   "FN02",
-   "RI05"
+   "DQ01"
   ]
  },
  "methods": [
@@ -6142,16 +5334,16 @@
    "why": ""
   },
   "M08": {
-   "state": "çalıştı",
-   "why": ""
+   "state": "atlandı",
+   "why": "Reinsurance did not run: no reinsurance treaties were loaded. Load reinsurance_treaties.xlsx with reinsurance_transactions.xlsx (or claim_valuations.xlsx with ceded columns) to enable it; add claims.xlsx and policies.xlsx for claim-level allocation and what-if programmes."
   },
   "M09": {
    "state": "çalıştı",
    "why": ""
   },
   "M10": {
-   "state": "çalıştı",
-   "why": ""
+   "state": "atlandı",
+   "why": "Ledger reconciliation did not run: no trial balance was loaded, or no feed to compare it with. Load ledger.xlsx and at least one of premiums.xlsx, claim_valuations.xlsx, expenses.xlsx or reinsurance_transactions.xlsx, and confirm the account-mapping profile."
   },
   "M12": {
    "state": "sınırlı",
@@ -6197,6 +5389,24 @@
      "MT18 extreme values did not run for NON_LIFE / MOTOR_TPL: 44 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
      "MT18 extreme values did not run for NON_LIFE / PROPERTY: 5 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)",
      "MT18 extreme values did not run for NON_LIFE / MOTOR_OD: 67 claims; no candidate threshold leaves 50 excesses (lowest candidate quantile 0.8)"
+    ]
+   },
+   {
+    "load": "Reinsurance did not run: no reinsurance treaties were loaded. Load reinsurance_treaties.xlsx with reinsurance_transactions.xlsx (or claim_valuations.xlsx with ceded columns) to enable it; add claims.xlsx and policies.xlsx for claim-level allocation and what-if programmes.",
+    "missing": [],
+    "module": "M08 Reasürans",
+    "state": "atlandı",
+    "why": [
+     "Reinsurance did not run: no reinsurance treaties were loaded. Load reinsurance_treaties.xlsx with reinsurance_transactions.xlsx (or claim_valuations.xlsx with ceded columns) to enable it; add claims.xlsx and policies.xlsx for claim-level allocation and what-if programmes."
+    ]
+   },
+   {
+    "load": "Ledger reconciliation did not run: no trial balance was loaded, or no feed to compare it with. Load ledger.xlsx and at least one of premiums.xlsx, claim_valuations.xlsx, expenses.xlsx or reinsurance_transactions.xlsx, and confirm the account-mapping profile.",
+    "missing": [],
+    "module": "M10 Mizan mutabakatı",
+    "state": "atlandı",
+    "why": [
+     "Ledger reconciliation did not run: no trial balance was loaded, or no feed to compare it with. Load ledger.xlsx and at least one of premiums.xlsx, claim_valuations.xlsx, expenses.xlsx or reinsurance_transactions.xlsx, and confirm the account-mapping profile."
     ]
    },
    {
@@ -6261,11 +5471,11 @@
      },
      {
       "concept": "ledger",
-      "first": "2022-01-31",
-      "last": "2025-12-31",
-      "loaded": true,
-      "rows": "1.507",
-      "score": "99.7"
+      "first": "–",
+      "last": "–",
+      "loaded": false,
+      "rows": "–",
+      "score": "–"
      },
      {
       "concept": "market",
@@ -6288,32 +5498,32 @@
       "first": "2020-12-23",
       "last": "2025-12-31",
       "loaded": true,
-      "rows": "7.525",
+      "rows": "8.031",
       "score": "100.0"
      },
      {
       "concept": "recoveries",
-      "first": "2022-10-09",
-      "last": "2025-07-01",
-      "loaded": true,
-      "rows": "15",
-      "score": "100.0"
+      "first": "–",
+      "last": "–",
+      "loaded": false,
+      "rows": "–",
+      "score": "–"
      },
      {
       "concept": "reinsurance_transactions",
-      "first": "2022-01-31",
-      "last": "2025-12-31",
-      "loaded": true,
-      "rows": "305",
-      "score": "100.0"
+      "first": "–",
+      "last": "–",
+      "loaded": false,
+      "rows": "–",
+      "score": "–"
      },
      {
       "concept": "reinsurance_treaties",
-      "first": "2022-01-01",
-      "last": "2025-01-01",
-      "loaded": true,
-      "rows": "12",
-      "score": "100.0"
+      "first": "–",
+      "last": "–",
+      "loaded": false,
+      "rows": "–",
+      "score": "–"
      }
     ],
     "footnote": "DQ01 v1.0.0; satırlar elektronik tablolardan okunduğu gibidir; puanlar 100 üzerindendir.",
@@ -6425,13 +5635,13 @@
     "footnote": "TRY, BRÜT, RAPORLAMA, NOMİNAL; değerleme tarihine kadar tüm kaynak dönemler. Hasar adetleri CL04 v1.0.0; ödenen CL01 v1.0.0, muallak hasar karşılığı CL02 v1.0.0, gerçekleşen CL03 v1.0.0; hasar adedine göre ağırlıklı ortalama ihbar gecikmesi (gün) CL07 v1.0.0; ortalama sonuçlanma süresi (gün) CL08 v1.0.0; gerçekleşen içindeki büyük hasar payı CL12 v1.0.0. Her branşın rengi segmentinin rengidir.",
     "rows": [
      {
-      "case": "11.810.065",
+      "case": "10.619.416",
       "delay": "30",
-      "incurred": "93.750.410",
+      "incurred": "77.580.233",
       "large_share": "%0,0",
       "line": "LIFE · GROUP_TERM_LIFE",
       "open": "3",
-      "paid": "81.940.345",
+      "paid": "66.960.817",
       "ref": "CL04 [segment,line] rows 0, 1, 2, 3, 4, 5, 6; CL01 [segment,line,origin_period] rows 0, 1, 2, 3; CL02 [segment,line,origin_period] rows 0, 1, 2, 3; CL03 [segment,line,origin_period] rows 0, 1, 2, 3; CL07 [segment,line,origin_period] rows 0, 1, 2, 3; CL12 [segment,line,origin_period] rows 0, 1, 2, 3",
       "reported": "37",
       "settlement": "54"
@@ -6766,11 +5976,11 @@
       "points": [
        {
         "period": "2024",
-        "value": "%4,4"
+        "value": "%4,5"
        },
        {
         "period": "2025",
-        "value": "%4,7"
+        "value": "%4,8"
        }
       ],
       "ref": "EX03 [calendar_period] rows 2, 3"
@@ -6784,44 +5994,44 @@
       "line": "LIFE · GROUP_TERM_LIFE",
       "rows": [
        {
-        "combined": "%65,8",
+        "combined": "%57,1",
         "earned": "10.776.174",
-        "incurred": "5.472.206",
-        "incurred_ratio": "%50,8",
+        "incurred": "4.541.477",
+        "incurred_ratio": "%42,1",
         "origin": "2022",
         "ref": "RT01 [segment,line,origin_period] rows 0; RT02 [segment,line,origin_period] rows 0",
-        "ultimate": "5.472.206",
-        "ultimate_ratio": "%50,8"
+        "ultimate": "4.541.477",
+        "ultimate_ratio": "%42,1"
        },
        {
-        "combined": "%104,3",
+        "combined": "%88,0",
         "earned": "15.189.076",
-        "incurred": "13.557.888",
-        "incurred_ratio": "%89,3",
+        "incurred": "11.080.279",
+        "incurred_ratio": "%72,9",
         "origin": "2023",
         "ref": "RT01 [segment,line,origin_period] rows 1; RT02 [segment,line,origin_period] rows 1",
-        "ultimate": "13.557.888",
-        "ultimate_ratio": "%89,3"
+        "ultimate": "11.080.279",
+        "ultimate_ratio": "%72,9"
        },
        {
-        "combined": "%97,0",
+        "combined": "%83,6",
         "earned": "39.569.187",
-        "incurred": "32.457.905",
-        "incurred_ratio": "%82,0",
+        "incurred": "27.153.819",
+        "incurred_ratio": "%68,6",
         "origin": "2024",
         "ref": "RT01 [segment,line,origin_period] rows 2; RT02 [segment,line,origin_period] rows 2",
-        "ultimate": "32.457.905",
-        "ultimate_ratio": "%82,0"
+        "ultimate": "27.153.819",
+        "ultimate_ratio": "%68,6"
        },
        {
-        "combined": "%144,6",
+        "combined": "%120,4",
         "earned": "43.067.828",
-        "incurred": "42.262.410",
-        "incurred_ratio": "%98,1",
+        "incurred": "34.804.658",
+        "incurred_ratio": "%80,8",
         "origin": "2025",
         "ref": "RT01 [segment,line,origin_period] rows 3; RT02 [segment,line,origin_period] rows 3",
-        "ultimate": "55.838.578",
-        "ultimate_ratio": "%129,7"
+        "ultimate": "45.409.629",
+        "ultimate_ratio": "%105,4"
        }
       ]
      },
@@ -7284,44 +6494,44 @@
   {
    "anchor": "recoveries",
    "body": {
-    "compared": "2.468",
+    "compared": "0",
     "delays": [
      {
       "line": "Tüm branşlar",
-      "mean": "94",
-      "median": "71",
+      "mean": "110",
+      "median": "91",
       "n": "5",
-      "p90": "149",
+      "p90": "165",
       "type": "Sovtaj"
      },
      {
       "line": "Tüm branşlar",
-      "mean": "218",
-      "median": "220",
+      "mean": "234",
+      "median": "228",
       "n": "10",
-      "p90": "291",
+      "p90": "300",
       "type": "Rücu"
      },
      {
       "line": "NON_LIFE · MOTOR_OD",
-      "mean": "94",
-      "median": "71",
+      "mean": "110",
+      "median": "91",
       "n": "5",
-      "p90": "149",
+      "p90": "165",
       "type": "Sovtaj"
      },
      {
       "line": "NON_LIFE · MOTOR_OD",
-      "mean": "230",
-      "median": "220",
+      "mean": "247",
+      "median": "228",
       "n": "8",
-      "p90": "344",
+      "p90": "355",
       "type": "Rücu"
      },
      {
       "line": "NON_LIFE · MOTOR_TPL",
-      "mean": "173",
-      "median": "173",
+      "mean": "181",
+      "median": "181",
       "n": "2",
       "p90": "–",
       "type": "Rücu"
@@ -7346,14 +6556,6 @@
     "footnote": "TRY; hasar dönemi ve gelişim yaşına göre birikimli tahsilat / birikimli ödenen RC04 v0.1.0, rücu ve sovtaj oranları RC01 v1.0.0, RC02 v1.0.0, ilk ödemenin ay sonundan kayda kadar gün olarak süre RC03 v0.1.0. Tahsilatlar reasürans bazının dışındadır CV03 v1.1.0. Dosyalar: recoveries.csv, recovery_development.csv, recovery_reconciliation.csv.",
     "headline": [
      {
-      "before": "0",
-      "change": "0",
-      "last": "0",
-      "recovered": "0",
-      "share": "%0,0",
-      "type": "Diğer tahsilatlar"
-     },
-     {
       "before": "59.888",
       "change": "−5.273",
       "last": "54.614",
@@ -7366,7 +6568,7 @@
       "change": "+23.129",
       "last": "367.123",
       "recovered": "787.732",
-      "share": "%0,7",
+      "share": "%0,8",
       "type": "Rücu"
      },
      {
@@ -7374,7 +6576,7 @@
       "change": "+17.855",
       "last": "421.738",
       "recovered": "931.702",
-      "share": "%0,8",
+      "share": "%0,9",
       "type": "Tüm tahsilatlar"
      }
     ],
@@ -7528,11 +6730,11 @@
       ]
      }
     ],
-    "reconciled": true,
+    "reconciled": false,
     "reconciliation": [],
-    "reconciliation_note": "",
-    "source": "rücu ve sovtaj hareketleri",
-    "source_note": "recovery transactions (recoveries feed); the to-date recovery fields of claim valuations are not used"
+    "reconciliation_note": "akışlar bugüne kadarki alanlardan türetildiği için mutabakat yapılacak başka bir kaynak yok",
+    "source": "hasar değerlemelerindeki bugüne kadarki alanlardan türetildi",
+    "source_note": "derived from subrogation_to_date and salvage_to_date of claim valuations (no recoveries feed): one flow per claim, type and valuation month; other recoveries are not available"
    },
    "module": "M07",
    "question": "Rücu ve sovtaj ne kadar geri kazandırıyor ve ne zaman?",
@@ -7540,322 +6742,6 @@
    "spec": "M07 v0.1.0",
    "state": "çalıştı",
    "title": "Rücu ve sovtaj"
-  },
-  {
-   "anchor": "reinsurance",
-   "body": {
-    "allocation": [
-     {
-      "amount": "283.368",
-      "approximate": false,
-      "method": "verildiği gibi",
-      "parts": "26"
-     },
-     {
-      "amount": "1.925.157",
-      "approximate": false,
-      "method": "poliçelere, ayın brüt kazanılmış primine göre",
-      "parts": "21.361"
-     },
-     {
-      "amount": "2.501.043",
-      "approximate": false,
-      "method": "poliçelere, ayın brüt yazılan primine göre",
-      "parts": "1.008"
-     }
-    ],
-    "available": true,
-    "claims_share": "%0,2",
-    "clause": "ödeme bazında",
-    "compared": 3,
-    "currency": "TRY",
-    "differences": 0,
-    "footnote": "TRY; anlaşma bazında devir oranı RI03 v0.2.0, gerçekleşen görünümünde sonuç oranı RI04 v0.2.0 (devredilen nihai seçilmedi), oynaklık RI05 v0.2.0; program MT21 v0.2.0 ile uygulandı, dağıtım CV09 v0.3.0 ile. Dosyalar: ceded_by_treaty.csv, ceded_allocation.csv, reinsurance_reconciliation.csv, ceded_by_size_band.csv, programme_comparison.csv.",
-    "origins": [
-     {
-      "ceded": "–",
-      "gross": "–",
-      "net": "–",
-      "origin": "2021",
-      "ri04": "–"
-     },
-     {
-      "ceded": "%0,0",
-      "gross": "%109,4",
-      "net": "%109,4",
-      "origin": "2022",
-      "ri04": "-%0,8"
-     },
-     {
-      "ceded": "%0,2",
-      "gross": "%60,2",
-      "net": "%60,1",
-      "origin": "2023",
-      "ri04": "-%1,6"
-     },
-     {
-      "ceded": "%0,3",
-      "gross": "%59,4",
-      "net": "%59,1",
-      "origin": "2024",
-      "ri04": "-%1,0"
-     },
-     {
-      "ceded": "%0,1",
-      "gross": "%63,2",
-      "net": "%63,1",
-      "origin": "2025",
-      "ri04": "-%1,5"
-     }
-    ],
-    "premium_share": "%1,7",
-    "programmes": [
-     {
-      "commission": "574.890",
-      "loss": "288.825",
-      "name": "loaded",
-      "premium": "4.159.595",
-      "reinstatement": "0",
-      "result": "-3.295.881",
-      "treaties": "3",
-      "view": "nihai",
-      "volatility": "–"
-     }
-    ],
-    "reconciliation": [],
-    "treaties": [
-     {
-      "claims_share": "–",
-      "clause": "–",
-      "computed": "0",
-      "differs": false,
-      "exhausted": "–",
-      "hit": "–",
-      "premium_share": "%44,9",
-      "reinstatements": "–",
-      "reported": "–",
-      "terms": "%30,0 devredilen",
-      "treaty": "QS_PROPERTY",
-      "type": "Kota paylaşımı",
-      "year": 2022
-     },
-     {
-      "claims_share": "%30,0",
-      "clause": "–",
-      "computed": "48.572",
-      "differs": false,
-      "exhausted": "–",
-      "hit": "–",
-      "premium_share": "%33,6",
-      "reinstatements": "–",
-      "reported": "48.572",
-      "terms": "%30,0 devredilen",
-      "treaty": "QS_PROPERTY",
-      "type": "Kota paylaşımı",
-      "year": 2023
-     },
-     {
-      "claims_share": "%30,0",
-      "clause": "–",
-      "computed": "168.028",
-      "differs": false,
-      "exhausted": "–",
-      "hit": "–",
-      "premium_share": "%35,3",
-      "reinstatements": "–",
-      "reported": "168.028",
-      "terms": "%30,0 devredilen",
-      "treaty": "QS_PROPERTY",
-      "type": "Kota paylaşımı",
-      "year": 2024
-     },
-     {
-      "claims_share": "%30,0",
-      "clause": "–",
-      "computed": "66.770",
-      "differs": false,
-      "exhausted": "–",
-      "hit": "–",
-      "premium_share": "%30,7",
-      "reinstatements": "–",
-      "reported": "66.770",
-      "terms": "%30,0 devredilen",
-      "treaty": "QS_PROPERTY",
-      "type": "Kota paylaşımı",
-      "year": 2025
-     },
-     {
-      "claims_share": "–",
-      "clause": "ödeme bazında",
-      "computed": "0",
-      "differs": false,
-      "exhausted": "–",
-      "hit": "–",
-      "premium_share": "%7,5",
-      "reinstatements": "–",
-      "reported": "–",
-      "terms": "52.247.600 üzeri 522.476.000",
-      "treaty": "XL_PROPERTY_CAT",
-      "type": "Hasar fazlası",
-      "year": 2022
-     },
-     {
-      "claims_share": "%0,0",
-      "clause": "ödeme bazında",
-      "computed": "0",
-      "differs": false,
-      "exhausted": "0",
-      "hit": "0",
-      "premium_share": "%5,6",
-      "reinstatements": "–",
-      "reported": "–",
-      "terms": "86.297.360 üzeri 862.973.600",
-      "treaty": "XL_PROPERTY_CAT",
-      "type": "Hasar fazlası",
-      "year": 2023
-     },
-     {
-      "claims_share": "%0,0",
-      "clause": "ödeme bazında",
-      "computed": "0",
-      "differs": false,
-      "exhausted": "–",
-      "hit": "–",
-      "premium_share": "%5,9",
-      "reinstatements": "–",
-      "reported": "–",
-      "terms": "137.510.320 üzeri 1.375.103.200",
-      "treaty": "XL_PROPERTY_CAT",
-      "type": "Hasar fazlası",
-      "year": 2024
-     },
-     {
-      "claims_share": "%0,0",
-      "clause": "ödeme bazında",
-      "computed": "0",
-      "differs": false,
-      "exhausted": "–",
-      "hit": "–",
-      "premium_share": "%5,1",
-      "reinstatements": "–",
-      "reported": "–",
-      "terms": "201.219.020 üzeri 2.012.190.200",
-      "treaty": "XL_PROPERTY_CAT",
-      "type": "Hasar fazlası",
-      "year": 2025
-     },
-     {
-      "claims_share": "%0,0",
-      "clause": "ödeme bazında",
-      "computed": "0",
-      "differs": false,
-      "exhausted": "0",
-      "hit": "0",
-      "premium_share": "%2,0",
-      "reinstatements": "–",
-      "reported": "–",
-      "terms": "5.224.760 üzeri 20.899.040",
-      "treaty": "XL_TPL",
-      "type": "Hasar fazlası",
-      "year": 2022
-     },
-     {
-      "claims_share": "%0,0",
-      "clause": "ödeme bazında",
-      "computed": "0",
-      "differs": false,
-      "exhausted": "0",
-      "hit": "0",
-      "premium_share": "%2,0",
-      "reinstatements": "–",
-      "reported": "–",
-      "terms": "8.629.736 üzeri 34.518.944",
-      "treaty": "XL_TPL",
-      "type": "Hasar fazlası",
-      "year": 2023
-     },
-     {
-      "claims_share": "%0,0",
-      "clause": "ödeme bazında",
-      "computed": "0",
-      "differs": false,
-      "exhausted": "0",
-      "hit": "0",
-      "premium_share": "%2,0",
-      "reinstatements": "–",
-      "reported": "–",
-      "terms": "13.751.032 üzeri 55.004.128",
-      "treaty": "XL_TPL",
-      "type": "Hasar fazlası",
-      "year": 2024
-     },
-     {
-      "claims_share": "%0,0",
-      "clause": "ödeme bazında",
-      "computed": "0",
-      "differs": false,
-      "exhausted": "0",
-      "hit": "0",
-      "premium_share": "%2,0",
-      "reinstatements": "–",
-      "reported": "–",
-      "terms": "20.121.902 üzeri 80.487.608",
-      "treaty": "XL_TPL",
-      "type": "Hasar fazlası",
-      "year": 2025
-     }
-    ],
-    "volatility": [
-     {
-      "gross": "–",
-      "line": "LIFE / GROUP_TERM_LIFE",
-      "net": "–",
-      "note": "fewer than 5 origin years: not computed",
-      "ratio": "–"
-     },
-     {
-      "gross": "–",
-      "line": "NON_LIFE / MOTOR_OD",
-      "net": "–",
-      "note": "fewer than 5 origin years: not computed",
-      "ratio": "–"
-     },
-     {
-      "gross": "–",
-      "line": "NON_LIFE / MOTOR_TPL",
-      "net": "–",
-      "note": "fewer than 5 origin years: not computed",
-      "ratio": "–"
-     },
-     {
-      "gross": "–",
-      "line": "NON_LIFE / PROPERTY",
-      "net": "–",
-      "note": "fewer than 5 origin years: not computed",
-      "ratio": "–"
-     }
-    ],
-    "years": [
-     {
-      "period": "2023",
-      "result": "-503.468"
-     },
-     {
-      "period": "2024",
-      "result": "-687.182"
-     },
-     {
-      "period": "2025",
-      "result": "-1.250.502"
-     }
-    ]
-   },
-   "module": "M08",
-   "question": "Ne devrediliyor, net ne kalıyor, başka bir program ne yapardı?",
-   "reasons": [],
-   "spec": "M08 v0.2.0",
-   "state": "çalıştı",
-   "title": "Reasürans"
   },
   {
    "anchor": "expenses",
@@ -8026,28 +6912,28 @@
     "unit_basis": "BRÜT, RAPORLAMA, NOMİNAL",
     "unit_costs": [
      {
-      "handling": "%4,6",
+      "handling": "%4,7",
       "note": "EX05: dosyanın ilk dönemi: dönem başındaki açık hasar sayısı bilinmiyor",
       "per_claim": "–",
       "per_policy": "2.990",
       "period": "2022"
      },
      {
-      "handling": "%5,0",
+      "handling": "%5,2",
       "note": "",
-      "per_claim": "12.547",
+      "per_claim": "11.002",
       "per_policy": "4.542",
       "period": "2023"
      },
      {
-      "handling": "%4,4",
+      "handling": "%4,5",
       "note": "",
-      "per_claim": "22.142",
+      "per_claim": "20.183",
       "per_policy": "8.699",
       "period": "2024"
      },
      {
-      "handling": "%4,7",
+      "handling": "%4,8",
       "note": "EX05: 2025-06 için gider satırı yok: hesaplanmadı",
       "per_claim": "–",
       "per_policy": "10.743",
@@ -8061,862 +6947,6 @@
    "spec": "M09 v0.1.0",
    "state": "çalıştı",
    "title": "Giderler"
-  },
-  {
-   "anchor": "ledger",
-   "body": {
-    "available": true,
-    "classes": [
-     {
-      "account_class": "CLAIMS_PAID",
-      "largest": "3.901.397",
-      "largest_share": "%8.079,5",
-      "material": "8",
-      "months": "144",
-      "reason": "",
-      "state": "mutabakat yapıldı"
-     },
-     {
-      "account_class": "COMMISSION",
-      "largest": "–",
-      "largest_share": "–",
-      "material": "0",
-      "months": "144",
-      "reason": "",
-      "state": "mutabakat yapıldı"
-     },
-     {
-      "account_class": "EXPENSE",
-      "largest": "–",
-      "largest_share": "–",
-      "material": "0",
-      "months": "144",
-      "reason": "",
-      "state": "mutabakat yapıldı"
-     },
-     {
-      "account_class": "OUTSTANDING",
-      "largest": "-1.591.598",
-      "largest_share": "-%7,4",
-      "material": "16",
-      "months": "144",
-      "reason": "",
-      "state": "mutabakat yapıldı"
-     },
-     {
-      "account_class": "PREMIUM",
-      "largest": "2.036.565",
-      "largest_share": "mizan tutarı sıfır",
-      "material": "4",
-      "months": "144",
-      "reason": "",
-      "state": "mutabakat yapıldı"
-     },
-     {
-      "account_class": "RI",
-      "largest": "-941",
-      "largest_share": "-%1,4",
-      "material": "8",
-      "months": "96",
-      "reason": "",
-      "state": "mutabakat yapıldı"
-     },
-     {
-      "account_class": "UPR",
-      "largest": "–",
-      "largest_share": "–",
-      "material": "0",
-      "months": "144",
-      "reason": "",
-      "state": "mutabakat yapıldı"
-     },
-     {
-      "account_class": "INVESTMENT",
-      "largest": "–",
-      "largest_share": "–",
-      "material": "–",
-      "months": "–",
-      "reason": "mapped, deliberately not reconciled: no platform measure",
-      "state": "mutabakat yapılmadı"
-     },
-     {
-      "account_class": "OTHER",
-      "largest": "–",
-      "largest_share": "–",
-      "material": "–",
-      "months": "–",
-      "reason": "mapped, deliberately not reconciled: no platform measure",
-      "state": "mutabakat yapılmadı"
-     }
-    ],
-    "computed": "960",
-    "figure": "ledger-gap-trend",
-    "footnote": "TRY. Fark FN01 v0.2.0, platformun rakamı eksi varlık, sınıf ve ay bazında eşlenmiş mizan tutarıdır; mizan tutarının %0,5 kadarı üzerinde önemlidir. Hiçbir kuralın eşlemediği kayıtların payı FN02 v0.2.0. Nedenler kanıtlarıyla birlikte öneridir, olgu tespiti değildir. Dosyalar: reconciliation.csv, unmapped_accounts.csv; profil, profil klasöründeki ledger-cb3fe509454702ff.yaml dosyasıdır (CV12 v0.3.0).",
-    "largest": "ENT_A varlığının CLAIMS_PAID sınıfında, 2022-07 ayında 3.901.397 TRY",
-    "largest_gaps": [
-     {
-      "account_class": "CLAIMS_PAID",
-      "causes": "neden önerilmedi",
-      "entity": "ENT_A",
-      "evidence": "",
-      "gap": "3.901.397",
-      "ledger": "48.288",
-      "month": "2022-07",
-      "platform": "3.949.684",
-      "share": "%8.079,5"
-     },
-     {
-      "account_class": "PREMIUM",
-      "causes": "dönem sonu kesme zamanlaması",
-      "entity": "ENT_C",
-      "evidence": "the gap of 2,036,565 is offset by -2,036,565 in 2023-07",
-      "gap": "2.036.565",
-      "ledger": "0",
-      "month": "2023-06",
-      "platform": "2.036.565",
-      "share": "mizan tutarı sıfır"
-     },
-     {
-      "account_class": "PREMIUM",
-      "causes": "dönem sonu kesme zamanlaması",
-      "entity": "ENT_C",
-      "evidence": "the gap of -2,036,565 is offset by 2,036,565 in 2023-06",
-      "gap": "-2.036.565",
-      "ledger": "5.477.665",
-      "month": "2023-07",
-      "platform": "3.441.100",
-      "share": "-%37,2"
-     },
-     {
-      "account_class": "CLAIMS_PAID",
-      "causes": "neden önerilmedi",
-      "entity": "ENT_B",
-      "evidence": "",
-      "gap": "2.027.395",
-      "ledger": "190.477",
-      "month": "2024-07",
-      "platform": "2.217.872",
-      "share": "%1.064,4"
-     },
-     {
-      "account_class": "OUTSTANDING",
-      "causes": "mizan muallakında IBNR",
-      "entity": "ENT_C",
-      "evidence": "the ledger outstanding is 8.0% above the case reserve in 16 months (from 2024-05), a loading that stays the same, as an IBNR provision would",
-      "gap": "-1.591.598",
-      "ledger": "21.486.575",
-      "month": "2025-02",
-      "platform": "19.894.977",
-      "share": "-%7,4"
-     },
-     {
-      "account_class": "OUTSTANDING",
-      "causes": "mizan muallakında IBNR",
-      "entity": "ENT_C",
-      "evidence": "the ledger outstanding is 8.0% above the case reserve in 16 months (from 2024-05), a loading that stays the same, as an IBNR provision would",
-      "gap": "-1.162.520",
-      "ledger": "15.694.018",
-      "month": "2025-01",
-      "platform": "14.531.498",
-      "share": "-%7,4"
-     },
-     {
-      "account_class": "OUTSTANDING",
-      "causes": "mizan muallakında IBNR",
-      "entity": "ENT_C",
-      "evidence": "the ledger outstanding is 8.0% above the case reserve in 16 months (from 2024-05), a loading that stays the same, as an IBNR provision would",
-      "gap": "-944.805",
-      "ledger": "12.754.870",
-      "month": "2025-12",
-      "platform": "11.810.065",
-      "share": "-%7,4"
-     },
-     {
-      "account_class": "OUTSTANDING",
-      "causes": "mizan muallakında IBNR",
-      "entity": "ENT_C",
-      "evidence": "the ledger outstanding is 8.0% above the case reserve in 16 months (from 2024-05), a loading that stays the same, as an IBNR provision would",
-      "gap": "-894.073",
-      "ledger": "12.069.991",
-      "month": "2025-07",
-      "platform": "11.175.917",
-      "share": "-%7,4"
-     },
-     {
-      "account_class": "PREMIUM",
-      "causes": "dönem sonu kesme zamanlaması",
-      "entity": "ENT_A",
-      "evidence": "the gap of 840,434 is offset by -840,121 in 2023-07",
-      "gap": "840.434",
-      "ledger": "0",
-      "month": "2023-06",
-      "platform": "840.434",
-      "share": "mizan tutarı sıfır"
-     },
-     {
-      "account_class": "PREMIUM",
-      "causes": "dönem sonu kesme zamanlaması",
-      "entity": "ENT_A",
-      "evidence": "the gap of -840,121 is offset by 840,434 in 2023-06",
-      "gap": "-840.121",
-      "ledger": "1.995.323",
-      "month": "2023-07",
-      "platform": "1.155.202",
-      "share": "-%42,1"
-     },
-     {
-      "account_class": "OUTSTANDING",
-      "causes": "mizan muallakında IBNR",
-      "entity": "ENT_C",
-      "evidence": "the ledger outstanding is 8.0% above the case reserve in 16 months (from 2024-05), a loading that stays the same, as an IBNR provision would",
-      "gap": "-703.001",
-      "ledger": "9.490.519",
-      "month": "2025-11",
-      "platform": "8.787.517",
-      "share": "-%7,4"
-     },
-     {
-      "account_class": "OUTSTANDING",
-      "causes": "mizan muallakında IBNR",
-      "entity": "ENT_C",
-      "evidence": "the ledger outstanding is 8.0% above the case reserve in 16 months (from 2024-05), a loading that stays the same, as an IBNR provision would",
-      "gap": "-671.297",
-      "ledger": "9.062.505",
-      "month": "2024-08",
-      "platform": "8.391.208",
-      "share": "-%7,4"
-     },
-     {
-      "account_class": "OUTSTANDING",
-      "causes": "mizan muallakında IBNR",
-      "entity": "ENT_C",
-      "evidence": "the ledger outstanding is 8.0% above the case reserve in 16 months (from 2024-05), a loading that stays the same, as an IBNR provision would",
-      "gap": "-644.136",
-      "ledger": "8.695.840",
-      "month": "2025-10",
-      "platform": "8.051.703",
-      "share": "-%7,4"
-     },
-     {
-      "account_class": "CLAIMS_PAID",
-      "causes": "dönem sonu kesme zamanlaması",
-      "entity": "ENT_B",
-      "evidence": "the gap of -557,775 is offset by 557,775 in 2022-07",
-      "gap": "-557.775",
-      "ledger": "276.170",
-      "month": "2022-06",
-      "platform": "-281.605",
-      "share": "-%202,0"
-     },
-     {
-      "account_class": "CLAIMS_PAID",
-      "causes": "dönem sonu kesme zamanlaması",
-      "entity": "ENT_B",
-      "evidence": "the gap of 557,775 is offset by -557,775 in 2022-06",
-      "gap": "557.775",
-      "ledger": "2.724.235",
-      "month": "2022-07",
-      "platform": "3.282.010",
-      "share": "%20,5"
-     }
-    ],
-    "limit": "mizan tutarının %0,5 kadarı",
-    "listed": "15",
-    "material": "36",
-    "matrix": {
-     "months": [
-      "2024-07",
-      "2024-08",
-      "2024-09",
-      "2024-10",
-      "2024-11",
-      "2024-12",
-      "2025-01",
-      "2025-02",
-      "2025-03",
-      "2025-04",
-      "2025-05",
-      "2025-06",
-      "2025-07",
-      "2025-08",
-      "2025-09",
-      "2025-10",
-      "2025-11",
-      "2025-12"
-     ],
-     "more": 0,
-     "rows": [
-      {
-       "cells": [
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": true,
-         "text": "-4.119"
-        },
-        {
-         "material": true,
-         "text": "%3,4"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        }
-       ],
-       "label": "ENT_A · CLAIMS_PAID"
-      },
-      {
-       "cells": [
-        {
-         "material": false,
-         "text": "-%0,3"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "-%0,3"
-        },
-        {
-         "material": false,
-         "text": "-%0,1"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "-%0,1"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "-%0,1"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        }
-       ],
-       "label": "ENT_A · PREMIUM"
-      },
-      {
-       "cells": [
-        {
-         "material": true,
-         "text": "-%0,7"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": true,
-         "text": "-%1,4"
-        },
-        {
-         "material": false,
-         "text": "-%0,4"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "-%0,1"
-        },
-        {
-         "material": true,
-         "text": "-%0,9"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": true,
-         "text": "-%0,9"
-        },
-        {
-         "material": false,
-         "text": "%0,1"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "-%0,4"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "-%0,1"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        }
-       ],
-       "label": "ENT_A · RI"
-      },
-      {
-       "cells": [
-        {
-         "material": true,
-         "text": "%1.064,4"
-        },
-        {
-         "material": false,
-         "text": "0"
-        },
-        {
-         "material": false,
-         "text": "0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "0"
-        },
-        {
-         "material": false,
-         "text": "0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "0"
-        },
-        {
-         "material": false,
-         "text": "0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        }
-       ],
-       "label": "ENT_B · CLAIMS_PAID"
-      },
-      {
-       "cells": [
-        {
-         "material": true,
-         "text": "-%7,4"
-        },
-        {
-         "material": true,
-         "text": "-%7,4"
-        },
-        {
-         "material": true,
-         "text": "-%7,4"
-        },
-        {
-         "material": true,
-         "text": "-%7,4"
-        },
-        {
-         "material": true,
-         "text": "-%7,4"
-        },
-        {
-         "material": false,
-         "text": "0"
-        },
-        {
-         "material": true,
-         "text": "-%7,4"
-        },
-        {
-         "material": true,
-         "text": "-%7,4"
-        },
-        {
-         "material": false,
-         "text": "0"
-        },
-        {
-         "material": false,
-         "text": "0"
-        },
-        {
-         "material": false,
-         "text": "0"
-        },
-        {
-         "material": true,
-         "text": "-%7,4"
-        },
-        {
-         "material": true,
-         "text": "-%7,4"
-        },
-        {
-         "material": true,
-         "text": "-%7,4"
-        },
-        {
-         "material": true,
-         "text": "-%7,4"
-        },
-        {
-         "material": true,
-         "text": "-%7,4"
-        },
-        {
-         "material": true,
-         "text": "-%7,4"
-        },
-        {
-         "material": true,
-         "text": "-%7,4"
-        }
-       ],
-       "label": "ENT_C · OUTSTANDING"
-      },
-      {
-       "cells": [
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        },
-        {
-         "material": false,
-         "text": "%0,0"
-        }
-       ],
-       "label": "ENT_C · PREMIUM"
-      }
-     ]
-    },
-    "notes": [],
-    "profile": {
-     "fingerprint": "cb3fe509454702ff",
-     "proposed": true,
-     "rules": [
-      {
-       "account_class": "OTHER",
-       "entity": "her varlık",
-       "kind": "dönem",
-       "pattern": "100",
-       "sign": "+1"
-      },
-      {
-       "account_class": "UPR",
-       "entity": "her varlık",
-       "kind": "dönem",
-       "pattern": "340",
-       "sign": "-1"
-      },
-      {
-       "account_class": "OUTSTANDING",
-       "entity": "her varlık",
-       "kind": "dönem",
-       "pattern": "360",
-       "sign": "-1"
-      },
-      {
-       "account_class": "OTHER",
-       "entity": "her varlık",
-       "kind": "dönem",
-       "pattern": "590",
-       "sign": "-1"
-      },
-      {
-       "account_class": "PREMIUM",
-       "entity": "her varlık",
-       "kind": "yıl başından bugüne",
-       "pattern": "600",
-       "sign": "-1"
-      },
-      {
-       "account_class": "COMMISSION",
-       "entity": "her varlık",
-       "kind": "yıl başından bugüne",
-       "pattern": "632",
-       "sign": "+1"
-      },
-      {
-       "account_class": "RI",
-       "entity": "her varlık",
-       "kind": "yıl başından bugüne",
-       "pattern": "650",
-       "sign": "+1"
-      },
-      {
-       "account_class": "INVESTMENT",
-       "entity": "her varlık",
-       "kind": "yıl başından bugüne",
-       "pattern": "660",
-       "sign": "-1"
-      },
-      {
-       "account_class": "OTHER",
-       "entity": "her varlık",
-       "kind": "yıl başından bugüne",
-       "pattern": "690",
-       "sign": "+1"
-      },
-      {
-       "account_class": "CLAIMS_PAID",
-       "entity": "her varlık",
-       "kind": "yıl başından bugüne",
-       "pattern": "700",
-       "sign": "+1"
-      },
-      {
-       "account_class": "EXPENSE",
-       "entity": "her varlık",
-       "kind": "yıl başından bugüne",
-       "pattern": "770",
-       "sign": "+1"
-      }
-     ],
-     "sha256": "79cb602b2629c5a7",
-     "state": "önerildi, onaylanmadı"
-    },
-    "unmapped": [
-     {
-      "account": "297",
-      "balance": "18.417",
-      "entity": "ENT_A",
-      "largest": "18.417",
-      "latest": "2025-12",
-      "months": "31",
-      "name": "Askı hesabı",
-      "reason": "no rule of the profile matches it"
-     }
-    ],
-    "unmapped_share": "%0,0",
-    "unmapped_where": "ENT_A, 2025-12"
-   },
-   "module": "M10",
-   "question": "Aktüeryal rakamlar muhasebe kayıtlarıyla uyuşuyor mu?",
-   "reasons": [],
-   "spec": "M10 v0.2.0",
-   "state": "çalıştı",
-   "title": "Mizan mutabakatı"
   },
   {
    "anchor": "uncertainty",
@@ -8943,7 +6973,7 @@
       "date": "2026-07-01",
       "discounted": "–",
       "factor": "–",
-      "nominal": "33.900.284",
+      "nominal": "29.738.438",
       "period": "1"
      },
      {
@@ -8994,7 +7024,7 @@
     },
     "tail_effects": [
      {
-      "base": "13.576.168",
+      "base": "10.604.971",
       "change": "–",
       "line": "LIFE · GROUP_TERM_LIFE",
       "note": "MT14 fitted no tail curve on this line, or a register entry sets its tail",
@@ -9047,8 +7077,8 @@
   "basis": "",
   "change": "–",
   "label": "Veri kalitesi puanı",
-  "note": "0 engelleyici, 8 uyarı bulgusu; 107 kuraldan 12 tanesi başarısız (41 başarısız kontrol). Skor veri temizliğini ölçer, rezervleme için uygunluğu ölçmez.",
-  "source": "DQ01 v1.0.0 · 107 kural",
+  "note": "0 engelleyici, 6 uyarı bulgusu; 63 kuraldan 8 tanesi başarısız (29 başarısız kontrol). Skor veri temizliğini ölçer, rezervleme için uygunluğu ölçmez.",
+  "source": "DQ01 v1.0.0 · 63 kural",
   "value": "99.9 / 100"
  },
  "reproducibility": {
@@ -9056,72 +7086,44 @@
    {
     "concept": "claim_valuations",
     "name": "claim_valuations.xlsx",
-    "sha256": "7c6c27596ae215f2e9237bb60f3d514471695cf30fb5294de4a4ebf6d9d913bb",
+    "sha256": "928c880f9240eaa44c8264adedb886f16c12a020824bebddae03266703f233b4",
     "sheets": "claim_valuations: 1242",
-    "size": "56.664"
+    "size": "56.642"
    },
    {
     "concept": "claims",
     "name": "claims.xlsx",
-    "sha256": "038a5c568e558eecfb225ae4475a94c59f7da8e66de01ae2968a2cd9a452dd71",
+    "sha256": "ae262962724201d6cd1a648ad8a0ace7e42ef07666d028fa426463e7327928b2",
     "sheets": "claims: 175",
-    "size": "14.890"
+    "size": "14.911"
    },
    {
     "concept": "market",
     "name": "market.xlsx",
-    "sha256": "6d999edec0454787c68eb3ed4772887166103669b9f5c04bbe69d7db2251413e",
+    "sha256": "7e20cce9845eab9184d8a0bee6a2309da81d3e2830bda363e5d1c38298bf6ebf",
     "sheets": "fx: 5698, cpi: 120",
-    "size": "143.798"
+    "size": "143.821"
    },
    {
     "concept": "policies",
     "name": "policies.xlsx",
-    "sha256": "14ab3f93743ef35dcd8233a48703750c68cae765b979b696c55afd92cb868d83",
+    "sha256": "ed8bb4977ae6bc73a6658409b5e886f40c7719a6f380a353a813e549d6edb075",
     "sheets": "policies: 2477",
-    "size": "143.534"
+    "size": "143.555"
    },
    {
     "concept": "premiums",
     "name": "premiums.xlsx",
-    "sha256": "7eb366d2fc20837df110d997358f09d7240ee989a1cf776153f35bd7b40eb744",
-    "sheets": "premiums: 7525",
-    "size": "258.139"
+    "sha256": "fa2cc7d341c17c8df6b9997365109cc470883110d7dd6072edfe0f0f54f29572",
+    "sheets": "premiums: 8031",
+    "size": "274.709"
    },
    {
     "concept": "expenses",
     "name": "expenses.xlsx",
-    "sha256": "6ea8a6e8d16ffc28219d6d502bcf21e52a47770a72e14f1c9ec727713810461b",
+    "sha256": "fcb51582868d6601fe6e1d676a55efd4ae095ca19bd6e268c27899a5994f7054",
     "sheets": "expenses: 846",
-    "size": "31.290"
-   },
-   {
-    "concept": "reinsurance_treaties",
-    "name": "reinsurance_treaties.xlsx",
-    "sha256": "863925182017d53379340789c4925d814545c9d19f2b2e348061957e9bc9e56d",
-    "sheets": "reinsurance_treaties: 12",
-    "size": "6.120"
-   },
-   {
-    "concept": "reinsurance_transactions",
-    "name": "reinsurance_transactions.xlsx",
-    "sha256": "057f6738760a821216d17f3ac2d9d56111f2f94aee1b6cb322602752b8fdbfc7",
-    "sheets": "reinsurance_transactions: 305",
-    "size": "18.577"
-   },
-   {
-    "concept": "recoveries",
-    "name": "recoveries.xlsx",
-    "sha256": "467b93cc9b0f94627a8e77bf98eaf2cc278248e77dd61ebf528251ae608db297",
-    "sheets": "recoveries: 15",
-    "size": "5.866"
-   },
-   {
-    "concept": "ledger",
-    "name": "ledger.xlsx",
-    "sha256": "dce9c5b9dd585cd89f18e35cac59d656668c39f4e007bfecb66da6bb3518c3ef",
-    "sheets": "ledger: 1507",
-    "size": "86.350"
+    "size": "31.308"
    }
   ],
   "mappings": [
@@ -9157,53 +7159,53 @@
   "outputs": [
    {
     "name": "quality.json",
-    "sha256": "7772426153c882c46560e27214133ca5740d7e0398a1182bbe58754944129c95",
-    "size": "55.538"
+    "sha256": "275eb62b0b59d5cbb06cf6652471f22a83e76eda010de8f548b10c2d1a740bc5",
+    "size": "37.859"
    },
    {
     "name": "triangles.csv",
-    "sha256": "0e05e014f37bebde95b90edd4e79bf9577dadadb1fb4dd4a4c47abd5ee2bd44a",
-    "size": "5.917"
+    "sha256": "f95e4e32f212281f93dd05d7048d2b177d187cc46e1825a5f5c7295389028efb",
+    "size": "5.893"
    },
    {
     "name": "factors.csv",
-    "sha256": "0b61f07dc4930cbf4e5cff59856a75af3c96c22c0b1d69ca8627a3f85025c7ad",
-    "size": "1.910"
+    "sha256": "b1d87534bfbff915f48ee3269863aa3e07358fbd68d515071fe0411791018832",
+    "size": "1.912"
    },
    {
     "name": "chain_ladder.csv",
-    "sha256": "621bfc5ede296df3ec0d5e32ffa90a0ca7deba9b79f9569c9d3eb0fbd259f0aa",
-    "size": "3.334"
+    "sha256": "294e58a84d028c6607ea5f67b0225046935e7bf7add81169c590e080892494ff",
+    "size": "3.323"
    },
    {
     "name": "measures.csv",
-    "sha256": "9d142fabde0b07798a9a7fd2a37139472ed5fba16cbf0f63674a8e937a023010",
-    "size": "1.710.861"
+    "sha256": "552abae221b1c847fb239456f710bbfbc635ca0279b3fbcfbc406d1811396c90",
+    "size": "831.138"
    },
    {
     "name": "lineage.csv",
-    "sha256": "17299c519c4b5dae4d3856ccf5680be9486ce92ee7812813e7e6b58b8d16f867",
-    "size": "343.693"
+    "sha256": "e98eced6afdb818775a9043c5e64060f5d101cbc7333ff5cfe5a86d832a9a6a1",
+    "size": "344.063"
    },
    {
     "name": "lineage_atoms.csv",
-    "sha256": "7ae96cb2856eed27c23db6cc4a24cad7c97a256e957fba999049bebb5d1acb16",
-    "size": "143.100"
+    "sha256": "97c0cd05e122906929ea2075cfcd9eae24cbd8955aa1d1829552cf0b9ec3b7f9",
+    "size": "144.390"
    },
    {
     "name": "modules.json",
-    "sha256": "96bd12fc3fcbfd94f5d5d6753ddecba49e4b2557aa3e3326a8442b2664a56910",
-    "size": "35.050"
+    "sha256": "d6115aeb1db4b6bf8a015a26513263a27b9cc022f628069650d4e989f0295f80",
+    "size": "32.574"
    },
    {
     "name": "assumptions.csv",
-    "sha256": "e5156a8e282c9f68b6bdf69dcbc9f0b6dc32ca44ab81cb7861414a5378f522bb",
+    "sha256": "5bcf50f8c58582c7b6d1fc5fc54730f17ddf59c94589d8584b3e3b28aab6e8ca",
     "size": "28.939"
    },
    {
     "name": "ultimates.csv",
-    "sha256": "7fa880ae59590b69e4d2159f2bed370f6974c5a693ce21bf0c7571eb0544603d",
-    "size": "19.095"
+    "sha256": "5c1f87e4f3b31969b644d76216fe87bf5051a8f0c5bf54e348a12c16b4bd8d98",
+    "size": "19.060"
    },
    {
     "name": "reserve_range.csv",
@@ -9212,8 +7214,8 @@
    },
    {
     "name": "cash_flows.csv",
-    "sha256": "2e60f24e895efcb34f319a3aca831d98c126b1d8af389df99c8bc65f5cd3e8cb",
-    "size": "839"
+    "sha256": "79e432763de2702a0ff469197c136b43a3e9190b627775892fc139f9dc5660b2",
+    "size": "838"
    },
    {
     "name": "diagnostics.csv",
@@ -9227,12 +7229,12 @@
    },
    {
     "name": "tier_b_ultimates.csv",
-    "sha256": "17aa782dba6c396713a253897f250ac75dd165d7e8916876b36b7fa5b3cf474d",
-    "size": "4.582"
+    "sha256": "c2143b2a8574cc6251f22ee06328a1ef832ad7e088eae4331520f4f9c47921d0",
+    "size": "4.580"
    },
    {
     "name": "tier_b_parameters.csv",
-    "sha256": "d3dbc19872f36d917293569dc47b0b211457912a244d4f4680afba89e29c483a",
+    "sha256": "62abeed9ae634dd4772d4c9ec4cd5a7244de3bd6e976280195dd7af5d1e73167",
     "size": "11.979"
    },
    {
@@ -9252,8 +7254,8 @@
    },
    {
     "name": "back_test.csv",
-    "sha256": "42e80257d054c7f4118c1c468e871f1a8ad01b3e4c566366da0f96d71907ab7f",
-    "size": "10.308"
+    "sha256": "5bcc4a99df30148f8aa656b6a41f83a61c7da95098dea7b2ad601c036e9a7ad9",
+    "size": "10.304"
    },
    {
     "name": "severity_parameters.csv",
@@ -9397,18 +7399,18 @@
    },
    {
     "name": "sensitivity.csv",
-    "sha256": "eef139115d3b4ecd78ef33e7a012ac6296c7e8d54609787e2305d75359256236",
+    "sha256": "561824b90eed333431ef9426fb46d41762c01a0f434d37060a943745ac711a0f",
     "size": "6.771"
    },
    {
     "name": "recoveries.csv",
-    "sha256": "c1322a7773dc7b1edfe93db090528b7ab77bd9b552d6257cc343f7e7c8891526",
-    "size": "965"
+    "sha256": "4bd2f1085b95e0a387908f2fffff70730fadc7296df27805cd8545f6fe4cac70",
+    "size": "950"
    },
    {
     "name": "recovery_development.csv",
-    "sha256": "f78fee4e1e8af2f02eb4c95cf71447df7ffa10e54b340ef271d78abed7c0477d",
-    "size": "11.075"
+    "sha256": "f80b84eac14e9ee4f3f264fbf4a03ab307b070629ab952fbb4602e335ae45e3d",
+    "size": "8.446"
    },
    {
     "name": "recovery_reconciliation.csv",
@@ -9416,44 +7418,9 @@
     "size": "55"
    },
    {
-    "name": "ceded_by_treaty.csv",
-    "sha256": "e5f6075dd73bc6dd3e42b2658878ea918e926363b8cdcd7108e91e2c07ecffcf",
-    "size": "3.594"
-   },
-   {
-    "name": "ceded_allocation.csv",
-    "sha256": "45232a4e8442d79d771fb09671394c739f955a14e7337fd037ffe21f25945fac",
-    "size": "5.443"
-   },
-   {
-    "name": "reinsurance_reconciliation.csv",
-    "sha256": "8e9cf13527ef84822869a73f1b97a5ea94953e84fe8c812263bc8f711a90456b",
-    "size": "320"
-   },
-   {
-    "name": "ceded_by_size_band.csv",
-    "sha256": "fb778c1e8cbcc60761e046206f9c8483a0e965c2ae881416891a6abea229120d",
-    "size": "449"
-   },
-   {
-    "name": "programme_comparison.csv",
-    "sha256": "1f002ea1ecfed08d2d1ca3c11f6d2fdca934e762eed8396265c0b4a0860aa53b",
-    "size": "295"
-   },
-   {
     "name": "expenses_by_period.csv",
-    "sha256": "10db635b9dac90e7665e389c67afb544d9cfd9cff1d4f00d99cdeb8e73a74b13",
-    "size": "59.712"
-   },
-   {
-    "name": "reconciliation.csv",
-    "sha256": "fa6e68e21bc932d2eff0a1c00e831e0a3433258ffa8909351d3243fe5200d242",
-    "size": "96.321"
-   },
-   {
-    "name": "unmapped_accounts.csv",
-    "sha256": "c575ad9be7de3e3e2a04aed47c311283ec1c904248ce8a12d7c732b8dcc85c9a",
-    "size": "190"
+    "sha256": "16454b3004996b3487a94c47a0d841f8b6af6369dcb1d84983cbfb9689d4089e",
+    "size": "59.706"
    },
    {
     "name": "risk_measures.csv",
@@ -9462,7 +7429,7 @@
    },
    {
     "name": "risk_cash_flows.csv",
-    "sha256": "4fd48fa39ffa854dcb11b44e56a13a6fa813e988a6f1e36bd15db5d29163a0c7",
+    "sha256": "034c71cbf45ccd51467034a4b4f447e80dc7269765fded528d5baefc52a7e2bf",
     "size": "1.292"
    }
   ],
@@ -9480,7 +7447,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "1c855e7412d9806e",
+  "run_id": "647e87b0405b476c",
   "settings": [
    {
     "name": "bases.currency",
@@ -9959,7 +7926,7 @@
     "value": "True"
    }
   ],
-  "software": "ActuaryCanary 1.2.0",
+  "software": "ActuaryCanary 1.3.0",
   "specs": [
    {
     "id": "claim_valuations",
@@ -10042,11 +8009,6 @@
     "version": "1.0.0"
    },
    {
-    "id": "CV12",
-    "title": "Mizan hesap eşleme profili",
-    "version": "0.3.0"
-   },
-   {
     "id": "market",
     "title": "Piyasa serileri",
     "version": "1.1.0"
@@ -10065,26 +8027,6 @@
     "id": "expenses",
     "title": "Giderler",
     "version": "1.0.0"
-   },
-   {
-    "id": "reinsurance_treaties",
-    "title": "Reasürans anlaşmaları",
-    "version": "0.1.0"
-   },
-   {
-    "id": "reinsurance_transactions",
-    "title": "Reasürans hareketleri",
-    "version": "0.1.0"
-   },
-   {
-    "id": "recoveries",
-    "title": "Rücu ve sovtaj hareketleri",
-    "version": "0.1.0"
-   },
-   {
-    "id": "ledger",
-    "title": "Mizan",
-    "version": "0.2.0"
    },
    {
     "id": "M01",
@@ -10513,10 +8455,10 @@
       "rows": [
        {
         "cells": [
-         "19.948.402",
-         "19.948.402",
+         "16.529.842",
+         "16.529.842",
          "0",
-         "5.472.206",
+         "4.541.477",
          "–",
          "–"
         ],
@@ -10524,10 +8466,10 @@
        },
        {
         "cells": [
-         "27.518.928",
-         "27.518.928",
+         "22.343.758",
+         "22.343.758",
          "0",
-         "13.557.888",
+         "11.080.279",
          "–",
          "–"
         ],
@@ -10535,10 +8477,10 @@
        },
        {
         "cells": [
-         "44.852.336",
-         "44.852.336",
+         "37.586.521",
+         "37.586.521",
          "0",
-         "32.457.905",
+         "27.153.819",
          "–",
          "–"
         ],
@@ -10546,10 +8488,10 @@
        },
        {
         "cells": [
-         "36.257.332",
-         "48.795.255",
-         "12.537.922",
-         "30.452.345",
+         "28.751.832",
+         "38.818.986",
+         "10.067.154",
+         "24.185.242",
          "–",
          "–"
         ],
@@ -10576,13 +8518,13 @@
         {
          "cells": [
           "3",
-          "1,137",
-          "1,576",
-          "0,162",
-          "1,450",
-          "1,352",
-          "1,450",
-          "1,450"
+          "1,141",
+          "1,532",
+          "0,147",
+          "1,446",
+          "1,360",
+          "1,446",
+          "1,446"
          ],
          "column": "12-24",
          "note": ""
@@ -10629,12 +8571,12 @@
          "cells": [
           "3",
           "1,000",
-          "1,576",
-          "0,243",
-          "1,321",
-          "1,238",
-          "1,321",
-          "1,321"
+          "1,532",
+          "0,225",
+          "1,305",
+          "1,224",
+          "1,305",
+          "1,305"
          ],
          "column": "12-24",
          "note": ""
@@ -10688,106 +8630,106 @@
       "rows": [
        {
         "cells": [
-         "5.472.206",
-         "5.472.206",
-         "5.472.206",
-         "9.272.642",
-         "5.472.206",
-         "5.472.206",
-         "5.472.206",
-         "10.295.115",
-         "19.948.402",
-         "5.472.206",
-         "5.472.206",
-         "18.010.803"
+         "4.541.477",
+         "4.541.477",
+         "4.541.477",
+         "7.570.946",
+         "4.541.477",
+         "4.541.477",
+         "4.541.477",
+         "8.483.687",
+         "16.529.842",
+         "4.541.477",
+         "4.541.477",
+         "14.795.647"
         ],
         "chosen": "zincir merdiven",
         "origin": "2022",
-        "selected": "5.472.206",
+        "selected": "4.541.477",
         "total": false,
         "why": "maturity 1.000 at least 0.5"
        },
        {
         "cells": [
-         "13.557.888",
-         "13.557.888",
-         "13.557.888",
-         "13.069.840",
-         "13.557.888",
-         "13.557.888",
-         "13.557.888",
-         "14.511.021",
-         "27.518.928",
-         "13.557.888",
-         "13.557.888",
-         "33.758.378"
+         "11.080.279",
+         "11.080.279",
+         "11.080.279",
+         "10.671.290",
+         "11.080.279",
+         "11.080.279",
+         "11.080.279",
+         "11.957.803",
+         "22.343.758",
+         "11.080.279",
+         "11.080.279",
+         "27.888.534"
         ],
         "chosen": "zincir merdiven",
         "origin": "2023",
-        "selected": "13.557.888",
+        "selected": "11.080.279",
         "total": false,
         "why": "maturity 1.000 at least 0.5"
        },
        {
         "cells": [
-         "32.457.905",
-         "32.457.905",
-         "32.457.905",
-         "34.048.347",
-         "32.457.905",
-         "32.457.905",
-         "32.457.905",
-         "37.802.778",
-         "44.852.336",
-         "32.457.905",
-         "32.457.905",
-         "40.495.805"
+         "27.153.819",
+         "27.153.819",
+         "27.153.819",
+         "27.799.864",
+         "27.153.819",
+         "27.153.819",
+         "27.153.819",
+         "31.151.369",
+         "37.586.521",
+         "27.153.819",
+         "27.153.819",
+         "33.643.207"
         ],
         "chosen": "zincir merdiven",
         "origin": "2024",
-        "selected": "32.457.905",
+        "selected": "27.153.819",
         "total": false,
         "why": "maturity 1.000 at least 0.5"
        },
        {
         "cells": [
-         "44.170.259",
-         "41.961.674",
-         "41.961.674",
-         "37.058.845",
-         "55.838.578",
-         "52.266.150",
-         "52.266.150",
-         "41.145.236",
-         "48.795.255",
-         "54.970.005",
-         "51.033.102",
-         "90.450.988"
+         "34.982.747",
+         "33.524.406",
+         "33.524.406",
+         "30.257.881",
+         "45.409.629",
+         "42.723.005",
+         "42.723.005",
+         "33.905.721",
+         "38.818.986",
+         "44.782.194",
+         "40.524.208",
+         "75.569.041"
         ],
         "chosen": "zincir merdiven",
         "origin": "2025",
-        "selected": "55.838.578",
+        "selected": "45.409.629",
         "total": false,
-        "why": "maturity 0.757 at least 0.5"
+        "why": "maturity 0.766 at least 0.5"
        },
        {
         "cells": [
-         "95.658.259",
-         "93.449.674",
-         "93.449.674",
-         "93.449.674",
-         "107.326.577",
-         "103.754.150",
-         "103.754.150",
-         "103.754.150",
-         "141.114.920",
-         "106.458.005",
-         "102.521.101",
-         "182.715.974"
+         "77.758.322",
+         "76.299.981",
+         "76.299.981",
+         "76.299.981",
+         "88.185.204",
+         "85.498.580",
+         "85.498.580",
+         "85.498.580",
+         "115.279.106",
+         "87.557.770",
+         "83.299.783",
+         "151.896.428"
         ],
         "chosen": "",
         "origin": "Toplam",
-        "selected": "107.326.577",
+        "selected": "88.185.204",
         "total": true,
         "why": ""
        }
@@ -10815,13 +8757,13 @@
     "summary": {
      "anchor": "line-0",
      "diagnostics": 5,
-     "ibnr_selected": "13.576.168",
-     "incurred": "93.750.410",
+     "ibnr_selected": "10.604.971",
+     "incurred": "77.580.233",
      "line": "LIFE · GROUP_TERM_LIFE",
-     "paid": "81.940.345",
-     "ult_incurred": "107.326.577",
-     "ult_paid": "95.658.259",
-     "ult_selected": "107.326.577"
+     "paid": "66.960.817",
+     "ult_incurred": "88.185.204",
+     "ult_paid": "77.758.322",
+     "ult_selected": "88.185.204"
     },
     "tail_box": {
      "footnote": "Zincir merdiveni kuyruk faktörleri (MT02) ve MT14 ile uydurulan eğriler; assumptions.csv ve tier_b_parameters.csv satırları. Hasar sayıları CL04'tür.",
@@ -10857,44 +8799,44 @@
       ],
       "rows": [
        {
-        "bias": "-%21,6",
+        "bias": "-%20,5",
         "horizon": "12",
-        "mae": "%21,6",
+        "mae": "%20,5",
         "method": "MT02",
         "origins": "3",
-        "rmse": "%27,2"
+        "rmse": "%25,7"
        },
        {
-        "bias": "-%21,4",
+        "bias": "-%20,3",
         "horizon": "12",
-        "mae": "%21,4",
+        "mae": "%20,3",
         "method": "MT03",
         "origins": "3",
-        "rmse": "%26,9"
+        "rmse": "%25,5"
        },
        {
-        "bias": "-%21,4",
+        "bias": "-%20,3",
         "horizon": "12",
-        "mae": "%21,4",
+        "mae": "%20,3",
         "method": "MT04",
         "origins": "3",
-        "rmse": "%26,9"
+        "rmse": "%25,5"
        },
        {
-        "bias": "-%21,4",
+        "bias": "-%20,3",
         "horizon": "12",
-        "mae": "%26,0",
+        "mae": "%25,3",
         "method": "MT05",
         "origins": "3",
-        "rmse": "%26,2"
+        "rmse": "%25,4"
        },
        {
-        "bias": "-%21,6",
+        "bias": "-%20,5",
         "horizon": "12",
-        "mae": "%21,6",
+        "mae": "%20,5",
         "method": "MT10",
         "origins": "3",
-        "rmse": "%27,2"
+        "rmse": "%25,7"
        }
       ]
      },
@@ -10961,28 +8903,28 @@
      "incurred": [
       [
        "2022",
-       "4.811.957",
-       "5.472.206",
-       "5.472.206",
-       "5.472.206"
+       "3.981.152",
+       "4.541.477",
+       "4.541.477",
+       "4.541.477"
       ],
       [
        "2023",
-       "13.557.888",
-       "13.557.888",
-       "13.557.888",
+       "11.080.279",
+       "11.080.279",
+       "11.080.279",
        "–"
       ],
       [
        "2024",
-       "20.599.753",
-       "32.457.905",
+       "17.724.330",
+       "27.153.819",
        "–",
        "–"
       ],
       [
        "2025",
-       "42.262.410",
+       "34.804.658",
        "–",
        "–",
        "–"
@@ -10991,28 +8933,28 @@
      "paid": [
       [
        "2022",
-       "4.811.957",
-       "5.472.206",
-       "5.472.206",
-       "5.472.206"
+       "3.981.152",
+       "4.541.477",
+       "4.541.477",
+       "4.541.477"
       ],
       [
        "2023",
-       "10.085.712",
-       "13.557.888",
-       "13.557.888",
+       "7.867.314",
+       "11.080.279",
+       "11.080.279",
        "–"
       ],
       [
        "2024",
-       "20.599.753",
-       "32.457.905",
+       "17.724.330",
+       "27.153.819",
        "–",
        "–"
       ],
       [
        "2025",
-       "30.452.345",
+       "24.185.242",
        "–",
        "–",
        "–"
@@ -13042,7 +10984,7 @@
      "rows": [
       {
        "assumption": "ince gelişim faktörleri",
-       "base": "25.386.233",
+       "base": "21.224.387",
        "change": "1,000 yerine ortalama",
        "difference": "–",
        "line": "LIFE · GROUP_TERM_LIFE",
@@ -13086,14 +11028,14 @@
       },
       {
        "assumption": "gelişim faktörleri",
-       "base": "13.576.168",
+       "base": "10.604.971",
        "change": "(f − 1) × 1,10",
-       "difference": "+1.357.617",
+       "difference": "+1.060.497",
        "line": "LIFE · GROUP_TERM_LIFE",
        "note": "",
        "quantity": "seçilen IBNR (MT10, RS02)",
        "relative": "+%10,0",
-       "value": "14.933.785"
+       "value": "11.665.468"
       },
       {
        "assumption": "gelişim faktörleri",
@@ -13130,14 +11072,14 @@
       },
       {
        "assumption": "gelişim faktörleri",
-       "base": "13.576.168",
+       "base": "10.604.971",
        "change": "(f − 1) × 0,90",
-       "difference": "−1.357.617",
+       "difference": "−1.060.497",
        "line": "LIFE · GROUP_TERM_LIFE",
        "note": "",
        "quantity": "seçilen IBNR (MT10, RS02)",
        "relative": "−%10,0",
-       "value": "12.218.551"
+       "value": "9.544.474"
       },
       {
        "assumption": "gelişim faktörleri",
@@ -13174,14 +11116,14 @@
       },
       {
        "assumption": "kuyruk faktörü",
-       "base": "13.576.168",
+       "base": "10.604.971",
        "change": "+ 0,01",
-       "difference": "+1.073.266",
+       "difference": "+881.852",
        "line": "LIFE · GROUP_TERM_LIFE",
        "note": "",
        "quantity": "seçilen IBNR (MT10, RS02)",
-       "relative": "+%7,9",
-       "value": "14.649.434"
+       "relative": "+%8,3",
+       "value": "11.486.823"
       },
       {
        "assumption": "kuyruk faktörü",
@@ -13218,7 +11160,7 @@
       },
       {
        "assumption": "kuyruk faktörü",
-       "base": "13.576.168",
+       "base": "10.604.971",
        "change": "MT14'ün uydurduğu eğri",
        "difference": "–",
        "line": "LIFE · GROUP_TERM_LIFE",
@@ -13262,25 +11204,25 @@
       },
       {
        "assumption": "gelecek enflasyon",
-       "base": "12.537.922",
+       "base": "10.067.154",
        "change": "+ 1 puan",
-       "difference": "+62.491",
+       "difference": "+50.176",
        "line": "LIFE · GROUP_TERM_LIFE",
        "note": "no future inflation is stated: the base is at value-date prices (0)",
        "quantity": "ödenmemiş, nominal (MT07)",
        "relative": "+%0,5",
-       "value": "12.600.413"
+       "value": "10.117.330"
       },
       {
        "assumption": "gelecek enflasyon",
-       "base": "12.537.922",
+       "base": "10.067.154",
        "change": "− 1 puan",
-       "difference": "−62.804",
+       "difference": "−50.428",
        "line": "LIFE · GROUP_TERM_LIFE",
        "note": "no future inflation is stated: the base is at value-date prices (0)",
        "quantity": "ödenmemiş, nominal (MT07)",
        "relative": "−%0,5",
-       "value": "12.475.118"
+       "value": "10.016.726"
       },
       {
        "assumption": "gelecek enflasyon",
@@ -13362,13 +11304,13 @@
    {
     "anchor": "line-0",
     "diagnostics": 5,
-    "ibnr_selected": "13.576.168",
-    "incurred": "93.750.410",
+    "ibnr_selected": "10.604.971",
+    "incurred": "77.580.233",
     "line": "LIFE · GROUP_TERM_LIFE",
-    "paid": "81.940.345",
-    "ult_incurred": "107.326.577",
-    "ult_paid": "95.658.259",
-    "ult_selected": "107.326.577"
+    "paid": "66.960.817",
+    "ult_incurred": "88.185.204",
+    "ult_paid": "77.758.322",
+    "ult_selected": "88.185.204"
    },
    {
     "anchor": "line-1",
@@ -13424,29 +11366,29 @@
     {
      "against": "2024-12-31 dönemine göre",
      "basis": "",
-     "change": "+54.120.562",
+     "change": "+44.234.147",
      "label": "Bugüne kadar gerçekleşen",
      "note": "",
      "source": "CL03 v1.0.0, MT01 v1.0.0 · BRÜT, TRY, NOMİNAL",
-     "value": "93.750.410 TRY"
+     "value": "77.580.233 TRY"
     },
     {
      "against": "2024 kaynak yılına göre",
      "basis": "",
-     "change": "+47,6 puan",
+     "change": "+36,8 puan",
      "label": "Nihai hasar prim oranı, kaynak yılı 2025",
      "note": "",
      "source": "RT01 v1.0.0, MT10 v1.0.0 · BRÜT, TRY, NOMİNAL",
-     "value": "%129,7"
+     "value": "%105,4"
     },
     {
      "against": "2024-12-31 dönemine göre",
      "basis": "",
-     "change": "+12.835.771",
+     "change": "+9.945.580",
      "label": "Rezerv tahmini (IBNR, seçilen)",
      "note": "aralık yok: Mack standart hatası çalışmadı",
      "source": "RS02 v1.0.0, MT10 v1.0.0, RS03 v1.1.0 · BRÜT, TRY, NOMİNAL",
-     "value": "13.576.168 TRY"
+     "value": "10.604.971 TRY"
     },
     {
      "against": "",
@@ -13455,7 +11397,7 @@
      "label": "Seçilen ödenmemiş, nominal",
      "note": "",
      "source": "RS02 v1.0.0, MT10 v1.0.0 · NOMİNAL",
-     "value": "25.386.233 TRY"
+     "value": "21.224.387 TRY"
     }
    ]
   },

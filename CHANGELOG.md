@@ -2,6 +2,27 @@
 
 Written for users. Versions follow semantic versioning; each specification file also carries its own version and change log.
 
+## 1.3.0 (2026-11-14, the preparation date: the release date is the date the owner pushes the tag `v1.3.0`)
+
+### What is new
+
+- **Four new feeds and four new modules.** `reinsurance_treaties`, `reinsurance_transactions`, `recoveries` and `ledger` are read and checked. M07 Recoveries (recoveries to date, by type and development), M08 Reinsurance (the treaty programme applied to the gross claims in the inuring order, allocation to claims and policies, reconciliation with the booked amounts, a what-if page), M09 Expenses and M10 Ledger reconciliation (gaps between the platform's figures and the ledger by entity, class and month, with suggested causes and the share of the books no account rule maps) have their own pages in English and Turkish. The ledger account-mapping profile is saved beside the column profiles; a new one is proposed and labelled "not confirmed" until `confirmed_on` is set.
+- **Reinsurance index clause.** The setting `reinsurance.index_clause` is `payment_by_payment` (default) or `occurrence_date`.
+- **New finding rules** KF35 to KF49 on the new modules.
+- **Review fixes.** Presentation (the curve table, the bridge to the simulated mean, one name for the selected unpaid, coverage and the number of back-tests beside every range, the failed checks beside the data quality score); a rule for development factors that rest on fewer than two link ratios (replaced by 1.000, disclosed beside the average); diagnostics of the bootstrap.
+- **A stable bootstrap.** The refit of the bootstrap no longer lets a thin late column blow up the factor: columns with too few link ratios take 1.000, no pseudo increment goes below zero, and the default is 50,000 simulations. Seed stability over 20 seeds is 2.14 % (VaR 99.5 %) and 2.21 % (TVaR 99 %) against a target of 2 %, not met by a hair.
+- **Generator fixes** behind the demo: the claim size of sum-insured lines follows the calendar day, the reserve of a claim that closes at nil is capped, ceded premium starts with the first treaty period.
+- **The demo shows all four modules.** `examples/` carries every feed; the demo's ledger profile is confirmed. Run ids of the three examples changed.
+- **Manual CI workflows** `full`, `heavy` and `package` (start by hand; none has run yet) and the first version of `canary ui`.
+
+### Known limits
+
+- Not checked at this release: the three manual workflows, the Windows run, the Monte Carlo tests, the benchmark, the page by eye.
+- The seed stability target of 2 % is missed by 0.14 and 0.21 points.
+- Two runs on the same inputs differ in the last digit of some reinsurance sums, so their output files are not byte-identical (the run ids are).
+- The demo shows findings that stem from the generator (the claims of the TPL treaty follow the occurrence-date clause; the rate convention of the ledger's reinsurance account); see `examples/README.md`.
+- The medium-size run takes longer than its time budget on slow machines; `just bench` on the large scenario takes more than two minutes on a laptop.
+
 ## 1.2.0 (2026-11-09, the preparation date: the release date is the date the owner pushes the tag `v1.2.0`)
 
 ### What is new

@@ -1,12 +1,4 @@
 {
-  "account_mapping": {
-    "confirmed_on": null,
-    "file": "ledger-cb3fe509454702ff.yaml",
-    "fingerprint": "cb3fe509454702ff",
-    "rules": 11,
-    "sha256": "79cb602b2629c5a7ab98cb4ef400212069a3a90eca8a1b1ee5de8442b89814b1",
-    "status": "proposed"
-  },
   "assumptions": [
     {
       "default": 1.0,
@@ -20,12 +12,12 @@
       "why": "MT02 default: no development after the last age (tail fitting is tier B)"
     },
     {
-      "default": 1.450471520073438,
+      "default": 1.4464501449477407,
       "method": "MT02",
       "name": "selected_factor",
       "scope": "LIFE/GROUP_TERM_LIFE/paid",
       "target": "12-24",
-      "value": 1.450471520073438,
+      "value": 1.4464501449477407,
       "when": null,
       "who": "default",
       "why": "MT02 default: the volume-weighted average"
@@ -113,7 +105,7 @@
       "name": "prior_loss_ratio",
       "scope": "LIFE/GROUP_TERM_LIFE/paid",
       "target": "",
-      "value": 0.8604762863314235,
+      "value": 0.702563444875305,
       "when": null,
       "who": "default",
       "why": "MT03 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
@@ -124,7 +116,7 @@
       "name": "expected_loss_ratio",
       "scope": "LIFE/GROUP_TERM_LIFE/paid",
       "target": "",
-      "value": 0.8604762863314235,
+      "value": 0.702563444875305,
       "when": null,
       "who": "default",
       "why": "MT05 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
@@ -141,12 +133,12 @@
       "why": "MT02 default: no development after the last age (tail fitting is tier B)"
     },
     {
-      "default": 1.3212350589498019,
+      "default": 1.3046997729439946,
       "method": "MT02",
       "name": "selected_factor",
       "scope": "LIFE/GROUP_TERM_LIFE/incurred",
       "target": "12-24",
-      "value": 1.3212350589498019,
+      "value": 1.3046997729439946,
       "when": null,
       "who": "default",
       "why": "MT02 default: the volume-weighted average"
@@ -234,7 +226,7 @@
       "name": "prior_loss_ratio",
       "scope": "LIFE/GROUP_TERM_LIFE/incurred",
       "target": "",
-      "value": 0.9553589871637295,
+      "value": 0.7872633228729239,
       "when": null,
       "who": "default",
       "why": "MT03 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
@@ -245,7 +237,7 @@
       "name": "expected_loss_ratio",
       "scope": "LIFE/GROUP_TERM_LIFE/incurred",
       "target": "",
-      "value": 0.9553589871637295,
+      "value": 0.7872633228729239,
       "when": null,
       "who": "default",
       "why": "MT05 default: Cape Cod ratio of the same triangle, data-derived prior (record 0011)"
@@ -2708,31 +2700,31 @@
     {
       "concept": "claim_valuations",
       "name": "claim_valuations.xlsx",
-      "sha256": "609509bba83c8cfcf5263061dd16c0a346c1c00393c090001106c6384d1e996b",
+      "sha256": "1254278ae494c938a19c28b1d50560c7a5140db1fad51abe4963a67fa17364d1",
       "sheets": [
         {
           "name": "Hasar",
           "rows": 1254
         }
       ],
-      "size": 60706
+      "size": 60692
     },
     {
       "concept": "claims",
       "name": "claims.xlsx",
-      "sha256": "5ed78a0c2abc115e668cff867f23eb8b62cf6b93e0406a1bc68e9745a1e178bb",
+      "sha256": "d21ed48e8f4d6950beb85ce6862af84ee027922576c6782521ae1d580062b48e",
       "sheets": [
         {
           "name": "Hasar Listesi",
           "rows": 175
         }
       ],
-      "size": 20763
+      "size": 20784
     },
     {
       "concept": "market",
       "name": "market.xlsx",
-      "sha256": "6f68cc77c083a044b8a41db0a2949c9f60e09a11a6b48dbca89ad7d3fe9a33e6",
+      "sha256": "0968213b7d1fe3cc668dcc230985005a8b37396362afe6423f852f7fa37b9862",
       "sheets": [
         {
           "name": "Döviz",
@@ -2743,91 +2735,43 @@
           "rows": 120
         }
       ],
-      "size": 152073
+      "size": 152095
     },
     {
       "concept": "policies",
       "name": "policies.xlsx",
-      "sha256": "d961c395aa69bbb27800b07c0ab37b9dc39377ae5b8233e06f62d09906c3fcc0",
+      "sha256": "ee9ab4085c1c90d717a77ab46c9f399ef0b41546fd0d7f0e70dea9d465dd14b1",
       "sheets": [
         {
           "name": "policies",
           "rows": 2477
         }
       ],
-      "size": 224434
+      "size": 224455
     },
     {
       "concept": "premiums",
       "name": "premiums.xlsx",
-      "sha256": "f624bf0f273711f2f07519c1584852d13a24dfd59726546254f8a1b11136c07e",
+      "sha256": "2ce9a89a7dbe22e56333bf64e91eab852805bba0164a98e4d446ee767bd1974a",
       "sheets": [
         {
           "name": "Sheet1",
-          "rows": 7600
+          "rows": 8111
         }
       ],
-      "size": 284918
+      "size": 298647
     },
     {
       "concept": "expenses",
       "name": "expenses.xlsx",
-      "sha256": "53b231c6c06305b996127ebae8cb75f06b05ca09e12f035cbf09bb65fe39b315",
+      "sha256": "5b4d26798d0f339e7b894361b09328284794f644e5867ee558416c4cb1560f1b",
       "sheets": [
         {
           "name": "Giderler",
           "rows": 846
         }
       ],
-      "size": 34244
-    },
-    {
-      "concept": "reinsurance_treaties",
-      "name": "reinsurance_treaties.xlsx",
-      "sha256": "7b3db9db45de94a154f0eb6ed929592eea54c9ad24fd0ae5d04745ca297de4ab",
-      "sheets": [
-        {
-          "name": "Trete Şartları",
-          "rows": 12
-        }
-      ],
-      "size": 6480
-    },
-    {
-      "concept": "reinsurance_transactions",
-      "name": "reinsurance_transactions.xlsx",
-      "sha256": "59b1c9d64dcd0b3df73022ad0eaea365dd4453d09248dfdbf7e8f09025ba2108",
-      "sheets": [
-        {
-          "name": "Sheet1",
-          "rows": 305
-        }
-      ],
-      "size": 20140
-    },
-    {
-      "concept": "recoveries",
-      "name": "recoveries.xlsx",
-      "sha256": "ba9d06d59c18fe52c016e99d620adf81b0581b85b5a2a624709a9881113a0906",
-      "sheets": [
-        {
-          "name": "Sayfa1",
-          "rows": 15
-        }
-      ],
-      "size": 6059
-    },
-    {
-      "concept": "ledger",
-      "name": "ledger.xlsx",
-      "sha256": "52ea0a53e2315103793f03ecf4633990842bfcfecf5cff6f57696d9a0e5dab5a",
-      "sheets": [
-        {
-          "name": "ledger",
-          "rows": 1507
-        }
-      ],
-      "size": 93130
+      "size": 34249
     }
   ],
   "lineage_format": 2,
@@ -3077,58 +3021,58 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "6c7c13d011f330d76d17945f3018fe87fe29fd2e098e37318ab052a7a845893e",
-      "size": 5144425
+      "sha256": "e4a46c573500d7d5c4bc200cf6e41daf994bc12309a56529dfc506fce9a7e0ec",
+      "size": 5106775
     },
     {
       "name": "quality.json",
-      "sha256": "6d1c52ba867226ed79371e041abc037da80197a67f112384a44e2247586e2cf4",
-      "size": 55773
+      "sha256": "8bdc9039cfcd10df3b29cbdcbe126362132d6b282093601d7f1869d41502706a",
+      "size": 38619
     },
     {
       "name": "triangles.csv",
-      "sha256": "0e05e014f37bebde95b90edd4e79bf9577dadadb1fb4dd4a4c47abd5ee2bd44a",
-      "size": 5917
+      "sha256": "f95e4e32f212281f93dd05d7048d2b177d187cc46e1825a5f5c7295389028efb",
+      "size": 5893
     },
     {
       "name": "factors.csv",
-      "sha256": "0b61f07dc4930cbf4e5cff59856a75af3c96c22c0b1d69ca8627a3f85025c7ad",
-      "size": 1910
+      "sha256": "b1d87534bfbff915f48ee3269863aa3e07358fbd68d515071fe0411791018832",
+      "size": 1912
     },
     {
       "name": "chain_ladder.csv",
-      "sha256": "621bfc5ede296df3ec0d5e32ffa90a0ca7deba9b79f9569c9d3eb0fbd259f0aa",
-      "size": 3334
+      "sha256": "294e58a84d028c6607ea5f67b0225046935e7bf7add81169c590e080892494ff",
+      "size": 3323
     },
     {
       "name": "measures.csv",
-      "sha256": "f7b17efa5ca844784998b266af83ba95440db9be7313e72c720a1ab9cafad787",
-      "size": 1710874
+      "sha256": "28dcd2950da869b6f20e3f1f9dba437943666bb85cf4d4c1b20bcfcba0c9aeb6",
+      "size": 831149
     },
     {
       "name": "lineage.csv",
-      "sha256": "17299c519c4b5dae4d3856ccf5680be9486ce92ee7812813e7e6b58b8d16f867",
-      "size": 343693
+      "sha256": "e98eced6afdb818775a9043c5e64060f5d101cbc7333ff5cfe5a86d832a9a6a1",
+      "size": 344063
     },
     {
       "name": "lineage_atoms.csv",
-      "sha256": "e57811528447e70b42d6863d2f5d8386faab665fbc33e893449d6b2d00383a03",
-      "size": 137791
+      "sha256": "9fd5e8ca0c5fe92676f6c7303c717ba9954da331e744a1c048b2513c68fb6ad1",
+      "size": 139089
     },
     {
       "name": "modules.json",
-      "sha256": "96bd12fc3fcbfd94f5d5d6753ddecba49e4b2557aa3e3326a8442b2664a56910",
-      "size": 35050
+      "sha256": "d6115aeb1db4b6bf8a015a26513263a27b9cc022f628069650d4e989f0295f80",
+      "size": 32574
     },
     {
       "name": "assumptions.csv",
-      "sha256": "e5156a8e282c9f68b6bdf69dcbc9f0b6dc32ca44ab81cb7861414a5378f522bb",
+      "sha256": "5bcf50f8c58582c7b6d1fc5fc54730f17ddf59c94589d8584b3e3b28aab6e8ca",
       "size": 28939
     },
     {
       "name": "ultimates.csv",
-      "sha256": "7fa880ae59590b69e4d2159f2bed370f6974c5a693ce21bf0c7571eb0544603d",
-      "size": 19095
+      "sha256": "5c1f87e4f3b31969b644d76216fe87bf5051a8f0c5bf54e348a12c16b4bd8d98",
+      "size": 19060
     },
     {
       "name": "reserve_range.csv",
@@ -3137,8 +3081,8 @@
     },
     {
       "name": "cash_flows.csv",
-      "sha256": "2e60f24e895efcb34f319a3aca831d98c126b1d8af389df99c8bc65f5cd3e8cb",
-      "size": 839
+      "sha256": "79e432763de2702a0ff469197c136b43a3e9190b627775892fc139f9dc5660b2",
+      "size": 838
     },
     {
       "name": "diagnostics.csv",
@@ -3152,12 +3096,12 @@
     },
     {
       "name": "tier_b_ultimates.csv",
-      "sha256": "17aa782dba6c396713a253897f250ac75dd165d7e8916876b36b7fa5b3cf474d",
-      "size": 4582
+      "sha256": "c2143b2a8574cc6251f22ee06328a1ef832ad7e088eae4331520f4f9c47921d0",
+      "size": 4580
     },
     {
       "name": "tier_b_parameters.csv",
-      "sha256": "d3dbc19872f36d917293569dc47b0b211457912a244d4f4680afba89e29c483a",
+      "sha256": "62abeed9ae634dd4772d4c9ec4cd5a7244de3bd6e976280195dd7af5d1e73167",
       "size": 11979
     },
     {
@@ -3177,8 +3121,8 @@
     },
     {
       "name": "back_test.csv",
-      "sha256": "42e80257d054c7f4118c1c468e871f1a8ad01b3e4c566366da0f96d71907ab7f",
-      "size": 10308
+      "sha256": "5bcc4a99df30148f8aa656b6a41f83a61c7da95098dea7b2ad601c036e9a7ad9",
+      "size": 10304
     },
     {
       "name": "severity_parameters.csv",
@@ -3322,18 +3266,18 @@
     },
     {
       "name": "sensitivity.csv",
-      "sha256": "eef139115d3b4ecd78ef33e7a012ac6296c7e8d54609787e2305d75359256236",
+      "sha256": "561824b90eed333431ef9426fb46d41762c01a0f434d37060a943745ac711a0f",
       "size": 6771
     },
     {
       "name": "recoveries.csv",
-      "sha256": "c1322a7773dc7b1edfe93db090528b7ab77bd9b552d6257cc343f7e7c8891526",
-      "size": 965
+      "sha256": "4bd2f1085b95e0a387908f2fffff70730fadc7296df27805cd8545f6fe4cac70",
+      "size": 950
     },
     {
       "name": "recovery_development.csv",
-      "sha256": "f78fee4e1e8af2f02eb4c95cf71447df7ffa10e54b340ef271d78abed7c0477d",
-      "size": 11075
+      "sha256": "f80b84eac14e9ee4f3f264fbf4a03ab307b070629ab952fbb4602e335ae45e3d",
+      "size": 8446
     },
     {
       "name": "recovery_reconciliation.csv",
@@ -3341,44 +3285,9 @@
       "size": 55
     },
     {
-      "name": "ceded_by_treaty.csv",
-      "sha256": "e5f6075dd73bc6dd3e42b2658878ea918e926363b8cdcd7108e91e2c07ecffcf",
-      "size": 3594
-    },
-    {
-      "name": "ceded_allocation.csv",
-      "sha256": "45232a4e8442d79d771fb09671394c739f955a14e7337fd037ffe21f25945fac",
-      "size": 5443
-    },
-    {
-      "name": "reinsurance_reconciliation.csv",
-      "sha256": "8e9cf13527ef84822869a73f1b97a5ea94953e84fe8c812263bc8f711a90456b",
-      "size": 320
-    },
-    {
-      "name": "ceded_by_size_band.csv",
-      "sha256": "fb778c1e8cbcc60761e046206f9c8483a0e965c2ae881416891a6abea229120d",
-      "size": 449
-    },
-    {
-      "name": "programme_comparison.csv",
-      "sha256": "1f002ea1ecfed08d2d1ca3c11f6d2fdca934e762eed8396265c0b4a0860aa53b",
-      "size": 295
-    },
-    {
       "name": "expenses_by_period.csv",
-      "sha256": "10db635b9dac90e7665e389c67afb544d9cfd9cff1d4f00d99cdeb8e73a74b13",
-      "size": 59712
-    },
-    {
-      "name": "reconciliation.csv",
-      "sha256": "fa6e68e21bc932d2eff0a1c00e831e0a3433258ffa8909351d3243fe5200d242",
-      "size": 96321
-    },
-    {
-      "name": "unmapped_accounts.csv",
-      "sha256": "c575ad9be7de3e3e2a04aed47c311283ec1c904248ce8a12d7c732b8dcc85c9a",
-      "size": 190
+      "sha256": "16454b3004996b3487a94c47a0d841f8b6af6369dcb1d84983cbfb9689d4089e",
+      "size": 59706
     },
     {
       "name": "risk_measures.csv",
@@ -3387,7 +3296,7 @@
     },
     {
       "name": "risk_cash_flows.csv",
-      "sha256": "4fd48fa39ffa854dcb11b44e56a13a6fa813e988a6f1e36bd15db5d29163a0c7",
+      "sha256": "034c71cbf45ccd51467034a4b4f447e80dc7269765fded528d5baefc52a7e2bf",
       "size": 1292
     }
   ],
@@ -3408,7 +3317,7 @@
       "seed": 1
     }
   ],
-  "run_id": "aea05930cb645cd8",
+  "run_id": "6e8aab673878c0cc",
   "settings": {
     "assumptions": {
       "entries": []
@@ -3623,7 +3532,7 @@
     "use_market": true
   },
   "software": {
-    "actuarycanary": "1.2.0"
+    "actuarycanary": "1.3.0"
   },
   "specs": [
     {
@@ -3707,11 +3616,6 @@
       "version": "1.0.0"
     },
     {
-      "id": "CV12",
-      "title": "Ledger account-mapping profile",
-      "version": "0.3.0"
-    },
-    {
       "id": "market",
       "title": "Market series",
       "version": "1.1.0"
@@ -3730,26 +3634,6 @@
       "id": "expenses",
       "title": "Expenses",
       "version": "1.0.0"
-    },
-    {
-      "id": "reinsurance_treaties",
-      "title": "Reinsurance treaties",
-      "version": "0.1.0"
-    },
-    {
-      "id": "reinsurance_transactions",
-      "title": "Reinsurance transactions",
-      "version": "0.1.0"
-    },
-    {
-      "id": "recoveries",
-      "title": "Recovery transactions",
-      "version": "0.1.0"
-    },
-    {
-      "id": "ledger",
-      "title": "Trial balance (ledger)",
-      "version": "0.2.0"
     },
     {
       "id": "M01",

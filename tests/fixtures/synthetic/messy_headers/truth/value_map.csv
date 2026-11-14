@@ -103,62 +103,63 @@ policies,channel,DOĞRUDAN,DIRECT
 policies,channel,DİREKT,DIRECT
 policies,channel,GENEL MÜDÜRLÜK,DIRECT
 policies,channel,HEAD OFFICE,DIRECT
-premiums,type,KOMSYON,COMMISSION
-premiums,type,YENİ İŞ,WRITTEN
-premiums,type,ARACI KOMİSYONU,COMMISSION
-premiums,type,GWP,WRITTEN
-premiums,type,YAZILAN PRİM,WRITTEN
-premiums,type,COMM,COMMISSION
-premiums,type,ACENTE KOMİSYONU,COMMISSION
-premiums,type,COMMISSION,COMMISSION
-premiums,type,NEW BUSINESS,WRITTEN
-premiums,type,TANZİM,WRITTEN
-premiums,type,WRITTEN PREMIUM,WRITTEN
-premiums,type,AGENT COMMISSION,COMMISSION
-premiums,type,RENEWAL,WRITTEN
-premiums,type,WRITTEN,WRITTEN
-premiums,type,POLİÇE PRİMİ,WRITTEN
-premiums,type,KOMİSYON,COMMISSION
-premiums,type,BRÜT PRİM,WRITTEN
 premiums,type,YENİLEME,WRITTEN
-premiums,type,ISSUE,WRITTEN
-premiums,type,CANCELLATION,CANCELLATION
-premiums,type,FESİH,CANCELLATION
-premiums,type,RETURN PREMIUM,REFUND
-premiums,type,İPTAL ZEYLİ,CANCELLATION
-premiums,type,MTA,ENDORSEMENT
-premiums,type,ENDORSEMENT,ENDORSEMENT
-premiums,type,İPTAL,CANCELLATION
-premiums,type,CANCEL,CANCELLATION
-premiums,type,ADDITIONAL PREMIUM,ENDORSEMENT
-premiums,type,CANCELLED,CANCELLATION
-premiums,type,DEĞİŞİKLİK ZEYLİ,ENDORSEMENT
+premiums,type,ACENTE KOMİSYONU,COMMISSION
 premiums,type,DEVREDİLEN PRİM,CEDED_PREMIUM
+premiums,type,GWP,WRITTEN
 premiums,type,REASÜRANS PRİMİ,CEDED_PREMIUM
-premiums,type,CEDED PREMIUM,CEDED_PREMIUM
-premiums,type,RI PREMIUM,CEDED_PREMIUM
+premiums,type,POLİÇE PRİMİ,WRITTEN
+premiums,type,AGENT COMMISSION,COMMISSION
 premiums,type,REAS PRİM,CEDED_PREMIUM
-premiums,type,REASÜRÖR PAYI PRİM,CEDED_PREMIUM
-premiums,type,OUTWARD PREMIUM,CEDED_PREMIUM
+premiums,type,YENİ İŞ,WRITTEN
+premiums,type,WRITTEN PREMIUM,WRITTEN
+premiums,type,COMM,COMMISSION
 premiums,type,REINSURANCE PREMIUM,CEDED_PREMIUM
-premiums,type,ALINAN KOMİSYON,RI_COMMISSION
-premiums,type,RETURN,REFUND
-premiums,type,EKSİ ZEYL,REFUND
-premiums,type,ARTI ZEYL,ENDORSEMENT
-premiums,type,REASÜRÖR KOMİSYONU,RI_COMMISSION
-premiums,type,REAS KOMİSYON,RI_COMMISSION
-premiums,type,EKPRIM,ENDORSEMENT
+premiums,type,RENEWAL,WRITTEN
+premiums,type,ARACI KOMİSYONU,COMMISSION
 premiums,type,REASÜRANS KOMİSYONU,RI_COMMISSION
+premiums,type,ISSUE,WRITTEN
+premiums,type,KOMSYON,COMMISSION
+premiums,type,RI PREMIUM,CEDED_PREMIUM
+premiums,type,KOMİSYON,COMMISSION
+premiums,type,REASÜRÖR PAYI PRİM,CEDED_PREMIUM
+premiums,type,NEW BUSINESS,WRITTEN
+premiums,type,REAS KOMİSYON,RI_COMMISSION
+premiums,type,YAZILAN PRİM,WRITTEN
+premiums,type,BRÜT PRİM,WRITTEN
+premiums,type,OUTWARD PREMIUM,CEDED_PREMIUM
+premiums,type,WRITTEN,WRITTEN
+premiums,type,COMMISSION,COMMISSION
+premiums,type,CEDED PREMIUM,CEDED_PREMIUM
+premiums,type,TANZİM,WRITTEN
+premiums,type,REASÜRÖR KOMİSYONU,RI_COMMISSION
+premiums,type,ALINAN KOMİSYON,RI_COMMISSION
+premiums,type,FESİH,CANCELLATION
 premiums,type,CEDING COMMISSION,RI_COMMISSION
-premiums,type,RI COMMISSION,RI_COMMISSION
+premiums,type,CANCEL,CANCELLATION
 premiums,type,REINSURANCE COMMISSION,RI_COMMISSION
-premiums,type,ENDT,ENDORSEMENT
-premiums,type,ZEYİL,ENDORSEMENT
-premiums,type,ZEYL,ENDORSEMENT
+premiums,type,İPTAL ZEYLİ,CANCELLATION
+premiums,type,RI COMMISSION,RI_COMMISSION
+premiums,type,İPTAL,CANCELLATION
 premiums,type,İPTAL PRİMİ,CANCELLATION
-premiums,type,İADE ZEYLİ,REFUND
 premiums,type,ZEYİLNAME,ENDORSEMENT
+premiums,type,EKPRIM,ENDORSEMENT
+premiums,type,CANCELLATION,CANCELLATION
+premiums,type,CANCELLED,CANCELLATION
+premiums,type,ENDT,ENDORSEMENT
 premiums,type,EK PRİM,ENDORSEMENT
+premiums,type,ENDORSEMENT,ENDORSEMENT
+premiums,type,DEĞİŞİKLİK ZEYLİ,ENDORSEMENT
+premiums,type,REFUND,REFUND
+premiums,type,ZEYİL,ENDORSEMENT
+premiums,type,MTA,ENDORSEMENT
+premiums,type,EKSİ ZEYL,REFUND
+premiums,type,RİSTURN,REFUND
+premiums,type,İADE,REFUND
+premiums,type,ADDITIONAL PREMIUM,ENDORSEMENT
+premiums,type,ARTI ZEYL,ENDORSEMENT
+premiums,type,ZEYL,ENDORSEMENT
+premiums,type,İADE ZEYLİ,REFUND
 expenses,type,EDİNİM GİDERİ,ACQUISITION
 expenses,type,SATIŞ GİDERİ,ACQUISITION
 expenses,type,PAZARLAMA GİDERİ,ACQUISITION

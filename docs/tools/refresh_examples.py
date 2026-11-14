@@ -1,9 +1,9 @@
 """Refresh the examples (`just examples`).
 
-Refreshes the tiny fixtures of baseline and messy_headers (the work of `just synth-fixtures`),
-writes examples/demo from the scenario synthetic/scenarios/demo.yaml, copies every spreadsheet
-the generator writes into the scenario folder (the six feeds, the reinsurance treaties and
-transactions, the recoveries and the ledger, with their `_partN` workbooks) and, for the demo,
+Writes examples/demo from the scenario synthetic/scenarios/demo.yaml, copies every spreadsheet
+of the scenario folder (the six feeds, the reinsurance treaties and transactions, the recoveries
+and the ledger, with their `_partN` workbooks; baseline and messy_headers: those of the committed
+tiny fixtures, which hold the six feeds) and, for the demo,
 the interest-rate workbook of `phase2/` (records 0346, 0382, 0811). Truth files, canonical
 copies and the other `phase2/` workbooks stay where they are: they are not examples. Then it runs
 every folder of examples/ and keeps its report and manifest in examples/<name>/report/. The demo
@@ -22,7 +22,7 @@ from actuarycanary.convert.discount import DiscountSettings
 from actuarycanary.ledger.profile import PREFIX, SUFFIX, read_profile, save_profile
 from actuarycanary.pipeline import RunSettings, run
 from actuarycanary.spec.loader import find_spec_root
-from actuarycanary.synthetic.__main__ import FIXTURE_SCENARIOS, fixtures
+from actuarycanary.synthetic.__main__ import FIXTURE_SCENARIOS
 from actuarycanary.synthetic.build import synthesize
 
 RATES_FILE = "interest_rates.xlsx"  # written by the generator under phase2/ (record 0242)
@@ -52,8 +52,9 @@ def write_demo(examples: Path) -> None:
 
 
 def write_tiny(root: Path) -> None:
-    """The tiny fixtures and the examples that carry their feeds."""
-    fixtures()
+    """The examples that carry the feeds of the committed tiny fixtures. The fixtures are not
+    regenerated here: tests and the golden copy read them as the ledger-free tiny set (record
+    0811); `just synth-fixtures` refreshes them, with the tests that depend on them."""
     for scenario in FIXTURE_SCENARIOS:
         target = root / "examples" / scenario
         shutil.rmtree(target, ignore_errors=True)

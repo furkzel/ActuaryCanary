@@ -5,10 +5,10 @@ Three synthetic insurers (no personal data), each with its input spreadsheets an
 | Folder | What it is | Feeds |
 |---|---|---|
 | `demo` | the fixed-seed demo scenario (`synthetic/scenarios/demo.yaml`), ten accident years, a few thousand claims; run as `canary demo` runs it, discounted with the curve TRY_GOV | the six feeds, reinsurance treaties and transactions, recoveries, ledger, interest rates |
-| `baseline` | the tiny baseline scenario | the six feeds, reinsurance treaties and transactions, recoveries, ledger |
-| `messy_headers` | the same data with shifted headers, merged cells and mixed formats, to show recognition | the same ten feeds |
+| `baseline` | the tiny baseline scenario (the committed tiny fixture) | the six feeds |
+| `messy_headers` | the same data with shifted headers, merged cells and mixed formats, to show recognition | the six feeds |
 
-The demo's ledger account-mapping profile is saved confirmed on the generation date (`demo/report/ledger-*.yaml`, the profile the committed run used), so the M10 page reads "confirmed". The other two runs use a proposed profile.
+The demo's ledger account-mapping profile is saved confirmed on the generation date (`demo/report/ledger-*.yaml`, the profile the committed run used), so the M10 page reads "confirmed". The other two examples have no ledger; they are the tiny fixtures of version 1.2.0 and are refreshed together with the tests that read them.
 
 ## What the demo shows
 

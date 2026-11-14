@@ -3607,7 +3607,7 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "2353144047b68d1b84cc7b8ea492f0914d31adbdc5ca082589a0790fa3afed56",
+      "sha256": "4b2decd8ae2d1cc5be7573daa9b4118783e9250a36bd748e6e57b48fad12e6b5",
       "size": 5380216
     },
     {
@@ -3632,8 +3632,8 @@
     },
     {
       "name": "measures.csv",
-      "sha256": "5b94241f4d7a149a35097341a05d96902a247df108149d1dab85a4b04057b085",
-      "size": 5027452
+      "sha256": "859ce5b2ab3345829805845c10fe0926874e7c6918c3f03b939f68f46dc959d6",
+      "size": 5027451
     },
     {
       "name": "lineage.csv",
@@ -3902,7 +3902,7 @@
     },
     {
       "name": "reinsurance_reconciliation.csv",
-      "sha256": "12f582ca374fc3312594eee88d5ff3149ae760994bb7ccb7e77e126173830163",
+      "sha256": "a5d782ca172efba566f11d8b42565b8b247109912e7f272939334c937f5de881",
       "size": 1337
     },
     {
@@ -3978,7 +3978,7 @@
       "seed": 1
     }
   ],
-  "run_id": "4ce9aec1d2fff37b",
+  "run_id": "713ca5af937d4139",
   "settings": {
     "assumptions": {
       "entries": []
@@ -4199,7 +4199,7 @@
     "use_market": true
   },
   "software": {
-    "actuarycanary": "1.2.0"
+    "actuarycanary": "1.3.0"
   },
   "specs": [
     {

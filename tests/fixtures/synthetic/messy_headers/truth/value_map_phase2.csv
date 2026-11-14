@@ -26,37 +26,34 @@ reinsurance_treaties,segment,ELMNTR,NON_LIFE
 reinsurance_treaties,segment,PROPERTY AND CASUALTY,NON_LIFE
 reinsurance_treaties,segment,HAYAT DIŞI,NON_LIFE
 reinsurance_treaties,segment,ELEMENTER,NON_LIFE
-reinsurance_transactions,type,RI PREMIUM,CEDED_PREMIUM
-reinsurance_transactions,type,REASÜRANS PRİMİ,CEDED_PREMIUM
-reinsurance_transactions,type,REASÜRANS KOMİSYONU,RI_COMMISSION
-reinsurance_transactions,type,CEDED PREMIUM,CEDED_PREMIUM
-reinsurance_transactions,type,OUTWARD PREMIUM,CEDED_PREMIUM
-reinsurance_transactions,type,CEDING COMMISSION,RI_COMMISSION
-reinsurance_transactions,type,REASÜRÖR PAYI PRİM,CEDED_PREMIUM
 reinsurance_transactions,type,DEVREDİLEN PRİM,CEDED_PREMIUM
-reinsurance_transactions,type,REINSURANCE COMMISSION,RI_COMMISSION
-reinsurance_transactions,type,KOMİSYON,RI_COMMISSION
+reinsurance_transactions,type,OUTWARD PREMIUM,CEDED_PREMIUM
+reinsurance_transactions,type,REASÜRANS KOMİSYONU,RI_COMMISSION
 reinsurance_transactions,type,RI COMMISSION,RI_COMMISSION
+reinsurance_transactions,type,REASÜRÖR PAYI PRİM,CEDED_PREMIUM
+reinsurance_transactions,type,RI PREMIUM,CEDED_PREMIUM
+reinsurance_transactions,type,KOMİSYON,RI_COMMISSION
+reinsurance_transactions,type,CEDING COMMISSION,RI_COMMISSION
+reinsurance_transactions,type,REASÜRANS PRİMİ,CEDED_PREMIUM
+reinsurance_transactions,type,CEDED PREMIUM,CEDED_PREMIUM
+reinsurance_transactions,type,REINSURANCE COMMISSION,RI_COMMISSION
+reinsurance_transactions,type,CEDED CASE RESERVE,CEDED_CASE_RESERVE
+reinsurance_transactions,type,CEDED PAID,CEDED_CLAIM_PAID
 reinsurance_transactions,type,CEDED OUTSTANDING,CEDED_CASE_RESERVE
-reinsurance_transactions,type,REASÜRÖR PAYI ÖDENEN HASAR,CEDED_CLAIM_PAID
 reinsurance_transactions,type,DEVREDİLEN MUALLAK,CEDED_CASE_RESERVE
 reinsurance_transactions,type,CEDED RESERVE,CEDED_CASE_RESERVE
-reinsurance_transactions,type,CEDED CASE RESERVE,CEDED_CASE_RESERVE
-reinsurance_transactions,type,REINSURANCE RECOVERY,CEDED_CLAIM_PAID
-reinsurance_transactions,type,CEDED PAID,CEDED_CLAIM_PAID
+reinsurance_transactions,type,CEDED CLAIMS PAID,CEDED_CLAIM_PAID
 reinsurance_transactions,type,REASÜRÖR PAYI MUALLAK,CEDED_CASE_RESERVE
-reinsurance_transactions,type,DEVREDİLEN ÖDENEN HASAR,CEDED_CLAIM_PAID
-reinsurance_transactions,type,REASÜRANS HASAR TAHSİLATI,CEDED_CLAIM_PAID
-reinsurance_transactions,segment,ELMNTR,NON_LIFE
+reinsurance_transactions,segment,GENERAL INSURANCE,NON_LIFE
+reinsurance_transactions,segment,GI,NON_LIFE
+reinsurance_transactions,segment,P&C,NON_LIFE
+reinsurance_transactions,segment,NONLIFE,NON_LIFE
+reinsurance_transactions,segment,NON LIFE,NON_LIFE
 reinsurance_transactions,segment,ELEMENTER,NON_LIFE
+reinsurance_transactions,segment,ELMNTR,NON_LIFE
 reinsurance_transactions,segment,PROPERTY AND CASUALTY,NON_LIFE
 reinsurance_transactions,segment,HAYATDIŞI,NON_LIFE
-reinsurance_transactions,segment,GI,NON_LIFE
-reinsurance_transactions,segment,NONLIFE,NON_LIFE
-reinsurance_transactions,segment,P&C,NON_LIFE
 reinsurance_transactions,segment,HAYAT DIŞI,NON_LIFE
-reinsurance_transactions,segment,NON LIFE,NON_LIFE
-reinsurance_transactions,segment,GENERAL INSURANCE,NON_LIFE
 recoveries,type,HURDA SATIŞI,RECOVERY_SALVAGE
 recoveries,type,SUBRO,RECOVERY_SUBROGATION
 recoveries,type,RÜCU TAHSİLATI,RECOVERY_SUBROGATION
