@@ -1,9 +1,9 @@
 id: FN02
-version: 0.1.0
+version: 0.2.0
 title_en: Unmapped ledger share
 title_tr: Eşlenmemiş mizan payı
 status: draft
-implemented: false
+implemented: true
 definition: >-
   Absolute balances of accounts that the mapping profile does not map, as a share of all
   absolute balances of the entity and month: how much of the books the reconciliation
@@ -32,6 +32,8 @@ edge_cases:
     handling: Count as mapped; they are known and deliberately not reconciled.
   - case: Month missing in the ledger
     handling: Not computed for that month (DV-LDG-10).
+  - case: Two rules of the same precedence claim an account
+    handling: A profile error; the account counts as unmapped.
 interpretation: >-
   Close to zero means every account was considered. A high share usually means a new
   chart of accounts or new accounts that the profile does not cover yet.
@@ -46,3 +48,8 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft for module M10 (P20).
+  - version: 0.2.0
+    date: 2026-11-14
+    change: >-
+      Implemented before owner review (F2b, record 0422): the profile error counts as unmapped.
+      The formula is unchanged.

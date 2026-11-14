@@ -1,9 +1,9 @@
 id: CV12
-version: 0.2.0
+version: 0.3.0
 title_en: Ledger account-mapping profile
 title_tr: Mizan hesap eşleme profili
 status: draft
-implemented: false
+implemented: true
 definition: >-
   How trial balance accounts are mapped to account classes and platform measures, how
   ledger signs and year-to-date balances are turned into the platform's amounts, and how a
@@ -45,6 +45,20 @@ rules:
     profile carry it. Platform amounts are converted to the ledger currency per CV01 (flows
     at booking rates, stocks at the period-end rate) on the GROSS basis unless the class is
     RI.
+  - >-
+    As built (F2b): the profile is one YAML file per chart of accounts, ledger-<fingerprint>.yaml
+    in the profiles folder, keyed by the fingerprint of the sorted set of account codes. Of two
+    rules that both match an account the longer pattern wins, then an exact code beats a prefix,
+    then a rule of an entity beats a general one; two rules still equal are a profile error that
+    leaves the account out of the reconciliation. With no saved profile the run proposes one
+    (class from account_class or the words of account_name; sign from the balances; balance kind
+    from the restart of year-to-date accounts), saves it with confirmed_on empty and uses it,
+    labelled "proposed, not confirmed"; a person confirms by setting confirmed_on in the file.
+    The SHA-256 of the profile enters the run id and the manifest.
+  - >-
+    Not built yet: the comparison of a ledger outstanding with case reserve plus the selected
+    IBNR, a profile line (the grain stays entity, class and month), and ledgers in more than one
+    currency (rows in another currency than the reporting currency are left out and counted).
   - >-
     A gap is material when its absolute value exceeds both materiality_amount and
     materiality_ratio times the absolute ledger amount; material gaps are findings with
@@ -92,3 +106,9 @@ change_log:
     change: >-
       Owner decision (record 0603): the materiality threshold of 0.5 per cent is accepted and
       stays configurable.
+  - version: 0.3.0
+    date: 2026-11-14
+    change: >-
+      Implemented before owner review (F2b, records 0421 to 0424): the text now states the file,
+      the order of precedence, the proposal and the confirmation by editing the file, and what is
+      not built. The thresholds and defaults are unchanged.

@@ -1,9 +1,9 @@
 id: FN01
-version: 0.1.0
+version: 0.2.0
 title_en: Ledger reconciliation gap
 title_tr: Mizan mutabakat farkı
 status: draft
-implemented: false
+implemented: true
 definition: >-
   The platform's figure minus the mapped ledger amount, per entity, account class and
   month, in amount and as a share of the ledger amount, with a materiality flag (CV12).
@@ -44,7 +44,13 @@ edge_cases:
   - case: Month missing in the ledger or in the feed
     handling: Not computed for that month (DV-LDG-10).
   - case: Ledger outstanding including IBNR
-    handling: Compared as CV12 says; the gap carries the label of the comparison used.
+    handling: >-
+      Compared with the case reserve (CL02) alone; the gap then carries the IBNR loading, which
+      the likely causes name. The comparison with case reserve plus the selected IBNR is not built.
+  - case: Class mapped to INVESTMENT or OTHER
+    handling: Deliberately not reconciled; listed with the reason, never a gap.
+  - case: Month outside the period of the platform's feed, or a year-to-date movement that cannot be told
+    handling: Not computed for that month; the row says why.
 interpretation: >-
   Zero within materiality means the actuarial data and the books agree. A constant gap is
   usually scope (an entity, line or account missing); a gap that moves with the month end
@@ -55,8 +61,16 @@ typical_range:
   note: Shares within half a per cent are not material by default (CV12).
 test:
   path: tests/measures/test_fn01_ledger_reconciliation_gap.py
-  proves: A premium account of -1,000 (credit) with sign -1 against written premium 1,004 gives a gap of 4 and 0.4 per cent, not material.
+  proves: >-
+    A premium account of -1,000 (credit) with sign -1 against written premium 1,004 gives a gap
+    of 4 and 0.4 per cent, not material; a gap of 6 is; a class without its feed is not reconciled.
 change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 8.1 (P20).
+  - version: 0.2.0
+    date: 2026-11-14
+    change: >-
+      Implemented before owner review (F2b, record 0422): edge cases for the classes that are not
+      reconciled, the months that cannot be computed and the IBNR in the ledger outstanding. The
+      formula and the materiality are unchanged.
