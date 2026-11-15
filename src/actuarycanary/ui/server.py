@@ -26,7 +26,7 @@ from urllib.parse import parse_qs, urlsplit
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from actuarycanary import __version__
-from actuarycanary.cli.demo import DEMO_CURVE, find_demo_folder
+from actuarycanary.cli.demo import DEMO_CURVE, find_demo_folder, place_demo_profiles
 from actuarycanary.convert.discount import DiscountSettings
 from actuarycanary.io.excel import spreadsheets
 from actuarycanary.pipeline import RunSettings
@@ -389,6 +389,7 @@ class Handler(BaseHTTPRequestHandler):
             language=language, discount=DiscountSettings(curve_id=DEMO_CURVE)
         )
         profiles = self.server.resolve("", self.server.default_profiles)
+        place_demo_profiles(folder, profiles)
         request = RunRequest(
             folder, out, profiles, run_settings, "demo", settings.command_line(form, True)
         )

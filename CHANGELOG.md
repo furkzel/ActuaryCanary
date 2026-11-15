@@ -12,7 +12,7 @@ Written for users. Versions follow semantic versioning; each specification file 
 - **Review fixes.** Presentation (the curve table, the bridge to the simulated mean, one name for the selected unpaid, coverage and the number of back-tests beside every range, the failed checks beside the data quality score); a rule for development factors that rest on fewer than two link ratios (replaced by 1.000, disclosed beside the average); diagnostics of the bootstrap.
 - **A stable bootstrap.** The refit of the bootstrap no longer lets a thin late column blow up the factor: columns with too few link ratios take 1.000, no pseudo increment goes below zero, and the default is 50,000 simulations. Seed stability over 20 seeds is 2.14 % (VaR 99.5 %) and 2.21 % (TVaR 99 %) against a target of 2 %, not met by a hair.
 - **Generator fixes** behind the demo: the claim size of sum-insured lines follows the calendar day, the reserve of a claim that closes at nil is capped, ceded premium starts with the first treaty period.
-- **The demo shows all four modules.** `examples/` carries every feed; the demo's ledger profile is confirmed. Run ids of the three examples changed.
+- **The demo shows all four modules.** `examples/` carries every feed; the demo's ledger profile is confirmed, and `canary demo` and the demo of `canary ui` run with it (they copy it into the profiles folder when that folder has no profile for the demo's chart of accounts), so they give the run id of the committed demo; a run from source only, the Windows program still proposes the profile. Run ids of the three examples changed.
 - **Manual CI workflows** `full`, `heavy` and `package` (start by hand; none has run yet) and the first version of `canary ui`.
 
 ### Known limits

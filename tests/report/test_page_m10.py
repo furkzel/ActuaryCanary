@@ -4,9 +4,11 @@ Spec IDs proved: M10, FN01, FN02, CV12, RP01.
 """
 
 import re
+from dataclasses import replace
 from datetime import date
 from pathlib import Path
 
+import polars as pl
 import pytest
 
 from actuarycanary.ledger.profile import (
@@ -151,3 +153,41 @@ def test_the_facts_of_the_rules() -> None:
     quiet: FactSet = {}
     add_ledger_facts(quiet, None)
     assert quiet == {}
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+def test_equal_counts_and_equal_gaps_have_one_order_whatever_the_order_of_the_rows(
+    reverse: bool,
+) -> None:
+    base = tables()
+    first = base.reconciliation.row(0, named=True)
+    gaps = [  # RI and PREMIUM two gaps each, EXPENSE one; the largest gap (300) three times
+        ("B", "RI", 2, 300.0),
+        ("A", "RI", 3, -300.0),
+        ("A", "PREMIUM", 3, 300.0),
+        ("A", "PREMIUM", 1, 120.0),
+        ("A", "EXPENSE", 1, 50.0),
+    ]
+    rows = [
+        {**first, "entity": e, "account_class": c, "period": date(2024, m, 1), "gap": g,
+         "share": 0.1, "material": True, "suggested_causes": "no cause suggested"}
+        for e, c, m, g in gaps
+    ]  # fmt: skip
+    frame = pl.DataFrame(rows[::-1] if reverse else rows, schema=base.reconciliation.schema)
+    hand = replace(base, reconciliation=frame)
+    facts: FactSet = {}
+    with language.using("en"):
+        add_ledger_facts(facts, hand)
+        page = ledger_page(hand, CUT_OFF, _spec, {}, "TRY")
+    assert facts["ledger_gap_classes"].value == "PREMIUM 2, RI 2, EXPENSE 1"
+    assert (
+        facts["ledger_largest_gap"].value,
+        facts["ledger_largest_gap_entity"].value,
+        facts["ledger_largest_gap_class"].value,
+        facts["ledger_largest_gap_month"].value,
+    ) == (300.0, "A", "PREMIUM", "2024-03")
+    assert [(r["entity"], r["account_class"]) for r in page["largest_gaps"][:3]] == [
+        ("A", "PREMIUM"),
+        ("A", "RI"),
+        ("B", "RI"),
+    ]
