@@ -101,6 +101,8 @@ def _ceded_movements(application: Application) -> pl.DataFrame:
         )
         .group_by(["treaty_id", "claim_id", "month"])
         .agg(pl.col("CEDED_CLAIM_PAID").sum(), pl.col("CEDED_CASE_RESERVE").sum())
+        # the weights of a movement and their sum follow this order (record 0813)
+        .sort(["treaty_id", "claim_id", "month"])
     )
 
 
@@ -176,7 +178,7 @@ class _Allocator:
         )
         if event is not None and self.book is not None and "event_code" in self.book.claims.columns:
             members = self.book.claims.filter(pl.col("event_code") == event).select("claim_id")
-            frame = frame.join(members, on="claim_id", how="semi")
+            frame = frame.join(members, on="claim_id", how="semi", maintain_order="left")
         return frame.select("claim_id", pl.col(kind).alias("w"))
 
     def premium_weights(
@@ -200,8 +202,10 @@ class _Allocator:
         assert self.written is not None
         scope = _in_scope(self.written, sections)
         if sections[0].is_proportional:
-            frame = scope.group_by(["month", "policy_id", "line"]).agg(
-                pl.col("amount").sum().alias("w")
+            frame = (
+                scope.group_by(["month", "policy_id", "line"])
+                .agg(pl.col("amount").sum().alias("w"))
+                .sort(["month", "policy_id", "line"], nulls_last=True)
             )
             method = BY_WRITTEN
         else:
@@ -213,9 +217,10 @@ class _Allocator:
             method = BY_EARNED
         frame = frame.filter(pl.col("w") != 0).select("month", "policy_id", "line", "w")
         out: dict[tuple, pl.DataFrame] = {}
-        for k, part in frame.partition_by("month", as_dict=True).items():
+        for k, part in frame.partition_by("month", as_dict=True, maintain_order=True).items():
             out[(int(k[0]),)] = part.drop("month")  # type: ignore[arg-type]
-        for k, part in frame.partition_by(["month", "line"], as_dict=True).items():
+        by_line = frame.partition_by(["month", "line"], as_dict=True, maintain_order=True)
+        for k, part in by_line.items():
             out[(int(k[0]), k[1])] = part.drop("month")  # type: ignore[arg-type]
         return out, method
 
@@ -240,6 +245,7 @@ class _Allocator:
             .with_columns((pl.col("amount") * inside / term).alias("w"))
             .group_by(["month", "policy_id", "line"])
             .agg(pl.col("w").sum())
+            .sort(["month", "policy_id", "line"], nulls_last=True)
         )
 
     def aggregate_cells(
@@ -260,18 +266,24 @@ class _Allocator:
                 .sort("valuation_date")
                 .group_by("claim_id")
                 .last()
+                .sort("claim_id")
             )
-            frame = latest.join(self.book.claims, on="claim_id", how="left")
+            frame = latest.join(self.book.claims, on="claim_id", how="left", maintain_order="left")
             if self.book.policies is not None and "start_date" in self.book.policies.columns:
-                starts = self.book.policies.select("policy_id", "start_date").unique("policy_id")
+                starts = self.book.policies.select("policy_id", "start_date").unique(
+                    "policy_id", keep="first", maintain_order=True
+                )
                 if "policy_id" in frame.columns:
-                    frame = frame.join(starts, on="policy_id", how="left")
+                    frame = frame.join(starts, on="policy_id", how="left", maintain_order="left")
             frame = _in_scope(frame, sections, periods=True)
-            frame = frame.join(self.cells, on="claim_id", how="left", suffix="_cell")
+            frame = frame.join(
+                self.cells, on="claim_id", how="left", maintain_order="left", suffix="_cell"
+            )
             return (
                 frame.group_by(["line", "origin_year"])
                 .agg(pl.col("incurred").sum().alias("w"))
                 .filter(pl.col("w") > 0)
+                .sort(["line", "origin_year"], nulls_last=True)
             )
         if self.written is None:
             return empty
@@ -283,6 +295,7 @@ class _Allocator:
             .agg(pl.col("amount").sum().alias("w"))
             .with_columns(pl.lit(day.year, dtype=pl.Int64).alias("origin_year"))
             .filter(pl.col("w") > 0)
+            .sort("line", nulls_last=True)
         )
 
     def reinstatement_cells(self, treaty: str, day: date, effective: date | None) -> pl.DataFrame:
@@ -301,10 +314,11 @@ class _Allocator:
         if held:
             ceded = ceded.filter(pl.col("inception_date").is_in(held))
         return (
-            ceded.join(self.cells, on="claim_id", how="left")
+            ceded.join(self.cells, on="claim_id", how="left", maintain_order="left")
             .group_by(["line", "origin_year"])
             .agg(pl.col("ceded_incurred").sum().alias("w"))
             .filter(pl.col("w") > 0)
+            .sort(["line", "origin_year"], nulls_last=True)
         )
 
 
@@ -369,7 +383,9 @@ def allocate(
         if name not in frame.columns:
             frame = frame.with_columns(pl.lit(None, dtype=dtype).alias(name))
     frame = frame.filter(pl.col("amount").is_not_null() & pl.col("booking_date").is_not_null())
-    for (treaty,), part in frame.filter(pl.col("type").is_in(PREMIUM_TYPES)).group_by("treaty_id"):
+    for (treaty,), part in frame.filter(pl.col("type").is_in(PREMIUM_TYPES)).group_by(
+        "treaty_id", maintain_order=True
+    ):
         al.premium_months[str(treaty)] = set(
             part.select(_month(pl.col("booking_date")))["booking_date"].to_list()
         )

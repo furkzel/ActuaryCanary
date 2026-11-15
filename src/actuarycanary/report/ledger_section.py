@@ -47,13 +47,25 @@ def _month(day: date) -> str:
     return f"{day.year}-{day.month:02d}"
 
 
+def _by_gap(rows: pl.DataFrame) -> pl.DataFrame:
+    """Largest absolute gap first; equal gaps by entity, class and month, so that the row a
+    text names does not depend on the order of the table (record 0812)."""
+    return rows.sort(
+        pl.col("gap").abs(),
+        "entity",
+        "account_class",
+        "period",
+        descending=[True, False, False, False],
+    )
+
+
 def _classes(tables: LedgerTables) -> list[dict[str, Any]]:
     rec = tables.reconciliation
     rows: list[dict[str, Any]] = []
     for account_class in sorted(rec["account_class"].unique().to_list()):
         part = rec.filter((pl.col("account_class") == account_class) & pl.col("gap").is_not_null())
         material = part.filter(pl.col("material"))
-        largest = material.sort(pl.col("gap").abs(), descending=True).head(1)
+        largest = _by_gap(material).head(1)
         rows.append(
             {
                 "account_class": account_class,
@@ -118,7 +130,7 @@ def _matrix(tables: LedgerTables, cut_off: date) -> dict[str, Any]:
 
 
 def _largest(tables: LedgerTables, currency: str) -> list[dict[str, Any]]:
-    material = tables.material.sort(pl.col("gap").abs(), descending=True).head(LISTED)
+    material = _by_gap(tables.material).head(LISTED)
     return [
         {
             "entity": r["entity"],
@@ -202,7 +214,7 @@ def _share_now(tables: LedgerTables) -> tuple[float | None, str, str]:
     if share.height == 0:
         return None, "", ""
     latest = share.sort("period").group_by("entity", maintain_order=True).last()
-    top = latest.sort("value", descending=True).row(0, named=True)
+    top = latest.sort("value", "entity", descending=[True, False]).row(0, named=True)
     return float(top["value"]), str(top["entity"]), _month(top["period"])
 
 
@@ -212,7 +224,7 @@ def ledger_page(
     if tables is None:
         return {"available": False}
     material = tables.material
-    largest = material.sort(pl.col("gap").abs(), descending=True).head(1)
+    largest = _by_gap(material).head(1)
     share, share_entity, share_month = _share_now(tables)
     settings = tables.settings
     ratio = numbers.ratio(settings.materiality_ratio)
@@ -306,8 +318,11 @@ def add_ledger_facts(facts: FactSet, tables: LedgerTables | None) -> None:
     _put(facts, "ledger_gap_rows", float(computed), "count")
     if not material.height:
         return
+    # most gaps first, then the class name: equal counts have a stated order (record 0812)
     counts = (
-        material.group_by("account_class").len().sort("len", descending=True, maintain_order=True)
+        material.group_by("account_class")
+        .len()
+        .sort("len", "account_class", descending=[True, False])
     )
     _put(
         facts,
@@ -315,7 +330,7 @@ def add_ledger_facts(facts: FactSet, tables: LedgerTables | None) -> None:
         ", ".join(f"{r['account_class']} {r['len']}" for r in counts.iter_rows(named=True)),
         "text",
     )
-    top = material.sort(pl.col("gap").abs(), descending=True).row(0, named=True)
+    top = _by_gap(material).row(0, named=True)
     _put(facts, "ledger_largest_gap", abs(top["gap"]), "amount")
     _put(facts, "ledger_largest_gap_class", top["account_class"], "text")
     _put(facts, "ledger_largest_gap_entity", top["entity"], "text")

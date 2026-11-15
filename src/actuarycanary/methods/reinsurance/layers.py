@@ -159,7 +159,13 @@ def apply_aggregate(
 
 def layer_use(ud: pl.DataFrame) -> LayerUse:
     """Layer use of a section without aggregate terms, at the last date of each unit."""
-    last = ud.sort("day").group_by("unit").agg(pl.col("c_incurred").last(), pl.col("limit").last())
+    # sorted by unit: the total below is a float sum over the units (record 0813)
+    last = (
+        ud.sort("day")
+        .group_by("unit")
+        .agg(pl.col("c_incurred").last(), pl.col("limit").last())
+        .sort("unit")
+    )
     ceded = last["c_incurred"].to_numpy()
     exhausted = int((ceded >= last["limit"].to_numpy() * (1 - 1e-12)).sum())
     total = float(ceded.sum())
@@ -186,6 +192,7 @@ def share_to_claims(rows: pl.DataFrame, ud: pl.DataFrame, per_claim: bool) -> pl
         ud.select(["unit", "day", "u_paid", "u_incurred", "a_paid", "a_incurred"]),
         on=["unit", "day"],
         how="left",
+        maintain_order="left",
     )
     if per_claim:
         cp = out["a_paid"].to_numpy()

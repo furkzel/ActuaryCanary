@@ -301,7 +301,10 @@ def test_modules_without_their_files_are_skipped_with_the_reason(
     shutil.copyfile(BASELINE / "claim_valuations.xlsx", folder / "claim_valuations.xlsx")
     alone = run(folder, tmp_path / "out", cache_dir=cache)
     reasons = {m.module: m.reasons for m in alone.analysis.modules if m.state.value == "skipped"}
-    assert set(reasons) == {"M02", "M05", "M09"}
+    # M08 and M10 name their missing files too (M07 reads the recovery columns of the valuations)
+    assert set(reasons) == {"M02", "M05", "M08", "M09", "M10"}
+    assert reasons["M08"][0].startswith("Reinsurance did not run: no reinsurance treaties")
+    assert reasons["M10"][0].startswith("Ledger reconciliation did not run: no trial balance")
     assert reasons["M09"][0].startswith("Expenses did not run: no expenses were loaded.")
     assert "no premium file was loaded" in reasons["M02"][0]
     assert "premiums" in reasons["M05"][0]

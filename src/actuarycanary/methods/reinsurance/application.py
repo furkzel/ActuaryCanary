@@ -153,20 +153,26 @@ def _rows(book: ClaimBook) -> pl.DataFrame:
     rows = (
         book.valuations.select(["claim_id", "valuation_date", "paid", "incurred"])
         .with_columns(pl.col("paid").cast(pl.Float64), pl.col("incurred").cast(pl.Float64))
-        .join(claims.unique("claim_id", keep="first"), on="claim_id", how="left")
+        .join(
+            claims.unique("claim_id", keep="first", maintain_order=True),
+            on="claim_id",
+            how="left",
+            maintain_order="left",
+        )
     )
     policies = book.policies
     if policies is not None and "policy_id" in policies.columns:
         keep = [c for c in ("policy_id", "start_date", "sum_insured") if c in policies.columns]
-        pol = policies.select(keep).unique("policy_id", keep="first")
+        pol = policies.select(keep).unique("policy_id", keep="first", maintain_order=True)
         if "currency" in policies.columns:
             pol = pol.join(
                 policies.select(["policy_id", pl.col("currency").alias("policy_currency")]).unique(
-                    "policy_id", keep="first"
+                    "policy_id", keep="first", maintain_order=True
                 ),
                 on="policy_id",
+                maintain_order="left",
             )
-        rows = rows.join(pol, on="policy_id", how="left")
+        rows = rows.join(pol, on="policy_id", how="left", maintain_order="left")
     for name, dtype in (
         ("start_date", pl.Date),
         ("sum_insured", pl.Float64),
@@ -200,7 +206,7 @@ def _scope(rows: pl.DataFrame, section: Section) -> tuple[np.ndarray, pl.DataFra
     day = rows[date_col]
     known = day.is_not_null().to_numpy()
     in_period = ((day >= section.inception) & (day < section.expiry)).fill_null(False).to_numpy()
-    missing = rows.filter(pl.Series(attr & ~known)).select("claim_id").unique()
+    missing = rows.filter(pl.Series(attr & ~known)).select("claim_id").unique().sort("claim_id")
     reason = f"{date_col} missing for the {section.attachment_basis.lower()} basis"
     return attr & known & in_period, missing.with_columns(pl.lit(reason).alias("reason"))
 
@@ -376,9 +382,13 @@ def _layer_section(
     if sub.height == 0:
         return _empty_part(), None
     unit_frame = pl.DataFrame({"unit": unit, "occ": occurrence})
-    first = unit_frame.group_by("unit").agg(pl.col("occ").min().alias("unit_day"))
+    first = unit_frame.group_by("unit", maintain_order=True).agg(
+        pl.col("occ").min().alias("unit_day")
+    )
     unit_day = (
-        unit_frame.join(first, on="unit", how="left")["unit_day"].to_numpy().astype("datetime64[D]")
+        unit_frame.join(first, on="unit", how="left", maintain_order="left")["unit_day"]
+        .to_numpy()
+        .astype("datetime64[D]")
     )
     deflator, scale = _deflator_and_scale(section, sub, unit_day, options, notes)
     paid = state.base_paid[sub_index] * rate
@@ -554,7 +564,7 @@ def _assemble(state: _State, excluded: list[Excluded]) -> Application:
     parts = [p.cast(schema) for p in state.parts]  # type: ignore[arg-type]
     long = pl.concat(parts) if parts else pl.DataFrame(schema=schema)
     ceded = (
-        long.join(keys, on="row", how="left")
+        long.join(keys, on="row", how="left", maintain_order="left")
         .select(
             [
                 "claim_id",

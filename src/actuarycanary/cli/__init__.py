@@ -17,7 +17,7 @@ from rich.table import Table
 from actuarycanary import __version__
 from actuarycanary.canonical.feeds import CanonicalError
 from actuarycanary.cli.confirm import confirm_tables
-from actuarycanary.cli.demo import DEMO_CURVE, find_demo_folder
+from actuarycanary.cli.demo import DEMO_CURVE, find_demo_folder, place_demo_profiles
 from actuarycanary.cli.welcome import demo_closing_lines, show_welcome
 from actuarycanary.convert.bases import ReinsuranceBasis, ValueBasis
 from actuarycanary.convert.discount import DiscountSettings
@@ -395,7 +395,9 @@ def demo_command(
         raise typer.Exit(1) from error
     console.print(f"Example data {folder}", soft_wrap=True)
     settings = RunSettings(discount=DiscountSettings(curve_id=DEMO_CURVE))
-    result = _run_with_progress(console, folder, out, settings, True, Path("profiles"))
+    profiles = Path("profiles")
+    place_demo_profiles(folder, profiles)
+    result = _run_with_progress(console, folder, out, settings, True, profiles)
     _summary(console, result)
     for line in demo_closing_lines(result.report.resolve(), result.report.resolve().parent):
         console.print(line, highlight=False, markup=False, soft_wrap=True)

@@ -15,6 +15,8 @@ from .conftest import BASELINE_TINY, MESSY, Client
 
 pytestmark = pytest.mark.slow
 
+GOLDEN = Path(__file__).parents[1] / "report" / "golden"
+
 
 def tree(root: Path) -> dict[str, int]:
     return {str(p.relative_to(root)): p.stat().st_size for p in root.rglob("*") if p.is_file()}
@@ -53,9 +55,14 @@ def test_the_same_run_id_and_files_as_the_command_line_and_nothing_written_elsew
     assert tree(BASELINE_TINY) == inputs_before
 
 
-def test_the_report_language_changes_the_run_id_as_on_the_command_line(tmp_path: Path) -> None:
+def test_the_report_language_changes_the_run_id_as_on_the_command_line(
+    tmp_path: Path, default_run
+) -> None:
     folder = run_through_the_interface(BASELINE_TINY, tmp_path / "out", tmp_path / "p", lang="tr")
-    assert folder.name == "90b1f5cf4acec843"  # the Turkish report of the tiny baseline (1.2.0)
+    # the Turkish report of the tiny baseline: its run id is read from the golden copy, the
+    # source of that value, so that a release cannot leave this line behind (record 0812)
+    golden = json.loads((GOLDEN / "baseline_tiny_tr.json").read_text(encoding="utf-8"))
+    assert folder.name == golden["reproducibility"]["run_id"] != default_run.run_id
     assert 'lang="tr"' in (folder / "report.html").read_text(encoding="utf-8")[:400]
 
 
