@@ -206,8 +206,8 @@ def reinsurance_result(
     commission_part = commission.select(*keys, pl.col(VALUE).alias("ri_commission_earned"))
     frame = (
         (
-            claim_part.join(premium_part, on=on, how="full", coalesce=True)
-            .join(commission_part, on=keys, how="left")
+            claim_part.join(premium_part, on=on, how="full", coalesce=True, maintain_order="left")
+            .join(commission_part, on=keys, how="left", maintain_order="left")
             .with_columns(
                 pl.col("ceded_incurred_change").fill_null(0.0),
                 pl.col("ceded_premium_earned").fill_null(0.0),

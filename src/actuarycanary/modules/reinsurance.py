@@ -90,6 +90,16 @@ RUN_KEY = "reinsurance_run"
 TREATIES = "reinsurance_treaties"
 MOVEMENTS = "reinsurance_transactions"
 CLAIM_TYPES = ("CEDED_CLAIM_PAID", "CEDED_CASE_RESERVE")
+MOVEMENT_ORDER = (
+    "treaty_id",
+    "booking_date",
+    "type",
+    "claim_id",
+    "policy_id",
+    "transaction_id",
+    "amount",
+)
+SECTION_KEYS = ["treaty_id", "inception_date"]  # a treaty year; tables are sorted on it
 # the reconciliation (record 0405): a treaty year differs when computed and reported ceded
 # incurred are further apart than 1 per cent of the larger, and at least 1.00
 RELATIVE_TOLERANCE = 0.01
@@ -149,6 +159,7 @@ class ReinsuranceRun:
             .group_by("claim_id")
             .last()
             .select("claim_id", "paid", "incurred")
+            .sort("claim_id")  # a stated order for the sums over claims (record 0813)
         )
 
     def _section_currency(self) -> dict[tuple[str, date], str]:
@@ -202,28 +213,35 @@ class ReinsuranceRun:
             return pl.DataFrame(schema=schema)
         currency = self._claim_currency()
         gross = self._in_treaty_currency(
-            app.scope.join(self._gross_at_cut_off(), on="claim_id", how="left").join(
-                currency, on="claim_id", how="left"
-            ),
+            app.scope.join(
+                self._gross_at_cut_off(), on="claim_id", how="left", maintain_order="left"
+            ).join(currency, on="claim_id", how="left", maintain_order="left"),
             ["incurred"],
         )
-        gross = gross.group_by(["treaty_id", "inception_date"]).agg(
-            pl.len().cast(pl.Int64).alias("claims_in_scope"),
-            pl.col("incurred").sum().alias("gross_incurred"),
+        gross = (
+            gross.group_by(SECTION_KEYS)
+            .agg(
+                pl.len().cast(pl.Int64).alias("claims_in_scope"),
+                pl.col("incurred").sum().alias("gross_incurred"),
+            )
+            .sort(SECTION_KEYS)
         )
         ceded = (
             self._in_treaty_currency(
-                app.ceded_at(self.cut_off).join(currency, on="claim_id", how="left"),
+                app.ceded_at(self.cut_off).join(
+                    currency, on="claim_id", how="left", maintain_order="left"
+                ),
                 ["ceded_paid", "ceded_incurred"],
             )
-            .group_by(["treaty_id", "inception_date"])
+            .group_by(SECTION_KEYS)
             .agg(
                 pl.col("ceded_paid").sum().alias("computed_ceded_paid"),
                 pl.col("ceded_incurred").sum().alias("computed_ceded_incurred"),
             )
+            .sort(SECTION_KEYS)
         )
         return (
-            gross.join(ceded, on=["treaty_id", "inception_date"], how="left")
+            gross.join(ceded, on=["treaty_id", "inception_date"], how="left", maintain_order="left")
             .with_columns(
                 pl.col("computed_ceded_paid").fill_null(0.0),
                 pl.col("computed_ceded_incurred").fill_null(0.0),
@@ -256,7 +274,7 @@ class ReinsuranceRun:
             pl.col("type").is_in(CLAIM_TYPES) & (pl.col("booking_date") <= self.cut_off)
         )
         by_claim = rows.filter(pl.col("claim_id").is_not_null()).join(
-            self._claim_section(), on=["treaty_id", "claim_id"], how="inner"
+            self._claim_section(), on=["treaty_id", "claim_id"], how="inner", maintain_order="left"
         )
         starts = {s.key: s.inception for s in self.inputs.sections}
         cells = rows.filter(pl.col("claim_id").is_null() & pl.col("origin_year").is_not_null())
@@ -269,7 +287,9 @@ class ReinsuranceRun:
                 },
                 schema={"treaty_id": pl.String, "inception_date": pl.Date, "origin_year": pl.Int64},
             )
-            cells = cells.join(years, on=["treaty_id", "origin_year"], how="inner")
+            cells = cells.join(
+                years, on=["treaty_id", "origin_year"], how="inner", maintain_order="left"
+            )
         parts = (
             pl.concat(
                 [by_claim.select(sorted(by_claim.columns)), cells.select(sorted(by_claim.columns))]
@@ -286,6 +306,8 @@ class ReinsuranceRun:
                 .alias("reported_ceded_paid"),
                 pl.col("amount").sum().alias("reported_ceded_incurred"),
             )
+            # the groups come in no order and the sums per section run over them (record 0813)
+            .sort([*SECTION_KEYS, "claim_id", "currency"], nulls_last=True)
             .cast(schema)  # type: ignore[arg-type]
         )
 
@@ -294,8 +316,10 @@ class ReinsuranceRun:
         converted = self._in_treaty_currency(
             reported, ["reported_ceded_paid", "reported_ceded_incurred"]
         )
-        claims = converted.group_by(["treaty_id", "inception_date"]).agg(
-            pl.col("reported_ceded_paid").sum(), pl.col("reported_ceded_incurred").sum()
+        claims = (
+            converted.group_by(SECTION_KEYS)
+            .agg(pl.col("reported_ceded_paid").sum(), pl.col("reported_ceded_incurred").sum())
+            .sort(SECTION_KEYS)
         )
         movements = self.inputs.movements
         rows = []
@@ -332,7 +356,13 @@ class ReinsuranceRun:
                 "reported_reinstatement_premium": pl.Float64,
             },
         )
-        return premium.join(claims, on=["treaty_id", "inception_date"], how="full", coalesce=True)
+        return premium.join(
+            claims,
+            on=["treaty_id", "inception_date"],
+            how="full",
+            coalesce=True,
+            maintain_order="left",
+        )
 
     def treaty_table(self) -> pl.DataFrame:
         """ceded_by_treaty.csv: one row per treaty and treaty year (record 0406)."""
@@ -388,7 +418,12 @@ class ReinsuranceRun:
             if self.application is not None and results
             else None
         )
-        out = base.join(self.computed_by_section(), on=["treaty_id", "inception_date"], how="left")
+        out = base.join(
+            self.computed_by_section(),
+            on=["treaty_id", "inception_date"],
+            how="left",
+            maintain_order="left",
+        )
         if self.application is not None:  # a section without claims in scope cedes nothing
             out = out.with_columns(
                 pl.col(c).fill_null(0)
@@ -399,10 +434,17 @@ class ReinsuranceRun:
                     "computed_ceded_incurred",
                 )
             )
-        out = out.join(self.reported_by_section(), on=["treaty_id", "inception_date"], how="left")
+        out = out.join(
+            self.reported_by_section(),
+            on=["treaty_id", "inception_date"],
+            how="left",
+            maintain_order="left",
+        )
         for extra in (premium, layers):
             if extra is not None:
-                out = out.join(extra, on=["treaty_id", "inception_date"], how="left")
+                out = out.join(
+                    extra, on=["treaty_id", "inception_date"], how="left", maintain_order="left"
+                )
         return out.sort(["treaty_id", "treaty_year"])
 
     def reconciliation(self) -> pl.DataFrame:
@@ -457,10 +499,14 @@ class ReinsuranceRun:
         )
         claims = (
             computed.join(
-                reported, on=["treaty_id", "inception_date", "claim_id"], how="full", coalesce=True
+                reported,
+                on=["treaty_id", "inception_date", "claim_id"],
+                how="full",
+                coalesce=True,
+                maintain_order="left",
             )
             .with_columns(pl.col("inception_date").dt.year().cast(pl.Int64).alias("treaty_year"))
-            .join(differing, on=["treaty_id", "treaty_year"], how="semi")
+            .join(differing, on=["treaty_id", "treaty_year"], how="semi", maintain_order="left")
             .select(
                 pl.lit("claim").alias("level"),
                 "treaty_id",
@@ -496,7 +542,7 @@ class ReinsuranceRun:
                 else pl.lit(None, dtype=pl.String).alias("claim_line"),
                 pl.col("occurrence_date").dt.year().cast(pl.Int64).alias("claim_year"),
             )
-            rows = rows.join(claim_cells, on="claim_id", how="left")
+            rows = rows.join(claim_cells, on="claim_id", how="left", maintain_order="left")
         else:
             rows = rows.with_columns(
                 pl.lit(None, dtype=pl.String).alias("claim_line"),
@@ -510,8 +556,8 @@ class ReinsuranceRun:
                 if "line" in policies.columns
                 else pl.lit(None, dtype=pl.String).alias("policy_line"),
                 pl.col("start_date").dt.year().cast(pl.Int64).alias("policy_year"),
-            ).unique("policy_id")
-            rows = rows.join(policy_cells, on="policy_id", how="left")
+            ).unique("policy_id", keep="first", maintain_order=True)
+            rows = rows.join(policy_cells, on="policy_id", how="left", maintain_order="left")
         else:
             rows = rows.with_columns(
                 pl.lit(None, dtype=pl.String).alias("policy_line"),
@@ -535,7 +581,9 @@ class ReinsuranceRun:
         (MT21 diagnostic); bands in the reporting currency at the constant cut-off rate."""
         if self.application is None or self.inputs.book is None:
             return pl.DataFrame()
-        gross = self._gross_at_cut_off().join(self._claim_currency(), on="claim_id", how="left")
+        gross = self._gross_at_cut_off().join(
+            self._claim_currency(), on="claim_id", how="left", maintain_order="left"
+        )
         rate = self._rate(gross, "currency", self.reporting_currency)
         gross = gross.with_columns((pl.col("incurred") * rate).alias("gross"), rate.alias("rate"))
         edges = list(SIZE_BANDS)
@@ -545,17 +593,19 @@ class ReinsuranceRun:
             band = pl.when(pl.col("gross") >= lo).then(pl.lit(label)).otherwise(band)
         gross = gross.with_columns(band.alias("size_band"))
         ceded = self.application.ceded_at(self.cut_off).join(
-            gross.select("claim_id", "rate", "size_band"), on="claim_id"
+            gross.select("claim_id", "rate", "size_band"), on="claim_id", maintain_order="left"
         )
-        by_treaty = ceded.group_by(["size_band", "treaty_id"]).agg(
-            (pl.col("ceded_incurred") * pl.col("rate")).sum().alias("ceded_incurred")
+        by_treaty = (
+            ceded.sort(["size_band", "treaty_id", "inception_date", "claim_id"])
+            .group_by(["size_band", "treaty_id"], maintain_order=True)
+            .agg((pl.col("ceded_incurred") * pl.col("rate")).sum().alias("ceded_incurred"))
         )
-        totals = gross.group_by("size_band").agg(
+        totals = gross.group_by("size_band", maintain_order=True).agg(
             pl.len().cast(pl.Int64).alias("claims"), pl.col("gross").sum().alias("gross_incurred")
         )
         order = {label: i for i, label in enumerate(labels)}
         return (
-            by_treaty.join(totals, on="size_band", how="left")
+            by_treaty.join(totals, on="size_band", how="left", maintain_order="left")
             .with_columns(
                 pl.when(pl.col("gross_incurred") > 0)
                 .then(pl.col("ceded_incurred") / pl.col("gross_incurred"))
@@ -618,6 +668,10 @@ def reinsurance_run(inputs: MeasureInputs) -> ReinsuranceRun | None:
             frame = frame.filter(pl.col("valuation_date") <= inputs.cut_off)
         if concept == MOVEMENTS and "booking_date" in frame.columns:
             frame = frame.filter(pl.col("booking_date") <= inputs.cut_off)
+        if concept == MOVEMENTS:
+            # the order of the file must not reach a sum: one stated order (record 0813)
+            keys = [c for c in MOVEMENT_ORDER if c in frame.columns]
+            frame = frame.sort(keys, nulls_last=True, maintain_order=True)
         frames[concept] = frame
     ri_inputs = assemble(frames, settings.index_clause)
     application = apply(ri_inputs)
@@ -635,8 +689,9 @@ def reinsurance_run(inputs: MeasureInputs) -> ReinsuranceRun | None:
     )
     refs = (
         treaties.select("treaty_id", "inception_date", REF)
-        .group_by(["treaty_id", "inception_date"])
+        .group_by(SECTION_KEYS)
         .agg(pl.col(REF).sort().alias("refs"))
+        .sort(SECTION_KEYS)
     )
     run = ReinsuranceRun(
         settings,

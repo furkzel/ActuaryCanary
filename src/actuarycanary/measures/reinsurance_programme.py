@@ -49,6 +49,7 @@ def _refs(run: ReinsuranceRun, frame: pl.DataFrame) -> pl.DataFrame:
         run.treaty_refs.rename({"refs": f"refs_{TREATIES}"}),
         on=["treaty_id", "inception_date"],
         how="left",
+        maintain_order="left",
     )
 
 
@@ -170,6 +171,7 @@ def reinsurance_result_ratio(
             ),
             on="year",
             how="left",
+            maintain_order="left",
         )
         .join(
             commission.select(
@@ -177,14 +179,15 @@ def reinsurance_result_ratio(
             ),
             on="year",
             how="left",
+            maintain_order="left",
         )
     )
     reinstatement = _reinstatement_by_year(run)
     years = {s.inception.year for s in run.inputs.sections}
     frame = (
         claims.with_columns(_year("origin_period").alias("year"))
-        .join(premium, on="year", how="full", coalesce=True)
-        .join(reinstatement, on="year", how="left")
+        .join(premium, on="year", how="full", coalesce=True, maintain_order="left")
+        .join(reinstatement, on="year", how="left", maintain_order="left")
         .with_columns(
             pl.col("ceded_incurred").fill_null(0.0),
             pl.col("ceded_premium_earned").fill_null(0.0),
@@ -246,6 +249,7 @@ def _reinstatement_by_year(run: ReinsuranceRun) -> pl.DataFrame:
         rows.with_columns((pl.col("amount") * rate).alias("amount"))
         .group_by(pl.col("origin_year").alias("year"))
         .agg(pl.col("amount").sum().alias("reinstatement_premium"))
+        .sort("year")
     )
 
 
@@ -276,6 +280,7 @@ def net_share_by_origin(run: ReinsuranceRun, inputs: MeasureInputs) -> pl.DataFr
         .sort("valuation_date")
         .group_by("claim_id")
         .last()
+        .sort("claim_id")  # the sums per origin run over the claims in this order (record 0813)
     )
     claims = book.claims.select(
         "claim_id",
@@ -285,7 +290,7 @@ def net_share_by_origin(run: ReinsuranceRun, inputs: MeasureInputs) -> pl.DataFr
         ],
         pl.col("occurrence_date").dt.year().cast(pl.Int64).alias("year"),
     )
-    joined = latest.join(claims, on="claim_id", how="left")
+    joined = latest.join(claims, on="claim_id", how="left", maintain_order="left")
     rate = run._rate(joined, "currency", run.reporting_currency)
     return (
         joined.with_columns(
@@ -294,6 +299,7 @@ def net_share_by_origin(run: ReinsuranceRun, inputs: MeasureInputs) -> pl.DataFr
         .group_by(["segment", "line", "year"])
         .agg(pl.col("g").sum(), pl.col("n").sum())
         .filter(pl.col("g") > 0)
+        .sort(["segment", "line", "year"], nulls_last=True)
         .select("segment", "line", "year", (pl.col("n") / pl.col("g")).alias("net_share"))
         .cast(schema)  # type: ignore[arg-type]
     )
@@ -340,8 +346,8 @@ def volatility_frame(
         "segment", "line", _year("calendar_period").alias("year"), pl.col(VALUE).alias("earned")
     )
     origins = (
-        ultimates.join(premium, on=["segment", "line", "year"], how="inner")
-        .join(net_share, on=["segment", "line", "year"], how="left")
+        ultimates.join(premium, on=["segment", "line", "year"], how="inner", maintain_order="left")
+        .join(net_share, on=["segment", "line", "year"], how="left", maintain_order="left")
         .filter(pl.col("gross_loss").is_not_null() & (pl.col("earned") > 0))
         .with_columns(
             (pl.col("gross_loss") / pl.col("earned")).alias("gross_lr"),
