@@ -140,6 +140,8 @@ def write_manifest(
     assumptions: list[dict[str, Any]] | None = None,
     randomness: list[dict[str, Any]] | None = None,
     account_mapping: dict[str, Any] | None = None,
+    reference_tables: dict[str, Any] | None = None,
+    life_exposure: dict[str, Any] | None = None,
 ) -> Path:
     """Write manifest.json; no clock time, so a rerun on the same inputs writes the same file."""
     manifest = {
@@ -158,6 +160,10 @@ def write_manifest(
     }
     if account_mapping is not None:  # only when the run had a ledger (CV12)
         manifest["account_mapping"] = account_mapping
+    if reference_tables is not None:  # only when the data folder has reference tables
+        manifest["reference_tables"] = reference_tables
+    if life_exposure is not None:  # only when life feeds were loaded (CV11)
+        manifest["life_exposure"] = life_exposure
     if lineage_format is not None:
         manifest[LINEAGE_FORMAT_KEY] = lineage_format
     path = folder / MANIFEST_NAME

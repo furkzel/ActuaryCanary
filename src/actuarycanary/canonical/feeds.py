@@ -1039,8 +1039,10 @@ _RULES: dict[
 def canonicalise(table: RawTable, spec: DataConceptSpec, amounts: str = TO_DATE) -> CanonicalFeed:
     """Typed canonical feed of `spec.id` from a raw table whose columns use canonical names.
     `amounts` says whether claim valuations hold amounts cumulative to date or per period."""
+    from actuarycanary.canonical.life import RULES as LIFE_RULES  # it uses the helpers here
+
     frame, findings = _typed(table.frame, spec)
-    rules = _RULES.get(spec.id)
+    rules = _RULES.get(spec.id) or LIFE_RULES.get(spec.id)
     if rules is not None:
         frame, found = rules(frame, spec)
         findings += [f for f in found if f is not None]

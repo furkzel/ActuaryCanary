@@ -1,9 +1,9 @@
 id: CV11
-version: 0.1.0
+version: 0.2.0
 title_en: Life and pension study conventions
 title_tr: Hayat ve emeklilik deneyim çalışması konvansiyonları
 status: draft
-implemented: false
+implemented: true
 definition: >-
   How ages are defined and moved forward without birth dates, how exposure to risk is
   counted (central and initial), how study cells are cut by calendar year or policy year,
@@ -59,9 +59,10 @@ rules:
     Sex is used only when the user turns it on and only in aggregated cells; by default it
     is dropped on load and tables are unisex.
   - >-
-    Reference tables are data files (age, rate kind q or mu, optional sex and select
-    duration), read from the user's folder or the platform's default set; which open table
-    ships by default is an open decision (blueprint 18.2).
+    Reference tables are data files (age or policy year, rate kind q, mu or m, optional sex,
+    select duration and product, a sidecar naming the decrement, source and licence), read
+    from reference_tables/ in the user's data folder (record 0443). No table ships with the
+    program (record 0444).
 formulas:
   - name: entry age and attained age
     expression: 'a_e = a(v_1) - \lfloor (v_1 - e)/1\,\mathrm{yr} \rfloor, \qquad a(t) = a_e + \lfloor (t - e)/1\,\mathrm{yr} \rfloor'
@@ -110,9 +111,13 @@ optional:
   - life_in_force.fund_value
   - life_in_force.sex
 uses: [CV04]
-requires_decision:
-  - Default reference mortality, morbidity and lapse tables that may be redistributed openly (blueprint 18.2).
 change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint sections 4.4 and 9.2 (P20).
+  - version: 0.2.0
+    date: 2026-11-17
+    change: >-
+      implemented before owner review (L1a, records 0441 and 0445 to 0447); status stays draft.
+      The reference-table rule names the format of record 0443 and record 0444 closes the open
+      question of a default table, so the version moves.

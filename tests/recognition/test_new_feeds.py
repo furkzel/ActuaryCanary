@@ -210,12 +210,13 @@ def test_every_sheet_of_a_scenario_is_read_as_its_concept(scenario_sheets) -> No
     assert set(found) >= OLD | NEW
     for concept in OLD | NEW:
         assert found[concept] == {concept}, (scenario, concept)
+    # the life feeds are built since L1a (record 0440): each is read as itself, clean and messy
     for concept in LIFE & set(found):
-        assert found[concept] == {None}, (scenario, concept)
-    life = [i.recognition for i in sheets if Path(i.workbook.name).stem in LIFE]
-    assert all(r.rejection.startswith("best guess ") and "rejected:" in r.rejection for r in life)
+        assert found[concept] == {concept}, (scenario, concept)
     if scenario in ("life_book", "messy_headers", "messy_incremental"):
         assert set(found) >= LIFE
+    else:
+        assert not LIFE & set(found)
 
 
 # --- a mapping edited on the confirmation screen, saved and used again ----------------------

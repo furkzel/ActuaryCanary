@@ -700,6 +700,10 @@ CANONICAL_RULES |= {
     "reinsurance_transactions": ("DV-RTR-01", "DV-RTR-02", "DV-RTR-03", "DV-RTR-04"),
     "reinsurance_treaties": ("DV-RTY-01", "DV-RTY-02", "DV-RTY-03", "DV-RTY-08"),
     "ledger": ("DV-LDG-01", "DV-LDG-02", "DV-LDG-04", "DV-LDG-05"),
+    # the life feeds (L1a, record 0442)
+    "life_in_force": ("DV-LIF-01", "DV-LIF-02", "DV-LIF-03", "DV-LIF-04", "DV-LIF-05"),
+    "life_events": ("DV-LEV-01", "DV-LEV-02", "DV-LEV-03"),
+    "fund_flows": ("DV-FFL-01", "DV-FFL-02", "DV-FFL-03", "DV-FFL-04"),
 }
 CAST_RULE = "CV07"  # a value that is not the field's type; reported by the canonical step
 

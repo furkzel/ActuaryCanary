@@ -283,6 +283,20 @@ class ValueAliasSpec(SpecBase):
     values: list[ValueAliasEntry] = Field(min_length=1)
 
 
+class PlannedColumnAliasSpec(ColumnAliasSpec):
+    """AL03: the column aliases of concepts not built yet. Empty once every planned concept is
+    built (record 0440); the file stays, because the generator reads it."""
+
+    columns: list[ColumnAliasEntry] = []
+    personal_data: list[PersonalDataEntry] = []
+
+
+class PlannedValueAliasSpec(ValueAliasSpec):
+    """AL04: the value aliases of concepts not built yet; empty when none is planned."""
+
+    values: list[ValueAliasEntry] = []
+
+
 # --- report --------------------------------------------------------------------------
 
 

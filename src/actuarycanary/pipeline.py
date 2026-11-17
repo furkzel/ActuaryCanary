@@ -34,6 +34,11 @@ from actuarycanary.convert.views import (
 from actuarycanary.io.excel import RawTable, Workbook, read_workbooks, spreadsheets
 from actuarycanary.ledger.resolve import profile_in_use
 from actuarycanary.ledger.settings import LedgerSettings
+from actuarycanary.life.exposure import FILE_NAME as LIFE_EXPOSURE_NAME
+from actuarycanary.life.exposure import Exposure, exposure
+from actuarycanary.life.load import LIFE_EVENTS, LIFE_FEEDS, LIFE_IN_FORCE, drop_sex
+from actuarycanary.life.settings import LifeSettings
+from actuarycanary.life.tables import read_tables
 from actuarycanary.manifest.metadata import load_metadata
 from actuarycanary.manifest.run import (
     InputRecord,
@@ -154,6 +159,7 @@ CHECKED_CONCEPTS = (
     "reinsurance_transactions",
     "recoveries",
     "ledger",
+    *LIFE_FEEDS,
 )
 # Specifications whose rules this run applies; recorded with their versions.
 SPECS_USED = (
@@ -237,6 +243,8 @@ class RunSettings(BaseModel):
     reinsurance: ReinsuranceSettings = Field(default_factory=ReinsuranceSettings)
     # M10: the materiality of a gap between the platform and the books (CV12, record 0603)
     ledger: LedgerSettings = Field(default_factory=LedgerSettings)
+    # the life studies: the defaults of CV11 (record 0441)
+    life: LifeSettings = Field(default_factory=LifeSettings)
 
     @field_validator("currency_view")
     @classmethod
@@ -377,7 +385,10 @@ def _input_records(
     return records
 
 
-def _mapping_record(rec: TableRecognition, values: list[ValueMapping]) -> dict[str, Any]:
+def _mapping_record(
+    rec: TableRecognition, values: list[ValueMapping], dropped: tuple[str, ...] = ()
+) -> dict[str, Any]:
+    """`dropped` are mapped columns dropped on load all the same (sex of a life feed, CV11)."""
     return {
         "file": rec.file,
         "sheet": rec.sheet,
@@ -392,10 +403,12 @@ def _mapping_record(rec: TableRecognition, values: list[ValueMapping]) -> dict[s
             if rec.concept == "claim_valuations"
             else {}
         ),
-        "columns": [[m.source, m.field] for m in rec.mappings if m.used],
-        "layers": [str(m.layer) for m in rec.mappings if m.used],
+        "columns": [
+            [m.source, m.field] for m in rec.mappings if m.used and m.source not in dropped
+        ],
+        "layers": [str(m.layer) for m in rec.mappings if m.used and m.source not in dropped],
         "columns_not_used": [m.source for m in rec.mappings if not m.used and not m.personal],
-        "personal_data_dropped": [m.source for m in rec.mappings if m.personal],
+        "personal_data_dropped": [m.source for m in rec.mappings if m.personal] + list(dropped),
         "unmapped_labels": [
             {"field": v.field, "label": label, "rows": rows}
             for v in values
@@ -421,6 +434,18 @@ def _with_ceded_fields(inputs: MeasureInputs) -> MeasureInputs:
     if not changed:
         return inputs
     return replace(inputs, feeds={**inputs.feeds, "claim_valuations": filled})
+
+
+def _life_exposure(
+    checked: dict[str, CanonicalFeed], cut_off: date, settings: LifeSettings
+) -> Exposure | None:
+    """Exposure and decrements of the life feeds (CV11, record 0446), when life_in_force has
+    rows."""
+    in_force = checked.get(LIFE_IN_FORCE)
+    if in_force is None or in_force.frame.height == 0:
+        return None
+    events = checked.get(LIFE_EVENTS)
+    return exposure(in_force.frame, events.frame if events else None, cut_off, settings)
 
 
 def _settings_record(
@@ -782,9 +807,14 @@ def run(
     for concept in CHECKED_CONCEPTS:
         if concept not in by_concept or concept in feeds:
             continue
-        parts = [
-            canonical_table(i.table, i.recognition, dictionary)[0] for i in by_concept[concept]
-        ]
+        parts = []
+        for item in by_concept[concept]:
+            raw = canonical_table(item.table, item.recognition, dictionary)[0]
+            if concept in LIFE_FEEDS:
+                # birth dates are dropped by recognition; sex unless the user asks (record 0441)
+                raw, dropped = drop_sex(raw, item.recognition, settings.life.use_sex)
+                mappings.append(_mapping_record(item.recognition, [], dropped))
+            parts.append(raw)
         combined = _combined(parts)
         try:
             checked[concept] = canonicalise(combined, specs.data[concept])
@@ -796,6 +826,8 @@ def run(
         for t in loaded
         if t.recognition.concept not in concepts and t.recognition.concept not in checked
     ]
+
+    reference = read_tables(folder)  # the life reference tables, if the folder has any
 
     step("Building triangles")
     original = settings.currency_view == ORIGINAL
@@ -1035,6 +1067,8 @@ def run(
     ]
     if account_use is not None:  # the profile's content is part of what the figures rest on
         applied.append({"concept": ACCOUNT_MAPPING, "sha256": account_use.sha256})
+    if reference.used:  # the life reference tables read (record 0443)
+        applied.append(reference.run_id_record())
     run = run_id(inputs, spec_records, settings_record, __version__, applied)
     out = out_root / run
     out.mkdir(parents=True, exist_ok=True)
@@ -1054,6 +1088,9 @@ def run(
     for name, text in lineage.files().items():
         outputs.append(write_output(out, name, text))
     outputs.append(write_output(out, MODULES_NAME, analysis_json(analysis, reserving)))
+    life = _life_exposure(checked, triangles.cut_off, settings.life)
+    if life is not None:  # only with life feeds: a run without them writes what it wrote
+        outputs.append(write_table(out, LIFE_EXPOSURE_NAME, life.cells))
     in_force = reserving.assumptions()
     for name, content in (
         (ASSUMPTIONS_NAME, assumptions_csv(in_force)),
@@ -1187,6 +1224,7 @@ def run(
                 expenses=expense_table_run,
                 reinsurance=reinsurance_run_used,
                 ledger=ledger_tables_run,
+                life=life,
             )
         )
     with language.using(settings.language):
@@ -1213,6 +1251,8 @@ def run(
         assumptions=records(in_force),
         randomness=randomness,
         account_mapping=_account_mapping_record(account_use),
+        reference_tables=reference.manifest_record() if reference.found else None,
+        life_exposure=life.manifest_record() if life is not None else None,
     )
     tables = tuple(t.recognition for t in loaded)
     return RunResult(

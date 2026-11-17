@@ -20,6 +20,7 @@ import polars as pl
 from actuarycanary.canonical.feeds import Finding
 from actuarycanary.convert.discount import DiscountContext
 from actuarycanary.convert.views import ORIGINAL, UNIT_LABEL, currency_of
+from actuarycanary.life.exposure import Exposure
 from actuarycanary.manifest.metadata import ProjectMetadata
 from actuarycanary.manifest.run import InputRecord, OutputRecord, SpecRecord
 from actuarycanary.methods.assumptions import Assumption
@@ -124,6 +125,7 @@ class ReportInputs:
     expenses: ExpenseTable | None = None  # the table of M09, when it ran
     reinsurance: ReinsuranceRun | None = None  # the run of M08, when it ran
     ledger: LedgerTables | None = None  # the tables of M10, when it ran
+    life: Exposure | None = None  # the exposure of the life feeds, when they were loaded
 
 
 class _Specs:
@@ -530,13 +532,48 @@ def _data_page(r: ReportInputs, spec: _Specs) -> dict[str, Any]:
         }
         for c in r.quality.coverage
     ]
-    return {
+    body = {
         "score": show_score(r.quality.overall),
         "coverage": coverage,
         "footnote": t(
             "{spec}; rows as read from the spreadsheets; scores out of 100.", spec=spec("DQ01")
         ),
     }
+    if r.life is not None:  # only with life feeds, so that no other run's page moves
+        body["life"] = _life_line(r.life)
+        body["scopes"] = {"life": _segment("Life feeds and exposure years")}
+    return body
+
+
+def _life_line(life: Exposure) -> list[dict[str, Any]]:
+    """One line per segment: the life feeds loaded and the years of exposure (record 0446)."""
+    period = life.period_column
+    rows = (
+        life.cells.group_by("segment")
+        .agg(
+            pl.col(period).min().alias("first"),
+            pl.col(period).max().alias("last"),
+            pl.col("central_exposure").sum().alias("years"),
+        )
+        .sort("segment")
+    )
+    return [
+        {
+            "segment": row["segment"],
+            "text": t(
+                "Life feeds of {segment}: exposure {first} to {last}, {years} contract-years "
+                "(central, {definition}); by age, policy year and {cells} in life_exposure.csv. "
+                "The life experience page is not built yet.",
+                segment=row["segment"],
+                first=row["first"],
+                last=row["last"],
+                years=numbers.amount(row["years"]),
+                definition=t(life.settings.age_definition.replace("_", " ")),
+                cells=t(period.replace("_", " ")),
+            ),
+        }
+        for row in rows.iter_rows(named=True)
+    ]
 
 
 def _portfolio_page(r: ReportInputs, spec: _Specs, figures: dict[str, Any]) -> dict[str, Any]:

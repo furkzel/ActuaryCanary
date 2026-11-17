@@ -1,9 +1,9 @@
 id: life_in_force
-version: 0.2.0
+version: 0.3.0
 title_en: Life and pension in-force
 title_tr: Hayat ve emeklilik yürürlükteki sözleşmeler
 status: draft
-implemented: false
+implemented: true
 definition: >-
   The state of each life or pension contract at each valuation date: product, entry date,
   age band, status, term, sums assured or fund value and premium. The exposure base of the
@@ -34,7 +34,8 @@ fields:
     required: true
     description: >-
       Age of the insured life at the valuation date in whole years, on the age definition of
-      CV11, written as one age ("45") or a band of whole years ("45-49"). The birth date is
+      CV11, written as one age ("45"), a band of whole years ("45-49") or an open top band
+      ("85+"). The birth date is
       personal data and is never read (blueprint 4.4).
   - name: status
     type: text
@@ -132,7 +133,8 @@ validation:
     severity: WARNING
     fields: [life_in_force.age_band]
     rule: >-
-      age_band is one whole age or a band "x-y" with x at most y, both between 0 and 120.
+      age_band is one whole age, a band "x-y" with x at most y, both between 0 and 120, or an
+      open top band "x+" with x between 0 and 120 (record 0441).
     action: The row is excluded and listed.
   - id: DV-LIF-04
     dimension: consistency
@@ -204,3 +206,8 @@ change_log:
     change: >-
       Owner decision (record 0602): the health segment is handled on the non-life side; the
       requires_decision entry is closed.
+  - version: 0.3.0
+    date: 2026-11-17
+    change: >-
+      implemented before owner review (L1a, records 0440 to 0442); status stays draft.
+      DV-LIF-03 also accepts an open top band "x+" (record 0441), so the version moves.

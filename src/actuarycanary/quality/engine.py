@@ -39,6 +39,9 @@ PERIOD_FIELDS = {
     "reinsurance_transactions": "booking_date",
     "recoveries": "booking_date",
     "ledger": "period",
+    "life_in_force": "valuation_date",
+    "life_events": "event_date",
+    "fund_flows": "flow_date",
 }
 CHECKS = FIRST_CHECKS | FEED_CHECKS
 # rules about the curve a run discounts with; evaluated only when the run names one (CV10)

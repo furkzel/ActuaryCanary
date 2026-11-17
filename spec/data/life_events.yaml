@@ -3,7 +3,7 @@ version: 0.1.0
 title_en: Life and pension events
 title_tr: Hayat ve emeklilik olayları
 status: draft
-implemented: false
+implemented: true
 definition: >-
   Decrements and movements of life and pension contracts: deaths, disabilities, surrenders,
   partial withdrawals, lapses, maturities, annuity starts, transfers and reinstatements, one
@@ -130,3 +130,7 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 4.4 (P20).
+  - version: 0.1.0
+    date: 2026-11-17
+    change: >-
+      implemented before owner review (L1a, records 0440 to 0442); status stays draft.

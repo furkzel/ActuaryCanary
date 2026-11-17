@@ -337,7 +337,7 @@
   "rows": [
    {
     "label": "Çalıştırma kimliği",
-    "value": "77baa3bd261c52f9"
+    "value": "2964813d398af169"
    },
    {
     "label": "Değerleme tarihi",
@@ -5462,6 +5462,14 @@
       "score": "100.0"
      },
      {
+      "concept": "fund_flows",
+      "first": "–",
+      "last": "–",
+      "loaded": false,
+      "rows": "–",
+      "score": "–"
+     },
+     {
       "concept": "interest_rates",
       "first": "–",
       "last": "–",
@@ -5471,6 +5479,22 @@
      },
      {
       "concept": "ledger",
+      "first": "–",
+      "last": "–",
+      "loaded": false,
+      "rows": "–",
+      "score": "–"
+     },
+     {
+      "concept": "life_events",
+      "first": "–",
+      "last": "–",
+      "loaded": false,
+      "rows": "–",
+      "score": "–"
+     },
+     {
+      "concept": "life_in_force",
       "first": "–",
       "last": "–",
       "loaded": false,
@@ -7451,8 +7475,8 @@
   "outputs": [
    {
     "name": "quality.json",
-    "sha256": "275eb62b0b59d5cbb06cf6652471f22a83e76eda010de8f548b10c2d1a740bc5",
-    "size": "37.859"
+    "sha256": "cae1df80ddac58c4e3cba2526a5f2e37e013d3d421fed454b67920672e504c88",
+    "size": "40.212"
    },
    {
     "name": "triangles.csv",
@@ -7739,7 +7763,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "77baa3bd261c52f9",
+  "run_id": "2964813d398af169",
   "settings": [
    {
     "name": "bases.currency",
@@ -7844,6 +7868,30 @@
    {
     "name": "ledger.materiality_ratio",
     "value": "0.005"
+   },
+   {
+    "name": "life.age_band_width",
+    "value": "5"
+   },
+   {
+    "name": "life.age_definition",
+    "value": "age_last_birthday"
+   },
+   {
+    "name": "life.exposure",
+    "value": "central"
+   },
+   {
+    "name": "life.reporting_lag_months",
+    "value": "3"
+   },
+   {
+    "name": "life.study_cells",
+    "value": "calendar_year"
+   },
+   {
+    "name": "life.use_sex",
+    "value": "False"
    },
    {
     "name": "lineage_format",
@@ -8233,12 +8281,12 @@
    {
     "id": "AL01",
     "title": "Sütun adı eşleştirmeleri",
-    "version": "1.2.0"
+    "version": "1.3.0"
    },
    {
     "id": "AL02",
     "title": "Değer eşleştirmeleri",
-    "version": "1.2.0"
+    "version": "1.3.0"
    },
    {
     "id": "CV01",

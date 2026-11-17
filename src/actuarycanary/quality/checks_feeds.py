@@ -27,6 +27,8 @@ from actuarycanary.quality.checks import (
     iso_currency,
     references,
 )
+from actuarycanary.quality.checks_life import LIFE_CHECKS
+from actuarycanary.quality.checks_life import NEEDS as LIFE_NEEDS
 from actuarycanary.quality.model import Outcome
 
 TREATIES = "reinsurance_treaties"
@@ -55,6 +57,7 @@ NEEDS: dict[str, tuple[str, ...]] = {
     "DV-RCV-06": ("claim_valuations",),
     "DV-RCV-07": ("claim_valuations",),
     "DV-RCV-08": ("claim_valuations",),
+    **LIFE_NEEDS,  # the life feeds (L1a, record 0442)
 }
 # rules that cannot be evaluated yet, with the reason the quality report gives
 NOT_BUILT: dict[str, str] = {}
@@ -549,4 +552,5 @@ FEED_CHECKS: dict[str, Check] = {
     "DV-LDG-08": books_balance,
     "DV-LDG-09": accounts_are_mapped,
     "DV-LDG-10": every_month_has_a_row,
+    **LIFE_CHECKS,
 }

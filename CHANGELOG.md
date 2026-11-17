@@ -4,6 +4,13 @@ Written for users. Versions follow semantic versioning; each specification file 
 
 ## Unreleased
 
+### What is new
+
+- **Life and pension files.** `life_in_force`, `life_events` and `fund_flows` are recognised by their content (English and Turkish column names), read and checked by their 27 data rules; they appear in "What was loaded" of the data quality appendix. A birth date is never read: the column is dropped when the file is read and listed. Sex is dropped too unless the new setting `life.use_sex` is on. Age comes as one age, a band ("45-49") or an open top band ("85+").
+- **Reference tables.** Mortality, disability, lapse and surrender tables are read from `reference_tables/` in your data folder: a CSV per table (age or policy year, rate, the kind of rate) and a small `.yaml` file beside it naming the decrement, the source and the licence. A table that fails a check is listed and not used; the fingerprint of every table used is in `manifest.json` and in the run id. No table ships with the program; the user guide shows the format.
+- **`life_exposure.csv`.** When life files are loaded, the run writes central and initial exposure, deaths, lapses, surrenders and other exits by segment, line, product, calendar year (or policy-year cells), age, age band and policy year, with an amounts view, following the life conventions (CV11: age moves on policy anniversaries, the last three months are left out of mortality because deaths are reported late). The data page names the life feeds and the years of exposure. The life experience page itself (actual against expected) comes next.
+- **New settings** `life.age_definition`, `life.exposure`, `life.study_cells`, `life.age_band_width`, `life.reporting_lag_months` and `life.use_sex`. Like every setting they are part of the run id, so every run id changes once; no figure changes.
+
 ### Fixed
 
 - **Segments are no longer added on the pages of recoveries, reinsurance and expenses.** In 1.3.0 some tables and headlines of M07, M08 and M09 added LIFE and NON_LIFE together (recovered to date and the delay summary of M07, the ceded shares, the reinsurance result and the loss ratios by origin of M08, the ratios and the unit costs of M09), although segments are never consolidated by default. They are cut by segment now, and so are the four findings that stated those figures (KF35, KF37, KF38, KF39). Every table and headline of the report states its scope, and a test fails on a figure without one; the few that are booked at company level, or by legal entity, say so on the page.
