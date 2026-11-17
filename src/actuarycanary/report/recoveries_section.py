@@ -17,7 +17,7 @@ from actuarycanary.modules.recoveries import (
     RecoveryTables,
 )
 from actuarycanary.modules.runner import AnalysisResult
-from actuarycanary.report import charts, numbers
+from actuarycanary.report import charts, numbers, scope
 from actuarycanary.report.facts import FactSet, _put, find_result
 from actuarycanary.report.language import t
 
@@ -65,9 +65,15 @@ def _share(numerator: float, denominator: float) -> float | None:
     return numerator / denominator if denominator > 0 else None
 
 
+def _segments(cells: pl.DataFrame) -> list[str]:
+    """The segments of the cells in the order they come; their figures are never added."""
+    return list(dict.fromkeys(str(x) for x in cells["segment"].to_list()))
+
+
 def _headline(cells: pl.DataFrame) -> list[dict[str, Any]]:
-    """Per type: recovered to date and as a share of paid, and what the last development
-    period added against the one before (the diagonal before the latest, and the one before)."""
+    """Per segment and type: recovered to date and as a share of paid, and what the last
+    development period added against the one before (the diagonal before the latest, and the
+    one before). The lines of one segment are added, segments never."""
     rows = []
     back = cells.with_columns(
         pl.col("age")
@@ -75,33 +81,37 @@ def _headline(cells: pl.DataFrame) -> list[dict[str, Any]]:
         .over("segment", "line", "origin_period")
         .alias("step")
     )
-    for kind in dict.fromkeys(cells["recovery_type"].to_list()):
-        of_kind = back.filter(pl.col("recovery_type") == kind)
-        level = {
-            step: float(of_kind.filter(pl.col("step") == step)["numerator"].sum())
-            for step in (1, 2, 3)
-        }
-        paid = float(of_kind.filter(pl.col("step") == 1)["denominator"].sum())
-        last, before = level[1] - level[2], level[2] - level[3]
-        rows.append(
-            {
-                "type": _type_label(kind),
-                "recovered": numbers.amount(level[1]),
-                "share": numbers.ratio(_share(level[1], paid)),
-                "last": numbers.amount(last),
-                "before": numbers.amount(before),
-                "change": numbers.change_amount(last - before),
+    for segment in _segments(cells):
+        in_segment = back.filter(pl.col("segment") == segment)
+        for kind in dict.fromkeys(in_segment["recovery_type"].to_list()):
+            of_kind = in_segment.filter(pl.col("recovery_type") == kind)
+            level = {
+                step: float(of_kind.filter(pl.col("step") == step)["numerator"].sum())
+                for step in (1, 2, 3)
             }
-        )
+            paid = float(of_kind.filter(pl.col("step") == 1)["denominator"].sum())
+            last, before = level[1] - level[2], level[2] - level[3]
+            rows.append(
+                {
+                    "segment": segment,
+                    "type": _type_label(kind),
+                    "recovered": numbers.amount(level[1]),
+                    "share": numbers.ratio(_share(level[1], paid)),
+                    "last": numbers.amount(last),
+                    "before": numbers.amount(before),
+                    "change": numbers.change_amount(last - before),
+                }
+            )
     return rows
 
 
-def _triangle_figure(cells: pl.DataFrame, kind: str) -> dict[str, Any] | None:
-    """All lines together for one recovery type: cumulative recoveries over cumulative paid by
-    origin and development age."""
-    part = _summed(cells.filter(pl.col("recovery_type") == kind), ["origin_period", "age"]).sort(
-        "origin_period", "age"
-    )
+def _triangle_figure(cells: pl.DataFrame, kind: str, segment: str) -> dict[str, Any] | None:
+    """All lines of one segment together for one recovery type: cumulative recoveries over
+    cumulative paid by origin and development age."""
+    part = _summed(
+        cells.filter((pl.col("recovery_type") == kind) & (pl.col("segment") == segment)),
+        ["origin_period", "age"],
+    ).sort("origin_period", "age")
     if part.height == 0 or float(part["numerator"].sum()) == 0:
         return None
     origins = list(dict.fromkeys(part["origin_period"].to_list()))
@@ -126,7 +136,7 @@ def _triangle_figure(cells: pl.DataFrame, kind: str) -> dict[str, Any] | None:
             )
         z.append(z_row)
         text.append(text_row)
-    title = t("Recoveries over paid, {type}", type=_type_label(kind))
+    title = t("Recoveries over paid, {type}, {segment}", type=_type_label(kind), segment=segment)
     return {
         "data": [
             {
@@ -188,15 +198,21 @@ def _by_origin(analysis: AnalysisResult, cells: pl.DataFrame) -> list[dict[str, 
 
 
 def _delays(analysis: AnalysisResult) -> list[dict[str, Any]]:
+    """The delay from first payment to recovery, per segment and per segment and line."""
     rows = []
-    for breakdowns in (("recovery_type",), ("segment", "line", "recovery_type")):
+    for breakdowns in (("segment", "recovery_type"), ("segment", "line", "recovery_type")):
         found = find_result(analysis, "RC03", breakdowns)
         if found is None or found.frame is None:
             continue
         for r in found.frame.iter_rows(named=True):
-            line = f"{r['segment']} · {r['line']}" if "line" in r else t("All lines")
+            line = (
+                f"{r['segment']} · {r['line']}"
+                if "line" in r
+                else f"{r['segment']} · {t('All lines')}"
+            )
             rows.append(
                 {
+                    "segment": r["segment"],
                     "line": line,
                     "type": _type_label(r["recovery_type"]),
                     "n": numbers.count(r["n"]),
@@ -222,12 +238,19 @@ def recoveries_page(
     )
     charts_shown = []
     if cells.height and one_currency:
-        for kind in dict.fromkeys(cells["recovery_type"].to_list()):
-            figure = _triangle_figure(cells, kind)
-            if figure is not None:
-                figure_id = f"recoveries-{kind.lower()}"
-                figures[figure_id] = figure
-                charts_shown.append({"id": figure_id, "title": figure["layout"]["title"]["text"]})
+        for segment in _segments(cells):
+            for kind in dict.fromkeys(cells["recovery_type"].to_list()):
+                figure = _triangle_figure(cells, kind, segment)
+                if figure is not None:
+                    figure_id = f"recoveries-{kind.lower()}-{segment.lower()}"
+                    figures[figure_id] = figure
+                    charts_shown.append(
+                        {
+                            "id": figure_id,
+                            "segment": segment,
+                            "title": figure["layout"]["title"]["text"],
+                        }
+                    )
     reconciliation = []
     differences = 0
     if tables is not None:
@@ -249,6 +272,15 @@ def recoveries_page(
         "figures": charts_shown,
         "lines": _by_origin(analysis, cells),
         "delays": _delays(analysis),
+        "scopes": {
+            "headline": scope.declare("Recoveries by segment and type", scope.SEGMENT),
+            "figures": scope.declare("Recovery development by segment", scope.SEGMENT),
+            "lines": scope.declare("Recovery ratios by origin", scope.SEGMENT),
+            "delays": scope.declare("Delay from first payment to recovery", scope.SEGMENT),
+            "reconciliation": scope.declare(
+                "Differences between transactions and to-date fields", scope.INFO
+            ),
+        },
         "source": t(SOURCE_LABELS[source]) if source in SOURCE_LABELS else "",
         "source_note": tables.note if tables is not None else "",
         "reconciliation": reconciliation,
@@ -258,9 +290,9 @@ def recoveries_page(
         if tables is not None and tables.reconciliation_note in NOT_RECONCILED
         else "",
         "figure_note": t(
-            "Cumulative recoveries over cumulative paid by origin and development age, all "
-            "lines together, one chart per recovery type {rc04}; cells of the paid triangle "
-            "{mt01}.",
+            "Cumulative recoveries over cumulative paid by origin and development age, the "
+            "lines of one segment together, one chart per segment and recovery type {rc04}; "
+            "cells of the paid triangle {mt01}.",
             rc04=spec("RC04"),
             mt01=spec("MT01"),
         ),
@@ -283,18 +315,29 @@ def recoveries_page(
 def add_recovery_facts(
     facts: FactSet, analysis: AnalysisResult, tables: RecoveryTables | None
 ) -> None:
-    """Facts of KF35 to KF37: recovered to date and its share of paid, the differences of the
-    reconciliation, and the latest origin against the earlier ones at the first development
-    age. A fact the run cannot compute is absent."""
+    """Fact of KF36: the differences of the reconciliation, a count over every valuation of
+    the run. The ratios of KF35 and KF37 are facts of a segment (`add_recovery_segment_facts`):
+    segments are never added. A fact the run cannot compute is absent."""
     if tables is not None and tables.compared:
         _put(facts, "recovery_differences", float(tables.reconciliation.height), "count")
         _put(facts, "recovery_valuations_compared", float(tables.compared), "count")
+
+
+def add_recovery_segment_facts(
+    facts: FactSet, analysis: AnalysisResult, tables: RecoveryTables | None, segment: str
+) -> None:
+    """Facts of KF35 and KF37 for one segment: recovered to date and its share of paid, and
+    the latest origin against the earlier ones at the first development age. The lines of the
+    segment are added, other segments never."""
     development = find_result(analysis, "RC04", DEVELOPMENT_VIEW)
     cells = _cells(development)
     if cells.height == 0 or development is None:
         return
     if development.request.basis.currency is not CurrencyView.REPORTING:
         return  # amounts of several currencies are not added
+    cells = cells.filter(pl.col("segment") == segment)
+    if cells.height == 0:
+        return
     total = cells.filter(pl.col("recovery_type") == TOTAL)
     latest = total.filter(pl.col("latest"))
     recovered, paid = float(latest["numerator"].sum()), float(latest["denominator"].sum())

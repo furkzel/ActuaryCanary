@@ -10,7 +10,7 @@ import polars as pl
 from actuarycanary.convert.allocation import APPROXIMATION, NOT_ALLOCATED
 from actuarycanary.modules.reinsurance import ReinsuranceRun
 from actuarycanary.modules.runner import AnalysisResult
-from actuarycanary.report import numbers
+from actuarycanary.report import numbers, scope
 from actuarycanary.report.facts import FactSet, _put, find_result
 from actuarycanary.report.language import t
 
@@ -37,13 +37,26 @@ CLAUSE_LABELS = {
 }
 
 
-def _value(result, side: str, column: str = "value") -> float | None:
+def _by_segment(result, side: str) -> dict[str, float | None]:
+    """The value of one side (premium or claims) of an RI01 view cut by segment."""
     if result is None or result.frame is None or "side" not in result.frame.columns:
-        return None
+        return {}
     rows = result.frame.filter(pl.col("side") == side)
-    return (
-        None if rows.height == 0 else rows[column].sum() if column != "value" else rows[column][0]
-    )
+    return {str(r["segment"]): r["value"] for r in rows.iter_rows(named=True)}
+
+
+def _shares(analysis: AnalysisResult) -> list[dict[str, Any]]:
+    """The ceded share of written premium and of claims incurred, per segment (RI01)."""
+    cession = find_result(analysis, "RI01", ("segment",))
+    premium, claims = _by_segment(cession, "premium"), _by_segment(cession, "claims")
+    return [
+        {
+            "segment": name,
+            "premium_share": numbers.ratio(premium.get(name)),
+            "claims_share": numbers.ratio(claims.get(name)),
+        }
+        for name in sorted(set(premium) | set(claims))
+    ]
 
 
 def _terms(row: dict[str, Any]) -> str:
@@ -105,19 +118,26 @@ def _treaty_rows(
 
 
 def _origins(analysis: AnalysisResult) -> list[dict[str, Any]]:
-    """Gross, ceded and net incurred over gross earned premium by origin, with RI04."""
-    cession = find_result(analysis, "RI01", ("origin_period",))
-    result = find_result(analysis, "RI04", ("origin_period",))
+    """Per segment and origin: gross, ceded and net incurred over the gross earned premium of
+    the segment, with RI04 of the segment."""
+    cession = find_result(analysis, "RI01", ("segment", "origin_period"))
+    result = find_result(analysis, "RI04", ("segment", "origin_period"))
     if cession is None or cession.frame is None or result is None or result.frame is None:
         return []
     claims = cession.frame.filter(pl.col("side") == "claims").select(
-        "origin_period", pl.col("numerator").alias("ceded"), pl.col("denominator").alias("gross")
+        "segment",
+        "origin_period",
+        pl.col("numerator").alias("ceded"),
+        pl.col("denominator").alias("gross"),
     )
     joined = result.frame.select(
-        "origin_period", pl.col("value").alias("ri04"), pl.col("denominator").alias("earned")
-    ).join(claims, on="origin_period", how="left")
+        "segment",
+        "origin_period",
+        pl.col("value").alias("ri04"),
+        pl.col("denominator").alias("earned"),
+    ).join(claims, on=["segment", "origin_period"], how="left")
     rows = []
-    for r in joined.sort("origin_period").iter_rows(named=True):
+    for r in joined.sort("segment", "origin_period").iter_rows(named=True):
         earned = r["earned"]
 
         def lr(x: float | None, e: float | None = earned) -> str:
@@ -126,6 +146,7 @@ def _origins(analysis: AnalysisResult) -> list[dict[str, Any]]:
         net = None if r["gross"] is None or r["ceded"] is None else r["gross"] - r["ceded"]
         rows.append(
             {
+                "segment": r["segment"],
                 "origin": r["origin_period"],
                 "gross": lr(r["gross"]),
                 "ceded": lr(r["ceded"]),
@@ -133,6 +154,26 @@ def _origins(analysis: AnalysisResult) -> list[dict[str, Any]]:
                 "ri04": numbers.ratio(r["ri04"]),
             }
         )
+    return rows
+
+
+def _years(analysis: AnalysisResult) -> list[dict[str, Any]]:
+    """The reinsurance result (RI02) of the last calendar years, per segment."""
+    result = find_result(analysis, "RI02", ("segment", "calendar_period"))
+    if result is None or result.frame is None or result.frame.height == 0:
+        return []
+    rows = []
+    for name, part in result.frame.sort("segment", "calendar_period").group_by(
+        "segment", maintain_order=True
+    ):
+        for r in part.tail(LAST_YEARS).iter_rows(named=True):
+            rows.append(
+                {
+                    "segment": str(name[0]),
+                    "period": str(r["calendar_period"]),
+                    "result": numbers.amount(r["value"]),
+                }
+            )
     return rows
 
 
@@ -156,6 +197,23 @@ def _allocation_notes(run: ReinsuranceRun) -> list[dict[str, Any]]:
     ]
 
 
+def _scopes() -> dict[str, Any]:
+    """The scope of every table of the page (record 0815). The treaties, the programmes and
+    the allocation are booked per treaty and not by segment; the rest is cut by segment."""
+    return {
+        "shares": scope.declare("Ceded share by segment", scope.SEGMENT),
+        "years": scope.declare("Reinsurance result by segment", scope.SEGMENT),
+        "treaties": scope.declare("Treaties", scope.COMPANY),
+        "origins": scope.declare("Loss ratios by segment and origin", scope.SEGMENT),
+        "volatility": scope.declare("Volatility by line", scope.SEGMENT),
+        "programmes": scope.declare("What-if programmes", scope.COMPANY),
+        "allocation": scope.declare("Allocation notes", scope.COMPANY),
+        "reconciliation": scope.declare(
+            "Reconciliation with the reported ceded amounts", scope.COMPANY
+        ),
+    }
+
+
 def reinsurance_page(
     analysis: AnalysisResult,
     run: ReinsuranceRun | None,
@@ -165,15 +223,6 @@ def reinsurance_page(
 ) -> dict[str, Any]:
     if run is None:
         return {"available": False}
-    cession = find_result(analysis, "RI01", ())
-    result = find_result(analysis, "RI02", ("calendar_period",))
-    years = []
-    if result is not None and result.frame is not None and result.frame.height:
-        last = result.frame.sort("calendar_period").tail(LAST_YEARS)
-        years = [
-            {"period": str(r["calendar_period"]), "result": numbers.amount(r["value"])}
-            for r in last.iter_rows(named=True)
-        ]
     ri03 = find_result(analysis, "RI03", ("treaty",))
     shares: dict[tuple[str, int, str], float | None] = {}
     if ri03 is not None and ri03.frame is not None:
@@ -220,13 +269,13 @@ def reinsurance_page(
     return {
         "available": True,
         "currency": currency,
-        "premium_share": numbers.ratio(_value(cession, "premium")),
-        "claims_share": numbers.ratio(_value(cession, "claims")),
-        "years": years,
+        "shares": _shares(analysis),
+        "years": _years(analysis),
         "clause": t(CLAUSE_LABELS[run.settings.index_clause]),
         "treaties": _treaty_rows(run, shares),
         "origins": _origins(analysis),
         "volatility": volatility,
+        "scopes": _scopes(),
         "programmes": programmes,
         "allocation": _allocation_notes(run),
         "compared": years_rows.height,
