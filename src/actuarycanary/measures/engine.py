@@ -101,8 +101,8 @@ IMPLEMENTATIONS: dict[str, Implementation] = {
     "RI04": Implementation(
         reinsurance_programme.reinsurance_result_ratio,
         not_built={
-            d: "RI04 is built per origin year over the whole programme"
-            for d in ("segment", "line", "entity", "treaty")
+            d: "RI04 is built per origin year, by segment or over the whole programme"
+            for d in ("line", "entity", "treaty")
         },
     ),
     "RI05": Implementation(reinsurance_programme.net_loss_ratio_volatility),

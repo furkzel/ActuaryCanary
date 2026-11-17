@@ -131,12 +131,16 @@ def reinsurance_result_ratio(
     spec: MeasureSpec, inputs: MeasureInputs, request: MeasureRequest
 ) -> Computed | Missing:
     """RI04: (ceded incurred + commission earned - ceded premium earned - reinstatement
-    premium) over gross earned premium, per origin year, on the incurred view."""
+    premium) over gross earned premium, per origin year, on the incurred view. With `segment`
+    in the breakdowns every part is cut by segment and the figures of two segments are never
+    added; the reinstatement premium reaches a segment through the line it was allocated to."""
     run = _run(inputs)
     if isinstance(run, Missing):
         return run
     if not (inputs.feeds["premiums"]["type"] == CEDED_TYPE).any():
         return Missing("no ceded premium in the premium file (CV03)")
+    by_segment = "segment" in request.breakdowns
+    cut = ["segment"] if by_segment else []
     currency = request.basis.currency
     ceded_basis = Basis(ReinsuranceBasis.CEDED, currency)
     try:
@@ -144,12 +148,14 @@ def reinsurance_result_ratio(
     except BasisUnavailableError as error:
         return Missing(str(error))
     ceded, left = left_out(ceded, "incurred")
-    by_origin = MeasureRequest(("origin_period",), Period.YEAR, ceded_basis)
+    by_origin = MeasureRequest((*cut, "origin_period"), Period.YEAR, ceded_basis)
     ceded, dim_notes = prepared(ceded, inputs, by_origin)
-    claims = group_agg(ceded, ["origin_period"], [pl.col(VALUE).sum().alias("ceded_incurred")])
-    calendar = MeasureRequest(("calendar_period",), Period.YEAR, ceded_basis)
+    claims = group_agg(
+        ceded, [*cut, "origin_period"], [pl.col(VALUE).sum().alias("ceded_incurred")]
+    )
+    calendar = MeasureRequest((*cut, "calendar_period"), Period.YEAR, ceded_basis)
     gross_calendar = MeasureRequest(
-        ("calendar_period",), Period.YEAR, Basis(ReinsuranceBasis.GROSS, currency)
+        (*cut, "calendar_period"), Period.YEAR, Basis(ReinsuranceBasis.GROSS, currency)
     )
     try:
         ceded_premium, more = earned_rolled(inputs, calendar)
@@ -161,33 +167,43 @@ def reinsurance_result_ratio(
         )
     except PremiumError as error:
         return Missing(str(error))
+    on = [*cut, "year"]
     premium = (
         gross_premium.select(
-            _year("calendar_period").alias("year"), pl.col(VALUE).alias("gross_earned")
+            *cut, _year("calendar_period").alias("year"), pl.col(VALUE).alias("gross_earned")
         )
         .join(
             ceded_premium.select(
-                _year("calendar_period").alias("year"), pl.col(VALUE).alias("ceded_premium_earned")
+                *cut,
+                _year("calendar_period").alias("year"),
+                pl.col(VALUE).alias("ceded_premium_earned"),
             ),
-            on="year",
+            on=on,
             how="left",
             maintain_order="left",
         )
         .join(
             commission.select(
-                _year("calendar_period").alias("year"), pl.col(VALUE).alias("commission_earned")
+                *cut,
+                _year("calendar_period").alias("year"),
+                pl.col(VALUE).alias("commission_earned"),
             ),
-            on="year",
+            on=on,
             how="left",
             maintain_order="left",
         )
     )
     reinstatement = _reinstatement_by_year(run)
+    if by_segment:
+        split = _reinstatement_by_segment(run, inputs)
+        if isinstance(split, Missing):
+            return split
+        reinstatement = split
     years = {s.inception.year for s in run.inputs.sections}
     frame = (
         claims.with_columns(_year("origin_period").alias("year"))
-        .join(premium, on="year", how="full", coalesce=True, maintain_order="left")
-        .join(reinstatement, on="year", how="left", maintain_order="left")
+        .join(premium, on=on, how="full", coalesce=True, maintain_order="left")
+        .join(reinstatement, on=on, how="left", maintain_order="left")
         .with_columns(
             pl.col("ceded_incurred").fill_null(0.0),
             pl.col("ceded_premium_earned").fill_null(0.0),
@@ -218,6 +234,7 @@ def reinsurance_result_ratio(
         .alias(NOTE),
     ).filter(pl.col("year").is_not_null())
     keep = [
+        *cut,
         "origin_period",
         VALUE,
         NOTE,
@@ -229,14 +246,20 @@ def reinsurance_result_ratio(
         "reinstatement_premium",
         f"refs_{CONCEPT}",
     ]
-    frame = frame.select([c for c in keep if c in frame.columns]).sort("origin_period")
+    frame = frame.select([c for c in keep if c in frame.columns]).sort(
+        [*cut, "origin_period"], nulls_last=True
+    )
     return Computed(frame, (INCURRED_VIEW, *notes, *left, *dim_notes, *more), (CONCEPT,))
 
 
-def _reinstatement_by_year(run: ReinsuranceRun) -> pl.DataFrame:
-    """Reinstatement premium booked, by origin year of the cells it was allocated to, in the
-    reporting currency at the cut-off rate."""
-    empty = pl.DataFrame(schema={"year": pl.Int64, "reinstatement_premium": pl.Float64})
+def _reinstatement_by_year(run: ReinsuranceRun, by_line: bool = False) -> pl.DataFrame:
+    """Reinstatement premium booked, by origin year of the cells it was allocated to (and by
+    their line when asked), in the reporting currency at the cut-off rate."""
+    keys = ["line", "year"] if by_line else ["year"]
+    empty = pl.DataFrame(
+        schema={**({"line": pl.String} if by_line else {}), "year": pl.Int64}
+        | {"reinstatement_premium": pl.Float64}
+    )
     if run.allocation is None:
         return empty
     rows = run.allocation.rows.filter(
@@ -247,9 +270,31 @@ def _reinstatement_by_year(run: ReinsuranceRun) -> pl.DataFrame:
     rate = run._rate(rows, "currency", run.reporting_currency)
     return (
         rows.with_columns((pl.col("amount") * rate).alias("amount"))
-        .group_by(pl.col("origin_year").alias("year"))
+        .group_by([pl.col(k if k == "line" else "origin_year").alias(k) for k in keys])
         .agg(pl.col("amount").sum().alias("reinstatement_premium"))
-        .sort("year")
+        .sort(keys)
+    )
+
+
+def _reinstatement_by_segment(run: ReinsuranceRun, inputs: MeasureInputs) -> pl.DataFrame | Missing:
+    """The reinstatement premium by segment and year: it was allocated to lines, and a line
+    belongs to the one segment the claims name it under; a line under two segments cannot be
+    split and stops the figure."""
+    by_line = _reinstatement_by_year(run, by_line=True)
+    if by_line.height == 0:
+        return pl.DataFrame(
+            schema={"segment": pl.String, "year": pl.Int64, "reinstatement_premium": pl.Float64}
+        )
+    if "claims" not in inputs.feeds or "segment" not in inputs.feeds["claims"].columns:
+        return Missing("the claims name no segment for the lines of the reinstatement premium")
+    claims = inputs.feeds["claims"].select("segment", "line").drop_nulls().unique()
+    if claims["line"].n_unique() < claims.height or by_line["line"].null_count():
+        return Missing("a line of the reinstatement premium has no single segment: not computed")
+    return (
+        by_line.join(claims, on="line", how="left", maintain_order="left")
+        .group_by("segment", "year")
+        .agg(pl.col("reinstatement_premium").sum())
+        .sort("segment", "year")
     )
 
 
