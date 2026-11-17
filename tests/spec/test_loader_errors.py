@@ -148,11 +148,15 @@ def test_built_spec_using_a_planned_spec_is_rejected() -> None:
 
 
 def test_planned_column_alias_conflicting_with_al01_is_rejected() -> None:
+    """AL03 is empty since L1a built the last planned concepts (record 0440); an entry put into
+    it for a field no concept has is still caught."""
     planned = load_specs(planned=True)
+    al01 = next(s for s in planned.column_alias_specs if s.id == "AL01")
     al03 = next(s for s in planned.column_alias_specs if s.id == "AL03")
-    entry = next(c for c in al03.columns if c.field == "contract_id")
-    columns = [*al03.columns, entry.model_copy(update={"concepts": ["claims"]})]
-    broken = al03.model_copy(update={"columns": columns})
+    assert al03.columns == [] and al03.personal_data == []
+    entry = next(c for c in al01.columns if c.field == "claim_id")
+    stray = entry.model_copy(update={"field": "contract_id", "concepts": ["claims"]})
+    broken = al03.model_copy(update={"columns": [stray]})
     assert "claims.contract_id is not defined" in _reference_problems(planned, broken)
 
 

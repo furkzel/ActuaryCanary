@@ -20,8 +20,10 @@ CONCEPTS_BUILT_P26 = {"interest_rates"}
 MODULES_BUILT_P26 = {"M12"}
 MEASURES_BUILT_P26 = {"RS04", "RS05"}
 CONVENTIONS_BUILT_P26 = {"CV10"}
-# Planned for phase 2 by work item P20 (decision 0200): drafts, left out of every run.
-CONCEPTS_PLANNED = {"life_in_force", "life_events", "fund_flows"}
+# Planned for phase 2 by work item P20 (decision 0200); built by L1a (records 0440 to 0448),
+# still drafts for the owner: the three life feeds and the life conventions.
+CONCEPTS_BUILT_L1A = {"life_in_force", "life_events", "fund_flows"}
+CONVENTIONS_BUILT_L1A = {"CV11"}
 # Built by F1bc (records 0380 to 0389): four feeds, read, recognised and checked.
 CONCEPTS_BUILT_F1BC = {"reinsurance_treaties", "reinsurance_transactions", "recoveries", "ledger"}
 MODULES_BUILT_F1BC = {"M07", "M09"}
@@ -71,7 +73,9 @@ def test_spec_ids_are_unique(catalogue: SpecCatalogue) -> None:
 
 
 def test_version_1_scope_is_complete(catalogue: SpecCatalogue) -> None:
-    assert set(catalogue.data) == CONCEPTS_V1 | CONCEPTS_BUILT_P26 | CONCEPTS_BUILT_F1BC
+    assert set(catalogue.data) == (
+        CONCEPTS_V1 | CONCEPTS_BUILT_P26 | CONCEPTS_BUILT_F1BC | CONCEPTS_BUILT_L1A
+    )
     assert set(catalogue.measures) == (
         MEASURES_V1
         | MEASURES_BUILT_P25B
@@ -87,7 +91,9 @@ def test_version_1_scope_is_complete(catalogue: SpecCatalogue) -> None:
         MODULES_V1 | MODULES_BUILT_P26 | MODULES_BUILT_F1BC | MODULES_BUILT_F2A | MODULES_BUILT_F2B
     )
     assert {f"CV0{n}" for n in range(1, 7)} <= set(catalogue.conventions)
-    assert set(catalogue.conventions) >= CONVENTIONS_BUILT_P26 | CONVENTIONS_BUILT_F2B
+    assert set(catalogue.conventions) >= (
+        CONVENTIONS_BUILT_P26 | CONVENTIONS_BUILT_F2B | CONVENTIONS_BUILT_L1A
+    )
 
 
 def test_every_reference_resolves(catalogue: SpecCatalogue) -> None:
@@ -143,9 +149,9 @@ def test_every_reference_of_the_planned_specs_resolves(planned: SpecCatalogue) -
 
 def test_phase_2_scope_is_planned(planned: SpecCatalogue) -> None:
     not_built = {f.spec.id for f in planned.files if not f.spec.implemented}
-    assert not_built >= CONCEPTS_PLANNED | MODULES_PLANNED | METHODS_PLANNED
-    assert {"CV11", "AL03", "AL04"} <= not_built  # CV09 is built by F2a, CV12 by F2b
-    assert not CONVENTIONS_BUILT_F2B & not_built
+    assert not_built >= MODULES_PLANNED | METHODS_PLANNED
+    assert {"AL03", "AL04"} <= not_built  # CV09 is built by F2a, CV12 by F2b, CV11 by L1a
+    assert not (CONVENTIONS_BUILT_F2B | CONVENTIONS_BUILT_L1A | CONCEPTS_BUILT_L1A) & not_built
     assert (
         not (CONCEPTS_BUILT_P26 | MODULES_BUILT_P26 | MEASURES_BUILT_P26 | CONVENTIONS_BUILT_P26)
         & not_built
