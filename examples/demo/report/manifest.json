@@ -3607,8 +3607,8 @@
   "outputs": [
     {
       "name": "report.html",
-      "sha256": "2f3f5a4342e208579f2b36de44d0247b096e970f9abde865cabf0e9c84355e6a",
-      "size": 5380216
+      "sha256": "a88d41fe1e3a6e6022328d255964f40c083d275923f4216bdc92ee6a9e939db2",
+      "size": 5391589
     },
     {
       "name": "quality.json",
@@ -3632,13 +3632,13 @@
     },
     {
       "name": "measures.csv",
-      "sha256": "e1b4a889f82edbf43651a5423fdd50b2c49c1d9c20c742c2680621e06cb1c22c",
-      "size": 5027443
+      "sha256": "0a75320580a48caa8c8ddea57122831865c484b8d79979a77b30b3cab4a52895",
+      "size": 5334596
     },
     {
       "name": "lineage.csv",
-      "sha256": "2d315e0de77e2806ed224fde6d85c7bba680a43c664c55e0cec20f2df60b4277",
-      "size": 1656120
+      "sha256": "ae7c05b7061233f3af534809cab1c812569ae1b9544309e5a6fcf01f7d421c10",
+      "size": 2071071
     },
     {
       "name": "lineage_atoms.csv",
@@ -3647,8 +3647,8 @@
     },
     {
       "name": "modules.json",
-      "sha256": "7ceb12947a4a983c156ea632321f9099831f23ec5cca70a754a93738b51d55bf",
-      "size": 39975
+      "sha256": "dc7672893063548cb283dbbb780a152480c205b8bf1694b15aba3ca79f946309",
+      "size": 47028
     },
     {
       "name": "assumptions.csv",
@@ -3978,7 +3978,7 @@
       "seed": 1
     }
   ],
-  "run_id": "713ca5af937d4139",
+  "run_id": "c6d0ee3c598ec090",
   "settings": {
     "assumptions": {
       "entries": []
@@ -4505,7 +4505,7 @@
     {
       "id": "M07",
       "title": "Recoveries",
-      "version": "0.1.0"
+      "version": "0.1.1"
     },
     {
       "id": "RC03",
@@ -4520,7 +4520,7 @@
     {
       "id": "M08",
       "title": "Reinsurance",
-      "version": "0.2.0"
+      "version": "0.2.1"
     },
     {
       "id": "RI03",
@@ -4540,7 +4540,7 @@
     {
       "id": "M09",
       "title": "Expenses",
-      "version": "0.1.0"
+      "version": "0.1.1"
     },
     {
       "id": "EX04",
@@ -4680,7 +4680,7 @@
     {
       "id": "RP01",
       "title": "Key finding rules",
-      "version": "1.6.0"
+      "version": "1.6.1"
     }
   ],
   "tables_not_used": []
