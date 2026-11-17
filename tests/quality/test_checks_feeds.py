@@ -10,6 +10,8 @@ import pytest
 from actuarycanary.canonical.feeds import CanonicalFeed
 from actuarycanary.quality.checks import Context
 from actuarycanary.quality.checks_feeds import FEED_CHECKS, NEEDS, NOT_BUILT
+from actuarycanary.quality.checks_life import LIFE_CHECKS
+from actuarycanary.quality.checks_life import NEEDS as LIFE_NEEDS
 from actuarycanary.quality.engine import evaluate
 from actuarycanary.spec.loader import load_specs
 from tests.quality.builders import (
@@ -350,7 +352,8 @@ def _run(rule: str, rows: Rows, cut_off: date | None = date(2024, 3, 31)):
 
 
 def test_every_check_has_a_case() -> None:
-    assert set(CASES) | set(NOT_BUILT) == set(FEED_CHECKS)
+    # the life checks have their cases in test_checks_life.py
+    assert set(CASES) | set(NOT_BUILT) == set(FEED_CHECKS) - set(LIFE_CHECKS)
 
 
 @pytest.mark.parametrize("rule", sorted(CASES))
@@ -375,7 +378,7 @@ def test_rule_is_in_the_spec_and_names_its_concept(rule: str) -> None:
     assert _run(rule, CASES[rule][1]).concept == owner  # type: ignore[union-attr]
 
 
-@pytest.mark.parametrize("rule", sorted(set(NEEDS) - {"DV-RCV-06"}))
+@pytest.mark.parametrize("rule", sorted(set(NEEDS) - {"DV-RCV-06"} - set(LIFE_NEEDS)))
 def test_a_rule_about_two_feeds_is_not_evaluated_without_the_second(rule: str) -> None:
     owner = next(c for c, s in SPECS.items() if any(r.id == rule for r in s.validation))
     assert _run(rule, {owner: CASES[rule][1][owner]}) is None
