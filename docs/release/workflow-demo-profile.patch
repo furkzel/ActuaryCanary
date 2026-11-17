@@ -1,0 +1,26 @@
+diff --git a/.github/workflows/package.yml b/.github/workflows/package.yml
+index 69b9e78..549c5eb 100644
+--- a/.github/workflows/package.yml
++++ b/.github/workflows/package.yml
+@@ -26,7 +26,7 @@ jobs:
+           mkdir smoke && cp -r build/dist/canary smoke/canary && cd smoke
+           ./canary/canary.exe --version
+           ./canary/canary.exe demo --no-open --out exe_out
+-          cd .. && uv run canary run examples/demo --yes --curve TRY_GOV --out smoke/src_out
++          cd .. && uv run canary run examples/demo --yes --curve TRY_GOV --profiles examples/demo/report --out smoke/src_out
+           python packaging/compare_manifests.py smoke/exe_out/*/manifest.json smoke/src_out/*/manifest.json
+       - name: Archive
+         shell: pwsh
+diff --git a/.github/workflows/release.yml b/.github/workflows/release.yml
+index b96f52e..c0ce62a 100644
+--- a/.github/workflows/release.yml
++++ b/.github/workflows/release.yml
+@@ -31,7 +31,7 @@ jobs:
+           mkdir smoke && cp -r build/dist/canary smoke/canary && cd smoke
+           ./canary/canary.exe --version
+           ./canary/canary.exe demo --no-open --out exe_out
+-          cd .. && uv run canary run examples/demo --yes --curve TRY_GOV --out smoke/src_out
++          cd .. && uv run canary run examples/demo --yes --curve TRY_GOV --profiles examples/demo/report --out smoke/src_out
+           python packaging/compare_manifests.py smoke/exe_out/*/manifest.json smoke/src_out/*/manifest.json
+       - name: Version matches the tag
+         if: startsWith(github.ref, 'refs/tags/v')

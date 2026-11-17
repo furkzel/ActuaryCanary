@@ -1,6 +1,7 @@
 """The example data `canary demo` runs on, found next to the program (also when frozen)."""
 
 import shutil
+import sys
 from pathlib import Path
 
 from actuarycanary.ledger.profile import PREFIX, SUFFIX
@@ -15,9 +16,21 @@ DEMO_CURVE = "TRY_GOV"
 DEMO_PROFILES = "report"
 
 
+def program_root(start: Path | None = None) -> Path:
+    """Where the lookup starts: `start`; in a program built by PyInstaller the folder it unpacks
+    its data to (`sys._MEIPASS`, where `packaging/canary.spec` puts examples/demo and its
+    profile); else this file, from which the lookup walks up through the source tree."""
+    if start is not None:
+        return start
+    if getattr(sys, "frozen", False) and getattr(sys, "_MEIPASS", None):
+        return Path(sys._MEIPASS)  # type: ignore[attr-defined]
+    return Path(__file__)
+
+
 def find_demo_folder(start: Path | None = None) -> Path:
-    """Walk up from `start` (default: this file) to the first examples/demo folder with the data."""
-    here = (start or Path(__file__)).resolve()
+    """Walk up from `start` (default: see `program_root`) to the first examples/demo folder with
+    the data."""
+    here = program_root(start).resolve()
     for folder in (here, *here.parents):
         candidate = folder / EXAMPLES_FOLDER / DEMO_FOLDER
         if (candidate / "claim_valuations.xlsx").is_file():
