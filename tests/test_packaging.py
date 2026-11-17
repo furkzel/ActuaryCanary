@@ -41,6 +41,23 @@ def test_the_bundle_definition_requires_the_demo_data() -> None:
     assert (ROOT / "examples" / "demo" / "claim_valuations.xlsx").is_file()
 
 
+def test_the_bundle_carries_the_demo_profile_where_the_lookup_reads_it() -> None:
+    """The profile the demo ships beside its report goes to examples/demo/report in the bundle
+    (record 0816), and the smoke tests of the workflows read it for the source run."""
+    spec = (ROOT / "packaging" / "canary.spec").read_text(encoding="utf-8")
+    assert '"ledger-*.yaml"' in spec and '"examples/demo/report"' in spec
+    assert list((ROOT / "examples" / "demo" / "report").glob("ledger-*.yaml"))
+    # the smoke tests of the workflows read it too; until the owner applies
+    # docs/release/workflow-demo-profile.patch the change waits there (record 0816)
+    patch = ROOT / "docs" / "release" / "workflow-demo-profile.patch"
+    for workflow in ("package.yml", "release.yml"):
+        text = (ROOT / ".github" / "workflows" / workflow).read_text(encoding="utf-8")
+        waiting = patch.is_file() and f"b/.github/workflows/{workflow}" in patch.read_text(
+            encoding="utf-8"
+        )
+        assert "--profiles examples/demo/report" in text or waiting
+
+
 def test_the_bundle_carries_the_files_of_the_browser_interface() -> None:
     spec = (ROOT / "packaging" / "canary.spec").read_text(encoding="utf-8")
     assert (

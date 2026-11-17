@@ -71,10 +71,12 @@ def test_the_module_runs_on_transactions() -> None:
     assert {m.measure for m in outcome.available} == {"RC01", "RC02", "RC03", "RC04"}
     delay = next(m for m in outcome.measures if m.measure == "RC03")
     assert any("recovery transactions (recoveries feed)" in n for n in delay.notes)
-    # the default views: delay by type and by line and type, development by type and cell
+    # the default views: delay by type, by segment and type and by line and type, development
+    # by type and cell (C1: the segment view is what the page shows, segments are never added)
     views = [m.request.breakdowns for m in outcome.measures if m.measure in ("RC03", "RC04")]
     assert views == [
         ("recovery_type",),
+        ("segment", "recovery_type"),
         ("segment", "line", "recovery_type"),
         ("segment", "line", "recovery_type", "origin_period", "development_period"),
     ]

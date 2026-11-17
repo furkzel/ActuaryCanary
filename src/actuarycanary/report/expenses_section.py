@@ -12,12 +12,13 @@ import polars as pl
 from actuarycanary.measures.model import CurrencyView, MeasureResult
 from actuarycanary.modules.expenses import AT_VALUE_DATE, NOMINAL, ExpenseTable
 from actuarycanary.modules.runner import AnalysisResult
-from actuarycanary.report import charts, numbers
+from actuarycanary.report import charts, numbers, scope
 from actuarycanary.report.facts import FactSet, _put
 from actuarycanary.report.language import t
 from actuarycanary.structures.periods import Period, month_index
 
 BY_PERIOD = ("calendar_period",)
+BY_SEGMENT = ("segment", "calendar_period")
 BY_LINE = ("segment", "line", "calendar_period")
 WINDOW = 12  # months of the headline and of the comparison before it
 RATIOS = (("EX02", "Expense ratio"), ("EX01", "Commission ratio"))
@@ -53,29 +54,54 @@ def window_ratio(frame: pl.DataFrame, labels: list[str]) -> float | None:
     return float(part["numerator"].sum()) / bottom if bottom > 0 else None
 
 
-def _windows(result: MeasureResult | None, cut_off: date) -> tuple[float | None, float | None]:
-    if result is None or result.frame is None:
-        return None, None
-    frame = result.frame
+def _frame_windows(frame: pl.DataFrame, cut_off: date) -> tuple[float | None, float | None]:
     return (
         window_ratio(frame, _month_labels(cut_off, 0)),
         window_ratio(frame, _month_labels(cut_off, WINDOW)),
     )
 
 
+def _windows(result: MeasureResult | None, cut_off: date) -> tuple[float | None, float | None]:
+    if result is None or result.frame is None:
+        return None, None
+    return _frame_windows(result.frame, cut_off)
+
+
+def segment_windows(
+    result: MeasureResult | None, cut_off: date
+) -> dict[str, tuple[float | None, float | None]]:
+    """The ratio of the last twelve months and of the twelve before, for each segment of a
+    view cut by segment and month. Segments are never added."""
+    if result is None or result.frame is None:
+        return {}
+    return {
+        str(key[0]): _frame_windows(part, cut_off)
+        for key, part in result.frame.partition_by(
+            "segment", as_dict=True, maintain_order=True
+        ).items()
+    }
+
+
 def _headline(analysis: AnalysisResult, cut_off: date) -> list[dict[str, Any]]:
+    """Both ratios per segment, the last twelve months against the twelve before."""
+    found = {
+        measure: segment_windows(find_view(analysis, measure, BY_SEGMENT, Period.MONTH), cut_off)
+        for measure, _ in RATIOS
+    }
     rows = []
-    for measure, title in RATIOS:
-        now, before = _windows(find_view(analysis, measure, BY_PERIOD, Period.MONTH), cut_off)
-        change = None if now is None or before is None else now - before
-        rows.append(
-            {
-                "measure": f"{measure} {t(title)}",
-                "now": numbers.ratio(now),
-                "before": numbers.ratio(before),
-                "change": numbers.change_points(change),
-            }
-        )
+    for segment in sorted({s for part in found.values() for s in part}):
+        for measure, title in RATIOS:
+            now, before = found[measure].get(segment, (None, None))
+            change = None if now is None or before is None else now - before
+            rows.append(
+                {
+                    "segment": segment,
+                    "measure": f"{measure} {t(title)}",
+                    "now": numbers.ratio(now),
+                    "before": numbers.ratio(before),
+                    "change": numbers.change_points(change),
+                }
+            )
     return rows
 
 
@@ -148,11 +174,16 @@ def _by_line_note(spec: Any) -> str:
     )
 
 
-def _by_period(result: MeasureResult | None, show: Any) -> dict[str, dict[str, str]]:
+def _by_segment_period(
+    result: MeasureResult | None, show: Any
+) -> dict[tuple[str, str], dict[str, str]]:
     if result is None or result.frame is None or "currency" in result.frame.columns:
         return {}
     return {
-        str(r["calendar_period"]): {"value": show(r["value"]), "note": _note(r["note"] or "")}
+        (str(r["segment"]), str(r["calendar_period"])): {
+            "value": show(r["value"]),
+            "note": _note(r["note"] or ""),
+        }
         for r in result.frame.iter_rows(named=True)
     }
 
@@ -177,16 +208,20 @@ def _note(note: str) -> str:
 
 
 def _unit_costs(analysis: AnalysisResult) -> list[dict[str, Any]]:
-    per_policy = _by_period(find_view(analysis, "EX04", BY_PERIOD, None), numbers.amount)
-    per_claim = _by_period(find_view(analysis, "EX05", BY_PERIOD, None), numbers.amount)
-    handling = _by_period(find_view(analysis, "EX03", BY_PERIOD, None), numbers.ratio)
+    """Unit costs and the claims-handling ratio per segment and period; the expenses that carry
+    no segment are in no segment's figure."""
+    per_policy = _by_segment_period(find_view(analysis, "EX04", BY_SEGMENT, None), numbers.amount)
+    per_claim = _by_segment_period(find_view(analysis, "EX05", BY_SEGMENT, None), numbers.amount)
+    handling = _by_segment_period(find_view(analysis, "EX03", BY_SEGMENT, None), numbers.ratio)
     empty = {"value": numbers.EMPTY, "note": ""}
     rows = []
-    for period in sorted(set(per_policy) | set(per_claim) | set(handling)):
-        a, b, c = (x.get(period, empty) for x in (per_policy, per_claim, handling))
+    for segment, period in sorted(set(per_policy) | set(per_claim) | set(handling)):
+        key = (segment, period)
+        a, b, c = (x.get(key, empty) for x in (per_policy, per_claim, handling))
         notes = [f"{m}: {x['note']}" for m, x in (("EX04", a), ("EX05", b)) if x["note"]]
         rows.append(
             {
+                "segment": segment,
                 "period": period,
                 "per_policy": a["value"],
                 "per_claim": b["value"],
@@ -239,8 +274,8 @@ def expenses_page(
     currency: str,
 ) -> dict[str, Any]:
     priced = table is not None and table.frame[AT_VALUE_DATE].null_count() < table.frame.height
-    unit = find_view(analysis, "EX04", BY_PERIOD, None) or find_view(
-        analysis, "EX05", BY_PERIOD, None
+    unit = find_view(analysis, "EX04", BY_SEGMENT, None) or find_view(
+        analysis, "EX05", BY_SEGMENT, None
     )
     return {
         "headline": _headline(analysis, cut_off),
@@ -248,6 +283,12 @@ def expenses_page(
         "unit_costs": _unit_costs(analysis),
         "unit_basis": charts_basis(unit),
         "unallocated": _unallocated(table),
+        "scopes": {
+            "headline": scope.declare("Ratios by segment", scope.SEGMENT),
+            "by_line": scope.declare("Ratios by line", scope.SEGMENT),
+            "unit_costs": scope.declare("Unit costs by segment", scope.SEGMENT),
+            "unallocated": scope.declare("Expenses booked without a line", scope.COMPANY),
+        },
         "priced": priced,
         "notes": list(table.notes) if table is not None else [],
         "footnote": t(
@@ -273,22 +314,30 @@ def charts_basis(result: MeasureResult | None) -> str:
     return ", ".join(t(part) for part in result.request.basis.label().split(", "))
 
 
-def add_expense_facts(
-    facts: FactSet, analysis: AnalysisResult, table: ExpenseTable | None, cut_off: date
+def add_expense_segment_facts(
+    facts: FactSet, analysis: AnalysisResult, segment: str, cut_off: date
 ) -> None:
-    """Facts of KF38 to KF41: both ratios over the last twelve months and the twelve before,
-    the share of the expenses of the last twelve months booked without a line, and the periods
-    whose unit cost a month without expense rows stops."""
+    """Facts of KF38 and KF39 for one segment: both ratios over the last twelve months and the
+    twelve before. Expenses that carry no segment are in no segment's ratio."""
     for measure, name in (("EX02", "expense_ratio"), ("EX01", "commission_ratio")):
-        result = find_view(analysis, measure, BY_PERIOD, Period.MONTH)
+        result = find_view(analysis, measure, BY_SEGMENT, Period.MONTH)
         if result is not None and result.request.basis.currency is not CurrencyView.REPORTING:
             continue
-        now, before = _windows(result, cut_off)
+        now, before = segment_windows(result, cut_off).get(segment, (None, None))
         if now is None or before is None:
             continue
         _put(facts, f"{name}_12m", now, "ratio")
         _put(facts, f"{name}_previous", before, "ratio")
         _put(facts, f"{name}_change_size", abs(now - before), "ratio")
+
+
+def add_expense_facts(
+    facts: FactSet, analysis: AnalysisResult, table: ExpenseTable | None, cut_off: date
+) -> None:
+    """Facts of KF40 and KF41: the share of the expenses of the last twelve months booked
+    without a line (a company-level figure: those expenses are booked at that level), and the
+    periods whose unit cost a month without expense rows stops. The ratios of KF38 and KF39
+    are facts of a segment (`add_expense_segment_facts`)."""
     if table is not None and table.frame.height and table.frame["currency"].n_unique() == 1:
         window = table.frame.filter(
             (month_of_date("month") > month_index(cut_off) - WINDOW) & (pl.col("month") <= cut_off)

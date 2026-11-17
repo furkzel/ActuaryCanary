@@ -33,8 +33,12 @@ from actuarycanary.modules.runner import AnalysisResult, ModuleOutcome, ModuleSt
 from actuarycanary.modules.uncertainty import UncertaintyResult
 from actuarycanary.quality.model import QualityReport
 from actuarycanary.quality.output import show_score
-from actuarycanary.report import charts, coverage, language, numbers
-from actuarycanary.report.expenses_section import add_expense_facts, expenses_page
+from actuarycanary.report import charts, coverage, language, numbers, scope
+from actuarycanary.report.expenses_section import (
+    add_expense_facts,
+    add_expense_segment_facts,
+    expenses_page,
+)
 from actuarycanary.report.facts import (
     FactSet,
     anomaly_rates,
@@ -55,7 +59,11 @@ from actuarycanary.report.ledger_section import add_ledger_facts, ledger_page
 from actuarycanary.report.methods_section import assumption_rows, group_methods
 from actuarycanary.report.phase2_facts import add_line_facts, add_run_facts, add_segment_facts
 from actuarycanary.report.quality_section import failed_rules
-from actuarycanary.report.recoveries_section import add_recovery_facts, recoveries_page
+from actuarycanary.report.recoveries_section import (
+    add_recovery_facts,
+    add_recovery_segment_facts,
+    recoveries_page,
+)
 from actuarycanary.report.reinsurance_section import add_reinsurance_facts, reinsurance_page
 from actuarycanary.report.sensitivity_section import sensitivity_page
 from actuarycanary.report.survival_section import survival_page
@@ -1255,6 +1263,8 @@ def scoped_facts(
     for segment, found in segments.items():
         if found:
             add_segment_facts(found, tables, segment)
+            add_recovery_segment_facts(found, analysis, recoveries, segment)
+            add_expense_segment_facts(found, analysis, segment, triangles.cut_off)
     run = run_facts(reserving, analysis, quality, rates, lines, titles)
     run.setdefault("currency", Fact(currency, "text"))
     add_run_facts(run, uncertainty)
@@ -1278,6 +1288,121 @@ def scoped_facts(
 
 def _finding_rows(found: list[KeyFinding], spec: _Specs) -> list[dict[str, Any]]:
     return [{**f.record(), "evidence": spec(*f.specs)} for f in found]
+
+
+def _scoped(body: dict[str, Any], scopes: dict[str, Any]) -> dict[str, Any]:
+    """The body of a page with the scope of each of its tables (record 0815)."""
+    return {**body, "scopes": {**body.get("scopes", {}), **scopes}}
+
+
+def _segment(title: str) -> dict[str, Any]:
+    return scope.declare(title, scope.SEGMENT)
+
+
+def scope_m01() -> dict[str, Any]:
+    return {"coverage": scope.declare("Coverage of the files", scope.INFO)}
+
+
+def scope_m02() -> dict[str, Any]:
+    return {
+        "rows": _segment("Premium by line"),
+        # PR04 and PR05 are computed on all business: a view by segment is not built (record 0815)
+        "business": scope.declare(
+            "Cancellation and retention",
+            scope.COMPANY,
+            t("All segments together; not cut by segment."),
+        ),
+    }
+
+
+def scope_m03() -> dict[str, Any]:
+    return {
+        "rows": _segment("Claims by line"),
+        "survival.lines": _segment("Survival by line"),
+        "survival.models": _segment("Survival models"),
+        "survival.coefficients": _segment("Survival coefficients"),
+        "survival.proportional": _segment("Proportional hazards tests"),
+        "survival.cohorts": _segment("Report-year cohorts"),
+        "survival.logrank": _segment("Log-rank tests"),
+        "survival.warnings": scope.declare("Survival warnings", scope.INFO),
+    }
+
+
+def scope_m05() -> dict[str, Any]:
+    return {
+        "lines": _segment("Loss ratios by line and origin"),
+        # EX01 to EX03 are shown for all business here; M09 cuts them by segment (record 0815)
+        "expenses": scope.declare(
+            "Expense and commission ratios",
+            scope.COMPANY,
+            t("All segments together; the page of expenses cuts them by segment."),
+        ),
+    }
+
+
+def scope_m06() -> dict[str, Any]:
+    return {
+        "large.lines": _segment("Large losses by line"),
+        "rows": _segment("Anomaly rates by line"),
+        "top": _segment("Highest anomaly scores"),
+    }
+
+
+def scope_m10() -> dict[str, Any]:
+    entity = lambda title: scope.declare(title, scope.ENTITY)  # noqa: E731
+    return {
+        "profile": scope.declare("Account mapping profile", scope.INFO),
+        "classes": entity("Ledger against the platform by account class"),
+        "matrix": entity("Months and entities"),
+        "largest_gaps": entity("Largest gaps"),
+        "unmapped": entity("Accounts without a class"),
+    }
+
+
+def scope_m12() -> dict[str, Any]:
+    return {
+        # the headline carries an "All lines" row that adds the segments; left as it is, see
+        # record 0815
+        "blocks": scope.declare(
+            "Uncertainty by line and for all lines",
+            scope.COMPANY,
+            t("Rows per line and an All lines row that adds the segments."),
+        ),
+        "cash_flows": scope.declare(
+            "Expected cash flows of all lines", scope.COMPANY, t("All lines together.")
+        ),
+        "curve": scope.declare("Discount curve", scope.INFO),
+        "pseudo": _segment("Pseudo-random draws by line"),
+        "calibration": scope.declare("Back-test calibration", scope.INFO),
+        "tail_effects": _segment("Tail effect by line"),
+    }
+
+
+def scope_reserving() -> dict[str, Any]:
+    return {
+        "summary": _segment("Reserving summary by line"),
+        "unpaid": _segment("Unpaid by line"),
+        "sensitivity": _segment("Sensitivity by line"),
+        "lines": _segment("Reserving by line"),
+    }
+
+
+def scope_report() -> dict[str, Any]:
+    """The scope of the tables outside the pages: tiles, findings and the appendices."""
+    info = scope.INFO
+    return {
+        "tiles": _segment("Headline tiles by segment"),
+        "bases": scope.declare("Bases of the report", info),
+        "cover": scope.declare("Cover", info),
+        "key_findings": scope.declare("Key findings, each with its own scope", info),
+        "further_findings": scope.declare("Further findings, each with its own scope", info),
+        "not_run": scope.declare("What did not run", info),
+        "data_findings": scope.declare("Data findings", info),
+        "methods": scope.declare("Methods", info),
+        "assumptions": scope.declare("Assumptions", info),
+        "lineage": scope.declare("Lineage", info),
+        "reproducibility": scope.declare("Reproducibility", info),
+    }
 
 
 def build_model(r: ReportInputs) -> dict[str, Any]:
@@ -1316,11 +1441,11 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
             line_findings[anchors[f.key]].append({**f.record(), "evidence": spec(*f.specs)})
     pages: list[dict[str, Any]] = []
     builders: dict[str, Callable[[], dict[str, Any]]] = {
-        "M01": lambda: _data_page(r, spec),
-        "M02": lambda: _portfolio_page(r, spec, figures),
-        "M03": lambda: _claims_page(r, spec, figures),
-        "M05": lambda: _profitability_page(r, spec, figures),
-        "M06": lambda: _anomalies_page(r, spec, figures, rates),
+        "M01": lambda: _scoped(_data_page(r, spec), scope_m01()),
+        "M02": lambda: _scoped(_portfolio_page(r, spec, figures), scope_m02()),
+        "M03": lambda: _scoped(_claims_page(r, spec, figures), scope_m03()),
+        "M05": lambda: _scoped(_profitability_page(r, spec, figures), scope_m05()),
+        "M06": lambda: _scoped(_anomalies_page(r, spec, figures, rates), scope_m06()),
         "M07": lambda: recoveries_page(
             r.analysis,
             r.recoveries,
@@ -1343,19 +1468,25 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
             figures,
             shown_currency(r.reserving.triangles.reporting_currency),
         ),
-        "M10": lambda: ledger_page(
-            r.ledger,
-            r.reserving.triangles.cut_off,
-            spec,
-            figures,
-            shown_currency(r.reserving.triangles.reporting_currency),
+        "M10": lambda: _scoped(
+            ledger_page(
+                r.ledger,
+                r.reserving.triangles.cut_off,
+                spec,
+                figures,
+                shown_currency(r.reserving.triangles.reporting_currency),
+            ),
+            scope_m10(),
         ),
-        "M12": lambda: uncertainty_page(
-            r.uncertainty,
-            r.tables,
-            spec,
-            figures,
-            shown_currency(r.reserving.triangles.reporting_currency),
+        "M12": lambda: _scoped(
+            uncertainty_page(
+                r.uncertainty,
+                r.tables,
+                spec,
+                figures,
+                shown_currency(r.reserving.triangles.reporting_currency),
+            ),
+            scope_m12(),
         ),
     }
     for outcome in r.analysis.modules:
@@ -1386,7 +1517,9 @@ def build_model(r: ReportInputs) -> dict[str, Any]:
                 else {}
             ),
             **_reserving(r, spec, figures, line_findings),
+            "scopes": scope_reserving(),
         },
+        "scopes": scope_report(),
         "not_run": _not_run(r),
         "module_runs": {
             o.module: {"state": t(o.state.value), "why": "; ".join(t(x) for x in o.reasons)}

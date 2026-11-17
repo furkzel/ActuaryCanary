@@ -7,8 +7,9 @@ tiny fixtures, which hold the six feeds) and, for the demo,
 the interest-rate workbook of `phase2/` (records 0346, 0382, 0811). Truth files, canonical
 copies and the other `phase2/` workbooks stay where they are: they are not examples. Then it runs
 every folder of examples/ and keeps its report and manifest in examples/<name>/report/. The demo
-runs as `canary demo` does, with its curve named; its ledger account-mapping profile is saved
-confirmed on the generation date before the committed run (record 0811).
+runs as `canary demo` does, with its curve named. Its ledger account-mapping profile is saved
+confirmed on the generation date when the demo ships none yet (record 0811); a profile that is
+shipped is copied unchanged, so that a refresh of the reports keeps the run id (record 0816).
 """
 
 import shutil
@@ -16,8 +17,9 @@ import sys
 import tempfile
 from datetime import date
 from pathlib import Path
+from typing import Any
 
-from actuarycanary.cli.demo import DEMO_CURVE, DEMO_FOLDER
+from actuarycanary.cli.demo import DEMO_CURVE, DEMO_FOLDER, place_demo_profiles
 from actuarycanary.convert.discount import DiscountSettings
 from actuarycanary.ledger.profile import PREFIX, SUFFIX, read_profile, save_profile
 from actuarycanary.pipeline import RunSettings, run
@@ -70,31 +72,46 @@ def confirm_ledger_profiles(profiles: Path, on: date) -> list[Path]:
     return saved
 
 
-def write_reports(examples: Path) -> None:
-    """One run per example with the default settings; new layouts take the proposals (--yes)."""
+def run_example(folder: Path, scratch: Path, today: date) -> tuple[Any, list[Path]]:
+    """One run of an example with the default settings (the demo with its curve, as `canary demo`
+    runs it); new layouts take the proposals (--yes). The ledger account-mapping profile the
+    example ships beside its report is copied into the run's profiles folder unchanged, and the
+    run reads it as it is (record 0816). Only an example that ships none gets one: the profile
+    the first run proposed is confirmed on `today` and the example runs again, so that it reads
+    "confirmed", not "proposed" (record 0811). Returns the result and the profile files used."""
+    settings = (
+        RunSettings(discount=DiscountSettings(curve_id=DEMO_CURVE))
+        if folder.name == DEMO_FOLDER
+        else RunSettings()
+    )
+    profiles = scratch / "profiles"
+    placed = place_demo_profiles(folder, profiles)
+    result = run(folder, scratch / "out", settings, profiles_dir=profiles)
+    if placed:
+        return result, placed
+    shipped = confirm_ledger_profiles(profiles, today)
+    if shipped:
+        result = run(folder, scratch / "again", settings, profiles_dir=profiles)
+    return result, shipped
+
+
+def write_reports(examples: Path, today: date | None = None) -> dict[str, str]:
+    """The report and manifest of every example, with the profile it ships; returns the run ids."""
+    ids: dict[str, str] = {}
     for folder in sorted(p for p in examples.iterdir() if p.is_dir()):
         with tempfile.TemporaryDirectory() as scratch:
-            settings = (
-                RunSettings(discount=DiscountSettings(curve_id=DEMO_CURVE))
-                if folder.name == DEMO_FOLDER
-                else RunSettings()
-            )
-            profiles = Path(scratch) / "profiles"
-            result = run(folder, Path(scratch) / "out", settings, profiles_dir=profiles)
-            shipped: list[Path] = []
-            if folder.name == DEMO_FOLDER and (
-                shipped := confirm_ledger_profiles(profiles, date.today())
-            ):
-                # the shipped demo reads "confirmed", not "proposed" (record 0811)
-                result = run(folder, Path(scratch) / "again", settings, profiles_dir=profiles)
+            result, shipped = run_example(folder, Path(scratch), today or date.today())
             report = folder / "report"
+            kept = {path.name: path.read_bytes() for path in shipped}  # read before the wipe
             shutil.rmtree(report, ignore_errors=True)
             report.mkdir()
             for name in REPORT_FILES:
                 shutil.copy(result.report.parent / name, report / name)
-            for path in shipped:  # the confirmed profile the committed run used
-                shutil.copy(path, report / path.name)
+            for name, content in kept.items():  # the confirmed profile the committed run used
+                (report / name).write_bytes(content)
+        ids[folder.name] = result.run_id
         print(f"{folder.name}: run id {result.run_id}")
+    return ids
 
 
 def main() -> None:

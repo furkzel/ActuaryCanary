@@ -9,9 +9,18 @@ import pytest
 from actuarycanary.modules.expenses import expense_table
 from actuarycanary.modules.recoveries import recovery_tables
 from actuarycanary.report import language
-from actuarycanary.report.expenses_section import add_expense_facts, expenses_page, window_ratio
+from actuarycanary.report.expenses_section import (
+    add_expense_facts,
+    add_expense_segment_facts,
+    expenses_page,
+    window_ratio,
+)
 from actuarycanary.report.findings import Fact, evaluate
-from actuarycanary.report.recoveries_section import add_recovery_facts, recoveries_page
+from actuarycanary.report.recoveries_section import (
+    add_recovery_facts,
+    add_recovery_segment_facts,
+    recoveries_page,
+)
 from actuarycanary.spec.loader import load_specs
 from tests.measures.recovery_fixtures import BOOKINGS, SUB, book, booking
 from tests.modules.test_m09_expenses import FULL
@@ -28,7 +37,8 @@ def spec(*ids: str) -> str:
 
 def fired(rule: str, **facts: Fact) -> list[str]:
     limits = {name: Fact(value, "factor") for name, value in SETTINGS.items()}
-    found = evaluate([RULES[rule]], {"run": [("", "", {**limits, **facts})]})
+    scope = RULES[rule].scope
+    found = evaluate([RULES[rule]], {scope: [("", "", {**limits, **facts})]})
     return [f.text for f in found]
 
 
@@ -79,11 +89,11 @@ def test_the_recoveries_page_shows_types_origins_delays_and_the_source(recoverie
     assert body["source"] == "recovery transactions"
     assert body["reconciled"] and body["differences"] == "0" and body["compared"] == "14"
     assert set(figures) == {
-        "recoveries-recovery_subrogation",
-        "recoveries-recovery_salvage",
-        "recoveries-total",
+        "recoveries-recovery_subrogation-non_life",
+        "recoveries-recovery_salvage-non_life",
+        "recoveries-total-non_life",
     }
-    heat = figures["recoveries-total"]["data"][0]
+    heat = figures["recoveries-total-non_life"]["data"][0]
     assert heat["y"] == ["2022", "2023", "2024"] and heat["z"][0] == [0.1, 0.15, 0.2]
 
 
@@ -116,6 +126,8 @@ def test_recovery_facts(recoveries) -> None:
     analysis, tables = recoveries
     facts: dict = {}
     add_recovery_facts(facts, analysis, tables)
+    assert "recovered_to_date" not in facts  # the ratios are facts of a segment, never of the run
+    add_recovery_segment_facts(facts, analysis, tables, "NON_LIFE")
     assert facts["recovered_to_date"].value == 75.0
     assert facts["recovery_share"].value == pytest.approx(75 / 530)
     assert facts["recovery_source"].value == "recovery transactions"
@@ -132,18 +144,20 @@ def test_recovery_facts(recoveries) -> None:
 
 def test_kf35_recoveries_to_date() -> None:
     facts = {
+        "segment": Fact("NON_LIFE", "text"),
         "recovered_to_date": Fact(931702.0, "amount"),
         "recovery_share": Fact(0.0081, "ratio"),
         "recovery_source": Fact("recovery transactions", "text"),
         "currency": Fact("TRY", "text"),
     }
     assert fired("KF35", **facts) == [
-        "Recoveries to date are 931,702 TRY, 0.8% of claims paid (source: recovery transactions)."
+        "NON_LIFE: recoveries to date are 931,702 TRY, 0.8% of claims paid "
+        "(source: recovery transactions)."
     ]
     assert fired("KF35", **{**facts, "recovered_to_date": Fact(0.0, "amount")}) == []
     with language.using("tr"):
         (text,) = fired("KF35", **facts)
-        assert text.startswith("Bugüne kadarki rücu ve sovtaj tahsilatı 931.702 TRY")
+        assert text.startswith("NON_LIFE: bugüne kadarki rücu ve sovtaj tahsilatı 931.702 TRY")
 
 
 def test_kf36_transactions_differ_from_the_to_date_fields() -> None:
@@ -159,6 +173,7 @@ def test_kf36_transactions_differ_from_the_to_date_fields() -> None:
 def test_kf37_weaker_recovery_in_the_latest_origin_at_the_limit() -> None:
     assert SETTINGS["recovery_drop_limit"] == 0.5
     facts = {
+        "segment": Fact("NON_LIFE", "text"),
         "recovery_first_age": Fact(12.0, "count"),
         "recovery_latest_origin": Fact("2025", "text"),
         "recovery_ratio_latest": Fact(0.02, "ratio"),
@@ -166,7 +181,9 @@ def test_kf37_weaker_recovery_in_the_latest_origin_at_the_limit() -> None:
         "recovery_ratio_drop": Fact(0.5, "ratio"),
     }
     (text,) = fired("KF37", **facts)
-    assert text.startswith("At 12 months of development the origin 2025 has recovered 2.0% of paid")
+    assert text.startswith(
+        "NON_LIFE: at 12 months of development the origin 2025 has recovered 2.0% of paid"
+    )
     assert fired("KF37", **{**facts, "recovery_ratio_drop": Fact(0.49, "ratio")}) == []
     del facts["recovery_ratio_drop"]  # a rule whose condition is not known does not fire
     assert fired("KF37", **facts) == []
@@ -195,15 +212,17 @@ def test_the_expenses_page_shows_unit_costs_and_the_expenses_without_a_line() ->
     table = expense_table(inputs)
     figures: dict = {}
     body = expenses_page(analysis, table, date(2024, 3, 31), spec, figures, "TRY")
-    assert [r["measure"] for r in body["headline"]] == [
-        "EX02 Expense ratio",
-        "EX01 Commission ratio",
+    assert [(r["segment"], r["measure"]) for r in body["headline"]] == [
+        ("LIFE", "EX02 Expense ratio"),
+        ("LIFE", "EX01 Commission ratio"),
     ]
     assert body["headline"][0]["now"] == "–"  # three months of data are no twelve-month window
-    assert [r["period"] for r in body["unit_costs"]] == ["2024"]
+    assert [(r["segment"], r["period"]) for r in body["unit_costs"]] == [("LIFE", "2024")]
     (unit,) = body["unit_costs"]
-    # administration is booked in every month from January to March, 140 in all, one policy
-    assert unit["per_policy"] == "140" and "EX05: first period of the file" in unit["note"]
+    # administration booked with the segment is 30 in each month from January to March, 90 in
+    # all, one policy; the 50 booked without a segment are in no segment's unit cost (C1)
+    # the claims-handling expenses of the file are booked without a segment: no cost per claim
+    assert unit["per_policy"] == "90" and unit["per_claim"] == "–"
     assert [(r["type"], r["level"], r["amount"]) for r in body["unallocated"]] == [
         ("ACQUISITION", "segment LIFE", "20"),
         ("ADMINISTRATION", "not allocated", "50"),
@@ -217,6 +236,7 @@ def test_expense_facts() -> None:
     analysis, inputs = run_m09(FULL)
     facts: dict = {}
     add_expense_facts(facts, analysis, expense_table(inputs), date(2024, 3, 31))
+    add_expense_segment_facts(facts, analysis, "LIFE", date(2024, 3, 31))
     assert "expense_ratio_12m" not in facts  # no twelve months before the cut-off
     assert facts["unallocated_expenses"].value == 79.0
     assert facts["unallocated_expense_share"].value == pytest.approx(79 / 169)
@@ -227,12 +247,13 @@ def test_expense_facts() -> None:
 def test_kf38_kf39_a_ratio_moved_by_two_points(rule: str, name: str) -> None:
     assert SETTINGS["expense_ratio_change_limit"] == 0.02
     facts = {
+        "segment": Fact("LIFE", "text"),
         f"{name}_ratio_12m": Fact(0.10, "ratio"),
         f"{name}_ratio_previous": Fact(0.08, "ratio"),
         f"{name}_ratio_change_size": Fact(0.02, "ratio"),
     }
     (text,) = fired(rule, **facts)
-    assert f"The {name} ratio of the last twelve months is 10.0%, against 8.0%" in text
+    assert f"LIFE: the {name} ratio of the last twelve months is 10.0%, against 8.0%" in text
     below = {**facts, f"{name}_ratio_change_size": Fact(0.0199, "ratio")}
     assert fired(rule, **below) == []
 
@@ -268,7 +289,11 @@ def test_the_new_rules_are_fixed_rules_with_both_languages_and_follow_the_old_on
         r.priority for r in RULES.values() if r.id not in NEW and int(r.id[2:]) < 35
     )
     for rule in NEW:
-        assert RULES[rule].template_tr and RULES[rule].title_tr and RULES[rule].scope == "run"
+        assert RULES[rule].template_tr and RULES[rule].title_tr
+        # KF35, KF37, KF38 and KF39 state ratios and are cut by segment (C1, record 0815)
+        assert RULES[rule].scope == (
+            "segment" if rule in ("KF35", "KF37", "KF38", "KF39") else "run"
+        )
         assert RULES[rule].evidence.section in ("recoveries", "expenses")
 
 

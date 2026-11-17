@@ -1,5 +1,5 @@
 id: M07
-version: 0.1.0
+version: 0.1.1
 title_en: Recoveries
 title_tr: Rücu ve sovtaj
 status: draft
@@ -24,10 +24,10 @@ outputs:
   - recovery_development.csv (RC04 triangles by type)
   - recovery_reconciliation.csv (transactions against to-date fields, DV-RCV-08)
 report_page:
-  - Headline - recovered to date and as a share of paid, by type, with the change against the previous year.
+  - Headline - recovered to date and as a share of paid, by segment and type, with the change against the previous year.
   - Recovery ratios by origin with development age (RC01, RC02).
-  - Recovery development triangle as a heatmap per type (RC04).
-  - Delay from first payment to recovery, distribution by type (RC03).
+  - Recovery development triangle as a heatmap per segment and type (RC04).
+  - Delay from first payment to recovery, distribution by segment, line and type (RC03).
   - Source of the figures (transactions or derived from to-date fields) and the reconciliation differences.
 notes: >-
   The module runs on claim_valuations alone when its to-date recovery columns exist; each
@@ -42,3 +42,7 @@ change_log:
     change: >-
       Implemented before owner review (F1bc, record 0386); the text of the specification is
       unchanged, so the version stays 0.1.0.
+  - version: 0.1.1
+    date: 2026-11-17
+    change: >-
+      Implemented before owner review (C1, record 0815): the headline, the development charts and the delays are cut by segment; the lines of one segment are added, segments never. No measure formula changed.

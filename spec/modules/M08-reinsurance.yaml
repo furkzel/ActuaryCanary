@@ -1,5 +1,5 @@
 id: M08
-version: 0.2.0
+version: 0.2.1
 title_en: Reinsurance
 title_tr: Reasürans
 status: draft
@@ -27,9 +27,9 @@ outputs:
   - reinsurance_reconciliation.csv (computed application against the reported ceded amounts per treaty year, record 0405)
   - ceded_by_size_band.csv (computed ceded share by claim size band and treaty)
 report_page:
-  - Headline - ceded share of premium and of claims, and the reinsurance result over the last years.
+  - Headline - ceded share of premium and of claims, and the reinsurance result over the last years, per segment.
   - Treaty table - type, terms, ceded share against the terms (RI03), layer use and reinstatements.
-  - Gross, ceded and net loss ratios by origin; result ratio (RI04).
+  - Gross, ceded and net loss ratios by segment and origin; result ratio (RI04) of the segment.
   - What-if - the current and alternative programmes side by side, cost against volatility (RI05).
   - Allocation notes - which amounts were allocated and how (CV09), aggregate approximations named.
 notes: >-
@@ -50,3 +50,7 @@ change_log:
       Implemented before owner review (F2a, records 0405 to 0408): two more outputs, the
       reconciliation and the size bands; the page as outlined, in English and Turkish; RI04
       on the incurred view because no ceded selection is built.
+  - version: 0.2.1
+    date: 2026-11-17
+    change: >-
+      Implemented before owner review (C1, record 0815): the headline, the reinsurance result and the loss ratios by origin are cut by segment, RI04 with its reinstatement premium reaching a segment through the line it was allocated to; the treaty, programme and allocation tables are booked per treaty and say so. No formula changed.

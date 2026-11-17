@@ -1,10 +1,10 @@
 {#- The M07 page (record 0388); `b` is the body built by report/recoveries_section.py. -#}
 <p>{{ tr("Source of the figures") }}: <strong>{{ b.source or "–" }}</strong>.</p>
 {% if b.headline %}<div class="scroll"><table>
-  <thead><tr><th class="text">{{ tr("Recovery type") }}</th><th>{{ tr("Recovered to date") }}</th><th>{{ tr("Share of paid") }}</th><th>{{ tr("Last development period") }}</th><th>{{ tr("Period before") }}</th><th>{{ tr("Change") }}</th></tr></thead>
-  <tbody>{% for r in b.headline %}<tr><td class="text">{{ r.type }}</td><td>{{ r.recovered }}</td><td>{{ r.share }}</td><td>{{ r.last }}</td><td>{{ r.before }}</td><td>{{ r.change }}</td></tr>{% endfor %}</tbody>
+  <thead><tr><th class="text">{{ tr("Segment") }}</th><th class="text">{{ tr("Recovery type") }}</th><th>{{ tr("Recovered to date") }}</th><th>{{ tr("Share of paid") }}</th><th>{{ tr("Last development period") }}</th><th>{{ tr("Period before") }}</th><th>{{ tr("Change") }}</th></tr></thead>
+  <tbody>{% for r in b.headline %}<tr><td class="text">{{ r.segment }}</td><td class="text">{{ r.type }}</td><td>{{ r.recovered }}</td><td>{{ r.share }}</td><td>{{ r.last }}</td><td>{{ r.before }}</td><td>{{ r.change }}</td></tr>{% endfor %}</tbody>
 </table></div>{% endif %}
-{% if b.figures %}<h3>{{ tr("Recovery development, all lines") }}</h3>
+{% if b.figures %}<h3>{{ tr("Recovery development by segment") }}</h3>
 <div class="charts">{% for f in b.figures %}{{ figure(f.id, f.title) }}{% endfor %}</div>
 <p class="footnote">{{ b.figure_note }}</p>{% endif %}
 {% if b.lines %}<h3>{{ tr("Recovery ratios by origin") }}</h3>

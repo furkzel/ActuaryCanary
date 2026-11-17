@@ -13,11 +13,18 @@ datas = [
     (str(root / "spec"), "spec"),
     (str(root / "synthetic" / "scenarios"), "synthetic/scenarios"),
 ]
-# `canary demo` runs on examples/demo: the six workbooks, not the example report beside them
+# `canary demo` runs on examples/demo: its workbooks, not the example report beside them
 demo_workbooks = sorted((root / "examples" / "demo").glob("*.xlsx"))
 if not demo_workbooks:
     raise SystemExit("examples/demo has no workbooks: the program would have no demo data")
 datas += [(str(workbook), "examples/demo") for workbook in demo_workbooks]
+# the demo's confirmed ledger account-mapping profile lies beside its example report; the demo
+# copies it into the profiles folder of the run, so that the program gives the run id of the
+# committed report (records 0812 and 0816). Without it the program would propose the profile.
+demo_profiles = sorted((root / "examples" / "demo" / "report").glob("ledger-*.yaml"))
+if not demo_profiles:
+    raise SystemExit("examples/demo/report has no ledger profile: the demo would only propose one")
+datas += [(str(profile), "examples/demo/report") for profile in demo_profiles]
 datas += collect_data_files("actuarycanary")  # report templates
 datas += [(str(Path(__import__("plotly").__file__).parent / "package_data" / "plotly.min.js"),
            "plotly/package_data")]

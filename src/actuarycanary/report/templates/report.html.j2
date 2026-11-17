@@ -288,6 +288,7 @@ th.tier { text-align: center; border-bottom: 2px solid var(--border); }
   {% elif p.module == "M12" %}
   {% include "uncertainty.html.j2" %}
   {% endif %}
+  {% if b.scopes is defined %}{% for key, sc in b.scopes.items() if sc.label %}<p class="footnote scope">{{ sc.title }}: {{ sc.label }}.{% if sc.note %} {{ sc.note }}{% endif %}</p>{% endfor %}{% endif %}
 </section>
 {% endfor %}
 

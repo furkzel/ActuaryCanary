@@ -1,5 +1,5 @@
 id: M09
-version: 0.1.0
+version: 0.1.1
 title_en: Expenses
 title_tr: Giderler
 status: draft
@@ -23,9 +23,9 @@ blocking_rules: [DV-EXP-01]
 outputs:
   - expenses_by_period.csv (expenses by type, line and month, nominal and at value-date prices)
 report_page:
-  - Headline - expense ratio and commission ratio of the last 12 months against the year before.
+  - Headline - expense ratio and commission ratio of the last 12 months against the year before, per segment.
   - Expense and commission ratios by line and month (EX01, EX02).
-  - Unit costs - administration cost per policy and claims-handling cost per claim, at value-date prices (EX04, EX05).
+  - Unit costs per segment - administration cost per policy and claims-handling cost per claim, at value-date prices (EX04, EX05).
   - Claims-handling ratio (EX03).
   - Unallocated expenses shown at the level they were booked, never spread over lines.
 notes: >-
@@ -40,3 +40,7 @@ change_log:
     change: >-
       Implemented before owner review (F1bc, record 0387); the text of the specification is
       unchanged, so the version stays 0.1.0.
+  - version: 0.1.1
+    date: 2026-11-17
+    change: >-
+      Implemented before owner review (C1, record 0815): the headline and the unit costs are cut by segment; expenses booked without a segment are in no segment's ratio and stay in the table of expenses booked without a line. No formula changed.

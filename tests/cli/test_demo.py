@@ -1,5 +1,6 @@
 import hashlib
 import json
+import sys
 import tomllib
 import webbrowser
 from pathlib import Path
@@ -10,7 +11,7 @@ from typer.testing import CliRunner
 
 import actuarycanary.cli as cli
 from actuarycanary import __version__
-from actuarycanary.cli.demo import find_demo_folder, place_demo_profiles
+from actuarycanary.cli.demo import find_demo_folder, place_demo_profiles, program_root
 from actuarycanary.ledger.resolve import profile_in_use
 from actuarycanary.manifest.metadata import load_metadata
 
@@ -36,6 +37,37 @@ def test_the_demo_folder_is_found_from_a_bundle_without_the_repository(tmp_path:
     inside = tmp_path / "_internal" / "actuarycanary" / "cli"
     inside.mkdir(parents=True)
     assert find_demo_folder(inside / "demo.pyc") == example
+
+
+def test_a_frozen_program_finds_the_demo_and_its_profile_where_the_bundle_unpacks_them(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """PyInstaller sets `sys.frozen` and `sys._MEIPASS`; the spec puts the workbooks and the
+    confirmed profile at examples/demo and examples/demo/report there (record 0816). The layout
+    is simulated; the program itself cannot be built here."""
+    unpacked = tmp_path / "_internal"
+    demo = unpacked / "examples" / "demo"
+    (demo / "report").mkdir(parents=True)
+    (demo / "claim_valuations.xlsx").touch()
+    shipped = next((find_demo_folder() / "report").glob("ledger-*.yaml"))
+    (demo / "report" / shipped.name).write_bytes(shipped.read_bytes())
+    (tmp_path / "elsewhere").mkdir()
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    monkeypatch.setattr(sys, "_MEIPASS", str(unpacked), raising=False)
+    monkeypatch.chdir(tmp_path / "elsewhere")  # no repository around the program
+    assert program_root() == unpacked
+    folder = find_demo_folder()
+    assert folder == demo.resolve()
+    (placed,) = place_demo_profiles(folder, tmp_path / "profiles")
+    assert placed.read_bytes() == shipped.read_bytes()
+
+
+def test_the_source_tree_starts_the_lookup_at_the_module_file(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delattr(sys, "frozen", raising=False)
+    assert program_root().name == "demo.py"
+    assert program_root(Path("x")) == Path("x")
 
 
 def test_demo_says_so_when_the_example_data_is_missing(
