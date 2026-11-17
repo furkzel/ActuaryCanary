@@ -2,6 +2,15 @@
 
 Written for users. Versions follow semantic versioning; each specification file also carries its own version and change log.
 
+## Unreleased
+
+### Fixed
+
+- **Segments are no longer added on the pages of recoveries, reinsurance and expenses.** In 1.3.0 some tables and headlines of M07, M08 and M09 added LIFE and NON_LIFE together (recovered to date and the delay summary of M07, the ceded shares, the reinsurance result and the loss ratios by origin of M08, the ratios and the unit costs of M09), although segments are never consolidated by default. They are cut by segment now, and so are the four findings that stated those figures (KF35, KF37, KF38, KF39). Every table and headline of the report states its scope, and a test fails on a figure without one; the few that are booked at company level, or by legal entity, say so on the page.
+- **The Windows program carries the demo's confirmed ledger profile**, so that `canary demo` gives the run id of the committed demo report (the source tree did already). The workflow change for its smoke test waits in `docs/release/workflow-demo-profile.patch`.
+- **The refresh of the examples keeps a shipped profile.** `docs/tools/refresh_examples.py` copies the profile an example ships unchanged instead of confirming it again with the day's date, so refreshing the reports no longer moves the demo's run id.
+- The committed example reports are renewed with these fixes.
+
 ## 1.3.0 (2026-11-14, the preparation date: the release date is the date the owner pushes the tag `v1.3.0`)
 
 ### What is new
