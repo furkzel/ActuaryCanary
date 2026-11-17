@@ -36,6 +36,7 @@ from actuarycanary.ledger.resolve import profile_in_use
 from actuarycanary.ledger.settings import LedgerSettings
 from actuarycanary.life.load import LIFE_FEEDS, drop_sex
 from actuarycanary.life.settings import LifeSettings
+from actuarycanary.life.tables import read_tables
 from actuarycanary.manifest.metadata import load_metadata
 from actuarycanary.manifest.run import (
     InputRecord,
@@ -812,6 +813,8 @@ def run(
         if t.recognition.concept not in concepts and t.recognition.concept not in checked
     ]
 
+    reference = read_tables(folder)  # the life reference tables, if the folder has any
+
     step("Building triangles")
     original = settings.currency_view == ORIGINAL
     if original and adjusted:
@@ -1050,6 +1053,8 @@ def run(
     ]
     if account_use is not None:  # the profile's content is part of what the figures rest on
         applied.append({"concept": ACCOUNT_MAPPING, "sha256": account_use.sha256})
+    if reference.used:  # the life reference tables read (record 0443)
+        applied.append(reference.run_id_record())
     run = run_id(inputs, spec_records, settings_record, __version__, applied)
     out = out_root / run
     out.mkdir(parents=True, exist_ok=True)
@@ -1228,6 +1233,7 @@ def run(
         assumptions=records(in_force),
         randomness=randomness,
         account_mapping=_account_mapping_record(account_use),
+        reference_tables=reference.manifest_record() if reference.found else None,
     )
     tables = tuple(t.recognition for t in loaded)
     return RunResult(

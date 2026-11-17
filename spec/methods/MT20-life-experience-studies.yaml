@@ -1,5 +1,5 @@
 id: MT20
-version: 1.0.0
+version: 1.1.0
 title_en: Life experience studies with credibility
 title_tr: Güvenilirlik ağırlıklı hayat deneyim çalışmaları
 status: reviewed
@@ -41,8 +41,11 @@ parameters:
   - name: reference_table
     default: null
     description: >-
-      Table file for expected decrements; no default until the owner chooses an open table
-      (blueprint 18.2). Without one, crude rates and their intervals are shown, no A/E.
+      Table file for expected decrements, read from reference_tables/ in the data folder in
+      the format of record 0443. No table ships with the program and the default stays null
+      for user data (record 0444); a published table is shipped only after a licence check
+      recorded in a decision record. Without one, crude rates and their intervals are shown,
+      no A/E.
   - name: basis
     default: lives
     description: Lives-based or amounts-based counting (CV11).
@@ -144,8 +147,6 @@ references:
   - Bühlmann, H. and Gisler, A. (2005). A Course in Credibility Theory and its Applications. Springer.
   - Garwood, F. (1936). Fiducial limits for the Poisson distribution. Biometrika.
   - Society of Actuaries. Experience study calculations (exposure methods). Society of Actuaries.
-requires_decision:
-  - Default reference mortality, morbidity and lapse tables that may be redistributed openly (blueprint 18.2).
 change_log:
   - version: 0.1.0
     date: 2026-10-23
@@ -159,3 +160,9 @@ change_log:
   - version: 1.0.0
     date: 2026-10-25
     change: Reviewed and accepted by the owner.
+  - version: 1.1.0
+    date: 2026-11-17
+    change: >-
+      The open question of the default reference table is closed by record 0444 (no table
+      ships; the user's table is read in the format of record 0443); reference_table says so.
+      Amended by the work item L1a; the owner has not reviewed this version yet.

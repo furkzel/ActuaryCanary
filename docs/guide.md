@@ -32,6 +32,32 @@ Four further files are read, recognised and checked in the same way; all are opt
 | `reinsurance_transactions.xlsx` | Ceded movements: ceded premium, ceded paid claims, ceded reserve changes, commission | transaction, treaty, booking date, amount, currency, type | Quality checks against treaties, claims and premiums |
 | `ledger.xlsx` | The trial balance by entity, account and month | entity, account, period, closing balance | Quality checks of the balances (the reconciliation with the ledger is not built yet) |
 
+Three life and pension files are read, recognised and checked in the same way; all are optional:
+
+| File | What it holds | Required columns | What it enables |
+| --- | --- | --- | --- |
+| `life_in_force.xlsx` | Each life or pension contract at each valuation date: product, entry date, age or age band, status | contract, valuation date, product, entry date, age band, status | Exposure by age, policy year and calendar year (`life_exposure.csv`); the life experience page is not built yet |
+| `life_events.xlsx` | Deaths, lapses, surrenders, maturities, transfers and reinstatements, one row per event | event, contract, event date, event type | Exit dates and decrements of the exposure |
+| `fund_flows.xlsx` | Contributions, fees, benefit payments, transfers and fund switches of pension and savings contracts | flow, contract, flow date, amount, currency, flow type | Quality checks of the flows |
+
+A birth date is never read: the column is dropped when the file is read and listed. Age comes as one age (`45`), a band (`45-49`) or an open top band (`85+`). Sex is dropped too unless the run setting `life.use_sex` is on ([CV11](../spec/conventions/CV11-life-conventions.yaml)).
+
+### Reference tables
+
+Mortality, disability, lapse and surrender tables are read from the folder `reference_tables/` inside the data folder. The program ships no table ([decision 0444](decisions/0444-l1a-no-reference-table-ships.md)); use one you are allowed to use. Each table is a CSV file with a key column, `age` (whole years, 0 to 120) or `policy_year` (1 for the first year), and `rate`; optional columns are `rate_kind` (`q`, `mu` or `m`, one value for the whole file), `sex` (FEMALE or MALE), `select_duration` and `product`. Beside it a file with the same name and the ending `.yaml` says what the table is:
+
+```text
+reference_tables/mortality.csv          reference_tables/mortality.yaml
+age,rate_kind,rate                      name: Company mortality 2024
+40,q,0.00100                            decrement: DEATH
+41,q,0.00110                            source: our own study of 2019-2023
+42,q,0.00121                            licence: internal use
+43,q,0.00133                            description: unisex, age last birthday
+44,q,0.00146
+```
+
+`decrement` is DEATH, DISABILITY, LAPSE or SURRENDER; `rate_kind` may stand in the `.yaml` file instead of the CSV. A rate q must be at least 0 and below 1, mu and m at least 0; an age or policy year may not repeat or be missing inside the table's range (for each sex, select duration and product apart). A table that fails a check is not used and is listed in `manifest.json` with every reason. The SHA-256 of each table used and of its `.yaml` file are in `manifest.json` and in the run id, so a changed table gives another run. A q is used as the force mu = -ln(1 - q) with central exposure; m is used as mu ([decision 0443](decisions/0443-l1a-reference-table-format.md)).
+
 The full list of fields, types, allowed values and the quality rules of each file is in [spec/data/](../spec/data/). The file names above are what the platform proposes; it recognises a sheet by its **content**, so a differently named file works too.
 
 Rules the files must follow ([CV07](../spec/conventions/CV07-input-files.yaml)):
@@ -144,6 +170,7 @@ The Mack standard error assumes independent origins and stable development. On l
 | `tier_b_ultimates.csv`, `tier_b_parameters.csv` | Ultimates of the Munich chain ladder, Benktander, separation and frequency–severity methods per origin, or the reason a method did not run; the fitted quantities of the tier B methods (frequency–severity ultimates are at value-date prices when the price index is loaded, and say so) |
 | `bootstrap_summary.csv`, `bootstrap_cash_flows.csv`, `bootstrap_residuals.csv`, `bootstrap_distribution_<segment>_<line>.parquet` | The bootstrap reserve distribution of a line: mean, spread and percentiles per origin and in total; simulated payments by period; residuals; every simulated reserve (only for lines where the bootstrap ran; a line whose last development columns carry no positive payment is fitted on the triangle cut after its last paid column and the files say so, [decision 0349](decisions/0349-trailing-non-positive-columns-are-cut-in-the-bootstrap.md)) |
 | `back_test.csv` | The back-test of the selection: error per method, origin and horizon, their summaries, how often the reserve range held, and what did not run |
+| `life_exposure.csv` | Only when life feeds are loaded: central and initial exposure in years, deaths, lapses, surrenders and other exits, and the exposure weighted by sum assured or fund value, per segment, line, product, calendar year, age, age band and policy year ([CV11](../spec/conventions/CV11-life-conventions.yaml)) |
 | `severity_*.csv`, `extreme_*.csv` | Claim size distributions fitted per segment and line, and the extreme-value fit of the tail with the extreme-value threshold beside the large-loss threshold of the run |
 
 The same inputs, settings and software always give the same run id and byte-identical outputs. Spreadsheets are read once and cached as parquet files in `.cache/`, keyed by their SHA-256; delete the folder to force a re-read.
@@ -152,9 +179,9 @@ The same inputs, settings and software always give the same run id and byte-iden
 
 | Folder | What it is | Run id |
 | --- | --- | --- |
-| [examples/demo](../examples/demo/) | A synthetic insurer, ten accident years 2016–2025 and about 2,600 claims in four lines; no thin-evidence warning. The one to try first. | `713ca5af937d4139` |
-| [examples/baseline](../examples/baseline/) | The same insurer at tiny size, four accident years 2022–2025, with a few faults injected on purpose | `2f208e5a0555408a` |
-| [examples/messy_headers](../examples/messy_headers/) | The baseline as real files arrive: headers renamed, misspelt or in Turkish, title rows above the header, dates as text, labels in Turkish, repeated rows and personal-data columns | `6e8aab673878c0cc` |
+| [examples/demo](../examples/demo/) | A synthetic insurer, ten accident years 2016–2025 and about 2,600 claims in four lines; no thin-evidence warning. The one to try first. | `c6d0ee3c598ec090` |
+| [examples/baseline](../examples/baseline/) | The same insurer at tiny size, four accident years 2022–2025, with a few faults injected on purpose | `779e22b6b4b6e3a3` |
+| [examples/messy_headers](../examples/messy_headers/) | The baseline as real files arrive: headers renamed, misspelt or in Turkish, title rows above the header, dates as text, labels in Turkish, repeated rows and personal-data columns | `4921edeee32f018d` |
 
 Each example folder has the six input files and a `report/` folder with the report and manifest of its run (the report as the platform wrote it, the manifest with its fingerprints). The messy example is the one to use for the mapping confirmation: `canary run examples/messy_headers` asks about every sheet. The data are synthetic, generated from a fixed seed by [synthetic/scenarios/](../synthetic/scenarios/); no personal or company data is anywhere in the repository.
 
