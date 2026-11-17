@@ -34,7 +34,9 @@ from actuarycanary.convert.views import (
 from actuarycanary.io.excel import RawTable, Workbook, read_workbooks, spreadsheets
 from actuarycanary.ledger.resolve import profile_in_use
 from actuarycanary.ledger.settings import LedgerSettings
-from actuarycanary.life.load import LIFE_FEEDS, drop_sex
+from actuarycanary.life.exposure import FILE_NAME as LIFE_EXPOSURE_NAME
+from actuarycanary.life.exposure import Exposure, exposure
+from actuarycanary.life.load import LIFE_EVENTS, LIFE_FEEDS, LIFE_IN_FORCE, drop_sex
 from actuarycanary.life.settings import LifeSettings
 from actuarycanary.life.tables import read_tables
 from actuarycanary.manifest.metadata import load_metadata
@@ -432,6 +434,18 @@ def _with_ceded_fields(inputs: MeasureInputs) -> MeasureInputs:
     if not changed:
         return inputs
     return replace(inputs, feeds={**inputs.feeds, "claim_valuations": filled})
+
+
+def _life_exposure(
+    checked: dict[str, CanonicalFeed], cut_off: date, settings: LifeSettings
+) -> Exposure | None:
+    """Exposure and decrements of the life feeds (CV11, record 0446), when life_in_force has
+    rows."""
+    in_force = checked.get(LIFE_IN_FORCE)
+    if in_force is None or in_force.frame.height == 0:
+        return None
+    events = checked.get(LIFE_EVENTS)
+    return exposure(in_force.frame, events.frame if events else None, cut_off, settings)
 
 
 def _settings_record(
@@ -1074,6 +1088,9 @@ def run(
     for name, text in lineage.files().items():
         outputs.append(write_output(out, name, text))
     outputs.append(write_output(out, MODULES_NAME, analysis_json(analysis, reserving)))
+    life = _life_exposure(checked, triangles.cut_off, settings.life)
+    if life is not None:  # only with life feeds: a run without them writes what it wrote
+        outputs.append(write_table(out, LIFE_EXPOSURE_NAME, life.cells))
     in_force = reserving.assumptions()
     for name, content in (
         (ASSUMPTIONS_NAME, assumptions_csv(in_force)),
@@ -1207,6 +1224,7 @@ def run(
                 expenses=expense_table_run,
                 reinsurance=reinsurance_run_used,
                 ledger=ledger_tables_run,
+                life=life,
             )
         )
     with language.using(settings.language):
@@ -1234,6 +1252,7 @@ def run(
         randomness=randomness,
         account_mapping=_account_mapping_record(account_use),
         reference_tables=reference.manifest_record() if reference.found else None,
+        life_exposure=life.manifest_record() if life is not None else None,
     )
     tables = tuple(t.recognition for t in loaded)
     return RunResult(

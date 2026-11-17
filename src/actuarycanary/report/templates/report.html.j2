@@ -231,6 +231,7 @@ th.tier { text-align: center; border-bottom: 2px solid var(--border); }
     <thead><tr><th>{{ tr("Concept") }}</th><th>{{ tr("Rows") }}</th><th>{{ tr("First date") }}</th><th>{{ tr("Last date") }}</th><th>{{ tr("Score") }}</th></tr></thead>
     <tbody>{% for c in b.coverage %}<tr><td>{{ c.concept }}{% if not c.loaded %} ({{ tr("not loaded") }}){% endif %}</td><td>{{ c.rows }}</td><td>{{ c.first }}</td><td>{{ c.last }}</td><td>{{ c.score }}</td></tr>{% endfor %}</tbody>
   </table></div>
+  {% for l in b.get("life", []) %}<p>{{ l.text }}</p>{% endfor %}
   <p class="footnote">{{ b.footnote }}</p>
   {% elif p.module == "M02" %}
   {{ figure(b.figure, tr("Written premium by line")) }}
