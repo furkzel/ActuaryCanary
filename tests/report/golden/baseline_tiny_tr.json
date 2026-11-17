@@ -337,7 +337,7 @@
   "rows": [
    {
     "label": "Çalıştırma kimliği",
-    "value": "647e87b0405b476c"
+    "value": "77baa3bd261c52f9"
    },
    {
     "label": "Değerleme tarihi",
@@ -3212,7 +3212,7 @@
     }
    }
   },
-  "recoveries-recovery_salvage": {
+  "recoveries-recovery_salvage-non_life": {
    "data": [
     {
      "colorscale": "ramp:paid",
@@ -3220,25 +3220,25 @@
      "showscale": false,
      "text": [
       [
-       "%0,1 · ödenen 13.451.077 tutarın 9.353 kadarı tahsil edildi",
-       "%0,1 · ödenen 16.177.984 tutarın 9.353 kadarı tahsil edildi",
-       "%0,1 · ödenen 18.585.809 tutarın 9.353 kadarı tahsil edildi",
-       "%0,0 · ödenen 21.985.035 tutarın 9.353 kadarı tahsil edildi"
+       "%0,1 · ödenen 9.469.925 tutarın 9.353 kadarı tahsil edildi",
+       "%0,1 · ödenen 11.636.506 tutarın 9.353 kadarı tahsil edildi",
+       "%0,1 · ödenen 14.044.332 tutarın 9.353 kadarı tahsil edildi",
+       "%0,1 · ödenen 17.443.557 tutarın 9.353 kadarı tahsil edildi"
       ],
       [
-       "%0,2 · ödenen 10.006.913 tutarın 20.114 kadarı tahsil edildi",
-       "%0,4 · ödenen 14.702.729 tutarın 59.040 kadarı tahsil edildi",
-       "%0,4 · ödenen 15.245.742 tutarın 59.040 kadarı tahsil edildi",
+       "%0,9 · ödenen 2.139.599 tutarın 20.114 kadarı tahsil edildi",
+       "%1,6 · ödenen 3.622.450 tutarın 59.040 kadarı tahsil edildi",
+       "%1,4 · ödenen 4.165.463 tutarın 59.040 kadarı tahsil edildi",
        ""
       ],
       [
-       "%0,1 · ödenen 21.837.480 tutarın 20.962 kadarı tahsil edildi",
-       "%0,1 · ödenen 32.462.908 tutarın 20.962 kadarı tahsil edildi",
+       "%0,5 · ödenen 4.113.150 tutarın 20.962 kadarı tahsil edildi",
+       "%0,4 · ödenen 5.309.088 tutarın 20.962 kadarı tahsil edildi",
        "",
        ""
       ],
       [
-       "%0,2 · ödenen 28.555.152 tutarın 54.614 kadarı tahsil edildi",
+       "%1,2 · ödenen 4.369.910 tutarın 54.614 kadarı tahsil edildi",
        "",
        "",
        ""
@@ -3261,25 +3261,25 @@
      "ygap": 2,
      "z": [
       [
-       0.000695,
-       0.000578,
-       0.000503,
-       0.000425
+       0.000988,
+       0.000804,
+       0.000666,
+       0.000536
       ],
       [
-       0.00201,
-       0.004016,
-       0.003873,
+       0.009401,
+       0.016298,
+       0.014174,
        null
       ],
       [
-       0.00096,
-       0.000646,
+       0.005096,
+       0.003948,
        null,
        null
       ],
       [
-       0.001913,
+       0.012498,
        null,
        null,
        null
@@ -3292,7 +3292,7 @@
     "separators": ",.",
     "showlegend": false,
     "title": {
-     "text": "Tahsilat / ödenen, Sovtaj"
+     "text": "Tahsilat / ödenen, Sovtaj, NON_LIFE"
     },
     "xaxis": {
      "title": {
@@ -3309,7 +3309,7 @@
     }
    }
   },
-  "recoveries-recovery_subrogation": {
+  "recoveries-recovery_subrogation-non_life": {
    "data": [
     {
      "colorscale": "ramp:paid",
@@ -3317,25 +3317,25 @@
      "showscale": false,
      "text": [
       [
-       "%0,0 · ödenen 13.451.077 tutarın 0 kadarı tahsil edildi",
-       "%0,5 · ödenen 16.177.984 tutarın 76.615 kadarı tahsil edildi",
-       "%0,4 · ödenen 18.585.809 tutarın 76.615 kadarı tahsil edildi",
-       "%0,3 · ödenen 21.985.035 tutarın 76.615 kadarı tahsil edildi"
+       "%0,0 · ödenen 9.469.925 tutarın 0 kadarı tahsil edildi",
+       "%0,7 · ödenen 11.636.506 tutarın 76.615 kadarı tahsil edildi",
+       "%0,5 · ödenen 14.044.332 tutarın 76.615 kadarı tahsil edildi",
+       "%0,4 · ödenen 17.443.557 tutarın 76.615 kadarı tahsil edildi"
       ],
       [
-       "%0,0 · ödenen 10.006.913 tutarın 0 kadarı tahsil edildi",
-       "%2,3 · ödenen 14.702.729 tutarın 343.994 kadarı tahsil edildi",
-       "%3,7 · ödenen 15.245.742 tutarın 560.764 kadarı tahsil edildi",
+       "%0,0 · ödenen 2.139.599 tutarın 0 kadarı tahsil edildi",
+       "%9,5 · ödenen 3.622.450 tutarın 343.994 kadarı tahsil edildi",
+       "%13,5 · ödenen 4.165.463 tutarın 560.764 kadarı tahsil edildi",
        ""
       ],
       [
-       "%0,0 · ödenen 21.837.480 tutarın 0 kadarı tahsil edildi",
-       "%0,5 · ödenen 32.462.908 tutarın 150.354 kadarı tahsil edildi",
+       "%0,0 · ödenen 4.113.150 tutarın 0 kadarı tahsil edildi",
+       "%2,8 · ödenen 5.309.088 tutarın 150.354 kadarı tahsil edildi",
        "",
        ""
       ],
       [
-       "%0,0 · ödenen 28.555.152 tutarın 0 kadarı tahsil edildi",
+       "%0,0 · ödenen 4.369.910 tutarın 0 kadarı tahsil edildi",
        "",
        "",
        ""
@@ -3359,19 +3359,19 @@
      "z": [
       [
        0.0,
-       0.004736,
-       0.004122,
-       0.003485
+       0.006584,
+       0.005455,
+       0.004392
       ],
       [
        0.0,
-       0.023397,
-       0.036782,
+       0.094962,
+       0.134622,
        null
       ],
       [
        0.0,
-       0.004632,
+       0.02832,
        null,
        null
       ],
@@ -3389,7 +3389,7 @@
     "separators": ",.",
     "showlegend": false,
     "title": {
-     "text": "Tahsilat / ödenen, Rücu"
+     "text": "Tahsilat / ödenen, Rücu, NON_LIFE"
     },
     "xaxis": {
      "title": {
@@ -3406,7 +3406,7 @@
     }
    }
   },
-  "recoveries-total": {
+  "recoveries-total-non_life": {
    "data": [
     {
      "colorscale": "ramp:paid",
@@ -3414,25 +3414,25 @@
      "showscale": false,
      "text": [
       [
-       "%0,1 · ödenen 13.451.077 tutarın 9.353 kadarı tahsil edildi",
-       "%0,5 · ödenen 16.177.984 tutarın 85.968 kadarı tahsil edildi",
-       "%0,5 · ödenen 18.585.809 tutarın 85.968 kadarı tahsil edildi",
-       "%0,4 · ödenen 21.985.035 tutarın 85.968 kadarı tahsil edildi"
+       "%0,1 · ödenen 9.469.925 tutarın 9.353 kadarı tahsil edildi",
+       "%0,7 · ödenen 11.636.506 tutarın 85.968 kadarı tahsil edildi",
+       "%0,6 · ödenen 14.044.332 tutarın 85.968 kadarı tahsil edildi",
+       "%0,5 · ödenen 17.443.557 tutarın 85.968 kadarı tahsil edildi"
       ],
       [
-       "%0,2 · ödenen 10.006.913 tutarın 20.114 kadarı tahsil edildi",
-       "%2,7 · ödenen 14.702.729 tutarın 403.035 kadarı tahsil edildi",
-       "%4,1 · ödenen 15.245.742 tutarın 619.804 kadarı tahsil edildi",
+       "%0,9 · ödenen 2.139.599 tutarın 20.114 kadarı tahsil edildi",
+       "%11,1 · ödenen 3.622.450 tutarın 403.035 kadarı tahsil edildi",
+       "%14,9 · ödenen 4.165.463 tutarın 619.804 kadarı tahsil edildi",
        ""
       ],
       [
-       "%0,1 · ödenen 21.837.480 tutarın 20.962 kadarı tahsil edildi",
-       "%0,5 · ödenen 32.462.908 tutarın 171.316 kadarı tahsil edildi",
+       "%0,5 · ödenen 4.113.150 tutarın 20.962 kadarı tahsil edildi",
+       "%3,2 · ödenen 5.309.088 tutarın 171.316 kadarı tahsil edildi",
        "",
        ""
       ],
       [
-       "%0,2 · ödenen 28.555.152 tutarın 54.614 kadarı tahsil edildi",
+       "%1,2 · ödenen 4.369.910 tutarın 54.614 kadarı tahsil edildi",
        "",
        "",
        ""
@@ -3455,25 +3455,25 @@
      "ygap": 2,
      "z": [
       [
-       0.000695,
-       0.005314,
-       0.004625,
-       0.00391
+       0.000988,
+       0.007388,
+       0.006121,
+       0.004928
       ],
       [
-       0.00201,
-       0.027412,
-       0.040654,
+       0.009401,
+       0.11126,
+       0.148796,
        null
       ],
       [
-       0.00096,
-       0.005277,
+       0.005096,
+       0.032268,
        null,
        null
       ],
       [
-       0.001913,
+       0.012498,
        null,
        null,
        null
@@ -3486,7 +3486,7 @@
     "separators": ",.",
     "showlegend": false,
     "title": {
-     "text": "Tahsilat / ödenen, Tüm tahsilatlar"
+     "text": "Tahsilat / ödenen, Tüm tahsilatlar, NON_LIFE"
     },
     "xaxis": {
      "title": {
@@ -4540,7 +4540,7 @@
    }
   }
  },
- "findings_spec": "RP01 v1.6.0",
+ "findings_spec": "RP01 v1.6.1",
  "further_findings": [
   {
    "banner": false,
@@ -4623,25 +4623,25 @@
   },
   {
    "banner": false,
-   "evidence": "RC04 v0.1.0, M07 v0.1.0",
+   "evidence": "RC04 v0.1.0, M07 v0.1.1",
    "files": [
     "recoveries.csv",
     "recovery_development.csv"
    ],
-   "key": "",
+   "key": "NON_LIFE",
    "rule": "KF35",
-   "scope": "run",
+   "scope": "segment",
    "section": "recoveries",
    "specs": [
     "RC04",
     "M07"
    ],
-   "text": "Bugüne kadarki rücu ve sovtaj tahsilatı 931.702 TRY; ödenen hasarların %0,9 kadarı (kaynak: hasar değerlemelerindeki bugüne kadarki alanlardan türetildi).",
+   "text": "NON_LIFE: bugüne kadarki rücu ve sovtaj tahsilatı 931.702 TRY; ödenen hasarların %3,0 kadarı (kaynak: hasar değerlemelerindeki bugüne kadarki alanlardan türetildi).",
    "title": "Bugüne kadarki rücu ve sovtaj"
   },
   {
    "banner": false,
-   "evidence": "EX04 v0.1.0, EX05 v0.1.0, M09 v0.1.0",
+   "evidence": "EX04 v0.1.0, EX05 v0.1.0, M09 v0.1.1",
    "files": [
     "measures.csv",
     "expenses_by_period.csv"
@@ -4805,9 +4805,9 @@
  "language": "tr",
  "lineage": {
   "format": 2,
-  "lines": 2188,
+  "lines": 2783,
   "measures": 36,
-  "rows_cited": 413153,
+  "rows_cited": 568620,
   "traced": [
    "AE01",
    "CL01",
@@ -4845,7 +4845,7 @@
    "RT01",
    "RT02"
   ],
-  "traced_values": 1200,
+  "traced_values": 1463,
   "untraced": [
    "DQ01"
   ]
@@ -5527,6 +5527,14 @@
      }
     ],
     "footnote": "DQ01 v1.0.0; satırlar elektronik tablolardan okunduğu gibidir; puanlar 100 üzerindendir.",
+    "scopes": {
+     "coverage": {
+      "label": "",
+      "level": "info",
+      "note": "",
+      "title": "Dosyaların kapsamı"
+     }
+    },
     "score": "99.9"
    },
    "module": "M01",
@@ -5619,7 +5627,21 @@
       "segment": "NON_LIFE",
       "unearned": "1.843.672"
      }
-    ]
+    ],
+    "scopes": {
+     "business": {
+      "label": "şirket düzeyinde kaydedilmiştir, tüm bölümler birlikte",
+      "level": "company",
+      "note": "Tüm bölümler birlikte; bölümlere ayrılmamıştır.",
+      "title": "İptal ve saklama"
+     },
+     "rows": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Branşa göre prim"
+     }
+    }
    },
    "module": "M02",
    "question": "Portföy ne kadar büyük ve nerede büyüyor ya da küçülüyor?",
@@ -5683,6 +5705,56 @@
       "settlement": "115"
      }
     ],
+    "scopes": {
+     "rows": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Branşa göre hasar"
+     },
+     "survival.coefficients": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Yaşam analizi katsayıları"
+     },
+     "survival.cohorts": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Bildirim yılı kohortları"
+     },
+     "survival.lines": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Branşa göre yaşam analizi"
+     },
+     "survival.logrank": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Log-rank testleri"
+     },
+     "survival.models": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Yaşam analizi modelleri"
+     },
+     "survival.proportional": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Orantılı tehlike testleri"
+     },
+     "survival.warnings": {
+      "label": "",
+      "level": "info",
+      "note": "",
+      "title": "Yaşam analizi uyarıları"
+     }
+    },
     "survival": {
      "coefficients": [
       {
@@ -6173,7 +6245,21 @@
        }
       ]
      }
-    ]
+    ],
+    "scopes": {
+     "expenses": {
+      "label": "şirket düzeyinde kaydedilmiştir, tüm bölümler birlikte",
+      "level": "company",
+      "note": "Tüm bölümler birlikte; gider sayfası bunları bölümlere ayırır.",
+      "title": "Gider ve komisyon oranları"
+     },
+     "lines": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Branş ve kaza yılına göre hasar prim oranları"
+     }
+    }
    },
    "module": "M05",
    "question": "Branş ve dönem bazında kâr ediyor muyuz?",
@@ -6403,6 +6489,26 @@
       "scored": "puanlanmadı"
      }
     ],
+    "scopes": {
+     "large.lines": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Branşa göre büyük hasarlar"
+     },
+     "rows": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Branşa göre anomali oranları"
+     },
+     "top": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "En yüksek anomali puanları"
+     }
+    },
     "top": [
      {
       "claim": "00000020",
@@ -6497,19 +6603,21 @@
     "compared": "0",
     "delays": [
      {
-      "line": "Tüm branşlar",
+      "line": "NON_LIFE · Tüm branşlar",
       "mean": "110",
       "median": "91",
       "n": "5",
       "p90": "165",
+      "segment": "NON_LIFE",
       "type": "Sovtaj"
      },
      {
-      "line": "Tüm branşlar",
+      "line": "NON_LIFE · Tüm branşlar",
       "mean": "234",
       "median": "228",
       "n": "10",
       "p90": "300",
+      "segment": "NON_LIFE",
       "type": "Rücu"
      },
      {
@@ -6518,6 +6626,7 @@
       "median": "91",
       "n": "5",
       "p90": "165",
+      "segment": "NON_LIFE",
       "type": "Sovtaj"
      },
      {
@@ -6526,6 +6635,7 @@
       "median": "228",
       "n": "8",
       "p90": "355",
+      "segment": "NON_LIFE",
       "type": "Rücu"
      },
      {
@@ -6534,33 +6644,65 @@
       "median": "181",
       "n": "2",
       "p90": "–",
+      "segment": "NON_LIFE",
       "type": "Rücu"
      }
     ],
     "differences": "0",
-    "figure_note": "Hasar dönemi ve gelişim yaşına göre birikimli tahsilat / birikimli ödenen, tüm branşlar birlikte, her tahsilat türü için bir grafik RC04 v0.1.0; ödenen üçgeninin hücreleri MT01 v1.0.0.",
+    "figure_note": "Kaza yılı ve gelişim yaşına göre kümülatif tahsilatın kümülatif ödenene oranı; bir bölümün branşları birlikte, her bölüm ve tahsilat türü için bir grafik RC04 v0.1.0; ödenen üçgenin hücreleri MT01 v1.0.0.",
     "figures": [
      {
-      "id": "recoveries-recovery_salvage",
-      "title": "Tahsilat / ödenen, Sovtaj"
+      "id": "recoveries-recovery_salvage-non_life",
+      "segment": "NON_LIFE",
+      "title": "Tahsilat / ödenen, Sovtaj, NON_LIFE"
      },
      {
-      "id": "recoveries-recovery_subrogation",
-      "title": "Tahsilat / ödenen, Rücu"
+      "id": "recoveries-recovery_subrogation-non_life",
+      "segment": "NON_LIFE",
+      "title": "Tahsilat / ödenen, Rücu, NON_LIFE"
      },
      {
-      "id": "recoveries-total",
-      "title": "Tahsilat / ödenen, Tüm tahsilatlar"
+      "id": "recoveries-total-non_life",
+      "segment": "NON_LIFE",
+      "title": "Tahsilat / ödenen, Tüm tahsilatlar, NON_LIFE"
      }
     ],
     "footnote": "TRY; hasar dönemi ve gelişim yaşına göre birikimli tahsilat / birikimli ödenen RC04 v0.1.0, rücu ve sovtaj oranları RC01 v1.0.0, RC02 v1.0.0, ilk ödemenin ay sonundan kayda kadar gün olarak süre RC03 v0.1.0. Tahsilatlar reasürans bazının dışındadır CV03 v1.1.0. Dosyalar: recoveries.csv, recovery_development.csv, recovery_reconciliation.csv.",
     "headline": [
      {
+      "before": "0",
+      "change": "0",
+      "last": "0",
+      "recovered": "0",
+      "segment": "LIFE",
+      "share": "%0,0",
+      "type": "Sovtaj"
+     },
+     {
+      "before": "0",
+      "change": "0",
+      "last": "0",
+      "recovered": "0",
+      "segment": "LIFE",
+      "share": "%0,0",
+      "type": "Rücu"
+     },
+     {
+      "before": "0",
+      "change": "0",
+      "last": "0",
+      "recovered": "0",
+      "segment": "LIFE",
+      "share": "%0,0",
+      "type": "Tüm tahsilatlar"
+     },
+     {
       "before": "59.888",
       "change": "−5.273",
       "last": "54.614",
       "recovered": "143.970",
-      "share": "%0,1",
+      "segment": "NON_LIFE",
+      "share": "%0,5",
       "type": "Sovtaj"
      },
      {
@@ -6568,7 +6710,8 @@
       "change": "+23.129",
       "last": "367.123",
       "recovered": "787.732",
-      "share": "%0,8",
+      "segment": "NON_LIFE",
+      "share": "%2,5",
       "type": "Rücu"
      },
      {
@@ -6576,7 +6719,8 @@
       "change": "+17.855",
       "last": "421.738",
       "recovered": "931.702",
-      "share": "%0,9",
+      "segment": "NON_LIFE",
+      "share": "%3,0",
       "type": "Tüm tahsilatlar"
      }
     ],
@@ -6733,13 +6877,45 @@
     "reconciled": false,
     "reconciliation": [],
     "reconciliation_note": "akışlar bugüne kadarki alanlardan türetildiği için mutabakat yapılacak başka bir kaynak yok",
+    "scopes": {
+     "delays": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "İlk ödemeden tahsilata gecikme"
+     },
+     "figures": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Bölüme göre tahsilat gelişimi"
+     },
+     "headline": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Bölüm ve türe göre tahsilat"
+     },
+     "lines": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Hasar dönemine göre tahsilat oranları"
+     },
+     "reconciliation": {
+      "label": "",
+      "level": "info",
+      "note": "",
+      "title": "Hareketler ile bugüne kadarki alanlar arasındaki farklar"
+     }
+    },
     "source": "hasar değerlemelerindeki bugüne kadarki alanlardan türetildi",
     "source_note": "derived from subrogation_to_date and salvage_to_date of claim valuations (no recoveries feed): one flow per claim, type and valuation month; other recoveries are not available"
    },
    "module": "M07",
    "question": "Rücu ve sovtaj ne kadar geri kazandırıyor ve ne zaman?",
    "reasons": [],
-   "spec": "M07 v0.1.0",
+   "spec": "M07 v0.1.1",
    "state": "çalıştı",
    "title": "Rücu ve sovtaj"
   },
@@ -6783,22 +6959,64 @@
     "footnote": "TRY. Kazanılmış prim üzerinden gider oranı EX02 v1.0.0 ve komisyon oranı EX01 v1.0.0; kesim tarihine kadarki son on iki ay, önceki on iki ayla karşılaştırılır; yürürlükteki poliçe başına yönetim maliyeti EX04 v0.1.0, işlem gören hasar başına hasar yönetim maliyeti EX05 v0.1.0, hasar yönetim gideri oranı EX03 v1.0.0. Gider satırı olmayan bir ay içeren dönem hesaplanmaz. Dosya: expenses_by_period.csv.",
     "headline": [
      {
-      "before": "%7,8",
-      "change": "+0,2 puan",
+      "before": "%7,0",
+      "change": "0,0 puan",
       "measure": "EX02 Gider oranı",
-      "now": "%8,0"
+      "now": "%7,0",
+      "segment": "LIFE"
      },
      {
-      "before": "%9,4",
-      "change": "+0,3 puan",
+      "before": "%8,0",
+      "change": "0,0 puan",
       "measure": "EX01 Komisyon oranı",
-      "now": "%9,8"
+      "now": "%8,0",
+      "segment": "LIFE"
+     },
+     {
+      "before": "%9,0",
+      "change": "0,0 puan",
+      "measure": "EX02 Gider oranı",
+      "now": "%9,1",
+      "segment": "NON_LIFE"
+     },
+     {
+      "before": "%11,6",
+      "change": "+0,1 puan",
+      "measure": "EX01 Komisyon oranı",
+      "now": "%11,7",
+      "segment": "NON_LIFE"
      }
     ],
     "notes": [
      "at prices of 2025-12-31 (CPI_TR)"
     ],
     "priced": true,
+    "scopes": {
+     "by_line": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Branşa göre oranlar"
+     },
+     "headline": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Bölüme göre oranlar"
+     },
+     "unallocated": {
+      "label": "şirket düzeyinde kaydedilmiştir, tüm bölümler birlikte",
+      "level": "company",
+      "note": "",
+      "title": "Branş belirtilmeden kaydedilen giderler"
+     },
+     "unit_costs": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Bölüme göre birim maliyetler"
+     }
+    },
     "unallocated": [
      {
       "amount": "52.958",
@@ -6912,39 +7130,75 @@
     "unit_basis": "BRÜT, RAPORLAMA, NOMİNAL",
     "unit_costs": [
      {
-      "handling": "%4,7",
+      "handling": "%4,0",
       "note": "EX05: dosyanın ilk dönemi: dönem başındaki açık hasar sayısı bilinmiyor",
       "per_claim": "–",
-      "per_policy": "2.990",
-      "period": "2022"
+      "per_policy": "29.107",
+      "period": "2022",
+      "segment": "LIFE"
      },
      {
-      "handling": "%5,2",
+      "handling": "%4,0",
+      "note": "EX05: 2023-02, 2023-03, 2023-04, 2023-05, 2023-06, 2023-08 için gider satırı yok: hesaplanmadı",
+      "per_claim": "–",
+      "per_policy": "39.671",
+      "period": "2023",
+      "segment": "LIFE"
+     },
+     {
+      "handling": "%4,0",
+      "note": "EX05: 2024-02, 2024-03, 2024-04, 2024-05, 2024-07 için gider satırı yok: hesaplanmadı",
+      "per_claim": "–",
+      "per_policy": "102.748",
+      "period": "2024",
+      "segment": "LIFE"
+     },
+     {
+      "handling": "%4,0",
+      "note": "EX05: 2025-01, 2025-05, 2025-06, 2025-07, 2025-10, 2025-12 için gider satırı yok: hesaplanmadı",
+      "per_claim": "–",
+      "per_policy": "92.687",
+      "period": "2025",
+      "segment": "LIFE"
+     },
+     {
+      "handling": "%4,9",
+      "note": "EX05: dosyanın ilk dönemi: dönem başındaki açık hasar sayısı bilinmiyor",
+      "per_claim": "–",
+      "per_policy": "1.686",
+      "period": "2022",
+      "segment": "NON_LIFE"
+     },
+     {
+      "handling": "%7,5",
       "note": "",
-      "per_claim": "11.002",
-      "per_policy": "4.542",
-      "period": "2023"
+      "per_claim": "6.592",
+      "per_policy": "2.755",
+      "period": "2023",
+      "segment": "NON_LIFE"
      },
      {
-      "handling": "%4,5",
-      "note": "",
-      "per_claim": "20.183",
-      "per_policy": "8.699",
-      "period": "2024"
+      "handling": "%5,7",
+      "note": "EX05: 2024-08 için gider satırı yok: hesaplanmadı",
+      "per_claim": "–",
+      "per_policy": "4.083",
+      "period": "2024",
+      "segment": "NON_LIFE"
      },
      {
-      "handling": "%4,8",
+      "handling": "%7,6",
       "note": "EX05: 2025-06 için gider satırı yok: hesaplanmadı",
       "per_claim": "–",
-      "per_policy": "10.743",
-      "period": "2025"
+      "per_policy": "6.044",
+      "period": "2025",
+      "segment": "NON_LIFE"
      }
     ]
    },
    "module": "M09",
    "question": "İşi yazmanın ve yönetmenin maliyeti nedir?",
    "reasons": [],
-   "spec": "M09 v0.1.0",
+   "spec": "M09 v0.1.1",
    "state": "çalıştı",
    "title": "Giderler"
   },
@@ -7009,6 +7263,44 @@
     ],
     "pseudo": null,
     "reason": "",
+    "scopes": {
+     "blocks": {
+      "label": "şirket düzeyinde kaydedilmiştir, tüm bölümler birlikte",
+      "level": "company",
+      "note": "Her branş için satırlar ve bölümleri toplayan bir Tüm branşlar satırı.",
+      "title": "Branşa göre ve tüm branşlar için belirsizlik"
+     },
+     "calibration": {
+      "label": "",
+      "level": "info",
+      "note": "",
+      "title": "Geriye dönük test kalibrasyonu"
+     },
+     "cash_flows": {
+      "label": "şirket düzeyinde kaydedilmiştir, tüm bölümler birlikte",
+      "level": "company",
+      "note": "Tüm branşlar birlikte.",
+      "title": "Tüm branşların beklenen nakit akışları"
+     },
+     "curve": {
+      "label": "",
+      "level": "info",
+      "note": "",
+      "title": "İskonto eğrisi"
+     },
+     "pseudo": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Branşa göre sözde rastgele çekilişler"
+     },
+     "tail_effects": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Branşa göre kuyruk etkisi"
+     }
+    },
     "statements": {
      "all_lines_total": false,
      "boot_estimator": "",
@@ -7179,13 +7471,13 @@
    },
    {
     "name": "measures.csv",
-    "sha256": "552abae221b1c847fb239456f710bbfbc635ca0279b3fbcfbc406d1811396c90",
-    "size": "831.138"
+    "sha256": "990513130cfe350db3b0dc738f316d1c352e669ba26e44a23eabaa866ace31a7",
+    "size": "950.685"
    },
    {
     "name": "lineage.csv",
-    "sha256": "e98eced6afdb818775a9043c5e64060f5d101cbc7333ff5cfe5a86d832a9a6a1",
-    "size": "344.063"
+    "sha256": "300c2f1301d0de578131c0ed1f5647d5f20f288b38b5937d665d979b279f02a7",
+    "size": "443.770"
    },
    {
     "name": "lineage_atoms.csv",
@@ -7194,8 +7486,8 @@
    },
    {
     "name": "modules.json",
-    "sha256": "d6115aeb1db4b6bf8a015a26513263a27b9cc022f628069650d4e989f0295f80",
-    "size": "32.574"
+    "sha256": "44631b4b8736bd9c745f803844a5ce2ce7bc95f805e6d319fad12cc71136c4b0",
+    "size": "37.083"
    },
    {
     "name": "assumptions.csv",
@@ -7447,7 +7739,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "647e87b0405b476c",
+  "run_id": "77baa3bd261c52f9",
   "settings": [
    {
     "name": "bases.currency",
@@ -8196,7 +8488,7 @@
    {
     "id": "M07",
     "title": "Rücu ve sovtaj",
-    "version": "0.1.0"
+    "version": "0.1.1"
    },
    {
     "id": "RC03",
@@ -8211,7 +8503,7 @@
    {
     "id": "M08",
     "title": "Reasürans",
-    "version": "0.2.0"
+    "version": "0.2.1"
    },
    {
     "id": "RI03",
@@ -8231,7 +8523,7 @@
    {
     "id": "M09",
     "title": "Giderler",
-    "version": "0.1.0"
+    "version": "0.1.1"
    },
    {
     "id": "EX04",
@@ -8346,7 +8638,7 @@
    {
     "id": "RP01",
     "title": "Temel bulgu kuralları",
-    "version": "1.6.0"
+    "version": "1.6.1"
    }
   ]
  },
@@ -10976,6 +11268,32 @@
    "MT14 tail factor fitting did not run for 8 of 8 triangles: too few factors above 1 to fit a tail",
    "MT15 separation did not run for 1 of 4 groups: separation needs claim counts per origin"
   ],
+  "scopes": {
+   "lines": {
+    "label": "",
+    "level": "segment",
+    "note": "",
+    "title": "Branşa göre rezerv"
+   },
+   "sensitivity": {
+    "label": "",
+    "level": "segment",
+    "note": "",
+    "title": "Branşa göre duyarlılık"
+   },
+   "summary": {
+    "label": "",
+    "level": "segment",
+    "note": "",
+    "title": "Branşa göre rezerv özeti"
+   },
+   "unpaid": {
+    "label": "",
+    "level": "segment",
+    "note": "",
+    "title": "Branşa göre ödenmemiş"
+   }
+  },
   "selection_measure": "incurred",
   "sensitivity": {
    "blocks": [
@@ -11348,6 +11666,74 @@
   ],
   "title": "Karşılık tahmini (gösterge)",
   "unpaid": []
+ },
+ "scopes": {
+  "assumptions": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Varsayımlar"
+  },
+  "bases": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Raporun bazları"
+  },
+  "cover": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Kapak"
+  },
+  "data_findings": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Veri bulguları"
+  },
+  "further_findings": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Diğer bulgular, her birinin kendi kapsamıyla"
+  },
+  "key_findings": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Temel bulgular, her birinin kendi kapsamıyla"
+  },
+  "lineage": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Köken"
+  },
+  "methods": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Yöntemler"
+  },
+  "not_run": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Çalışmayanlar"
+  },
+  "reproducibility": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Yeniden üretilebilirlik"
+  },
+  "tiles": {
+   "label": "",
+   "level": "segment",
+   "note": "",
+   "title": "Bölüme göre başlık kutuları"
+  }
  },
  "tiles": [
   {

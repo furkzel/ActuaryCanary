@@ -337,7 +337,7 @@
   "rows": [
    {
     "label": "Run id",
-    "value": "2f208e5a0555408a"
+    "value": "779e22b6b4b6e3a3"
    },
    {
     "label": "Valuation date",
@@ -3184,7 +3184,7 @@
     }
    }
   },
-  "recoveries-recovery_salvage": {
+  "recoveries-recovery_salvage-non_life": {
    "data": [
     {
      "colorscale": "ramp:paid",
@@ -3192,25 +3192,25 @@
      "showscale": false,
      "text": [
       [
-       "0.1% · recovered 9,353 of paid 13,451,077",
-       "0.1% · recovered 9,353 of paid 16,177,984",
-       "0.1% · recovered 9,353 of paid 18,585,809",
-       "0.0% · recovered 9,353 of paid 21,985,035"
+       "0.1% · recovered 9,353 of paid 9,469,925",
+       "0.1% · recovered 9,353 of paid 11,636,506",
+       "0.1% · recovered 9,353 of paid 14,044,332",
+       "0.1% · recovered 9,353 of paid 17,443,557"
       ],
       [
-       "0.2% · recovered 20,114 of paid 10,006,913",
-       "0.4% · recovered 59,040 of paid 14,702,729",
-       "0.4% · recovered 59,040 of paid 15,245,742",
+       "0.9% · recovered 20,114 of paid 2,139,599",
+       "1.6% · recovered 59,040 of paid 3,622,450",
+       "1.4% · recovered 59,040 of paid 4,165,463",
        ""
       ],
       [
-       "0.1% · recovered 20,962 of paid 21,837,480",
-       "0.1% · recovered 20,962 of paid 32,462,908",
+       "0.5% · recovered 20,962 of paid 4,113,150",
+       "0.4% · recovered 20,962 of paid 5,309,088",
        "",
        ""
       ],
       [
-       "0.2% · recovered 54,614 of paid 28,555,152",
+       "1.2% · recovered 54,614 of paid 4,369,910",
        "",
        "",
        ""
@@ -3233,25 +3233,25 @@
      "ygap": 2,
      "z": [
       [
-       0.000695,
-       0.000578,
-       0.000503,
-       0.000425
+       0.000988,
+       0.000804,
+       0.000666,
+       0.000536
       ],
       [
-       0.00201,
-       0.004016,
-       0.003873,
+       0.009401,
+       0.016298,
+       0.014174,
        null
       ],
       [
-       0.00096,
-       0.000646,
+       0.005096,
+       0.003948,
        null,
        null
       ],
       [
-       0.001913,
+       0.012498,
        null,
        null,
        null
@@ -3263,7 +3263,7 @@
     "height": 260,
     "showlegend": false,
     "title": {
-     "text": "Recoveries over paid, Salvage"
+     "text": "Recoveries over paid, Salvage, NON_LIFE"
     },
     "xaxis": {
      "title": {
@@ -3280,7 +3280,7 @@
     }
    }
   },
-  "recoveries-recovery_subrogation": {
+  "recoveries-recovery_subrogation-non_life": {
    "data": [
     {
      "colorscale": "ramp:paid",
@@ -3288,25 +3288,25 @@
      "showscale": false,
      "text": [
       [
-       "0.0% · recovered 0 of paid 13,451,077",
-       "0.5% · recovered 76,615 of paid 16,177,984",
-       "0.4% · recovered 76,615 of paid 18,585,809",
-       "0.3% · recovered 76,615 of paid 21,985,035"
+       "0.0% · recovered 0 of paid 9,469,925",
+       "0.7% · recovered 76,615 of paid 11,636,506",
+       "0.5% · recovered 76,615 of paid 14,044,332",
+       "0.4% · recovered 76,615 of paid 17,443,557"
       ],
       [
-       "0.0% · recovered 0 of paid 10,006,913",
-       "2.3% · recovered 343,994 of paid 14,702,729",
-       "3.7% · recovered 560,764 of paid 15,245,742",
+       "0.0% · recovered 0 of paid 2,139,599",
+       "9.5% · recovered 343,994 of paid 3,622,450",
+       "13.5% · recovered 560,764 of paid 4,165,463",
        ""
       ],
       [
-       "0.0% · recovered 0 of paid 21,837,480",
-       "0.5% · recovered 150,354 of paid 32,462,908",
+       "0.0% · recovered 0 of paid 4,113,150",
+       "2.8% · recovered 150,354 of paid 5,309,088",
        "",
        ""
       ],
       [
-       "0.0% · recovered 0 of paid 28,555,152",
+       "0.0% · recovered 0 of paid 4,369,910",
        "",
        "",
        ""
@@ -3330,19 +3330,19 @@
      "z": [
       [
        0.0,
-       0.004736,
-       0.004122,
-       0.003485
+       0.006584,
+       0.005455,
+       0.004392
       ],
       [
        0.0,
-       0.023397,
-       0.036782,
+       0.094962,
+       0.134622,
        null
       ],
       [
        0.0,
-       0.004632,
+       0.02832,
        null,
        null
       ],
@@ -3359,7 +3359,7 @@
     "height": 260,
     "showlegend": false,
     "title": {
-     "text": "Recoveries over paid, Subrogation"
+     "text": "Recoveries over paid, Subrogation, NON_LIFE"
     },
     "xaxis": {
      "title": {
@@ -3376,7 +3376,7 @@
     }
    }
   },
-  "recoveries-total": {
+  "recoveries-total-non_life": {
    "data": [
     {
      "colorscale": "ramp:paid",
@@ -3384,25 +3384,25 @@
      "showscale": false,
      "text": [
       [
-       "0.1% · recovered 9,353 of paid 13,451,077",
-       "0.5% · recovered 85,968 of paid 16,177,984",
-       "0.5% · recovered 85,968 of paid 18,585,809",
-       "0.4% · recovered 85,968 of paid 21,985,035"
+       "0.1% · recovered 9,353 of paid 9,469,925",
+       "0.7% · recovered 85,968 of paid 11,636,506",
+       "0.6% · recovered 85,968 of paid 14,044,332",
+       "0.5% · recovered 85,968 of paid 17,443,557"
       ],
       [
-       "0.2% · recovered 20,114 of paid 10,006,913",
-       "2.7% · recovered 403,035 of paid 14,702,729",
-       "4.1% · recovered 619,804 of paid 15,245,742",
+       "0.9% · recovered 20,114 of paid 2,139,599",
+       "11.1% · recovered 403,035 of paid 3,622,450",
+       "14.9% · recovered 619,804 of paid 4,165,463",
        ""
       ],
       [
-       "0.1% · recovered 20,962 of paid 21,837,480",
-       "0.5% · recovered 171,316 of paid 32,462,908",
+       "0.5% · recovered 20,962 of paid 4,113,150",
+       "3.2% · recovered 171,316 of paid 5,309,088",
        "",
        ""
       ],
       [
-       "0.2% · recovered 54,614 of paid 28,555,152",
+       "1.2% · recovered 54,614 of paid 4,369,910",
        "",
        "",
        ""
@@ -3425,25 +3425,25 @@
      "ygap": 2,
      "z": [
       [
-       0.000695,
-       0.005314,
-       0.004625,
-       0.00391
+       0.000988,
+       0.007388,
+       0.006121,
+       0.004928
       ],
       [
-       0.00201,
-       0.027412,
-       0.040654,
+       0.009401,
+       0.11126,
+       0.148796,
        null
       ],
       [
-       0.00096,
-       0.005277,
+       0.005096,
+       0.032268,
        null,
        null
       ],
       [
-       0.001913,
+       0.012498,
        null,
        null,
        null
@@ -3455,7 +3455,7 @@
     "height": 260,
     "showlegend": false,
     "title": {
-     "text": "Recoveries over paid, All recoveries"
+     "text": "Recoveries over paid, All recoveries, NON_LIFE"
     },
     "xaxis": {
      "title": {
@@ -4504,7 +4504,7 @@
    }
   }
  },
- "findings_spec": "RP01 v1.6.0",
+ "findings_spec": "RP01 v1.6.1",
  "further_findings": [
   {
    "banner": false,
@@ -4587,25 +4587,25 @@
   },
   {
    "banner": false,
-   "evidence": "RC04 v0.1.0, M07 v0.1.0",
+   "evidence": "RC04 v0.1.0, M07 v0.1.1",
    "files": [
     "recoveries.csv",
     "recovery_development.csv"
    ],
-   "key": "",
+   "key": "NON_LIFE",
    "rule": "KF35",
-   "scope": "run",
+   "scope": "segment",
    "section": "recoveries",
    "specs": [
     "RC04",
     "M07"
    ],
-   "text": "Recoveries to date are 931,702 TRY, 0.9% of claims paid (source: derived from the to-date fields of claim valuations).",
+   "text": "NON_LIFE: recoveries to date are 931,702 TRY, 3.0% of claims paid (source: derived from the to-date fields of claim valuations).",
    "title": "Recoveries to date"
   },
   {
    "banner": false,
-   "evidence": "EX04 v0.1.0, EX05 v0.1.0, M09 v0.1.0",
+   "evidence": "EX04 v0.1.0, EX05 v0.1.0, M09 v0.1.1",
    "files": [
     "measures.csv",
     "expenses_by_period.csv"
@@ -4769,9 +4769,9 @@
  "language": "en",
  "lineage": {
   "format": 2,
-  "lines": 2188,
+  "lines": 2783,
   "measures": 36,
-  "rows_cited": 413153,
+  "rows_cited": 568620,
   "traced": [
    "AE01",
    "CL01",
@@ -4809,7 +4809,7 @@
    "RT01",
    "RT02"
   ],
-  "traced_values": 1200,
+  "traced_values": 1463,
   "untraced": [
    "DQ01"
   ]
@@ -5491,6 +5491,14 @@
      }
     ],
     "footnote": "DQ01 v1.0.0; rows as read from the spreadsheets; scores out of 100.",
+    "scopes": {
+     "coverage": {
+      "label": "",
+      "level": "info",
+      "note": "",
+      "title": "Coverage of the files"
+     }
+    },
     "score": "99.9"
    },
    "module": "M01",
@@ -5583,7 +5591,21 @@
       "segment": "NON_LIFE",
       "unearned": "1,843,672"
      }
-    ]
+    ],
+    "scopes": {
+     "business": {
+      "label": "booked at company level, all segments",
+      "level": "company",
+      "note": "All segments together; not cut by segment.",
+      "title": "Cancellation and retention"
+     },
+     "rows": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Premium by line"
+     }
+    }
    },
    "module": "M02",
    "question": "How big is the book, and where does it grow or shrink?",
@@ -5647,6 +5669,56 @@
       "settlement": "115"
      }
     ],
+    "scopes": {
+     "rows": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Claims by line"
+     },
+     "survival.coefficients": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Survival coefficients"
+     },
+     "survival.cohorts": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Report-year cohorts"
+     },
+     "survival.lines": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Survival by line"
+     },
+     "survival.logrank": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Log-rank tests"
+     },
+     "survival.models": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Survival models"
+     },
+     "survival.proportional": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Proportional hazards tests"
+     },
+     "survival.warnings": {
+      "label": "",
+      "level": "info",
+      "note": "",
+      "title": "Survival warnings"
+     }
+    },
     "survival": {
      "coefficients": [
       {
@@ -6137,7 +6209,21 @@
        }
       ]
      }
-    ]
+    ],
+    "scopes": {
+     "expenses": {
+      "label": "booked at company level, all segments",
+      "level": "company",
+      "note": "All segments together; the page of expenses cuts them by segment.",
+      "title": "Expense and commission ratios"
+     },
+     "lines": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Loss ratios by line and origin"
+     }
+    }
    },
    "module": "M05",
    "question": "Do we make money, by line and period?",
@@ -6367,6 +6453,26 @@
       "scored": "not scored"
      }
     ],
+    "scopes": {
+     "large.lines": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Large losses by line"
+     },
+     "rows": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Anomaly rates by line"
+     },
+     "top": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Highest anomaly scores"
+     }
+    },
     "top": [
      {
       "claim": "00000020",
@@ -6461,19 +6567,21 @@
     "compared": "0",
     "delays": [
      {
-      "line": "All lines",
+      "line": "NON_LIFE · All lines",
       "mean": "110",
       "median": "91",
       "n": "5",
       "p90": "165",
+      "segment": "NON_LIFE",
       "type": "Salvage"
      },
      {
-      "line": "All lines",
+      "line": "NON_LIFE · All lines",
       "mean": "234",
       "median": "228",
       "n": "10",
       "p90": "300",
+      "segment": "NON_LIFE",
       "type": "Subrogation"
      },
      {
@@ -6482,6 +6590,7 @@
       "median": "91",
       "n": "5",
       "p90": "165",
+      "segment": "NON_LIFE",
       "type": "Salvage"
      },
      {
@@ -6490,6 +6599,7 @@
       "median": "228",
       "n": "8",
       "p90": "355",
+      "segment": "NON_LIFE",
       "type": "Subrogation"
      },
      {
@@ -6498,33 +6608,65 @@
       "median": "181",
       "n": "2",
       "p90": "–",
+      "segment": "NON_LIFE",
       "type": "Subrogation"
      }
     ],
     "differences": "0",
-    "figure_note": "Cumulative recoveries over cumulative paid by origin and development age, all lines together, one chart per recovery type RC04 v0.1.0; cells of the paid triangle MT01 v1.0.0.",
+    "figure_note": "Cumulative recoveries over cumulative paid by origin and development age, the lines of one segment together, one chart per segment and recovery type RC04 v0.1.0; cells of the paid triangle MT01 v1.0.0.",
     "figures": [
      {
-      "id": "recoveries-recovery_salvage",
-      "title": "Recoveries over paid, Salvage"
+      "id": "recoveries-recovery_salvage-non_life",
+      "segment": "NON_LIFE",
+      "title": "Recoveries over paid, Salvage, NON_LIFE"
      },
      {
-      "id": "recoveries-recovery_subrogation",
-      "title": "Recoveries over paid, Subrogation"
+      "id": "recoveries-recovery_subrogation-non_life",
+      "segment": "NON_LIFE",
+      "title": "Recoveries over paid, Subrogation, NON_LIFE"
      },
      {
-      "id": "recoveries-total",
-      "title": "Recoveries over paid, All recoveries"
+      "id": "recoveries-total-non_life",
+      "segment": "NON_LIFE",
+      "title": "Recoveries over paid, All recoveries, NON_LIFE"
      }
     ],
     "footnote": "TRY; cumulative recoveries over cumulative paid by origin and development age RC04 v0.1.0, subrogation and salvage ratios RC01 v1.0.0, RC02 v1.0.0, delay in days from the month end of the first payment to the booking RC03 v0.1.0. Recoveries are outside the reinsurance basis CV03 v1.1.0. Files: recoveries.csv, recovery_development.csv, recovery_reconciliation.csv.",
     "headline": [
      {
+      "before": "0",
+      "change": "0",
+      "last": "0",
+      "recovered": "0",
+      "segment": "LIFE",
+      "share": "0.0%",
+      "type": "Salvage"
+     },
+     {
+      "before": "0",
+      "change": "0",
+      "last": "0",
+      "recovered": "0",
+      "segment": "LIFE",
+      "share": "0.0%",
+      "type": "Subrogation"
+     },
+     {
+      "before": "0",
+      "change": "0",
+      "last": "0",
+      "recovered": "0",
+      "segment": "LIFE",
+      "share": "0.0%",
+      "type": "All recoveries"
+     },
+     {
       "before": "59,888",
       "change": "−5,273",
       "last": "54,614",
       "recovered": "143,970",
-      "share": "0.1%",
+      "segment": "NON_LIFE",
+      "share": "0.5%",
       "type": "Salvage"
      },
      {
@@ -6532,7 +6674,8 @@
       "change": "+23,129",
       "last": "367,123",
       "recovered": "787,732",
-      "share": "0.8%",
+      "segment": "NON_LIFE",
+      "share": "2.5%",
       "type": "Subrogation"
      },
      {
@@ -6540,7 +6683,8 @@
       "change": "+17,855",
       "last": "421,738",
       "recovered": "931,702",
-      "share": "0.9%",
+      "segment": "NON_LIFE",
+      "share": "3.0%",
       "type": "All recoveries"
      }
     ],
@@ -6697,13 +6841,45 @@
     "reconciled": false,
     "reconciliation": [],
     "reconciliation_note": "the flows are derived from the to-date fields, so there is nothing to reconcile them with",
+    "scopes": {
+     "delays": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Delay from first payment to recovery"
+     },
+     "figures": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Recovery development by segment"
+     },
+     "headline": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Recoveries by segment and type"
+     },
+     "lines": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Recovery ratios by origin"
+     },
+     "reconciliation": {
+      "label": "",
+      "level": "info",
+      "note": "",
+      "title": "Differences between transactions and to-date fields"
+     }
+    },
     "source": "derived from the to-date fields of claim valuations",
     "source_note": "derived from subrogation_to_date and salvage_to_date of claim valuations (no recoveries feed): one flow per claim, type and valuation month; other recoveries are not available"
    },
    "module": "M07",
    "question": "How much do subrogation and salvage bring back, and when?",
    "reasons": [],
-   "spec": "M07 v0.1.0",
+   "spec": "M07 v0.1.1",
    "state": "ran",
    "title": "Recoveries"
   },
@@ -6747,22 +6923,64 @@
     "footnote": "TRY. Expense ratio EX02 v1.0.0 and commission ratio EX01 v1.0.0 over earned premium, the last twelve months to the cut-off against the twelve before; administration cost per policy in force EX04 v0.1.0, claims-handling cost per claim handled EX05 v0.1.0, claims-handling ratio EX03 v1.0.0. A period with a month without expense rows is not computed. File: expenses_by_period.csv.",
     "headline": [
      {
-      "before": "7.8%",
-      "change": "+0.2 pts",
+      "before": "7.0%",
+      "change": "0.0 pts",
       "measure": "EX02 Expense ratio",
-      "now": "8.0%"
+      "now": "7.0%",
+      "segment": "LIFE"
      },
      {
-      "before": "9.4%",
-      "change": "+0.3 pts",
+      "before": "8.0%",
+      "change": "0.0 pts",
       "measure": "EX01 Commission ratio",
-      "now": "9.8%"
+      "now": "8.0%",
+      "segment": "LIFE"
+     },
+     {
+      "before": "9.0%",
+      "change": "0.0 pts",
+      "measure": "EX02 Expense ratio",
+      "now": "9.1%",
+      "segment": "NON_LIFE"
+     },
+     {
+      "before": "11.6%",
+      "change": "+0.1 pts",
+      "measure": "EX01 Commission ratio",
+      "now": "11.7%",
+      "segment": "NON_LIFE"
      }
     ],
     "notes": [
      "at prices of 2025-12-31 (CPI_TR)"
     ],
     "priced": true,
+    "scopes": {
+     "by_line": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Ratios by line"
+     },
+     "headline": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Ratios by segment"
+     },
+     "unallocated": {
+      "label": "booked at company level, all segments",
+      "level": "company",
+      "note": "",
+      "title": "Expenses booked without a line"
+     },
+     "unit_costs": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Unit costs by segment"
+     }
+    },
     "unallocated": [
      {
       "amount": "52,958",
@@ -6876,39 +7094,75 @@
     "unit_basis": "GROSS, REPORTING, NOMINAL",
     "unit_costs": [
      {
-      "handling": "4.7%",
+      "handling": "4.0%",
       "note": "EX05: first period of the file: the open count at its start is unknown",
       "per_claim": "–",
-      "per_policy": "2,990",
-      "period": "2022"
+      "per_policy": "29,107",
+      "period": "2022",
+      "segment": "LIFE"
      },
      {
-      "handling": "5.2%",
+      "handling": "4.0%",
+      "note": "EX05: no expense rows in 2023-02, 2023-03, 2023-04, 2023-05, 2023-06, 2023-08: not computed",
+      "per_claim": "–",
+      "per_policy": "39,671",
+      "period": "2023",
+      "segment": "LIFE"
+     },
+     {
+      "handling": "4.0%",
+      "note": "EX05: no expense rows in 2024-02, 2024-03, 2024-04, 2024-05, 2024-07: not computed",
+      "per_claim": "–",
+      "per_policy": "102,748",
+      "period": "2024",
+      "segment": "LIFE"
+     },
+     {
+      "handling": "4.0%",
+      "note": "EX05: no expense rows in 2025-01, 2025-05, 2025-06, 2025-07, 2025-10, 2025-12: not computed",
+      "per_claim": "–",
+      "per_policy": "92,687",
+      "period": "2025",
+      "segment": "LIFE"
+     },
+     {
+      "handling": "4.9%",
+      "note": "EX05: first period of the file: the open count at its start is unknown",
+      "per_claim": "–",
+      "per_policy": "1,686",
+      "period": "2022",
+      "segment": "NON_LIFE"
+     },
+     {
+      "handling": "7.5%",
       "note": "",
-      "per_claim": "11,002",
-      "per_policy": "4,542",
-      "period": "2023"
+      "per_claim": "6,592",
+      "per_policy": "2,755",
+      "period": "2023",
+      "segment": "NON_LIFE"
      },
      {
-      "handling": "4.5%",
-      "note": "",
-      "per_claim": "20,183",
-      "per_policy": "8,699",
-      "period": "2024"
+      "handling": "5.7%",
+      "note": "EX05: no expense rows in 2024-08: not computed",
+      "per_claim": "–",
+      "per_policy": "4,083",
+      "period": "2024",
+      "segment": "NON_LIFE"
      },
      {
-      "handling": "4.8%",
+      "handling": "7.6%",
       "note": "EX05: no expense rows in 2025-06: not computed",
       "per_claim": "–",
-      "per_policy": "10,743",
-      "period": "2025"
+      "per_policy": "6,044",
+      "period": "2025",
+      "segment": "NON_LIFE"
      }
     ]
    },
    "module": "M09",
    "question": "What does it cost to write and handle business?",
    "reasons": [],
-   "spec": "M09 v0.1.0",
+   "spec": "M09 v0.1.1",
    "state": "ran",
    "title": "Expenses"
   },
@@ -6973,6 +7227,44 @@
     ],
     "pseudo": null,
     "reason": "",
+    "scopes": {
+     "blocks": {
+      "label": "booked at company level, all segments",
+      "level": "company",
+      "note": "Rows per line and an All lines row that adds the segments.",
+      "title": "Uncertainty by line and for all lines"
+     },
+     "calibration": {
+      "label": "",
+      "level": "info",
+      "note": "",
+      "title": "Back-test calibration"
+     },
+     "cash_flows": {
+      "label": "booked at company level, all segments",
+      "level": "company",
+      "note": "All lines together.",
+      "title": "Expected cash flows of all lines"
+     },
+     "curve": {
+      "label": "",
+      "level": "info",
+      "note": "",
+      "title": "Discount curve"
+     },
+     "pseudo": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Pseudo-random draws by line"
+     },
+     "tail_effects": {
+      "label": "",
+      "level": "segment",
+      "note": "",
+      "title": "Tail effect by line"
+     }
+    },
     "statements": {
      "all_lines_total": false,
      "boot_estimator": "",
@@ -7143,13 +7435,13 @@
    },
    {
     "name": "measures.csv",
-    "sha256": "552abae221b1c847fb239456f710bbfbc635ca0279b3fbcfbc406d1811396c90",
-    "size": "831,138"
+    "sha256": "990513130cfe350db3b0dc738f316d1c352e669ba26e44a23eabaa866ace31a7",
+    "size": "950,685"
    },
    {
     "name": "lineage.csv",
-    "sha256": "e98eced6afdb818775a9043c5e64060f5d101cbc7333ff5cfe5a86d832a9a6a1",
-    "size": "344,063"
+    "sha256": "300c2f1301d0de578131c0ed1f5647d5f20f288b38b5937d665d979b279f02a7",
+    "size": "443,770"
    },
    {
     "name": "lineage_atoms.csv",
@@ -7158,8 +7450,8 @@
    },
    {
     "name": "modules.json",
-    "sha256": "d6115aeb1db4b6bf8a015a26513263a27b9cc022f628069650d4e989f0295f80",
-    "size": "32,574"
+    "sha256": "44631b4b8736bd9c745f803844a5ce2ce7bc95f805e6d319fad12cc71136c4b0",
+    "size": "37,083"
    },
    {
     "name": "assumptions.csv",
@@ -7411,7 +7703,7 @@
     "seed": "1"
    }
   ],
-  "run_id": "2f208e5a0555408a",
+  "run_id": "779e22b6b4b6e3a3",
   "settings": [
    {
     "name": "bases.currency",
@@ -8160,7 +8452,7 @@
    {
     "id": "M07",
     "title": "Recoveries",
-    "version": "0.1.0"
+    "version": "0.1.1"
    },
    {
     "id": "RC03",
@@ -8175,7 +8467,7 @@
    {
     "id": "M08",
     "title": "Reinsurance",
-    "version": "0.2.0"
+    "version": "0.2.1"
    },
    {
     "id": "RI03",
@@ -8195,7 +8487,7 @@
    {
     "id": "M09",
     "title": "Expenses",
-    "version": "0.1.0"
+    "version": "0.1.1"
    },
    {
     "id": "EX04",
@@ -8310,7 +8602,7 @@
    {
     "id": "RP01",
     "title": "Key finding rules",
-    "version": "1.6.0"
+    "version": "1.6.1"
    }
   ]
  },
@@ -10940,6 +11232,32 @@
    "MT14 tail factor fitting did not run for 8 of 8 triangles: too few factors above 1 to fit a tail",
    "MT15 separation did not run for 1 of 4 groups: separation needs claim counts per origin"
   ],
+  "scopes": {
+   "lines": {
+    "label": "",
+    "level": "segment",
+    "note": "",
+    "title": "Reserving by line"
+   },
+   "sensitivity": {
+    "label": "",
+    "level": "segment",
+    "note": "",
+    "title": "Sensitivity by line"
+   },
+   "summary": {
+    "label": "",
+    "level": "segment",
+    "note": "",
+    "title": "Reserving summary by line"
+   },
+   "unpaid": {
+    "label": "",
+    "level": "segment",
+    "note": "",
+    "title": "Unpaid by line"
+   }
+  },
   "selection_measure": "incurred",
   "sensitivity": {
    "blocks": [
@@ -11312,6 +11630,74 @@
   ],
   "title": "Reserving (indicative)",
   "unpaid": []
+ },
+ "scopes": {
+  "assumptions": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Assumptions"
+  },
+  "bases": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Bases of the report"
+  },
+  "cover": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Cover"
+  },
+  "data_findings": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Data findings"
+  },
+  "further_findings": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Further findings, each with its own scope"
+  },
+  "key_findings": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Key findings, each with its own scope"
+  },
+  "lineage": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Lineage"
+  },
+  "methods": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Methods"
+  },
+  "not_run": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "What did not run"
+  },
+  "reproducibility": {
+   "label": "",
+   "level": "info",
+   "note": "",
+   "title": "Reproducibility"
+  },
+  "tiles": {
+   "label": "",
+   "level": "segment",
+   "note": "",
+   "title": "Headline tiles by segment"
+  }
  },
  "tiles": [
   {
