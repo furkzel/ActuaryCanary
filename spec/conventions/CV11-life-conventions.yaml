@@ -3,7 +3,7 @@ version: 0.1.0
 title_en: Life and pension study conventions
 title_tr: Hayat ve emeklilik deneyim çalışması konvansiyonları
 status: draft
-implemented: false
+implemented: true
 definition: >-
   How ages are defined and moved forward without birth dates, how exposure to risk is
   counted (central and initial), how study cells are cut by calendar year or policy year,
@@ -116,3 +116,7 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint sections 4.4 and 9.2 (P20).
+  - version: 0.1.0
+    date: 2026-11-17
+    change: >-
+      implemented before owner review (L1a, records 0441 and 0445 to 0447); status stays draft.

@@ -34,6 +34,8 @@ from actuarycanary.convert.views import (
 from actuarycanary.io.excel import RawTable, Workbook, read_workbooks, spreadsheets
 from actuarycanary.ledger.resolve import profile_in_use
 from actuarycanary.ledger.settings import LedgerSettings
+from actuarycanary.life.load import LIFE_FEEDS, drop_sex
+from actuarycanary.life.settings import LifeSettings
 from actuarycanary.manifest.metadata import load_metadata
 from actuarycanary.manifest.run import (
     InputRecord,
@@ -154,6 +156,7 @@ CHECKED_CONCEPTS = (
     "reinsurance_transactions",
     "recoveries",
     "ledger",
+    *LIFE_FEEDS,
 )
 # Specifications whose rules this run applies; recorded with their versions.
 SPECS_USED = (
@@ -237,6 +240,8 @@ class RunSettings(BaseModel):
     reinsurance: ReinsuranceSettings = Field(default_factory=ReinsuranceSettings)
     # M10: the materiality of a gap between the platform and the books (CV12, record 0603)
     ledger: LedgerSettings = Field(default_factory=LedgerSettings)
+    # the life studies: the defaults of CV11 (record 0441)
+    life: LifeSettings = Field(default_factory=LifeSettings)
 
     @field_validator("currency_view")
     @classmethod
@@ -377,7 +382,10 @@ def _input_records(
     return records
 
 
-def _mapping_record(rec: TableRecognition, values: list[ValueMapping]) -> dict[str, Any]:
+def _mapping_record(
+    rec: TableRecognition, values: list[ValueMapping], dropped: tuple[str, ...] = ()
+) -> dict[str, Any]:
+    """`dropped` are mapped columns dropped on load all the same (sex of a life feed, CV11)."""
     return {
         "file": rec.file,
         "sheet": rec.sheet,
@@ -392,10 +400,12 @@ def _mapping_record(rec: TableRecognition, values: list[ValueMapping]) -> dict[s
             if rec.concept == "claim_valuations"
             else {}
         ),
-        "columns": [[m.source, m.field] for m in rec.mappings if m.used],
-        "layers": [str(m.layer) for m in rec.mappings if m.used],
+        "columns": [
+            [m.source, m.field] for m in rec.mappings if m.used and m.source not in dropped
+        ],
+        "layers": [str(m.layer) for m in rec.mappings if m.used and m.source not in dropped],
         "columns_not_used": [m.source for m in rec.mappings if not m.used and not m.personal],
-        "personal_data_dropped": [m.source for m in rec.mappings if m.personal],
+        "personal_data_dropped": [m.source for m in rec.mappings if m.personal] + list(dropped),
         "unmapped_labels": [
             {"field": v.field, "label": label, "rows": rows}
             for v in values
@@ -782,9 +792,14 @@ def run(
     for concept in CHECKED_CONCEPTS:
         if concept not in by_concept or concept in feeds:
             continue
-        parts = [
-            canonical_table(i.table, i.recognition, dictionary)[0] for i in by_concept[concept]
-        ]
+        parts = []
+        for item in by_concept[concept]:
+            raw = canonical_table(item.table, item.recognition, dictionary)[0]
+            if concept in LIFE_FEEDS:
+                # birth dates are dropped by recognition; sex unless the user asks (record 0441)
+                raw, dropped = drop_sex(raw, item.recognition, settings.life.use_sex)
+                mappings.append(_mapping_record(item.recognition, [], dropped))
+            parts.append(raw)
         combined = _combined(parts)
         try:
             checked[concept] = canonicalise(combined, specs.data[concept])

@@ -16,6 +16,8 @@ from actuarycanary.spec.models import (
     MeasureSpec,
     MethodSpec,
     ModuleSpec,
+    PlannedColumnAliasSpec,
+    PlannedValueAliasSpec,
     SpecBase,
     ValueAliasSpec,
 )
@@ -38,8 +40,8 @@ ALIAS_MODELS: dict[str, type[SpecBase]] = {
 # Aliases of concepts planned for a later version (AL03, AL04); optional, merged into AL01 and
 # AL02 when a concept is built, so that AL01 and AL02 and the run id do not move before.
 PLANNED_ALIAS_MODELS: dict[str, type[SpecBase]] = {
-    "columns-planned.yaml": ColumnAliasSpec,
-    "values-planned.yaml": ValueAliasSpec,
+    "columns-planned.yaml": PlannedColumnAliasSpec,
+    "values-planned.yaml": PlannedValueAliasSpec,
 }
 # Report specifications: one file per kind of rule, named by what it holds.
 REPORT_MODELS: dict[str, type[SpecBase]] = {"findings.yaml": FindingRulesSpec}

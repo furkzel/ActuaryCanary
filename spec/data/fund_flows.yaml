@@ -3,7 +3,7 @@ version: 0.1.0
 title_en: Contributions and fund flows
 title_tr: Katkı payları ve fon hareketleri
 status: draft
-implemented: false
+implemented: true
 definition: >-
   Money moving into and out of pension and savings contracts: member, employer and state
   contributions, fees, benefit payments, transfers between companies and switches between
@@ -122,3 +122,7 @@ change_log:
   - version: 0.1.0
     date: 2026-10-23
     change: First draft from blueprint section 4.4 (P20).
+  - version: 0.1.0
+    date: 2026-11-17
+    change: >-
+      implemented before owner review (L1a, records 0440 to 0442); status stays draft.
