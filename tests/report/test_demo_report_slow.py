@@ -106,3 +106,18 @@ def test_a_switch_of_the_value_basis_takes_less_than_five_seconds(
     values = [float(x) for x in times.group(1).split(",")]
     print(f"switch times (ms): {values}")
     assert len(values) == 6 and max(values) < MAX_SWITCH_MS
+
+
+def test_every_table_of_the_demo_states_its_scope(demo: RunResult) -> None:
+    """The demo has two segments and runs M07 to M10 and M12: the guard of record 0815 on the
+    whole model, and no recovery, reinsurance or expense figure over all segments."""
+    from tests.report.scope_guard import check_model
+
+    model = demo.report_data
+    assert check_model(model) == []
+    pages = {p["module"]: p["body"] for p in model["pages"]}
+    assert {"M07", "M08", "M09", "M10"} <= set(pages)
+    for module, keys in (("M07", ("headline", "delays")), ("M08", ("shares", "years", "origins"))):
+        for key in keys:
+            assert {r["segment"] for r in pages[module][key]} <= {"LIFE", "NON_LIFE"}, key
+    assert {r["segment"] for r in pages["M09"]["headline"]} == {"LIFE", "NON_LIFE"}
