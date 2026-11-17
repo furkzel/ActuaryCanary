@@ -1,5 +1,5 @@
 id: RP01
-version: 1.6.0
+version: 1.6.1
 title_en: Key finding rules
 title_tr: Temel bulgu kuralları
 status: draft
@@ -583,16 +583,16 @@ rules:
       specs: [RS04, CV10]
   - id: KF35
     title: Recoveries to date
-    scope: run
+    scope: segment
     priority: 17
     condition: recovered_to_date > 0
     template: >-
-      Recoveries to date are {recovered_to_date} {currency}, {recovery_share} of claims paid
-      (source: {recovery_source}).
+      {segment}: recoveries to date are {recovered_to_date} {currency}, {recovery_share} of
+      claims paid (source: {recovery_source}).
     title_tr: Bugüne kadarki rücu ve sovtaj
     template_tr: >-
-      Bugüne kadarki rücu ve sovtaj tahsilatı {recovered_to_date} {currency}; ödenen hasarların
-      {recovery_share} kadarı (kaynak: {recovery_source}).
+      {segment}: bugüne kadarki rücu ve sovtaj tahsilatı {recovered_to_date} {currency};
+      ödenen hasarların {recovery_share} kadarı (kaynak: {recovery_source}).
     evidence:
       section: recoveries
       files: [recoveries.csv, recovery_development.csv]
@@ -617,16 +617,17 @@ rules:
       specs: [recoveries, M07]
   - id: KF37
     title: Weaker recovery in the latest origin
-    scope: run
+    scope: segment
     priority: 19
     condition: recovery_ratio_drop >= recovery_drop_limit
     template: >-
-      At {recovery_first_age} months of development the origin {recovery_latest_origin} has
-      recovered {recovery_ratio_latest} of paid, against {recovery_ratio_earlier} for the
-      earlier origins at the same age: an early sign of weaker recovery, on few recoveries.
+      {segment}: at {recovery_first_age} months of development the origin
+      {recovery_latest_origin} has recovered {recovery_ratio_latest} of paid, against
+      {recovery_ratio_earlier} for the earlier origins at the same age: an early sign of weaker
+      recovery, on few recoveries.
     title_tr: Son hasar döneminde daha zayıf tahsilat
     template_tr: >-
-      {recovery_first_age} aylık gelişimde {recovery_latest_origin} dönemi ödenenin
+      {segment}: {recovery_first_age} aylık gelişimde {recovery_latest_origin} dönemi ödenenin
       {recovery_ratio_latest} kadarını geri kazandı; önceki dönemlerde aynı yaşta bu oran
       {recovery_ratio_earlier} idi: az sayıda tahsilata dayanan, daha zayıf tahsilatın erken bir
       işareti.
@@ -636,15 +637,15 @@ rules:
       specs: [RC04, M07]
   - id: KF38
     title: Expense ratio moved
-    scope: run
+    scope: segment
     priority: 20
     condition: expense_ratio_change_size >= expense_ratio_change_limit
     template: >-
-      The expense ratio of the last twelve months is {expense_ratio_12m}, against
+      {segment}: the expense ratio of the last twelve months is {expense_ratio_12m}, against
       {expense_ratio_previous} in the twelve months before.
     title_tr: Gider oranı değişti
     template_tr: >-
-      Son on iki ayın gider oranı {expense_ratio_12m}; önceki on iki ayda
+      {segment}: son on iki ayın gider oranı {expense_ratio_12m}; önceki on iki ayda
       {expense_ratio_previous} idi.
     evidence:
       section: expenses
@@ -652,15 +653,15 @@ rules:
       specs: [EX02, M09]
   - id: KF39
     title: Commission ratio moved
-    scope: run
+    scope: segment
     priority: 21
     condition: commission_ratio_change_size >= expense_ratio_change_limit
     template: >-
-      The commission ratio of the last twelve months is {commission_ratio_12m}, against
-      {commission_ratio_previous} in the twelve months before.
+      {segment}: the commission ratio of the last twelve months is {commission_ratio_12m},
+      against {commission_ratio_previous} in the twelve months before.
     title_tr: Komisyon oranı değişti
     template_tr: >-
-      Son on iki ayın komisyon oranı {commission_ratio_12m}; önceki on iki ayda
+      {segment}: son on iki ayın komisyon oranı {commission_ratio_12m}; önceki on iki ayda
       {commission_ratio_previous} idi.
     evidence:
       section: expenses
@@ -941,3 +942,13 @@ change_log:
       account-mapping profile maps is at least ledger_unmapped_share_limit (new setting, 0.05,
       the upper end of the typical range of FN02), KF49 the profile in use is only proposed.
       English and Turkish. Implemented before owner review; draft.
+  - version: 1.6.1
+    date: 2026-11-17
+    change: >-
+      Four rules were run-scope but stated a figure added over all segments (C1, record 0815):
+      KF35 recoveries to date, KF37 weaker recovery in the latest origin, KF38 expense ratio
+      moved and KF39 commission ratio moved are now segment-scope, one sentence per segment
+      that starts with its name; their conditions and facts are the same facts cut by segment.
+      KF36, KF40, KF41 and KF44 to KF46 stay run-scope: they count rows, treaty years or
+      periods, or state the share of expenses booked without a line, which is booked at company
+      level. English and Turkish. Implemented before owner review; draft.
